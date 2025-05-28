@@ -59,3 +59,24 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Spotify Integration
+
+This application includes a Spotify integration that allows you to control your music playback. To use this feature, you need to:
+
+1. Create a Spotify Developer account at [https://developer.spotify.com/dashboard/](https://developer.spotify.com/dashboard/)
+2. Create a new application in the Spotify Developer Dashboard
+3. Add `http://localhost:8000/spotify/callback` to the Redirect URIs in your Spotify application settings
+4. Add the following environment variables to your `.env` file:
+
+```
+SPOTIFY_CLIENT_ID=your_client_id
+SPOTIFY_CLIENT_SECRET=your_client_secret
+SPOTIFY_REDIRECT_URI=http://localhost:8000/spotify/callback
+```
+
+5. Visit the Spotify page in the application to connect your Spotify account and start controlling your music
+
+### Known Limitations
+
+- **Volume Control**: Some Spotify devices do not support volume control through the API. If you encounter an error when trying to adjust the volume, you may need to control the volume directly on the device.
