@@ -37,6 +37,11 @@ class SpotifyService
             'user-modify-playback-state',
             'user-read-playback-state',
             'user-read-currently-playing',
+            'user-library-read',
+            'user-library-modify',
+            'user-read-recently-played',
+            'playlist-read-private',
+            'playlist-read-collaborative',
         ];
 
         $query = http_build_query([
@@ -161,11 +166,24 @@ class SpotifyService
     /**
      * Start or resume playback
      *
+     * @param string|null $uri URI of the track, album, or playlist to play
      * @return array
      */
-    public function play()
+    public function play($uri = null)
     {
-        return $this->makeRequest('PUT', '/me/player/play');
+        $options = [];
+
+        if ($uri) {
+            if (strpos($uri, 'spotify:track:') === 0) {
+                // If it's a track URI, use uris array with a single item
+                $options['json'] = ['uris' => [$uri]];
+            } else {
+                // If it's an album or playlist URI, use context_uri
+                $options['json'] = ['context_uri' => $uri];
+            }
+        }
+
+        return $this->makeRequest('PUT', '/me/player/play', $options);
     }
 
     /**
@@ -208,6 +226,180 @@ class SpotifyService
     {
         return $this->makeRequest('PUT', '/me/player/volume', [
             'query' => ['volume_percent' => $volumePercent]
+        ]);
+    }
+
+    /**
+     * Seek to position in currently playing track
+     *
+     * @param int $positionMs
+     * @return array
+     */
+    public function seekToPosition($positionMs)
+    {
+        return $this->makeRequest('PUT', '/me/player/seek', [
+            'query' => ['position_ms' => $positionMs]
+        ]);
+    }
+
+    /**
+     * Get the next track in the queue
+     *
+     * @return array
+     */
+    public function getNextTrack()
+    {
+        $queue = $this->makeRequest('GET', '/me/player/queue');
+
+        if (isset($queue['queue']) && !empty($queue['queue'])) {
+            return ['next_track' => $queue['queue'][0]];
+        }
+
+        return ['next_track' => null];
+    }
+
+    /**
+     * Get the user's saved tracks (liked songs)
+     *
+     * @param int $limit
+     * @return array
+     */
+    public function getSavedTracks($limit = 50)
+    {
+        $response = $this->makeRequest('GET', '/me/tracks', [
+            'query' => [
+                'limit' => $limit
+            ]
+        ]);
+
+        if (!isset($response['items']) || empty($response['items'])) {
+            return [];
+        }
+
+        return $response['items'];
+    }
+
+    /**
+     * Get the user's library playlists
+     *
+     * @param int $limit
+     * @param bool $includeLikedSongs
+     * @return array
+     */
+    public function getUserPlaylists($limit = 20, $includeLikedSongs = true)
+    {
+        // Get the user's playlists directly from the API
+        $response = $this->makeRequest('GET', '/me/playlists', [
+            'query' => [
+                'limit' => $limit
+            ]
+        ]);
+
+        $playlists = [];
+
+        if (isset($response['items']) && !empty($response['items'])) {
+            $playlists = $response['items'];
+        }
+
+        // Include liked songs as a special playlist if requested
+        if ($includeLikedSongs) {
+            // Get a sample of liked songs to use as a preview
+            $savedTracks = $this->getSavedTracks(5);
+
+            if (!empty($savedTracks)) {
+                // Create a special playlist for liked songs
+                $likedSongsPlaylist = [
+                    'id' => 'liked-songs',
+                    'name' => 'Liked Songs',
+                    'uri' => 'spotify:user:liked-songs',
+                    'type' => 'playlist',
+                    'images' => [
+                        [
+                            'url' => 'https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png',
+                            'height' => 300,
+                            'width' => 300
+                        ]
+                    ],
+                    'owner' => [
+                        'display_name' => 'You'
+                    ],
+                    'tracks' => [
+                        'total' => count($savedTracks)
+                    ]
+                ];
+
+                // Add the liked songs playlist to the beginning of the array
+                array_unshift($playlists, $likedSongsPlaylist);
+            }
+        }
+
+        return ['playlists' => $playlists];
+    }
+
+    /**
+     * Get the user's recently played playlists/albums
+     *
+     * @param int $limit
+     * @return array
+     */
+
+    /**
+     * Start playback with shuffle mode enabled for a playlist
+     *
+     * @param string $playlistUri
+     * @return array
+     */
+    public function shufflePlayPlaylist($playlistUri)
+    {
+        // First enable shuffle mode
+        $shuffleResult = $this->makeRequest('PUT', '/me/player/shuffle', [
+            'query' => ['state' => 'true']
+        ]);
+
+        if (isset($shuffleResult['error'])) {
+            return $shuffleResult;
+        }
+
+        // Then start playing the playlist
+        return $this->play($playlistUri);
+    }
+
+    /**
+     * Check if tracks are saved in the user's library
+     *
+     * @param array $ids
+     * @return array
+     */
+    public function checkSavedTracks($ids)
+    {
+        return $this->makeRequest('GET', '/me/tracks/contains', [
+            'query' => ['ids' => implode(',', $ids)]
+        ]);
+    }
+
+    /**
+     * Save tracks to the user's library
+     *
+     * @param array $ids
+     * @return array
+     */
+    public function saveTracks($ids)
+    {
+        return $this->makeRequest('PUT', '/me/tracks', [
+            'json' => ['ids' => $ids]
+        ]);
+    }
+
+    /**
+     * Remove tracks from the user's library
+     *
+     * @param array $ids
+     * @return array
+     */
+    public function removeTracks($ids)
+    {
+        return $this->makeRequest('DELETE', '/me/tracks', [
+            'json' => ['ids' => $ids]
         ]);
     }
 
