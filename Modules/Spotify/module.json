@@ -1,0 +1,11 @@
+{
+    "name": "Spotify",
+    "alias": "spotify",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Spotify\\Providers\\SpotifyServiceProvider"
+    ],
+    "files": []
+}

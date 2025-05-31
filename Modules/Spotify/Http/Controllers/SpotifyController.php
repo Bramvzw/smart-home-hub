@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\Spotify\Http\Controllers;
 
-use App\Services\SpotifyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Routing\Controller;
+use Modules\Spotify\Services\SpotifyService;
 
 class SpotifyController extends Controller
 {
@@ -29,7 +30,7 @@ class SpotifyController extends Controller
             $playbackState = $this->spotifyService->getCurrentPlayback();
         }
 
-        return view('spotify.controls', [
+        return view('spotify::index', [
             'isConnected' => $isConnected,
             'playbackState' => $playbackState,
             'authUrl' => $this->spotifyService->getAuthorizationUrl(),
@@ -47,18 +48,18 @@ class SpotifyController extends Controller
         $code = $request->query('code');
 
         if (!$code) {
-            return redirect()->route('spotify.controls')
+            return redirect()->route('spotify.index')
                 ->with('error', 'Authorization failed: No code provided');
         }
 
         $response = $this->spotifyService->getAccessToken($code);
 
         if (isset($response['error'])) {
-            return redirect()->route('spotify.controls')
+            return redirect()->route('spotify.index')
                 ->with('error', 'Authorization failed: ' . $response['error']);
         }
 
-        return redirect()->route('spotify.controls')
+        return redirect()->route('spotify.index')
             ->with('success', 'Successfully connected to Spotify');
     }
 

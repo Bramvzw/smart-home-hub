@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace Modules\Spotify\Services;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
