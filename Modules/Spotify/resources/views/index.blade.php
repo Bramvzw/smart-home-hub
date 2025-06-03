@@ -22,9 +22,9 @@
             </div>
         @else
             <div class="flex flex-grow overflow-hidden">
-                <div class="w-1/8 p-4 overflow-hidden flex flex-col h-full">
+                <div class="w-1/6 p-4 overflow-hidden mb-4 flex flex-col h-full">
                     <h3 class="text-xl font-semibold mb-3 text-white">Your Playlists</h3>
-                    <div id="recently-played-container" class="grid grid-cols-2 gap-4 flex-grow overflow-auto">
+                    <div id="recently-played-container" class="grid grid-cols-2 gap-2 flex-grow overflow-hidden">
                         <div class="text-center text-gray-400 py-4">
                             Loading your playlists...
                         </div>

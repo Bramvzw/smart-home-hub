@@ -380,8 +380,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 const playlistElement = document.createElement('div');
-                playlistElement.className = 'playlist-item flex flex-col items-center p-2 rounded mb-4 cursor-pointer hover:bg-gray-800 transition-colors';
-
+                playlistElement.className = `playlist-item flex flex-col items-center rounded cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg active:brightness-90`;
                 // Special handling for Liked Songs playlist
                 if (playlist.id === 'liked-songs') {
                     playlistElement.setAttribute('data-id', 'liked-songs');
@@ -394,8 +393,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 const image = playlist.images.sort((a, b) => (b.width || 0) - (a.width || 0))[0];
 
                 playlistElement.innerHTML = `
-                    <div class="w-full aspect-square bg-gray-800 rounded-lg shadow-lg mb-2 overflow-hidden">
-                        <img src="${image.url}" alt="${playlist.name}" class="w-full h-full object-cover">
+                    <div class="w-full aspect-square bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform duration-300">
+                        <img src="${image.url}" alt="${playlist.name}" class="w-full h-full object-cover hover:scale-105">
                     </div>
                 `;
 
