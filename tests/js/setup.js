@@ -61,7 +61,7 @@ class MockElement {
 document.createElement = jest.fn().mockReturnValue(new MockElement());
 
 // Use Jest's modern fake timers globally
-jest.useFakeTimers({ legacyFakeTimers: false });
+jest.useFakeTimers({ legacyFakeTimers: true });
 
 // Cleanup after each test to avoid hanging processes
 afterEach(() => {

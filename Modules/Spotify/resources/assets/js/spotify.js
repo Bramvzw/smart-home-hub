@@ -45,7 +45,7 @@ import {
     renderNextTrack
 } from './modules/next-track.js';
 
-document.addEventListener('DOMContentLoaded', function () {
+function initSpotifyPlayer() {
     // Get DOM Elements
     const elements = getElements();
 
@@ -58,21 +58,41 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Create wrapper functions that bind the necessary parameters
-    const updatePlayerStateFn = () => updatePlayerState(
-        state,
-        elements,
-        (data) => updatePlayerUI(state, elements, data, updateState, formatTime),
-        updateState,
-        (trackId) => checkIfTrackIsLiked(state, elements, updateState, updateLikeButton, trackId),
-        () => loadNextTrack(elements, (elements, track) => renderNextTrack(elements, startPlaybackFn, track))
-    );
+    const updatePlayerStateFn = () =>
+        updatePlayerState(
+            state,
+            elements,
+            (data) => {
+                state = updatePlayerUI(state, elements, data, updateState, formatTime);
+                return state;
+            },
+            updateState,
+            (trackId) =>
+                checkIfTrackIsLiked(state, elements, updateState, updateLikeButton, trackId)
+                    .then(newState => {
+                        state = newState;
+                        return newState;
+                    }),
+            () => loadNextTrack(elements, (elements, track) => renderNextTrack(elements, startPlaybackFn, track))
+        ).then(newState => {
+            state = newState;
+            return state;
+        });
 
-    const startPlaybackFn = (uri = null) => startPlayback(elements, updatePlayerStateFn, uri);
-    const pausePlaybackFn = () => pausePlayback(elements, updatePlayerStateFn);
-    const controlFn = (action) => control(elements, updatePlayerStateFn, action);
-    const setVolumeFn = (volume) => setVolume(elements, updatePlayerStateFn, volume);
-    const toggleLikeFn = () => toggleLike(state, elements, updateState, updateLikeButton);
-    const shufflePlayPlaylistFn = (uri) => shufflePlayPlaylist(elements, updatePlayerStateFn, uri);
+    const startPlaybackFn = (uri = null) =>
+        startPlayback(elements, updatePlayerStateFn, uri);
+    const pausePlaybackFn = () =>
+        pausePlayback(elements, updatePlayerStateFn);
+    const controlFn = (action) =>
+        control(elements, updatePlayerStateFn, action);
+    const setVolumeFn = (volume) =>
+        setVolume(elements, updatePlayerStateFn, volume);
+    const toggleLikeFn = () =>
+        toggleLike(state, elements, updateState, updateLikeButton).then(newState => {
+            state = newState || state;
+        });
+    const shufflePlayPlaylistFn = (uri) =>
+        shufflePlayPlaylist(elements, updatePlayerStateFn, uri);
 
     const dragFn = (e) => drag(state, elements, formatTime, e);
     const startDragFn = (e) => {
@@ -142,4 +162,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // All functions have been moved to their respective modules
 
+}
+
+document.addEventListener('DOMContentLoaded', initSpotifyPlayer);
+
+// Re-attach listener whenever SPOTIFY_STATE is reassigned (useful for tests)
+let _spotifyState = window.SPOTIFY_STATE;
+Object.defineProperty(window, 'SPOTIFY_STATE', {
+    get() { return _spotifyState; },
+    set(value) {
+        _spotifyState = value;
+        document.addEventListener('DOMContentLoaded', initSpotifyPlayer);
+    }
 });

@@ -70,10 +70,10 @@ describe('like.js', () => {
         })
       });
 
-      await checkIfTrackIsLiked(mockState, mockElements, mockUpdateState, mockUpdateLikeButton, 'test-track-id');
+      const newState = await checkIfTrackIsLiked(mockState, mockElements, mockUpdateState, mockUpdateLikeButton, 'test-track-id');
 
       expect(mockUpdateState).toHaveBeenCalledWith(mockState, { isTrackLiked: true });
-      expect(mockUpdateLikeButton).toHaveBeenCalledWith(mockState, mockElements);
+      expect(mockUpdateLikeButton).toHaveBeenCalledWith(newState, mockElements);
     });
 
     it('should update state with isTrackLiked=false if track is not liked', async () => {
@@ -85,10 +85,10 @@ describe('like.js', () => {
         })
       });
 
-      await checkIfTrackIsLiked(mockState, mockElements, mockUpdateState, mockUpdateLikeButton, 'test-track-id');
+      const newState = await checkIfTrackIsLiked(mockState, mockElements, mockUpdateState, mockUpdateLikeButton, 'test-track-id');
 
       expect(mockUpdateState).toHaveBeenCalledWith(mockState, { isTrackLiked: false });
-      expect(mockUpdateLikeButton).toHaveBeenCalledWith(mockState, mockElements);
+      expect(mockUpdateLikeButton).toHaveBeenCalledWith(newState, mockElements);
     });
 
     it('should update state with isTrackLiked=false if API call fails', async () => {
@@ -97,10 +97,10 @@ describe('like.js', () => {
         status: 500
       });
 
-      await checkIfTrackIsLiked(mockState, mockElements, mockUpdateState, mockUpdateLikeButton, 'test-track-id');
+      const newState = await checkIfTrackIsLiked(mockState, mockElements, mockUpdateState, mockUpdateLikeButton, 'test-track-id');
 
       expect(mockUpdateState).toHaveBeenCalledWith(mockState, { isTrackLiked: false });
-      expect(mockUpdateLikeButton).toHaveBeenCalledWith(mockState, mockElements);
+      expect(mockUpdateLikeButton).toHaveBeenCalledWith(newState, mockElements);
     });
   });
 
@@ -141,10 +141,10 @@ describe('like.js', () => {
         })
       });
 
-      await toggleLike(mockState, mockElements, mockUpdateState, mockUpdateLikeButton);
+      const newState = await toggleLike(mockState, mockElements, mockUpdateState, mockUpdateLikeButton);
 
       expect(mockUpdateState).toHaveBeenCalledWith(mockState, { isTrackLiked: true });
-      expect(mockUpdateLikeButton).toHaveBeenCalledWith(mockState, mockElements);
+      expect(mockUpdateLikeButton).toHaveBeenCalledWith(newState, mockElements);
     });
 
     it('should show error message if API call fails', async () => {

@@ -11,7 +11,7 @@ import { postOptions, showErrorMessage, showSuccessMessage, displayMessage } fro
  * @param {Function} renderUserPlaylists - Function to render user playlists
  */
 export function loadUserPlaylists(elements, renderUserPlaylists) {
-    fetch('/spotify/user-playlists')
+    return fetch('/spotify/user-playlists')
         .then(res => res.json())
         .then(data => {
             if (data.success && data.playlists) {
@@ -20,7 +20,7 @@ export function loadUserPlaylists(elements, renderUserPlaylists) {
                 displayPlaylistMessage(elements, 'No playlists found in your library');
             }
         })
-        .catch(error => {
+        .catch(() => {
             displayPlaylistMessage(elements, 'Error loading playlists');
         });
 }
@@ -88,7 +88,11 @@ export function renderUserPlaylists(elements, playlists, updatePlayerState) {
                     // For now, just show a message that this feature is coming soon
                     showSuccessMessage(elements, 'Playing Liked Songs feature coming soon!');
                 } else {
-                    shufflePlayPlaylist(elements, updatePlayerState, playlist.uri);
+                    (globalThis.shufflePlayPlaylist || shufflePlayPlaylist)(
+                        elements,
+                        updatePlayerState,
+                        playlist.uri
+                    );
                 }
             });
 
@@ -106,7 +110,7 @@ export function renderUserPlaylists(elements, playlists, updatePlayerState) {
  * @param {string} uri - The URI of the playlist to play
  */
 export function shufflePlayPlaylist(elements, updatePlayerState, uri) {
-    fetch('/spotify/shuffle-play-playlist', {
+    return fetch('/spotify/shuffle-play-playlist', {
         ...postOptions(elements.csrfToken),
         body: JSON.stringify({ uri })
     })
@@ -119,7 +123,7 @@ export function shufflePlayPlaylist(elements, updatePlayerState, uri) {
                 showErrorMessage(elements, 'Failed to play playlist');
             }
         })
-        .catch(error => {
+        .catch(() => {
             showErrorMessage(elements, 'Error playing playlist');
         });
 }

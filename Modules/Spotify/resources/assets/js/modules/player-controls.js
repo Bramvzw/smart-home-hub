@@ -16,7 +16,7 @@ export function startPlayback(elements, updatePlayerStateFn, uri = null) {
     if (uri) {
         options.body = JSON.stringify({ uri });
     }
-    fetch('/spotify/play', options).then(response =>
+    return fetch('/spotify/play', options).then(response =>
         handleResponse(response, updatePlayerStateFn, elements)
     );
 }
@@ -27,7 +27,7 @@ export function startPlayback(elements, updatePlayerStateFn, uri = null) {
  * @param {Function} updatePlayerStateFn - Function to update player state
  */
 export function pausePlayback(elements, updatePlayerStateFn) {
-    fetch('/spotify/pause', postOptions(elements.csrfToken)).then(response =>
+    return fetch('/spotify/pause', postOptions(elements.csrfToken)).then(response =>
         handleResponse(response, updatePlayerStateFn, elements)
     );
 }
@@ -39,7 +39,7 @@ export function pausePlayback(elements, updatePlayerStateFn) {
  * @param {string} action - The action to perform (previous/next)
  */
 export function control(elements, updatePlayerStateFn, action) {
-    fetch(`/spotify/${action}`, postOptions(elements.csrfToken)).then(response =>
+    return fetch(`/spotify/${action}`, postOptions(elements.csrfToken)).then(response =>
         handleResponse(response, updatePlayerStateFn, elements)
     );
 }
@@ -51,7 +51,7 @@ export function control(elements, updatePlayerStateFn, action) {
  * @param {number} volume - Volume level (0-100)
  */
 export function setVolume(elements, updatePlayerStateFn, volume) {
-    fetch('/spotify/volume', {
+    return fetch('/spotify/volume', {
         ...postOptions(elements.csrfToken),
         body: JSON.stringify({ volume })
     })
@@ -62,7 +62,7 @@ export function setVolume(elements, updatePlayerStateFn, volume) {
                 setTimeout(updatePlayerStateFn, 500);
             }
         })
-        .catch(error => {
+        .catch(() => {
             showErrorMessage(elements, 'Error setting volume');
         });
 }
@@ -114,18 +114,18 @@ export function stopPeriodicUpdates(state, updateState) {
  */
 export function updatePlayerState(state, elements, updatePlayerUI, updateState, checkIfTrackIsLiked, loadNextTrack) {
     // Don't update while dragging
-    if (state.isDragging) return;
+    if (state.isDragging) return Promise.resolve(state);
 
-    fetch('/spotify/playback-state')
+    return fetch('/spotify/playback-state')
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                updatePlayerUI(data);
+                state = updatePlayerUI(data);
 
                 // If track changed, update like status and next track
                 if (state.currentTrackId !== data.item?.id) {
                     const newTrackId = data.item?.id;
-                    updateState(state, { currentTrackId: newTrackId });
+                    state = updateState(state, { currentTrackId: newTrackId });
 
                     if (newTrackId) {
                         checkIfTrackIsLiked(newTrackId);
@@ -136,10 +136,9 @@ export function updatePlayerState(state, elements, updatePlayerUI, updateState, 
                 // Silent fail - no need to show errors for routine updates
                 // This happens normally when playback is inactive
             }
+            return state;
         })
-        .catch(error => {
-            // Silent fail for routine updates
-        });
+        .catch(() => state);
 }
 
 /**
@@ -152,7 +151,7 @@ export function updatePlayerState(state, elements, updatePlayerUI, updateState, 
  */
 export function updatePlayerUI(state, elements, playbackState, updateState, formatTime) {
     // Update state
-    updateState(state, {
+    state = updateState(state, {
         isPlaying: playbackState.is_playing,
         currentDuration: playbackState.item?.duration_ms || 0
     });
@@ -193,4 +192,6 @@ export function updatePlayerUI(state, elements, playbackState, updateState, form
             // Silent fail - no need to show errors for UI updates
         }
     }
+
+    return state;
 }
