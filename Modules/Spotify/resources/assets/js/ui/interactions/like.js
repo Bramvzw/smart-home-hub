@@ -3,15 +3,10 @@
  * Contains functions for handling the like functionality
  */
 
-import { showErrorMessage } from './utils.js';
+import { showErrorMessage  } from '../../utils/index.js'
 
 /**
  * Check if the current track is liked by the user
- * @param {Object} state - The player state object
- * @param {Object} elements - DOM elements object
- * @param {Function} updateState - Function to update state object
- * @param {Function} updateLikeButton - Function to update like button UI
- * @param {string} trackId - The ID of the track to check
  */
 export function checkIfTrackIsLiked(state, elements, updateState, updateLikeButton, trackId) {
     const params = new URLSearchParams();
@@ -41,11 +36,11 @@ export function checkIfTrackIsLiked(state, elements, updateState, updateLikeButt
 }
 
 /**
+ *  ToDo: when track is paused be able to like/unlike it
+ */
+
+/**
  * Toggle like status for the current track
- * @param {Object} state - The player state object
- * @param {Object} elements - DOM elements object
- * @param {Function} updateState - Function to update state object
- * @param {Function} updateLikeButton - Function to update like button UI
  */
 export function toggleLike(state, elements, updateState, updateLikeButton) {
     if (!state.currentTrackId) {
@@ -86,8 +81,6 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
 
 /**
  * Update the like button UI based on current like status
- * @param {Object} state - The player state object
- * @param {Object} elements - DOM elements object
  */
 export function updateLikeButton(state, elements) {
     if (elements.likeIcon && elements.likeBtn) {

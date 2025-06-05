@@ -3,12 +3,10 @@
  * Contains functions for handling the playlist functionality
  */
 
-import { postOptions, showErrorMessage, showSuccessMessage, displayMessage } from './utils.js';
+import { postOptions, showErrorMessage, showSuccessMessage, displayMessage } from '../../utils/index.js';
 
 /**
  * Load user playlists from the API
- * @param {Object} elements - DOM elements object
- * @param {Function} renderUserPlaylists - Function to render user playlists
  */
 export function loadUserPlaylists(elements, renderUserPlaylists) {
     return fetch('/spotify/user-playlists')
@@ -17,32 +15,20 @@ export function loadUserPlaylists(elements, renderUserPlaylists) {
             if (data.success && data.playlists) {
                 renderUserPlaylists(elements, data.playlists);
             } else {
-                displayPlaylistMessage(elements, 'No playlists found in your library');
+                displayMessage( elements.recentlyPlayedContainer, elements.messageTemplate, 'No playlists found in your library');
             }
         })
         .catch(() => {
-            displayPlaylistMessage(elements, 'Error loading playlists');
+            displayMessage( elements.recentlyPlayedContainer, elements.messageTemplate,'Error loading playlists');
         });
 }
 
 /**
- * Display a message in the playlists container
- * @param {Object} elements - DOM elements object
- * @param {string} message - The message to display
+ * ToDo: must be refactored
  */
-export function displayPlaylistMessage(elements, message) {
-    displayMessage(
-        elements.recentlyPlayedContainer,
-        elements.messageTemplate,
-        message
-    );
-}
 
 /**
  * Render user playlists in the UI
- * @param {Object} elements - DOM elements object
- * @param {Array} playlists - Array of playlist objects
- * @param {Function} updatePlayerState - Function to update player state
  */
 export function renderUserPlaylists(elements, playlists, updatePlayerState) {
     if (!elements.recentlyPlayedContainer) return;
@@ -104,10 +90,11 @@ export function renderUserPlaylists(elements, playlists, updatePlayerState) {
 }
 
 /**
+ * ToDo console.log errors instead of displaying them
+ */
+
+/**
  * Shuffle and play a playlist
- * @param {Object} elements - DOM elements object
- * @param {Function} updatePlayerState - Function to update player state
- * @param {string} uri - The URI of the playlist to play
  */
 export function shufflePlayPlaylist(elements, updatePlayerState, uri) {
     return fetch('/spotify/shuffle-play-playlist', {

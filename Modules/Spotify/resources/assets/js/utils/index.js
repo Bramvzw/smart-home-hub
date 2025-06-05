@@ -83,7 +83,7 @@ export function showAlert(elements, message, type) {
  * @param {string} message - The error message to display
  */
 // Self-import to allow Jest spies on exported functions
-import * as self from './utils.js';
+import * as self from './index.js';
 
 export function showErrorMessage(elements, message) {
     self.showAlert(elements, message, 'error');
