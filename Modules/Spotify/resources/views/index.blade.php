@@ -1,7 +1,7 @@
 @extends('spotify::layouts.app')
 
 @if ($isConnected)
-    @vite(['Modules/Spotify/resources/assets/js/spotify.js'])
+    @vite(['Modules/Spotify/resources/assets/js/core/player.js'])
 @endif
 
 @section('title', 'Spotify Control')
@@ -58,7 +58,7 @@
     @endif
     </div>
 
-    {{-- Templates for dynamic elements used in spotify.js --}}
+    {{-- Templates for dynamic elements used in player.js --}}
     <template id="playlist-item-template">
         <div class="playlist-item flex flex-col items-center rounded cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg active:brightness-90">
             <div class="w-full aspect-square bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform duration-300">

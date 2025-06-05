@@ -3,55 +3,36 @@
  * Contains functions for handling the next track functionality
  */
 
-import { displayMessage } from './utils.js';
-
-/**
- * Load the next track from the API
- * @param {Object} elements - DOM elements object
- * @param {Function} renderNextTrackFn - Function to render next track
+import { displayMessage } from '../../utils/index.js';
+/*
+* ToDo refactor can be one function?
  */
-export function loadNextTrack(elements, renderNextTrackFn) {
+/**
+ * Load the upcoming track from the queue
+ */
+export function loadUpcomingTrack(elements, renderNextTrackFn) {
     return fetch('/spotify/next-track')
         .then(res => res.json())
         .then(data => {
             if (data.success && data.next_track) {
-                // renderNextTrackFn expects (elements, startPlayback, track)
-                // but we're passing it from spotify.js as (elements, track) => renderNextTrack(elements, startPlaybackFn, track)
-                // so we need to pass just elements and track here
                 renderNextTrackFn(elements, data.next_track);
             } else {
-                displayNextTrackMessage(elements, 'No upcoming tracks');
+                displayMessage(elements.nextTrackContainer,  elements.messageTemplate, 'No upcoming tracks');
             }
         })
         .catch(() => {
-            displayNextTrackMessage(elements, 'Error loading next track');
+            displayMessage(elements.nextTrackContainer,  elements.messageTemplate, 'Error loading next track');
         });
 }
 
 /**
- * Display a message in the next track container
- * @param {Object} elements - DOM elements object
- * @param {string} message - The message to display
- */
-export function displayNextTrackMessage(elements, message) {
-    displayMessage(
-        elements.nextTrackContainer,
-        elements.messageTemplate,
-        message
-    );
-}
-
-/**
  * Render the next track in the UI
- * @param {Object} elements - DOM elements object
- * @param {Function} startPlayback - Function to start playback
- * @param {Object} track - The track object to render
  */
 export function renderNextTrack(elements, startPlayback, track) {
     if (!elements.nextTrackContainer) return;
 
     if (!track) {
-        displayNextTrackMessage(elements, 'No upcoming tracks');
+        displayMessage(elements.nextTrackContainer,  elements.messageTemplate, 'No upcoming tracks');
         return;
     }
 
@@ -93,6 +74,6 @@ export function renderNextTrack(elements, startPlayback, track) {
             });
         }
     } catch (error) {
-        displayNextTrackMessage(elements, 'Error displaying next track');
+        displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'Error displaying next track');
     }
 }
