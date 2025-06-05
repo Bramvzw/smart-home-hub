@@ -65,7 +65,7 @@ describe('player-controls.js', () => {
     mockUpdateState = jest.fn().mockImplementation((state, newValues) => {
       return { ...state, ...newValues };
     });
-    mockUpdatePlayerUI = jest.fn();
+    mockUpdatePlayerUI = jest.fn().mockReturnValue(mockState);
     mockCheckIfTrackIsLiked = jest.fn();
     mockLoadNextTrack = jest.fn();
     mockFormatTime = jest.fn().mockReturnValue('0:00');

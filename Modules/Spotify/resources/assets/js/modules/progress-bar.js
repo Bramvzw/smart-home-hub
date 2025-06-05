@@ -85,7 +85,7 @@ export function seekOnClick(state, elements, seekToPosition, e) {
  * @param {number} positionMs - Position in milliseconds
  */
 export function seekToPosition(elements, updatePlayerState, positionMs) {
-    fetch('/spotify/seek', {
+    return fetch('/spotify/seek', {
         ...postOptions(elements.csrfToken),
         body: JSON.stringify({ position_ms: positionMs })
     }).then(response => handleResponse(response, updatePlayerState, elements));

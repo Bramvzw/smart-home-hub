@@ -17,7 +17,7 @@ export function checkIfTrackIsLiked(state, elements, updateState, updateLikeButt
     const params = new URLSearchParams();
     params.append('ids[]', trackId);
 
-    fetch(`/spotify/tracks/check?${params.toString()}`)
+    return fetch(`/spotify/tracks/check?${params.toString()}`)
         .then(res => {
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
@@ -26,15 +26,17 @@ export function checkIfTrackIsLiked(state, elements, updateState, updateLikeButt
         })
         .then(data => {
             if (data.success && data.results && data.results.length > 0) {
-                updateState(state, { isTrackLiked: data.results[0] });
+                state = updateState(state, { isTrackLiked: data.results[0] });
             } else {
-                updateState(state, { isTrackLiked: false });
+                state = updateState(state, { isTrackLiked: false });
             }
             updateLikeButton(state, elements);
+            return state;
         })
-        .catch(error => {
-            updateState(state, { isTrackLiked: false });
+        .catch(() => {
+            state = updateState(state, { isTrackLiked: false });
             updateLikeButton(state, elements);
+            return state;
         });
 }
 
@@ -51,7 +53,7 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
         return;
     }
 
-    fetch('/spotify/tracks/toggle', {
+    return fetch('/spotify/tracks/toggle', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -70,13 +72,14 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
         })
         .then(data => {
             if (data.success) {
-                updateState(state, { isTrackLiked: data.saved });
+                state = updateState(state, { isTrackLiked: data.saved });
                 updateLikeButton(state, elements);
+                return state;
             } else {
                 showErrorMessage(elements, 'Failed to update like status');
             }
         })
-        .catch(error => {
+        .catch(() => {
             showErrorMessage(elements, 'Error updating like status');
         });
 }
