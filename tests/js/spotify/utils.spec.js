@@ -207,9 +207,8 @@ describe('utils.js', () => {
 
   describe('showSuccessMessage', () => {
     it('should call showAlert with success type', () => {
-      // Mock the showAlert function directly
-      const originalShowAlert = utils.showAlert;
-      utils.showAlert = jest.fn();
+      // Create a spy on showAlert
+      const showAlertSpy = jest.spyOn(utils, 'showAlert').mockImplementation(() => {});
 
       const elements = { alertTemplate: {} };
       const message = 'Test success message';
@@ -218,10 +217,10 @@ describe('utils.js', () => {
       showSuccessMessage(elements, message);
 
       // Verify the mock was called with the right arguments
-      expect(utils.showAlert).toHaveBeenCalledWith(elements, message, 'success');
+      expect(showAlertSpy).toHaveBeenCalledWith(elements, message, 'success');
 
       // Restore the original implementation
-      utils.showAlert = originalShowAlert;
+      showAlertSpy.mockRestore();
     });
   });
 

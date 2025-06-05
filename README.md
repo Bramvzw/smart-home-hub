@@ -62,7 +62,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Spotify Integration
 
-This application includes a Spotify integration that allows you to control your music playback. To use this feature, you need to:
+This application includes a comprehensive Spotify integration that allows you to control your music playback and manage your Spotify content. To use this feature, you need to:
 
 1. Create a Spotify Developer account at [https://developer.spotify.com/dashboard/](https://developer.spotify.com/dashboard/)
 2. Create a new application in the Spotify Developer Dashboard
@@ -77,6 +77,32 @@ SPOTIFY_REDIRECT_URI=http://localhost:8000/spotify/callback
 
 5. Visit the Spotify page in the application to connect your Spotify account and start controlling your music
 
+### Features
+
+The Spotify integration includes the following features:
+
+#### Playback Control
+- **Play/Pause**: Control the playback of your current track
+- **Next/Previous**: Skip to the next or previous track in your queue
+- **Seek**: Jump to a specific position in the current track using the progress bar
+- **Volume Control**: Adjust the volume of your Spotify playback
+
+#### Track Information
+- **Now Playing**: View details about the currently playing track, including title, artist, and album artwork
+- **Progress Bar**: See the current playback position and track duration
+- **Next Up**: Preview the next track that will play in your queue
+
+#### Library Management
+- **Like/Unlike Tracks**: Save or remove tracks from your Spotify library directly from the player
+- **Playlist Access**: Browse and play your Spotify playlists
+- **Shuffle Play**: Start playback of a playlist in shuffle mode
+
+#### Real-time Updates
+- The player automatically updates to reflect the current state of your Spotify playback
+- Changes made in other Spotify clients will be reflected in the application
+
 ### Known Limitations
 
 - **Volume Control**: Some Spotify devices do not support volume control through the API. If you encounter an error when trying to adjust the volume, you may need to control the volume directly on the device.
+- **Active Device Required**: You must have an active Spotify session on at least one device for the controls to work properly.
+- **Premium Account**: A Spotify Premium account is required to use playback control features.
