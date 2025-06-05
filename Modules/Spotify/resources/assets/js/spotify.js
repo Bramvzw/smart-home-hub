@@ -1,14 +1,20 @@
 document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const playPauseBtn = document.getElementById('play-pause-btn');
+    const playPauseIcon = document.getElementById('play-pause-icon');
     const previousBtn = document.getElementById('previous-btn');
     const nextBtn = document.getElementById('next-btn');
     const likeBtn = document.getElementById('like-btn');
+    const likeIcon = document.getElementById('like-icon');
     const volumeSlider = document.getElementById('volume-slider');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const recentlyPlayedContainer = document.getElementById('recently-played-container');
     const nextTrackContainer = document.getElementById('next-track');
+    const playlistTemplate = document.getElementById('playlist-item-template');
+    const nextTrackTemplate = document.getElementById('next-track-template');
+    const alertTemplate = document.getElementById('alert-template');
+    const messageTemplate = document.getElementById('message-template');
 
     let isPlaying = window.SPOTIFY_STATE?.is_playing ?? false;
     let currentTrackId = null;
@@ -134,10 +140,9 @@ document.addEventListener('DOMContentLoaded', function () {
         isPlaying = state.is_playing;
         currentDuration = state.item?.duration_ms || 0;
 
-        if (playPauseBtn) {
-            playPauseBtn.innerHTML = isPlaying
-                ? '<i class="fas fa-pause text-xl"></i>'
-                : '<i class="fas fa-play text-xl"></i>';
+        if (playPauseIcon) {
+            playPauseIcon.classList.toggle('fa-pause', isPlaying);
+            playPauseIcon.classList.toggle('fa-play', !isPlaying);
         }
 
         if (state.item) {
@@ -180,17 +185,25 @@ document.addEventListener('DOMContentLoaded', function () {
         return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    function showErrorMessage(message) {
-        const alert = document.createElement('div');
-        alert.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md';
-        alert.innerHTML = `
-            <p>${message}</p>
-            <button class="absolute top-2 right-2 text-red-700" onclick="this.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
+    function showAlert(message, type) {
+        if (!alertTemplate) return;
+        const alert = alertTemplate.content.firstElementChild.cloneNode(true);
+        alert.querySelector('.message').textContent = message;
+        alert.querySelector('.close-btn').addEventListener('click', () => alert.remove());
+
+        if (type === 'error') {
+            alert.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+            setTimeout(() => alert.remove(), 5000);
+        } else {
+            alert.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+            setTimeout(() => alert.remove(), 3000);
+        }
+
         document.body.appendChild(alert);
-        setTimeout(() => alert.remove(), 5000);
+    }
+
+    function showErrorMessage(message) {
+        showAlert(message, 'error');
     }
 
     function handleResponse(response) {
@@ -324,11 +337,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateLikeButton() {
-        if (likeBtn) {
-            console.log('Updating like button, liked:', isTrackLiked);
-            likeBtn.innerHTML = isTrackLiked
-                ? '<i class="fas fa-heart text-xl spotify-accent"></i>'
-                : '<i class="far fa-heart text-xl"></i>';
+        if (likeIcon) {
+            likeIcon.classList.toggle('fas', isTrackLiked);
+            likeIcon.classList.toggle('far', !isTrackLiked);
             likeBtn.classList.toggle('active', isTrackLiked);
         } else {
             console.error('Like button element not found');
@@ -345,15 +356,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     renderUserPlaylists(data.playlists);
                 } else {
                     console.error('Failed to get user playlists:', data);
-                    if (recentlyPlayedContainer) {
-                        recentlyPlayedContainer.innerHTML = '<div class="text-center text-gray-400 py-4">No playlists found in your library</div>';
+                    if (recentlyPlayedContainer && messageTemplate) {
+                        recentlyPlayedContainer.innerHTML = '';
+                        const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                        msg.textContent = 'No playlists found in your library';
+                        recentlyPlayedContainer.appendChild(msg);
                     }
                 }
             })
             .catch(error => {
                 console.error('Error fetching user playlists:', error);
-                if (recentlyPlayedContainer) {
-                    recentlyPlayedContainer.innerHTML = '<div class="text-center text-gray-400 py-4">Error loading playlists</div>';
+                if (recentlyPlayedContainer && messageTemplate) {
+                    recentlyPlayedContainer.innerHTML = '';
+                    const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                    msg.textContent = 'Error loading playlists';
+                    recentlyPlayedContainer.appendChild(msg);
                 }
             });
     }
@@ -365,7 +382,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!playlists || !playlists.length) {
-            recentlyPlayedContainer.innerHTML = '<div class="text-center text-gray-400 py-4">No playlists found in your library</div>';
+            if (messageTemplate) {
+                recentlyPlayedContainer.innerHTML = '';
+                const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                msg.textContent = 'No playlists found in your library';
+                recentlyPlayedContainer.appendChild(msg);
+            }
             return;
         }
 
@@ -379,8 +401,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                const playlistElement = document.createElement('div');
-                playlistElement.className = `playlist-item flex flex-col items-center rounded cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg active:brightness-90`;
+                if (!playlistTemplate) return;
+                const playlistElement = playlistTemplate.content.firstElementChild.cloneNode(true);
                 // Special handling for Liked Songs playlist
                 if (playlist.id === 'liked-songs') {
                     playlistElement.setAttribute('data-id', 'liked-songs');
@@ -391,12 +413,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Get the best image (prefer larger images)
                 const image = playlist.images.sort((a, b) => (b.width || 0) - (a.width || 0))[0];
-
-                playlistElement.innerHTML = `
-                    <div class="w-full aspect-square bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform duration-300">
-                        <img src="${image.url}" alt="${playlist.name}" class="w-full h-full object-cover hover:scale-105">
-                    </div>
-                `;
+                const img = playlistElement.querySelector('img.playlist-image');
+                if (img) {
+                    img.src = image.url;
+                    img.alt = playlist.name;
+                }
 
                 // Add event listener for clicking on the playlist
                 playlistElement.addEventListener('click', function() {
@@ -444,16 +465,20 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success && data.next_track) {
                     renderNextTrack(data.next_track);
-                } else {
-                    if (nextTrackContainer) {
-                        nextTrackContainer.innerHTML = '<div class="text-center text-gray-400 py-2">No upcoming tracks</div>';
-                    }
+                } else if (nextTrackContainer && messageTemplate) {
+                    nextTrackContainer.innerHTML = '';
+                    const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                    msg.textContent = 'No upcoming tracks';
+                    nextTrackContainer.appendChild(msg);
                 }
             })
             .catch(error => {
                 console.error('Error fetching next track:', error);
-                if (nextTrackContainer) {
-                    nextTrackContainer.innerHTML = '<div class="text-center text-gray-400 py-2">Error loading next track</div>';
+                if (nextTrackContainer && messageTemplate) {
+                    nextTrackContainer.innerHTML = '';
+                    const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                    msg.textContent = 'Error loading next track';
+                    nextTrackContainer.appendChild(msg);
                 }
             });
     }
@@ -465,7 +490,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!track) {
-            nextTrackContainer.innerHTML = '<div class="text-center text-gray-400 py-2">No upcoming tracks</div>';
+            if (messageTemplate) {
+                nextTrackContainer.innerHTML = '';
+                const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                msg.textContent = 'No upcoming tracks';
+                nextTrackContainer.appendChild(msg);
+            }
             return;
         }
 
@@ -479,22 +509,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 ? track.artists.map(a => a.name || 'Unknown').join(', ')
                 : 'Unknown Artist';
 
-            nextTrackContainer.innerHTML = `
-                <div class="flex items-center justify-center w-full flex-col">
-                    <div class="h-14 w-20 bg-gray-800 rounded mb-3 flex-shrink-0 next-track-container">
-                        <img src="${imageUrl}" alt="" class="w-full h-full object-cover rounded">
-                        <div class="next-track-play-button">
-                            <button class="play-next-track-btn text-white rounded-full w-8 h-8 flex items-center justify-center bg-green-500 hover:bg-green-600 focus:outline-none">
-                                <i class="fas fa-play text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex-grow">
-                        <div class="text-white text-sm font-medium">${track.name || 'Unknown Track'}</div>
-                        <div class="text-gray-400 text-xs">${artistNames}</div>
-                    </div>
-                </div>
-            `;
+            nextTrackContainer.innerHTML = '';
+            if (!nextTrackTemplate) return;
+            const element = nextTrackTemplate.content.firstElementChild.cloneNode(true);
+            const img = element.querySelector('img.next-track-image');
+            if (img) {
+                img.src = imageUrl;
+            }
+            const nameEl = element.querySelector('.next-track-name');
+            if (nameEl) {
+                nameEl.textContent = track.name || 'Unknown Track';
+            }
+            const artistsEl = element.querySelector('.next-track-artists');
+            if (artistsEl) {
+                artistsEl.textContent = artistNames;
+            }
+            nextTrackContainer.appendChild(element);
 
             // Add event listener for the play button
             const playButton = nextTrackContainer.querySelector('.play-next-track-btn');
@@ -505,20 +535,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error('Error rendering next track:', error, track);
-            nextTrackContainer.innerHTML = '<div class="text-center text-gray-400 py-2">Error displaying next track</div>';
+            if (nextTrackContainer && messageTemplate) {
+                nextTrackContainer.innerHTML = '';
+                const msg = messageTemplate.content.firstElementChild.cloneNode(true);
+                msg.textContent = 'Error displaying next track';
+                nextTrackContainer.appendChild(msg);
+            }
         }
     }
 
     function showSuccessMessage(message) {
-        const alert = document.createElement('div');
-        alert.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md';
-        alert.innerHTML = `
-            <p>${message}</p>
-            <button class="absolute top-2 right-2 text-green-700" onclick="this.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        document.body.appendChild(alert);
-        setTimeout(() => alert.remove(), 3000);
+        showAlert(message, 'success');
     }
 });

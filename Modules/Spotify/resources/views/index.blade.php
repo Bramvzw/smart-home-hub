@@ -54,7 +54,46 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        @endif
     </div>
+    @endif
+    </div>
+
+    {{-- Templates for dynamic elements used in spotify.js --}}
+    <template id="playlist-item-template">
+        <div class="playlist-item flex flex-col items-center rounded cursor-pointer transition-transform transform hover:scale-105 hover:shadow-lg active:brightness-90">
+            <div class="w-full aspect-square bg-gray-800 rounded-lg shadow-lg overflow-hidden transition-transform duration-300">
+                <img src="" alt="" class="playlist-image w-full h-full object-cover hover:scale-105">
+            </div>
+        </div>
+    </template>
+
+    <template id="next-track-template">
+        <div class="flex items-center justify-center w-full flex-col">
+            <div class="h-14 w-20 bg-gray-800 rounded mb-3 flex-shrink-0 next-track-container">
+                <img src="" alt="" class="next-track-image w-full h-full object-cover rounded">
+                <div class="next-track-play-button">
+                    <button class="play-next-track-btn text-white rounded-full w-8 h-8 flex items-center justify-center bg-green-500 hover:bg-green-600 focus:outline-none">
+                        <i class="fas fa-play text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow">
+                <div class="next-track-name text-white text-sm font-medium"></div>
+                <div class="next-track-artists text-gray-400 text-xs"></div>
+            </div>
+        </div>
+    </template>
+
+    <template id="message-template">
+        <div class="text-center text-gray-400 py-2"></div>
+    </template>
+
+    <template id="alert-template">
+        <div class="alert fixed top-4 right-4 p-4 rounded shadow-md">
+            <p class="message"></p>
+            <button class="absolute top-2 right-2 close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </template>
 @endsection
