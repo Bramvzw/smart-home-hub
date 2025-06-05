@@ -44,6 +44,7 @@ import {
     displayNextTrackMessage,
     renderNextTrack
 } from './modules/next-track.js';
+import { initializeEventListeners } from './modules/event-listeners.js';
 
 function initSpotifyPlayer() {
     // Get DOM Elements
@@ -118,7 +119,17 @@ function initSpotifyPlayer() {
     state = startPeriodicUpdates(state, updatePlayerStateFn, updateState);
 
     // Set up event listeners
-    initializeEventListeners();
+    initializeEventListeners(elements, () => state, {
+        startPlayback: startPlaybackFn,
+        pausePlayback: pausePlaybackFn,
+        control: controlFn,
+        toggleLike: toggleLikeFn,
+        setVolume: setVolumeFn,
+        startDrag: startDragFn,
+        drag: dragFn,
+        endDrag: endDragFn,
+        seekOnClick: seekOnClickFn
+    });
 
     // Load user playlists and next track on startup
     loadUserPlaylists(
@@ -130,35 +141,6 @@ function initSpotifyPlayer() {
         elements,
         (elements, track) => renderNextTrack(elements, startPlaybackFn, track)
     );
-
-    /**
-     * Initialize all event listeners for player controls
-     */
-    function initializeEventListeners() {
-        // Playback controls
-        elements.playPauseBtn?.addEventListener('click', () => {
-            state.isPlaying ? pausePlaybackFn() : startPlaybackFn();
-        });
-
-        elements.previousBtn?.addEventListener('click', () => controlFn('previous'));
-        elements.nextBtn?.addEventListener('click', () => controlFn('next'));
-        elements.likeBtn?.addEventListener('click', toggleLikeFn);
-
-        // Volume control
-        let volumeTimeout;
-        elements.volumeSlider?.addEventListener('input', function () {
-            clearTimeout(volumeTimeout);
-            volumeTimeout = setTimeout(() => setVolumeFn(this.value), 300);
-        });
-
-        // Progress bar drag functionality
-        if (elements.progressContainer) {
-            elements.progressContainer.addEventListener('mousedown', startDragFn);
-            document.addEventListener('mousemove', dragFn);
-            document.addEventListener('mouseup', endDragFn);
-            elements.progressContainer.addEventListener('click', seekOnClickFn);
-        }
-    }
 
     // All functions have been moved to their respective modules
 
