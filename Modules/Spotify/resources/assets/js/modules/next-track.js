@@ -11,7 +11,7 @@ import { displayMessage } from './utils.js';
  * @param {Function} renderNextTrackFn - Function to render next track
  */
 export function loadNextTrack(elements, renderNextTrackFn) {
-    fetch('/spotify/next-track')
+    return fetch('/spotify/next-track')
         .then(res => res.json())
         .then(data => {
             if (data.success && data.next_track) {
@@ -23,7 +23,7 @@ export function loadNextTrack(elements, renderNextTrackFn) {
                 displayNextTrackMessage(elements, 'No upcoming tracks');
             }
         })
-        .catch(error => {
+        .catch(() => {
             displayNextTrackMessage(elements, 'Error loading next track');
         });
 }

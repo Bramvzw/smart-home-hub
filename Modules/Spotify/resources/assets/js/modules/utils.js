@@ -50,7 +50,9 @@ export function updateElementContent(elementId, content, property = 'textContent
  * @param {string} type - The type of alert ('success' or 'error')
  */
 export function showAlert(elements, message, type) {
-    if (!elements.alertTemplate) return;
+    if (!elements.alertTemplate || !elements.alertTemplate.content || !elements.alertTemplate.content.firstElementChild) {
+        return;
+    }
 
     const alert = elements.alertTemplate.content.firstElementChild.cloneNode(true);
     const messageEl = alert.querySelector('.message');
@@ -80,8 +82,11 @@ export function showAlert(elements, message, type) {
  * @param {Object} elements - DOM elements object
  * @param {string} message - The error message to display
  */
+// Self-import to allow Jest spies on exported functions
+import * as self from './utils.js';
+
 export function showErrorMessage(elements, message) {
-    showAlert(elements, message, 'error');
+    self.showAlert(elements, message, 'error');
 }
 
 /**
@@ -90,7 +95,7 @@ export function showErrorMessage(elements, message) {
  * @param {string} message - The success message to display
  */
 export function showSuccessMessage(elements, message) {
-    showAlert(elements, message, 'success');
+    self.showAlert(elements, message, 'success');
 }
 
 /**
@@ -101,19 +106,25 @@ export function showSuccessMessage(elements, message) {
  * @returns {Promise} Promise with the response data
  */
 export function handleResponse(response, updatePlayerState, elements) {
-    return response.json()
+    let handledError = false;
+    return response
+        .json()
         .then(data => {
             if (data.success) {
                 updatePlayerState();
                 return data;
             } else if (data.error) {
-                showErrorMessage(elements, data.error);
+                handledError = true;
+                self.showErrorMessage(elements, data.error);
                 throw new Error(data.error);
             }
             return data;
         })
         .catch(error => {
-            showErrorMessage(elements, 'An error occurred with the Spotify API');
+            if (handledError) {
+                throw error;
+            }
+            self.showErrorMessage(elements, 'An error occurred with the Spotify API');
             return { success: false, error: error.message };
         });
 }
