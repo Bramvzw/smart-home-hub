@@ -33,7 +33,5 @@ export function initializeEventListeners(elements, getState, callbacks) {
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', endDrag);
         elements.progressContainer.addEventListener('click', seekOnClick);
-        elements.progressContainer.addEventListener('click', e => seekOnClick(state, elements, seekToPosition, e));
-
     }
 }

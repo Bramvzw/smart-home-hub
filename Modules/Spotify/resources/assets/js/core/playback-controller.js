@@ -1,7 +1,8 @@
 import { updateState } from './state.js';
 import { formatTime } from '../utils/index.js';
-import { startPlayback, pausePlayback, control, setVolume, startPeriodicUpdates, updatePlayerState } from '../ui/interactions/playback-controls.js'
 import { startDrag, drag, endDrag, seekOnClick, seekToPosition } from '../ui/interactions/track-progress.js';
+import { startPlayback, pausePlayback, control, startPeriodicUpdates, updatePlayerState } from '../ui/interactions/playback-controls.js'
+import { setVolume } from '../ui/interactions/volume.js';
 import { checkIfTrackIsLiked, toggleLike, updateLikeButton } from '../ui/interactions/like.js';
 import { loadUserPlaylists, renderUserPlaylists, shufflePlayPlaylist } from '../ui/interactions/playlists.js';
 import { loadUpcomingTrack, renderNextTrack } from '../ui/interactions/upcoming-track.js';

@@ -3,7 +3,7 @@
  * Contains functions for controlling playback and updating player state
  */
 
-import { postOptions, showErrorMessage, handleResponse } from '../../utils/index.js';
+import { postOptions, handleResponse } from '../../utils/index.js';
 
 /**
  * ToDo refactor seperate interactions from upatePlayerState
@@ -41,30 +41,6 @@ export function control(elements, updatePlayerStateFn, action) {
 }
 
 /**
- * ToDo move to its own interaction
- */
-
-/**
- * Set the volume level
- */
-export function setVolume(elements, updatePlayerStateFn, volume) {
-    return fetch('/spotify/volume', {
-        ...postOptions(elements.csrfToken),
-        body: JSON.stringify({ volume })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success && data.code === 'volume_control_not_supported') {
-                showErrorMessage(elements, 'This device does not support volume control.');
-                setTimeout(updatePlayerStateFn, 500);
-            }
-        })
-        .catch(() => {
-            showErrorMessage(elements, 'Error setting volume');
-        });
-}
-
-/**
  * Start periodic updates of player state
  */
 export function startPeriodicUpdates(state, updatePlayerStateFn, updateState) {
@@ -81,20 +57,6 @@ export function startPeriodicUpdates(state, updatePlayerStateFn, updateState) {
 
     // Update state with new interval
     return updateState(state, { updateInterval });
-}
-
-/**
- * ToDo can be removed?
- */
-
-/**
- * Stop periodic updates of player state
- */
-export function stopPeriodicUpdates(state, updateState) {
-    if (state.updateInterval) {
-        clearInterval(state.updateInterval);
-    }
-    return updateState(state, { updateInterval: null });
 }
 
 /**

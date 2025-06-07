@@ -43,7 +43,9 @@ export function checkIfTrackIsLiked(state, elements, updateState, updateLikeButt
  * Toggle like status for the current track
  */
 export function toggleLike(state, elements, updateState, updateLikeButton) {
-    if (!state.currentTrackId) {
+    const trackId = state.currentTrackId || window.SPOTIFY_STATE?.item?.id;
+
+    if (!trackId) {
         showErrorMessage(elements, 'Cannot like/unlike: No track is playing');
         return;
     }
@@ -55,7 +57,7 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
             'X-CSRF-TOKEN': elements.csrfToken
         },
         body: JSON.stringify({
-            id: state.currentTrackId,
+            id: trackId,
             saved: !state.isTrackLiked
         })
     })
