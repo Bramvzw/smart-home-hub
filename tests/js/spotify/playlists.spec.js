@@ -3,10 +3,10 @@ import {
   displayPlaylistMessage,
   renderUserPlaylists,
   shufflePlayPlaylist
-} from '../../../Modules/Spotify/resources/assets/js/modules/playlists.js';
+} from '../../../Modules/Spotify/resources/assets/js/ui/interactions/playlists.js';
 
 // Mock the imported modules
-jest.mock('../../../Modules/Spotify/resources/assets/js/modules/utils.js', () => ({
+jest.mock('../../../Modules/Spotify/resources/assets/js/utils/index.js', () => ({
   postOptions: jest.fn().mockReturnValue({
     method: 'POST',
     headers: { 'X-CSRF-TOKEN': 'test-token', 'Content-Type': 'application/json' }
@@ -112,7 +112,7 @@ describe('playlists.js', () => {
         })
       });
 
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       await loadUserPlaylists(mockElements, mockRenderUserPlaylists);
 
@@ -126,7 +126,7 @@ describe('playlists.js', () => {
     it('should display error message if API call fails', async () => {
       global.fetch = jest.fn().mockRejectedValue(new Error('API error'));
 
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       await loadUserPlaylists(mockElements, mockRenderUserPlaylists);
 
@@ -140,7 +140,7 @@ describe('playlists.js', () => {
 
   describe('displayPlaylistMessage', () => {
     it('should call displayMessage with correct parameters', () => {
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       displayPlaylistMessage(mockElements, 'Test message');
 
@@ -162,7 +162,7 @@ describe('playlists.js', () => {
     });
 
     it('should display message if playlists array is empty', () => {
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       renderUserPlaylists(mockElements, [], mockUpdatePlayerState);
 
@@ -211,7 +211,7 @@ describe('playlists.js', () => {
       clickHandler();
 
       // Should show success message for Liked Songs
-      const { showSuccessMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { showSuccessMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
       expect(showSuccessMessage).toHaveBeenCalledWith(mockElements, 'Playing Liked Songs feature coming soon!');
     });
 
@@ -277,7 +277,7 @@ describe('playlists.js', () => {
     });
 
     it('should show success message and update player state if successful', async () => {
-      const { showSuccessMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { showSuccessMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       global.fetch = jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue({
@@ -292,7 +292,7 @@ describe('playlists.js', () => {
     });
 
     it('should show error message if API call fails', async () => {
-      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       global.fetch = jest.fn().mockRejectedValue(new Error('API error'));
 
@@ -302,7 +302,7 @@ describe('playlists.js', () => {
     });
 
     it('should show error message if API returns success=false', async () => {
-      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       global.fetch = jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue({

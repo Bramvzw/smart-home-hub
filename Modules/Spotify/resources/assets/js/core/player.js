@@ -40,7 +40,7 @@ class SpotifyPlayer {
  * Entry point to create and start the Spotify player.
  * Called on initial page load or whenever window.SPOTIFY_STATE changes.
  */
-function initSpotifyPlayer() {
+export function initSpotifyPlayer() {
     new SpotifyPlayer().start();
 }
 

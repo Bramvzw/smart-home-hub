@@ -28,6 +28,13 @@ export function loadUserPlaylists(elements, renderUserPlaylists) {
  */
 
 /**
+ * Display a message in the playlists container
+ */
+export function displayPlaylistMessage(elements, message) {
+    displayMessage(elements.recentlyPlayedContainer, elements.messageTemplate, message);
+}
+
+/**
  * Render user playlists in the UI
  */
 export function renderUserPlaylists(elements, playlists, updatePlayerState) {

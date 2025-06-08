@@ -1,5 +1,5 @@
 // Import the module
-import * as utils from '../../../Modules/Spotify/resources/assets/js/modules/utils.js';
+import * as utils from '../../../Modules/Spotify/resources/assets/js/utils/index.js';
 
 // Destructure the functions for easier use in tests
 const {
