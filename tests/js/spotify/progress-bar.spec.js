@@ -4,10 +4,10 @@ import {
   endDrag,
   seekOnClick,
   seekToPosition
-} from '../../../Modules/Spotify/resources/assets/js/modules/progress-bar.js';
+} from '../../../Modules/Spotify/resources/assets/js/ui/interactions/track-progress.js';
 
 // Mock the imported modules
-jest.mock('../../../Modules/Spotify/resources/assets/js/modules/utils.js', () => ({
+jest.mock('../../../Modules/Spotify/resources/assets/js/utils/index.js', () => ({
   postOptions: jest.fn().mockReturnValue({
     method: 'POST',
     headers: { 'X-CSRF-TOKEN': 'test-token', 'Content-Type': 'application/json' }
@@ -90,7 +90,7 @@ describe('progress-bar.js', () => {
 
   describe('drag', () => {
     it('should do nothing if not dragging', () => {
-      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       drag(mockState, mockElements, mockFormatTime, mockEvent);
 
@@ -100,7 +100,7 @@ describe('progress-bar.js', () => {
     });
 
     it('should do nothing if progressContainer is missing', () => {
-      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       const draggingState = { ...mockState, isDragging: true };
       const elementsWithoutContainer = { ...mockElements, progressContainer: null };
@@ -111,7 +111,7 @@ describe('progress-bar.js', () => {
     });
 
     it('should update progress bar width and current time when dragging', () => {
-      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       const draggingState = { ...mockState, isDragging: true };
 
@@ -126,7 +126,7 @@ describe('progress-bar.js', () => {
     });
 
     it('should clamp position between 0 and 1', () => {
-      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { updateElementContent } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       const draggingState = { ...mockState, isDragging: true };
 
@@ -174,7 +174,7 @@ describe('progress-bar.js', () => {
 
   describe('seekToPosition', () => {
     it('should call fetch with the correct URL and position data', () => {
-      const { handleResponse } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { handleResponse } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       seekToPosition(mockElements, mockUpdatePlayerState, 150000);
 

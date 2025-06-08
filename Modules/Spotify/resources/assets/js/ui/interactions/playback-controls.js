@@ -3,7 +3,7 @@
  * Contains functions for controlling playback and updating player state
  */
 
-import { postOptions, handleResponse } from '../../utils/index.js';
+import { postOptions, handleResponse, formatTime } from '../../utils/index.js';
 
 /**
  * ToDo refactor seperate interactions from upatePlayerState
@@ -53,7 +53,7 @@ export function startPeriodicUpdates(state, updatePlayerStateFn, updateState) {
     updatePlayerStateFn();
 
     // Then set up interval for future updates
-    const updateInterval = setInterval(updatePlayerStateFn, 1000);
+    const updateInterval = setInterval(() => updatePlayerStateFn(), 1000);
 
     // Update state with new interval
     return updateState(state, { updateInterval });
@@ -70,7 +70,7 @@ export function updatePlayerState(state, elements, updatePlayerUI, updateState, 
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                state = updatePlayerUI(data);
+                state = updatePlayerUI(state, elements, data, updateState, formatTime);
 
                 // If track changed, update like status and next track
                 if (state.currentTrackId !== data.item?.id) {

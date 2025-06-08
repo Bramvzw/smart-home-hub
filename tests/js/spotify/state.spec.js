@@ -1,4 +1,4 @@
-import { createInitialState, updateState } from '../../../Modules/Spotify/resources/assets/js/modules/state.js';
+import { createInitialState, updateState } from '../../../Modules/Spotify/resources/assets/js/core/state.js';
 
 describe('state.js', () => {
   describe('createInitialState', () => {

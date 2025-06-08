@@ -1,4 +1,4 @@
-import { getElements } from '../../../Modules/Spotify/resources/assets/js/modules/elements.js';
+import { getElements } from '../../../Modules/Spotify/resources/assets/js/ui/elements.js';
 
 describe('elements.js', () => {
   beforeEach(() => {

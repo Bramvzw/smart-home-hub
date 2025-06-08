@@ -111,7 +111,7 @@ export function handleResponse(response, updatePlayerState, elements) {
         .json()
         .then(data => {
             if (data.success) {
-                updatePlayerState();
+                updatePlayerState(data);
                 return data;
             } else if (data.error) {
                 handledError = true;

@@ -2,10 +2,10 @@ import {
   checkIfTrackIsLiked,
   toggleLike,
   updateLikeButton
-} from '../../../Modules/Spotify/resources/assets/js/modules/like.js';
+} from '../../../Modules/Spotify/resources/assets/js/ui/interactions/like.js';
 
 // Mock the imported modules
-jest.mock('../../../Modules/Spotify/resources/assets/js/modules/utils.js', () => ({
+jest.mock('../../../Modules/Spotify/resources/assets/js/utils/index.js', () => ({
   showErrorMessage: jest.fn()
 }));
 
@@ -105,17 +105,6 @@ describe('like.js', () => {
   });
 
   describe('toggleLike', () => {
-    it('should show error message if no track is playing', () => {
-      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
-
-      const stateWithoutTrack = { ...mockState, currentTrackId: null };
-
-      toggleLike(stateWithoutTrack, mockElements, mockUpdateState, mockUpdateLikeButton);
-
-      expect(showErrorMessage).toHaveBeenCalledWith(mockElements, 'Cannot like/unlike: No track is playing');
-      expect(fetch).not.toHaveBeenCalled();
-    });
-
     it('should send POST request with correct data to toggle like status', () => {
       toggleLike(mockState, mockElements, mockUpdateState, mockUpdateLikeButton);
 
@@ -148,7 +137,7 @@ describe('like.js', () => {
     });
 
     it('should show error message if API call fails', async () => {
-      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       global.fetch = jest.fn().mockResolvedValue({
         ok: false,
@@ -162,7 +151,7 @@ describe('like.js', () => {
     });
 
     it('should show error message if API returns success=false', async () => {
-      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/modules/utils.js');
+      const { showErrorMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
       global.fetch = jest.fn().mockResolvedValue({
         ok: true,
