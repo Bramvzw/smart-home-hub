@@ -32,7 +32,7 @@ export function renderNextTrack(elements, startPlayback, track) {
     if (!elements.nextTrackContainer) return;
 
     if (!track) {
-        displayMessage(elements.nextTrackContainer,  elements.messageTemplate, 'No upcoming tracks');
+        displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'No upcoming tracks');
         return;
     }
 
@@ -40,36 +40,32 @@ export function renderNextTrack(elements, startPlayback, track) {
         // Safely access nested properties
         const imageUrl = track.album?.images?.[0]?.url || '';
         const artistNames = track.artists?.map(a => a.name || 'Unknown').join(', ') || 'Unknown Artist';
+        const trackName = track.name || 'Unknown Track';
 
-        elements.nextTrackContainer.innerHTML = '';
-        if (!elements.nextTrackTemplate) return;
+        // Update the elements directly using updateElementContent
+        import('../../utils/index.js').then(utils => {
+            // First update the image (which has its own preloading mechanism)
+            utils.updateElementContent('next-track-image', imageUrl, 'src');
 
-        const element = elements.nextTrackTemplate.content.firstElementChild.cloneNode(true);
+            // Then update all text elements together with a small delay
+            // This allows CSS transitions to work properly in a coordinated way
+            setTimeout(() => {
+                // Set track name
+                utils.updateElementContent('next-track-name', trackName);
 
-        // Set image
-        const img = element.querySelector('img.next-track-image');
-        if (img) {
-            img.src = imageUrl;
-        }
+                // Set artist names
+                utils.updateElementContent('next-track-artists', artistNames);
+            }, 50); // Small delay for smoother transition
+        });
 
-        // Set track name
-        const nameEl = element.querySelector('.next-track-name');
-        if (nameEl) {
-            nameEl.textContent = track.name || 'Unknown Track';
-        }
-
-        // Set artist names
-        const artistsEl = element.querySelector('.next-track-artists');
-        if (artistsEl) {
-            artistsEl.textContent = artistNames;
-        }
-
-        elements.nextTrackContainer.appendChild(element);
-
-        // Add event listener for the play button
+        // Add event listener for the play button if it exists
         const playButton = elements.nextTrackContainer.querySelector('.play-next-track-btn');
         if (playButton && track.uri) {
-            playButton.addEventListener('click', function() {
+            // Remove existing listeners to prevent duplicates
+            const newPlayButton = playButton.cloneNode(true);
+            playButton.parentNode.replaceChild(newPlayButton, playButton);
+
+            newPlayButton.addEventListener('click', function() {
                 startPlayback(elements, null, track.uri);
             });
         }

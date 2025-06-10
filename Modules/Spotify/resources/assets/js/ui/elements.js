@@ -19,11 +19,9 @@ export function getElements() {
         volumeSlider: document.getElementById('volume-slider'),
         progressContainer: document.getElementById('progress-container'),
         progressBar: document.getElementById('progress-bar'),
-        recentlyPlayedContainer: document.getElementById('recently-played-container'),
         nextTrackContainer: document.getElementById('next-track'),
-        playlistTemplate: document.getElementById('playlist-item-template'),
-        nextTrackTemplate: document.getElementById('next-track-template'),
-        alertTemplate: document.getElementById('alert-template'),
-        messageTemplate: document.getElementById('message-template')
+        messageTemplate: document.getElementById('message-template'),
+        sidebar: document.getElementById('sidebar'),
+        handle: document.getElementById('sidebar-resize-btn'),
     };
 }

@@ -14,7 +14,6 @@ jest.mock('../../../Modules/Spotify/resources/assets/js/ui/elements.js', () => (
     recentlyPlayedContainer: { innerHTML: '', appendChild: jest.fn() },
     nextTrackContainer: { innerHTML: '', appendChild: jest.fn() },
     playlistTemplate: { content: { firstElementChild: { cloneNode: jest.fn() } } },
-    nextTrackTemplate: { content: { firstElementChild: { cloneNode: jest.fn() } } },
     alertTemplate: { content: { firstElementChild: { cloneNode: jest.fn() } } },
     messageTemplate: { content: { firstElementChild: { cloneNode: jest.fn() } } }
   })
@@ -69,9 +68,8 @@ jest.mock('../../../Modules/Spotify/resources/assets/js/ui/interactions/like.js'
 }));
 
 jest.mock('../../../Modules/Spotify/resources/assets/js/ui/interactions/playlists.js', () => ({
-  loadUserPlaylists: jest.fn(),
+  setupPlaylistEventListeners: jest.fn(),
   displayPlaylistMessage: jest.fn(),
-  renderUserPlaylists: jest.fn(),
   shufflePlayPlaylist: jest.fn()
 }));
 

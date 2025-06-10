@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+{{--        ToDo clear up --}}
         /* Custom styles for dark mode */
         .dark {
             --bg-primary: #121212;
@@ -32,16 +33,6 @@
             padding: 0;
             margin: 0;
         }
-        .progress-container {
-            cursor: pointer;
-        }
-        .dark-card {
-            background-color: var(--bg-card);
-            border-radius: 0.5rem;
-        }
-        .spotify-accent {
-            color: var(--accent-color);
-        }
         .spotify-accent-bg {
             background-color: var(--accent-color);
         }
@@ -50,36 +41,23 @@
             color: white;
             transition: all 0.2s;
         }
-        .spotify-btn:hover {
-            background-color: #1ed760;
-            transform: scale(1.05);
+
+        /* Add transitions for smooth UI updates */
+        #track-image, #next-track-image {
+            transition: all 0.5s ease-in-out;
         }
-        .track-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+
+        #track-name, #artist-name, #album-name,
+        #next-track-name, #next-track-artists {
+            transition: all 0.3s ease-in-out;
         }
-        .like-btn.active {
-            color: var(--accent-color);
+
+        #progress-bar {
+            transition: width 0.3s ease-in-out;
         }
-        .next-track-container {
-            position: relative;
-        }
-        .next-track-play-button {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.7);
-            opacity: 0;
-            transition: opacity 0.2s;
-            border-radius: 0.25rem;
-        }
-        .next-track-container:hover .next-track-play-button {
-            opacity: 1;
-        }
+
+
+
     </style>
 </head>
 <body class="dark-mode">
