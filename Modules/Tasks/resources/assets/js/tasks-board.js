@@ -13,6 +13,23 @@ import 'tinymce/plugins/codesample';
 import 'tinymce/plugins/autoresize';
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Load label options
+    const labelDatalist = document.getElementById('label-options');
+    if (labelDatalist) {
+        fetch('/tasks/labels')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    labelDatalist.innerHTML = '';
+                    data.labels.forEach(label => {
+                        const opt = document.createElement('option');
+                        opt.value = label;
+                        labelDatalist.appendChild(opt);
+                    });
+                }
+            })
+            .catch(() => {});
+    }
     // Initialize sortable for each lane's tasks container
     const taskContainers = document.querySelectorAll('.tasks-container');
     taskContainers.forEach(container => {
@@ -241,9 +258,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add URLs
         const urlInputs = document.querySelectorAll('#task-urls-container input[name="urls[]"]');
         const urls = Array.from(urlInputs).map(input => input.value).filter(url => url.trim() !== '');
-        if (urls.length > 0) {
-            formData.append('urls', JSON.stringify(urls));
-        }
+        urls.forEach(url => {
+            formData.append('urls[]', url);
+        });
 
         fetch('/tasks/tasks', {
             method: 'POST',
@@ -567,7 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Filter change events
     filterPriority.addEventListener('change', filterTasks);
-    filterLabel.addEventListener('change', filterTasks);
+    filterLabel.addEventListener('input', filterTasks);
     filterDueDate.addEventListener('change', filterTasks);
 
     // Filter tasks based on search and filter criteria

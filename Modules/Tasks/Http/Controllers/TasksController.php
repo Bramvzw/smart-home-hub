@@ -32,6 +32,36 @@ class TasksController extends Controller
     }
 
     /**
+     * Display tasks notifications overview.
+     */
+    public function notifications()
+    {
+        $tasksAboutToExpire = $this->tasksService->getTasksAboutToExpire();
+        $overdueTasks = Task::whereNotNull('due_date')
+            ->where('due_date', '<', now()->startOfDay())
+            ->get();
+
+        return view('tasks::notifications', [
+            'tasksAboutToExpire' => $tasksAboutToExpire,
+            'overdueTasks' => $overdueTasks,
+        ]);
+    }
+
+    /**
+     * Get all unique task labels.
+     */
+    public function labels()
+    {
+        $labels = Task::query()
+            ->whereNotNull('label')
+            ->distinct()
+            ->orderBy('label')
+            ->pluck('label');
+
+        return response()->json(['success' => true, 'labels' => $labels]);
+    }
+
+    /**
      * Create a new lane
      *
      * @param Request $request

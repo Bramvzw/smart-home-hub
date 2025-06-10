@@ -10,7 +10,10 @@
                 <div id="tasks-board" class="p-4 flex flex-col flex-grow overflow-hidden">
                     <div class="flex flex-col space-y-4 mb-6">
                         <div class="flex justify-between items-center">
-                            <h1 class="text-3xl font-bold text-white">Tasks Board</h1>
+                            <div class="flex items-center space-x-4">
+                                <h1 class="text-3xl font-bold text-white">Tasks Board</h1>
+                                <a href="{{ route('tasks.notifications') }}" class="text-indigo-400 hover:text-indigo-300">Notifications</a>
+                            </div>
 
                             {{-- Add Lane Button --}}
                             <button id="add-lane-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md shadow-md transition-all duration-200 transform hover:scale-105 flex items-center">
@@ -66,14 +69,7 @@
 
                                 <div>
                                     <label for="filter-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                                    <select id="filter-label" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
-                                        <option value="">All Labels</option>
-                                        <option value="bug">Bug</option>
-                                        <option value="feature">Feature</option>
-                                        <option value="enhancement">Enhancement</option>
-                                        <option value="documentation">Documentation</option>
-                                        <option value="question">Question</option>
-                                    </select>
+                                    <input type="text" id="filter-label" list="label-options" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="All Labels">
                                 </div>
 
                                 <div>
@@ -174,14 +170,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label for="task-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                        <select id="task-label" name="label" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
-                            <option value="">None</option>
-                            <option value="bug">Bug</option>
-                            <option value="feature">Feature</option>
-                            <option value="enhancement">Enhancement</option>
-                            <option value="documentation">Documentation</option>
-                            <option value="question">Question</option>
-                        </select>
+                        <input type="text" id="task-label" name="label" list="label-options" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="None">
                     </div>
 
                     <div>
@@ -270,14 +259,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label for="edit-task-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                        <select id="edit-task-label" name="label" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
-                            <option value="">None</option>
-                            <option value="bug">Bug</option>
-                            <option value="feature">Feature</option>
-                            <option value="enhancement">Enhancement</option>
-                            <option value="documentation">Documentation</option>
-                            <option value="question">Question</option>
-                        </select>
+                        <input type="text" id="edit-task-label" name="label" list="label-options" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="None">
                     </div>
 
                     <div>
@@ -401,4 +383,11 @@
             </form>
         </div>
     </div>
+    <datalist id="label-options">
+        <option value="bug">
+        <option value="feature">
+        <option value="enhancement">
+        <option value="documentation">
+        <option value="question">
+    </datalist>
 @endsection
