@@ -164,6 +164,16 @@ class SpotifyService
     }
 
     /**
+     * Get the current playback state
+     *
+     * @return array
+     */
+    public function getCurrentEpisode()
+    {
+        return $this->makeRequest('GET', '/me/player');
+    }
+
+    /**
      * Start or resume playback
      *
      * @param string|null $uri URI of the track, album, or playlist to play

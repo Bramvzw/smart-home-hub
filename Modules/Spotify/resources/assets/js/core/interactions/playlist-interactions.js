@@ -1,9 +1,9 @@
-import { loadUserPlaylists, renderUserPlaylists, shufflePlayPlaylist } from '../../ui/interactions/playlists.js';
+import { setupPlaylistEventListeners, shufflePlayPlaylist } from '../../ui/interactions/playlists.js';
 
 export function setupPlaylistInteractions(controller) {
     return {
         loadUserPlaylists: () => {
-            loadUserPlaylists(controller.elements, (els, playlists) => renderUserPlaylists(els, playlists, controller.updatePlayerState));
+            setupPlaylistEventListeners(controller.elements, controller.updatePlayerState);
         },
 
         shufflePlayPlaylist: uri => {

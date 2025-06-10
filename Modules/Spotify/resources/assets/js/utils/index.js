@@ -31,14 +31,30 @@ export function postOptions(csrfToken) {
 }
 
 /**
- * Helper function to update element content
+ * Helper function to update element content with a smooth transition
  * @param {string} elementId - The ID of the element to update
  * @param {string} content - The content to set
  * @param {string} property - The property to set (default: 'textContent')
  */
 export function updateElementContent(elementId, content, property = 'textContent') {
     const element = document.getElementById(elementId);
-    if (element) {
+    if (!element) return;
+
+    // For image elements, handle differently to ensure smooth transitions
+    if (property === 'src' && element.tagName === 'IMG') {
+        // Only update if the content is different
+        if (element.src !== content) {
+            // Create a new image to preload
+            const newImage = new Image();
+            newImage.onload = function() {
+                // Once preloaded, update the src
+                element.src = content;
+            };
+            newImage.src = content;
+        }
+    } else {
+        // For text content, just update directly
+        // The CSS transitions will handle the smooth effect
         element[property] = content;
     }
 }
@@ -138,8 +154,15 @@ export function handleResponse(response, updatePlayerState, elements) {
 export function displayMessage(container, messageTemplate, message) {
     if (!container || !messageTemplate) return;
 
-    container.innerHTML = '';
+    // Create a clone of the template
     const msg = messageTemplate.content.firstElementChild.cloneNode(true);
     msg.textContent = message;
+
+    // Clear the container carefully
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+
+    // Append the message
     container.appendChild(msg);
 }

@@ -1,7 +1,5 @@
 import {
-  loadUserPlaylists,
-  displayPlaylistMessage,
-  renderUserPlaylists,
+  setupPlaylistEventListeners,
   shufflePlayPlaylist
 } from '../../../Modules/Spotify/resources/assets/js/ui/interactions/playlists.js';
 
@@ -18,8 +16,6 @@ jest.mock('../../../Modules/Spotify/resources/assets/js/utils/index.js', () => (
 
 describe('playlists.js', () => {
   let mockElements;
-  let mockPlaylists;
-  let mockRenderUserPlaylists;
   let mockUpdatePlayerState;
 
   beforeEach(() => {
@@ -36,7 +32,23 @@ describe('playlists.js', () => {
       csrfToken: 'test-token',
       recentlyPlayedContainer: {
         innerHTML: '',
-        appendChild: jest.fn()
+        appendChild: jest.fn(),
+        querySelectorAll: jest.fn().mockReturnValue([
+          {
+            getAttribute: jest.fn().mockImplementation(attr => {
+              if (attr === 'data-id') return 'liked-songs';
+              return null;
+            }),
+            addEventListener: jest.fn()
+          },
+          {
+            getAttribute: jest.fn().mockImplementation(attr => {
+              if (attr === 'data-uri') return 'spotify:playlist:1';
+              return null;
+            }),
+            addEventListener: jest.fn()
+          }
+        ])
       },
       messageTemplate: {
         content: {
@@ -44,226 +56,73 @@ describe('playlists.js', () => {
             cloneNode: jest.fn().mockReturnValue({})
           }
         }
-      },
-      playlistTemplate: {
-        content: {
-          firstElementChild: {
-            cloneNode: jest.fn().mockReturnValue({
-              setAttribute: jest.fn(),
-              addEventListener: jest.fn(),
-              querySelector: jest.fn().mockReturnValue({
-                src: '',
-                alt: ''
-              })
-            })
-          }
-        }
       }
     };
 
-    mockPlaylists = [
-      {
-        id: 'playlist-1',
-        name: 'Test Playlist 1',
-        uri: 'spotify:playlist:1',
-        images: [
-          { url: 'image-url-1', width: 300 },
-          { url: 'image-url-2', width: 600 }
-        ]
-      },
-      {
-        id: 'liked-songs',
-        name: 'Liked Songs',
-        images: [
-          { url: 'liked-songs-image', width: 300 }
-        ]
-      }
-    ];
-
-    mockRenderUserPlaylists = jest.fn();
     mockUpdatePlayerState = jest.fn();
   });
 
-  describe('loadUserPlaylists', () => {
-    it('should fetch user playlists from the API', () => {
-      loadUserPlaylists(mockElements, mockRenderUserPlaylists);
+  describe('setupPlaylistEventListeners', () => {
+    it('should add click event listeners to playlist items', () => {
+      setupPlaylistEventListeners(mockElements, mockUpdatePlayerState);
 
-      expect(fetch).toHaveBeenCalledWith('/spotify/user-playlists');
+      // Get the playlist items from the mock
+      const playlistItems = mockElements.recentlyPlayedContainer.querySelectorAll();
+
+      // Verify that event listeners were added to each item
+      expect(playlistItems[0].addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+      expect(playlistItems[1].addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
     });
 
-    it('should call renderUserPlaylists with playlists if successful', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        json: jest.fn().mockResolvedValue({
-          success: true,
-          playlists: mockPlaylists
-        })
-      });
+    it('should show success message when clicking on Liked Songs playlist', () => {
+      const { showSuccessMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
-      await loadUserPlaylists(mockElements, mockRenderUserPlaylists);
+      setupPlaylistEventListeners(mockElements, mockUpdatePlayerState);
 
-      expect(mockRenderUserPlaylists).toHaveBeenCalledWith(mockElements, mockPlaylists);
-    });
+      // Get the playlist items from the mock
+      const playlistItems = mockElements.recentlyPlayedContainer.querySelectorAll();
 
-    it('should display message if no playlists found', async () => {
-      global.fetch = jest.fn().mockResolvedValue({
-        json: jest.fn().mockResolvedValue({
-          success: true,
-          playlists: null
-        })
-      });
-
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
-
-      await loadUserPlaylists(mockElements, mockRenderUserPlaylists);
-
-      expect(displayMessage).toHaveBeenCalledWith(
-        mockElements.recentlyPlayedContainer,
-        mockElements.messageTemplate,
-        'No playlists found in your library'
-      );
-    });
-
-    it('should display error message if API call fails', async () => {
-      global.fetch = jest.fn().mockRejectedValue(new Error('API error'));
-
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
-
-      await loadUserPlaylists(mockElements, mockRenderUserPlaylists);
-
-      expect(displayMessage).toHaveBeenCalledWith(
-        mockElements.recentlyPlayedContainer,
-        mockElements.messageTemplate,
-        'Error loading playlists'
-      );
-    });
-  });
-
-  describe('displayPlaylistMessage', () => {
-    it('should call displayMessage with correct parameters', () => {
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
-
-      displayPlaylistMessage(mockElements, 'Test message');
-
-      expect(displayMessage).toHaveBeenCalledWith(
-        mockElements.recentlyPlayedContainer,
-        mockElements.messageTemplate,
-        'Test message'
-      );
-    });
-  });
-
-  describe('renderUserPlaylists', () => {
-    it('should return early if recentlyPlayedContainer is missing', () => {
-      const elementsWithoutContainer = { ...mockElements, recentlyPlayedContainer: null };
-
-      renderUserPlaylists(elementsWithoutContainer, mockPlaylists, mockUpdatePlayerState);
-
-      expect(mockElements.playlistTemplate.content.firstElementChild.cloneNode).not.toHaveBeenCalled();
-    });
-
-    it('should display message if playlists array is empty', () => {
-      const { displayMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
-
-      renderUserPlaylists(mockElements, [], mockUpdatePlayerState);
-
-      expect(displayMessage).toHaveBeenCalledWith(
-        mockElements.recentlyPlayedContainer,
-        mockElements.messageTemplate,
-        'No playlists found in your library'
-      );
-    });
-
-    it('should clear container and render each playlist', () => {
-      renderUserPlaylists(mockElements, mockPlaylists, mockUpdatePlayerState);
-
-      // Should clear the container
-      expect(mockElements.recentlyPlayedContainer.innerHTML).toBe('');
-
-      // Should create elements for each playlist
-      expect(mockElements.playlistTemplate.content.firstElementChild.cloneNode).toHaveBeenCalledTimes(2);
-
-      // Should append elements to container
-      expect(mockElements.recentlyPlayedContainer.appendChild).toHaveBeenCalledTimes(2);
-    });
-
-    it('should handle Liked Songs playlist specially', () => {
-      const mockPlaylistElement = {
-        setAttribute: jest.fn(),
-        addEventListener: jest.fn(),
-        querySelector: jest.fn().mockReturnValue({
-          src: '',
-          alt: ''
-        })
-      };
-
-      mockElements.playlistTemplate.content.firstElementChild.cloneNode.mockReturnValue(mockPlaylistElement);
-
-      renderUserPlaylists(mockElements, [mockPlaylists[1]], mockUpdatePlayerState);
-
-      // Should set data-id attribute for Liked Songs
-      expect(mockPlaylistElement.setAttribute).toHaveBeenCalledWith('data-id', 'liked-songs');
-
-      // Should add click event listener
-      expect(mockPlaylistElement.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+      // Get the click handler for the Liked Songs playlist
+      const clickHandler = playlistItems[0].addEventListener.mock.calls[0][1];
 
       // Call the click handler
-      const clickHandler = mockPlaylistElement.addEventListener.mock.calls[0][1];
       clickHandler();
 
-      // Should show success message for Liked Songs
-      const { showSuccessMessage } = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
-      expect(showSuccessMessage).toHaveBeenCalledWith(mockElements, 'Playing Liked Songs feature coming soon!');
+      // Verify that showSuccessMessage was called
+      expect(showSuccessMessage).toHaveBeenCalledWith(
+        mockElements,
+        'Playing Liked Songs feature coming soon!'
+      );
     });
 
-    it('should handle regular playlists correctly', () => {
-      const mockPlaylistElement = {
-        setAttribute: jest.fn(),
-        addEventListener: jest.fn(),
-        querySelector: jest.fn().mockReturnValue({
-          src: '',
-          alt: ''
-        })
-      };
-
-      mockElements.playlistTemplate.content.firstElementChild.cloneNode.mockReturnValue(mockPlaylistElement);
-
-      renderUserPlaylists(mockElements, [mockPlaylists[0]], mockUpdatePlayerState);
-
-      // Should set data-uri attribute for regular playlist
-      expect(mockPlaylistElement.setAttribute).toHaveBeenCalledWith('data-uri', 'spotify:playlist:1');
-
-      // Should add click event listener
-      expect(mockPlaylistElement.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
-
-      // Mock shufflePlayPlaylist
+    it('should call shufflePlayPlaylist when clicking on a regular playlist', () => {
+      // Mock the shufflePlayPlaylist function
       const originalShufflePlayPlaylist = shufflePlayPlaylist;
       global.shufflePlayPlaylist = jest.fn();
 
+      setupPlaylistEventListeners(mockElements, mockUpdatePlayerState);
+
+      // Get the playlist items from the mock
+      const playlistItems = mockElements.recentlyPlayedContainer.querySelectorAll();
+
+      // Get the click handler for the regular playlist
+      const clickHandler = playlistItems[1].addEventListener.mock.calls[0][1];
+
       // Call the click handler
-      const clickHandler = mockPlaylistElement.addEventListener.mock.calls[0][1];
       clickHandler();
 
-      // Should call shufflePlayPlaylist for regular playlist
-      expect(global.shufflePlayPlaylist).toHaveBeenCalledWith(mockElements, mockUpdatePlayerState, 'spotify:playlist:1');
+      // Verify that shufflePlayPlaylist was called with the correct URI
+      expect(global.shufflePlayPlaylist).toHaveBeenCalledWith(
+        mockElements,
+        mockUpdatePlayerState,
+        'spotify:playlist:1'
+      );
 
-      // Restore original function
+      // Restore the original function
       global.shufflePlayPlaylist = originalShufflePlayPlaylist;
     });
-
-    it('should skip playlists without images', () => {
-      const playlistWithoutImages = {
-        id: 'playlist-no-images',
-        name: 'No Images',
-        uri: 'spotify:playlist:no-images',
-        images: []
-      };
-
-      renderUserPlaylists(mockElements, [playlistWithoutImages], mockUpdatePlayerState);
-
-      // Should not create elements for playlists without images
-      expect(mockElements.playlistTemplate.content.firstElementChild.cloneNode).not.toHaveBeenCalled();
-    });
   });
+
 
   describe('shufflePlayPlaylist', () => {
     it('should call fetch with the correct URL and playlist URI', () => {

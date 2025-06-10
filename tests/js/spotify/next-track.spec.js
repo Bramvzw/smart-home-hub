@@ -5,7 +5,8 @@ import {
 
 // Mock the imported modules
 jest.mock('../../../Modules/Spotify/resources/assets/js/utils/index.js', () => ({
-    displayMessage: jest.fn()
+    displayMessage: jest.fn(),
+    updateElementContent: jest.fn()
 }));
 
 describe('next-track.js', () => {
@@ -27,29 +28,20 @@ describe('next-track.js', () => {
         mockElements = {
             nextTrackContainer: {
                 innerHTML: '',
-                appendChild: jest.fn(),
                 querySelector: jest.fn().mockReturnValue({
-                    addEventListener: jest.fn()
+                    addEventListener: jest.fn(),
+                    cloneNode: jest.fn().mockReturnValue({
+                        addEventListener: jest.fn()
+                    }),
+                    parentNode: {
+                        replaceChild: jest.fn()
+                    }
                 })
             },
             messageTemplate: {
                 content: {
                     firstElementChild: {
                         cloneNode: jest.fn().mockReturnValue({})
-                    }
-                }
-            },
-            nextTrackTemplate: {
-                content: {
-                    firstElementChild: {
-                        cloneNode: jest.fn().mockReturnValue({
-                            querySelector: jest.fn().mockImplementation((selector) => {
-                                if (selector === 'img.next-track-image') return {src: ''};
-                                if (selector === '.next-track-name') return {textContent: ''};
-                                if (selector === '.next-track-artists') return {textContent: ''};
-                                return null;
-                            })
-                        })
                     }
                 }
             }
@@ -138,10 +130,11 @@ describe('next-track.js', () => {
     describe('renderNextTrack', () => {
         it('should return early if nextTrackContainer is missing', () => {
             const elementsWithoutContainer = {...mockElements, nextTrackContainer: null};
+            const {updateElementContent} = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
             renderNextTrack(elementsWithoutContainer, mockStartPlayback, mockTrack);
 
-            expect(mockElements.nextTrackTemplate.content.firstElementChild.cloneNode).not.toHaveBeenCalled();
+            expect(updateElementContent).not.toHaveBeenCalled();
         });
 
         it('should display message if track is null', () => {
@@ -156,110 +149,74 @@ describe('next-track.js', () => {
             );
         });
 
-        it('should clear container and render track', () => {
-            const mockElement = {
-                querySelector: jest.fn().mockImplementation((selector) => {
-                    if (selector === 'img.next-track-image') return {src: ''};
-                    if (selector === '.next-track-name') return {textContent: ''};
-                    if (selector === '.next-track-artists') return {textContent: ''};
-                    return null;
-                })
-            };
+        it('should update track details correctly', async () => {
+            const {updateElementContent} = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
-            mockElements.nextTrackTemplate.content.firstElementChild.cloneNode.mockReturnValue(mockElement);
+            // Mock the dynamic import
+            jest.spyOn(Promise, 'resolve').mockImplementation(value => value);
 
             renderNextTrack(mockElements, mockStartPlayback, mockTrack);
 
-            // Should clear the container
-            expect(mockElements.nextTrackContainer.innerHTML).toBe('');
+            // Wait for the Promise.resolve to be called
+            await Promise.resolve();
 
-            // Should create element for track
-            expect(mockElements.nextTrackTemplate.content.firstElementChild.cloneNode).toHaveBeenCalled();
+            // Should update image src
+            expect(updateElementContent).toHaveBeenCalledWith('next-track-image', 'test-image-url', 'src');
 
-            // Should append element to container
-            expect(mockElements.nextTrackContainer.appendChild).toHaveBeenCalledWith(mockElement);
-        });
+            // Should update track name
+            expect(updateElementContent).toHaveBeenCalledWith('next-track-name', 'Test Track');
 
-        it('should set track details correctly', () => {
-            const mockImg = {src: ''};
-            const mockNameEl = {textContent: ''};
-            const mockArtistsEl = {textContent: ''};
-
-            const mockElement = {
-                querySelector: jest.fn().mockImplementation((selector) => {
-                    if (selector === 'img.next-track-image') return mockImg;
-                    if (selector === '.next-track-name') return mockNameEl;
-                    if (selector === '.next-track-artists') return mockArtistsEl;
-                    return null;
-                })
-            };
-
-            mockElements.nextTrackTemplate.content.firstElementChild.cloneNode.mockReturnValue(mockElement);
-
-            renderNextTrack(mockElements, mockStartPlayback, mockTrack);
-
-            // Should set image src
-            expect(mockImg.src).toBe('test-image-url');
-
-            // Should set track name
-            expect(mockNameEl.textContent).toBe('Test Track');
-
-            // Should set artist names
-            expect(mockArtistsEl.textContent).toBe('Test Artist');
+            // Should update artist names
+            expect(updateElementContent).toHaveBeenCalledWith('next-track-artists', 'Test Artist');
         });
 
         it('should add click event listener to play button', () => {
-            const playButton = {addEventListener: jest.fn()};
-            mockElements.nextTrackContainer.querySelector.mockReturnValue(playButton);
+            const playButton = mockElements.nextTrackContainer.querySelector();
 
             renderNextTrack(mockElements, mockStartPlayback, mockTrack);
 
             // Should add click event listener
-            expect(playButton.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+            expect(playButton.parentNode.replaceChild).toHaveBeenCalled();
 
-            // Call the click handler
-            const clickHandler = playButton.addEventListener.mock.calls[0][1];
-            clickHandler();
+            // Get the new button that was created
+            const newButton = playButton.cloneNode();
+
+            // Call the click handler that would be attached to the new button
+            const clickHandler = newButton.addEventListener.mock.calls[0][1];
+            if (clickHandler) clickHandler();
 
             // Should call startPlayback with track URI
             expect(mockStartPlayback).toHaveBeenCalledWith(mockElements, null, 'spotify:track:123');
         });
 
-        it('should handle missing track properties gracefully', () => {
+        it('should handle missing track properties gracefully', async () => {
             const incompleteTrack = {
                 name: 'Test Track',
                 uri: 'spotify:track:123'
                 // Missing artists and album
             };
 
-            const mockImg = {src: ''};
-            const mockNameEl = {textContent: ''};
-            const mockArtistsEl = {textContent: ''};
+            const {updateElementContent} = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
-            const mockElement = {
-                querySelector: jest.fn().mockImplementation((selector) => {
-                    if (selector === 'img.next-track-image') return mockImg;
-                    if (selector === '.next-track-name') return mockNameEl;
-                    if (selector === '.next-track-artists') return mockArtistsEl;
-                    return null;
-                })
-            };
-
-            mockElements.nextTrackTemplate.content.firstElementChild.cloneNode.mockReturnValue(mockElement);
+            // Mock the dynamic import
+            jest.spyOn(Promise, 'resolve').mockImplementation(value => value);
 
             renderNextTrack(mockElements, mockStartPlayback, incompleteTrack);
 
+            // Wait for the Promise.resolve to be called
+            await Promise.resolve();
+
             // Should set default values for missing properties
-            expect(mockImg.src).toBe('');
-            expect(mockNameEl.textContent).toBe('Test Track');
-            expect(mockArtistsEl.textContent).toBe('Unknown Artist');
+            expect(updateElementContent).toHaveBeenCalledWith('next-track-image', '', 'src');
+            expect(updateElementContent).toHaveBeenCalledWith('next-track-name', 'Test Track');
+            expect(updateElementContent).toHaveBeenCalledWith('next-track-artists', 'Unknown Artist');
         });
 
         it('should display error message if rendering fails', () => {
-            const {displayMessage} = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
+            const {displayMessage, updateElementContent} = require('../../../Modules/Spotify/resources/assets/js/utils/index.js');
 
-            // Force an error by making cloneNode throw
-            mockElements.nextTrackTemplate.content.firstElementChild.cloneNode.mockImplementation(() => {
+            // Force an error by making updateElementContent throw
+            updateElementContent.mockImplementation(() => {
                 throw new Error('Rendering error');
             });
 

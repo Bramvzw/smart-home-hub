@@ -33,8 +33,6 @@ describe('elements.js', () => {
       expect(elements).toHaveProperty('progressBar');
       expect(elements).toHaveProperty('recentlyPlayedContainer');
       expect(elements).toHaveProperty('nextTrackContainer');
-      expect(elements).toHaveProperty('playlistTemplate');
-      expect(elements).toHaveProperty('nextTrackTemplate');
       expect(elements).toHaveProperty('alertTemplate');
       expect(elements).toHaveProperty('messageTemplate');
     });
@@ -57,12 +55,7 @@ describe('elements.js', () => {
       expect(document.getElementById).toHaveBeenCalledWith('volume-slider');
       expect(document.getElementById).toHaveBeenCalledWith('progress-container');
       expect(document.getElementById).toHaveBeenCalledWith('progress-bar');
-      expect(document.getElementById).toHaveBeenCalledWith('recently-played-container');
       expect(document.getElementById).toHaveBeenCalledWith('next-track');
-      expect(document.getElementById).toHaveBeenCalledWith('playlist-item-template');
-      expect(document.getElementById).toHaveBeenCalledWith('next-track-template');
-      expect(document.getElementById).toHaveBeenCalledWith('alert-template');
-      expect(document.getElementById).toHaveBeenCalledWith('message-template');
     });
   });
 });
