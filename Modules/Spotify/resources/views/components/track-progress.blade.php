@@ -15,7 +15,7 @@
             @endif
         </span>
     </div>
-    <div id="progress-container" class="h-2 bg-gray-700 rounded-full progress-container">
+    <div id="progress-container" class="h-2 cursor-pointer bg-gray-700 rounded-full progress-container">
         <div id="progress-bar" class="h-full spotify-accent-bg rounded-full" style="width:
             @if (isset($playbackState['progress_ms']) && isset($playbackState['item']['duration_ms']))
                 {{ ($playbackState['progress_ms'] / $playbackState['item']['duration_ms']) * 100 }}%
