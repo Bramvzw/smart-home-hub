@@ -1,0 +1,11 @@
+{
+    "name": "Tasks",
+    "alias": "tasks",
+    "description": "A to-do list module with draggable task cards",
+    "keywords": ["tasks", "todo", "kanban"],
+    "priority": 0,
+    "providers": [
+        "Modules\\Tasks\\Providers\\TasksServiceProvider"
+    ],
+    "files": []
+}

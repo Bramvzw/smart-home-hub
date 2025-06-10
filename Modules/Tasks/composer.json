@@ -1,0 +1,21 @@
+{
+    "name": "smart-home-hub/tasks",
+    "description": "A to-do list module with draggable task cards",
+    "authors": [
+        {
+            "name": "Smart Home Hub",
+            "email": "info@smarthomehub.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Tasks\\": ""
+        }
+    }
+}
