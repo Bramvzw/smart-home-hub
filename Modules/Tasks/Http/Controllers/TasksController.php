@@ -113,34 +113,34 @@ class TasksController extends Controller
      * Create a new task
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function createTask(Request $request)
     {
-        $validated = $request->validate([
+        $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'label' => 'nullable|string|max:255',
             'lane_id' => 'required|exists:lanes,id',
+            'label' => 'nullable|string|max:50',
+            'priority' => 'nullable|in:low,medium,high',
             'due_date' => 'nullable|date',
-            'priority' => 'nullable|string|in:low,medium,high',
-            'urls' => 'nullable|array',
-            'urls.*' => 'url',
-            'notify_before_expiry' => 'nullable|boolean',
+            'notify_before_expiry' => 'boolean',
+            'urls' => 'array',
+            'urls.*' => 'nullable|url',
         ]);
 
-        $task = $this->tasksService->createTask(
-            $validated['title'],
-            $validated['description'] ?? null,
-            $validated['label'] ?? null,
-            $validated['lane_id'],
-            $validated['due_date'] ?? null,
-            $validated['priority'] ?? null,
-            $validated['urls'] ?? null,
-            $validated['notify_before_expiry'] ?? false
-        );
+        $task = Task::create($data);
 
-        return response()->json(['success' => true, 'task' => $task]);
+        // If this is an AJAX/fetch request, return JSON
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'task' => $task,
+            ]);
+        }
+
+        // Otherwise, redirect as normal
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task created!');
     }
 
     /**
@@ -415,9 +415,9 @@ class TasksController extends Controller
         // Search by title or description
         if ($request->has('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
