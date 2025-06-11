@@ -307,11 +307,16 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 console.error('Failed to create task:', data.message);
             }
-        })
-        .catch(error => {
-            console.error('Error creating task:', error);
-        });
-    });
+        editTaskForm?.reset();
+    if (cancelEditTask) {
+        cancelEditTask.addEventListener('click', closeEditTaskModal);
+    }
+    if (cancelEditTaskBtn) {
+        cancelEditTaskBtn.addEventListener('click', closeEditTaskModal);
+    }
+    if (editTaskForm) {
+        editTaskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
 
     // Edit Task Buttons
     const editTaskButtons = document.querySelectorAll('.edit-task-button');
@@ -375,6 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     cancelEditTask.addEventListener('click', closeEditTaskModal);
+    }
     cancelEditTaskBtn.addEventListener('click', closeEditTaskModal);
 
     editTaskForm.addEventListener('submit', function(e) {
@@ -635,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
         provideFallbackEditors();
     }
 
-    // Function to provide fallback editors
+            editTaskForm?.reset();
     function provideFallbackEditors() {
         ['task-description', 'edit-task-description'].forEach(id => {
             const element = document.getElementById(id);
