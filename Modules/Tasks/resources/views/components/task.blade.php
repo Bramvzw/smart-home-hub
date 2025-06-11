@@ -19,7 +19,7 @@
             <button class="edit-task-button text-gray-300 hover:text-indigo-400 transition-colors duration-200"
                 data-task-id="{{ $task->id }}"
                 data-task-title="{{ $task->title }}"
-                data-task-description="{{ htmlspecialchars($task->description) }}"
+                data-task-description="{{ e($task->description) }}"
                 data-task-label="{{ $task->label }}"
                 data-task-due-date="{{ $task->due_date ? $task->due_date->format('Y-m-d') : '' }}"
                 data-task-priority="{{ $task->priority }}"

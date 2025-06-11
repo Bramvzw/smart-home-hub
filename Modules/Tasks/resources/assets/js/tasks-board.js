@@ -44,8 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 selector,
                 height: 200,
                 menubar: false,
-                skin: 'oxide-dark',
-                content_css: 'dark',
+                skin: 'dark',
+                content_css: 'default',
+                content_style: `
+                    body {
+                      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                      font-size: 0.875rem; /* matches Tailwind's base text-sm (14px) */
+                      color: #E5E7EB;      /* Tailwind's text-gray-200, if you want that inside the editor */
+                    }
+                  `,
                 plugins: ['lists','link','image','table','code','codesample','autoresize'],
                 toolbar: 'undo redo | formatselect | bold italic | bullist numlist | link image | table | code',
                 toolbar_mode: 'floating',
@@ -338,17 +345,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const editTaskForm   = document.getElementById('edit-task-form');
 
     editTaskBtns.forEach(btn => btn.addEventListener('click', () => {
-        document.getElementById('edit-task-id').value       = btn.dataset.taskId;
-        document.getElementById('edit-task-title').value    = btn.dataset.taskTitle;
-        document.getElementById('edit-task-label').value    = btn.dataset.taskLabel || '';
+        document.getElementById('edit-task-id').value = btn.dataset.taskId;
+        document.getElementById('edit-task-title').value = btn.dataset.taskTitle;
+        document.getElementById('edit-task-label').value = btn.dataset.taskLabel || '';
         document.getElementById('edit-task-priority').value = btn.dataset.taskPriority || '';
         document.getElementById('edit-task-due-date').value = btn.dataset.taskDueDate || '';
-        document.getElementById('edit-task-notify').checked  = btn.dataset.taskNotify === 'true';
+        document.getElementById('edit-task-notify').checked = btn.dataset.taskNotify === 'true';
+        document.getElementById('edit-task-id').value    = btn.dataset.taskId;
+        document.getElementById('edit-task-title').value = btn.dataset.taskTitle;
+        // …
 
-        removeTiny('#edit-task-description');
+        // 1) Grab the entity‐escaped string
+        let raw = btn.getAttribute('data-task-description') || '';
+
+        // 2) Decode HTML entities
+        //    using a <textarea> or DOMParser:
+        const txt = document.createElement('textarea');
+        txt.innerHTML = raw;
+        raw = txt.value;  // now "<p>test</p>"
+
+        const ta = document.getElementById('edit-task-description');
+        ta.value = raw;
         toggleModal(editTaskModal, true);
         initTiny('#edit-task-description');
-        tinymce.get('edit-task-description')?.setContent(btn.dataset.taskDescription || '');
+
     }));
     ['cancel-edit-task','cancel-edit-task-btn'].forEach(id =>
         document.getElementById(id)
