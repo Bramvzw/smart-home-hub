@@ -16,6 +16,8 @@
         "jest-environment-jsdom": "^29.7.0",
         "laravel-vite-plugin": "^1.2.0",
         "tailwindcss": "^4.0.0",
-        "vite": "^6.2.4"
+        "vite": "^6.2.4",
+        "sortablejs": "^1.15.0",
+        "tinymce": "^6.4.2"
     }
 }
