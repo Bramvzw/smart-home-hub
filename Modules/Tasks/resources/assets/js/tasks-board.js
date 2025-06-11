@@ -226,8 +226,8 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
 
         // Get TinyMCE content or fallback to textarea value
-        const editor = tinymce.get('task-description');
-        const description = editor ? editor.getContent() : document.getElementById('task-description').value;
+        const addTaskEditor = tinymce.get('task-description');
+        const description = addTaskEditor ? addTaskEditor.getContent() : document.getElementById('task-description').value;
         const editor = tinymce.get('task-description');
         if (editor) {
             description = editor.getContent();
@@ -317,8 +317,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const editTaskButtons = document.querySelectorAll('.edit-task-button');
     const editTaskModal = document.getElementById('edit-task-modal');
         // Get TinyMCE content or fallback to textarea value
-        const editorEdit = tinymce.get('edit-task-description');
-        const description = editorEdit ? editorEdit.getContent() : document.getElementById('edit-task-description').value;
+        const editTaskEditor = tinymce.get('edit-task-description');
+        const description = editTaskEditor ? editTaskEditor.getContent() : document.getElementById('edit-task-description').value;
     const editTaskTitle = document.getElementById('edit-task-title');
     const editTaskDescription = document.getElementById('edit-task-description');
     const editTaskLabel = document.getElementById('edit-task-label');
