@@ -1,5 +1,8 @@
 @extends('tasks::layouts.app')
-@vite(['Modules/Tasks/resources/assets/js/tasks-board.js', 'Modules/Tasks/resources/assets/css/tasks.css'])
+
+@section('scripts')
+    @vite(['Modules/Tasks/resources/assets/js/tasks-board.js', 'Modules/Tasks/resources/assets/css/tasks.css'])
+@endsection
 
 @section('title', 'Tasks Board')
 
