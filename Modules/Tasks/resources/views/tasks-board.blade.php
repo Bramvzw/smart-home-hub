@@ -1,5 +1,8 @@
 @extends('tasks::layouts.app')
-@vite(['Modules/Tasks/resources/assets/js/tasks-board.js', 'Modules/Tasks/resources/assets/css/tasks.css'])
+
+@section('scripts')
+    @vite(['Modules/Tasks/resources/assets/js/tasks-board.js', 'Modules/Tasks/resources/assets/css/tasks.css'])
+@endsection
 
 @section('title', 'Tasks Board')
 
@@ -10,7 +13,10 @@
                 <div id="tasks-board" class="p-4 flex flex-col flex-grow overflow-hidden">
                     <div class="flex flex-col space-y-4 mb-6">
                         <div class="flex justify-between items-center">
-                            <h1 class="text-3xl font-bold text-white">Tasks Board</h1>
+                            <div class="flex items-center space-x-4">
+                                <h1 class="text-3xl font-bold text-white">Tasks Board</h1>
+                                <a href="{{ route('tasks.notifications') }}" class="text-indigo-400 hover:text-indigo-300">Notifications</a>
+                            </div>
 
                             {{-- Add Lane Button --}}
                             <button id="add-lane-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md shadow-md transition-all duration-200 transform hover:scale-105 flex items-center">
@@ -66,14 +72,7 @@
 
                                 <div>
                                     <label for="filter-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                                    <select id="filter-label" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
-                                        <option value="">All Labels</option>
-                                        <option value="bug">Bug</option>
-                                        <option value="feature">Feature</option>
-                                        <option value="enhancement">Enhancement</option>
-                                        <option value="documentation">Documentation</option>
-                                        <option value="question">Question</option>
-                                    </select>
+                                    <input type="text" id="filter-label" list="label-options" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="All Labels">
                                 </div>
 
                                 <div>
@@ -174,14 +173,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label for="task-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                        <select id="task-label" name="label" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
-                            <option value="">None</option>
-                            <option value="bug">Bug</option>
-                            <option value="feature">Feature</option>
-                            <option value="enhancement">Enhancement</option>
-                            <option value="documentation">Documentation</option>
-                            <option value="question">Question</option>
-                        </select>
+                        <input type="text" id="task-label" name="label" list="label-options" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="None">
                     </div>
 
                     <div>
@@ -270,14 +262,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div>
                         <label for="edit-task-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                        <select id="edit-task-label" name="label" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
-                            <option value="">None</option>
-                            <option value="bug">Bug</option>
-                            <option value="feature">Feature</option>
-                            <option value="enhancement">Enhancement</option>
-                            <option value="documentation">Documentation</option>
-                            <option value="question">Question</option>
-                        </select>
+                        <input type="text" id="edit-task-label" name="label" list="label-options" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="None">
                     </div>
 
                     <div>
@@ -399,6 +384,61 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+    <datalist id="label-options">
+        <option value="bug">
+        <option value="feature">
+        <option value="enhancement">
+        <option value="documentation">
+        <option value="question">
+    </datalist>
+
+    {{-- Task Detail Modal --}}
+    <div id="task-detail-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-[500px] max-h-[90vh] overflow-y-auto border border-gray-700 transform transition-all duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="task-detail-title" class="text-xl font-bold text-white">Task Title</h2>
+                <button type="button" id="close-task-detail" class="text-gray-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <div id="task-detail-description" class="text-gray-300 prose prose-sm prose-invert max-w-none">
+                    <!-- Task description will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mb-6 space-y-4">
+                <div id="task-detail-label" class="hidden px-3 py-1 bg-indigo-900 text-indigo-100 text-sm rounded-full inline-block">
+                    <!-- Label will be inserted here -->
+                </div>
+
+                <div id="task-detail-priority" class="hidden px-3 py-1 bg-red-900 text-red-100 text-sm rounded-full inline-block">
+                    <!-- Priority will be inserted here -->
+                </div>
+
+                <div id="task-detail-due-date" class="hidden px-3 py-1 bg-gray-700 text-gray-200 text-sm rounded-full inline-block">
+                    <!-- Due date will be inserted here -->
+                </div>
+            </div>
+
+            <div id="task-detail-urls" class="mb-6 hidden">
+                <h3 class="text-white font-medium mb-2">URLs</h3>
+                <!-- URLs will be inserted here -->
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="close-task-detail-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+                    Close
+                </button>
+                <button type="button" id="edit-task-from-detail" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
+                    Edit Task
+                </button>
+            </div>
         </div>
     </div>
 @endsection

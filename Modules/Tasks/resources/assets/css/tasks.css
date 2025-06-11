@@ -116,8 +116,51 @@
 .tox-tinymce {
     border-radius: 0.5rem !important;
     border-color: rgba(75, 85, 99, 0.5) !important;
+    border: none !important;
 }
 
 .tox .tox-toolbar__group {
     border-color: rgba(75, 85, 99, 0.5) !important;
+}
+
+/* Fix for white background in TinyMCE editor */
+.tox .tox-edit-area__iframe {
+    background-color: #1f2937 !important;
+}
+
+.tox-tinymce-aux {
+    z-index: 99999 !important;
+}
+
+/* Ensure the content area has dark background */
+.mce-content-body {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+/* Additional styles for TinyMCE editor */
+.tox .tox-editor-container {
+    background-color: #1f2937 !important;
+}
+
+.tox .tox-toolbar,
+.tox .tox-toolbar__overflow,
+.tox .tox-toolbar__primary {
+    background-color: #374151 !important;
+}
+
+.tox .tox-statusbar {
+    background-color: #374151 !important;
+    border-top: 1px solid #4b5563 !important;
+}
+
+/* Fix for iframe body */
+body.mce-content-body {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+/* Ensure TinyMCE is visible */
+#task-description, #edit-task-description {
+    min-height: 200px;
 }

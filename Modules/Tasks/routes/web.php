@@ -5,6 +5,8 @@ use Modules\Tasks\Http\Controllers\TasksController;
 
 Route::prefix('tasks')->name('tasks.')->group(function () {
     Route::get('/', [TasksController::class, 'index'])->name('index');
+    Route::get('/notifications', [TasksController::class, 'notifications'])->name('notifications');
+    Route::get('/labels', [TasksController::class, 'labels'])->name('labels');
 
     // Lane management
     Route::post('/lanes', [TasksController::class, 'createLane'])->name('lanes.create');

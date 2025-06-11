@@ -10,5 +10,8 @@
         "sortablejs": "^1.15.0",
         "tinymce": "^6.4.2",
         "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "rollup-plugin-copy": "^3.5.0"
     }
 }
