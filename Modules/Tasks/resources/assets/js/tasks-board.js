@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
         new Sortable(container, {
             group: 'tasks',
             animation: 150,
-            ghostClass: 'bg-gray-600 opacity-70',
+            ghostClass: 'bg-gray-600',
             onEnd: function(evt) {
                 const taskId = evt.item.dataset.taskId;
                 const newLaneId = evt.to.closest('.lane').dataset.laneId;
@@ -225,8 +225,12 @@ document.addEventListener('DOMContentLoaded', function() {
     addTaskForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Get TinyMCE content
-        const description = tinymce.get('task-description').getContent();
+        // Get TinyMCE content with null check
+        let description = '';
+        const editor = tinymce.get('task-description');
+        if (editor) {
+            description = editor.getContent();
+        }
 
         // Create a new FormData object
         const formData = new FormData();
@@ -269,8 +273,33 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Check if the response is JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            } else {
+                // If not JSON, likely an error or redirect
+                console.error('Server returned non-JSON response:', contentType);
+                if (response.redirected) {
+                    // If redirected, follow the redirect
+                    window.location.href = response.url;
+                    return { success: false, redirected: true };
+                } else if (response.ok) {
+                    // If response is OK but not JSON, reload the page
+                    window.location.reload();
+                    return { success: true, reloaded: true };
+                } else {
+                    // If response is not OK and not JSON, throw an error
+                    throw new Error('Server returned error: ' + response.status);
+                }
+            }
+        })
         .then(data => {
+            if (data.redirected || data.reloaded) {
+                // Already handled
+                return;
+            }
             if (data.success) {
                 // Reload the page to show the new task
                 window.location.reload();
@@ -311,10 +340,19 @@ document.addEventListener('DOMContentLoaded', function() {
             editTaskId.value = taskId;
             editTaskTitle.value = taskTitle;
 
-            // Set TinyMCE content
-            setTimeout(() => {
-                tinymce.get('edit-task-description').setContent(taskDescription || '');
-            }, 100);
+            // Set TinyMCE content with retry mechanism
+            const setTinyMCEContent = (attempts = 0) => {
+                const editor = tinymce.get('edit-task-description');
+                if (editor) {
+                    editor.setContent(taskDescription || '');
+                } else if (attempts < 5) {
+                    // Retry up to 5 times with increasing delay
+                    setTimeout(() => setTinyMCEContent(attempts + 1), 100 * (attempts + 1));
+                } else {
+                    console.error('Failed to initialize TinyMCE editor for task description');
+                }
+            };
+            setTinyMCEContent();
 
             editTaskLabel.value = taskLabel || '';
             editTaskPriority.value = taskPriority || '';
@@ -340,8 +378,12 @@ document.addEventListener('DOMContentLoaded', function() {
     editTaskForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Get TinyMCE content
-        const description = tinymce.get('edit-task-description').getContent();
+        // Get TinyMCE content with null check
+        let description = '';
+        const editor = tinymce.get('edit-task-description');
+        if (editor) {
+            description = editor.getContent();
+        }
 
         const taskId = editTaskId.value;
 
@@ -385,8 +427,33 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Check if the response is JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            } else {
+                // If not JSON, likely an error or redirect
+                console.error('Server returned non-JSON response:', contentType);
+                if (response.redirected) {
+                    // If redirected, follow the redirect
+                    window.location.href = response.url;
+                    return { success: false, redirected: true };
+                } else if (response.ok) {
+                    // If response is OK but not JSON, reload the page
+                    window.location.reload();
+                    return { success: true, reloaded: true };
+                } else {
+                    // If response is not OK and not JSON, throw an error
+                    throw new Error('Server returned error: ' + response.status);
+                }
+            }
+        })
         .then(data => {
+            if (data.redirected || data.reloaded) {
+                // Already handled
+                return;
+            }
             if (data.success) {
                 // Reload the page to show the updated task
                 window.location.reload();
@@ -431,8 +498,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize TinyMCE for task description fields
     function initTinyMCE() {
+        // Check if the elements exist before initializing
+        const taskDescriptionElement = document.getElementById('task-description');
+        const editTaskDescriptionElement = document.getElementById('edit-task-description');
+
+        if (!taskDescriptionElement && !editTaskDescriptionElement) {
+            console.warn('No TinyMCE target elements found on this page');
+            return;
+        }
+
+        // Check if document is in standards mode
+        const isStandardsMode = document.compatMode === 'CSS1Compat';
+        if (!isStandardsMode) {
+            console.error('Document is not in standards mode. TinyMCE requires standards mode.');
+            console.log('Document compatibility mode:', document.compatMode);
+            console.log('DOCTYPE:', document.doctype ? document.doctype.name : 'No DOCTYPE found');
+
+            // Provide fallback for editors since TinyMCE will likely fail
+            provideFallbackEditors();
+
+            // We'll still try to initialize TinyMCE, but with a warning
+            console.warn('Attempting to initialize TinyMCE despite standards mode issue...');
+        }
+
+        const selector = [];
+        if (taskDescriptionElement) selector.push('#task-description');
+        if (editTaskDescriptionElement) selector.push('#edit-task-description');
+
         tinymce.init({
-            selector: '#task-description, #edit-task-description',
+            selector: selector.join(', '),
             height: 200,
             menubar: false,
             plugins: [
@@ -444,6 +538,23 @@ document.addEventListener('DOMContentLoaded', function() {
             content_css: 'dark',
             branding: false,
             promotion: false,
+
+            // Standards mode settings
+            forced_root_block: 'p',
+            document_base_url: window.location.origin,
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }',
+            entity_encoding: 'raw',
+            verify_html: false,
+            doctype: '<!DOCTYPE html>',
+            valid_elements: '*[*]',
+            extended_valid_elements: '*[*]',
+            valid_children: '+body[style],+body[link]',
+            schema: 'html5',
+            fix_list_elements: true,
+            convert_urls: false,
+
+            // Performance settings
+            cache_suffix: '?v=' + (new Date().getTime()),
             setup: function(editor) {
                 // Add keyboard shortcuts
                 editor.addShortcut('meta+b', 'Bold', 'Bold');
@@ -455,12 +566,84 @@ document.addEventListener('DOMContentLoaded', function() {
                 editor.addShortcut('meta+shift+9', 'Checklist', function() {
                     editor.execCommand('InsertUnorderedList', false, { 'list-style-type': 'checklist' });
                 });
+            },
+            init_instance_callback: function(editor) {
+                console.log(`Editor ${editor.id} initialized`);
+            },
+            init_error: function(args) {
+                console.error('TinyMCE initialization error:', args.message);
+                console.error('TinyMCE initialization error details:', args);
+
+                // Try to provide a fallback for the editor
+                const editorElement = document.getElementById(args.target.id);
+                if (editorElement) {
+                    // Make the textarea visible and usable
+                    editorElement.style.display = 'block';
+                    editorElement.classList.add('fallback-editor');
+
+                    // Add a warning message above the editor
+                    const warningElement = document.createElement('div');
+                    warningElement.className = 'text-yellow-500 text-sm mb-2';
+                    warningElement.textContent = 'Rich text editor could not be loaded. Using plain text editor instead.';
+                    editorElement.parentNode.insertBefore(warningElement, editorElement);
+
+                    console.log(`Fallback provided for ${args.target.id}`);
+
+                    // Try to reinitialize after a longer delay
+                    setTimeout(() => {
+                        try {
+                            console.log(`Attempting to reinitialize editor for ${args.target.id}`);
+                            tinymce.remove(`#${args.target.id}`);
+                            tinymce.init({
+                                selector: `#${args.target.id}`,
+                                height: 200,
+                                menubar: false,
+                                plugins: ['lists', 'link'],
+                                toolbar: 'undo redo | bold italic | bullist numlist',
+                                skin: 'oxide-dark',
+                                content_css: 'dark',
+                                schema: 'html5',
+                                forced_root_block: 'p',
+                                doctype: '<!DOCTYPE html>'
+                            });
+                        } catch (reinitError) {
+                            console.error(`Failed to reinitialize editor for ${args.target.id}:`, reinitError);
+                        }
+                    }, 1000);
+                }
             }
         });
     }
 
     // Initialize TinyMCE when the page loads
-    initTinyMCE();
+    // Wrap in a try-catch to handle any initialization errors
+    try {
+        // Delay initialization with a longer timeout to ensure DOM is fully loaded
+        setTimeout(() => {
+            try {
+                initTinyMCE();
+                console.log('TinyMCE initialization attempted');
+            } catch (innerError) {
+                console.error('Error during delayed TinyMCE initialization:', innerError);
+                provideFallbackEditors();
+            }
+        }, 500); // Increased delay to 500ms
+    } catch (error) {
+        console.error('Error in TinyMCE initialization wrapper:', error);
+        provideFallbackEditors();
+    }
+
+    // Function to provide fallback editors
+    function provideFallbackEditors() {
+        ['task-description', 'edit-task-description'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'block';
+                element.classList.add('fallback-editor');
+                console.log(`Fallback provided for ${id}`);
+            }
+        });
+    }
 
     // URL Input Handling
     const addUrlButtonNew = document.getElementById('add-url-button-new');
@@ -641,6 +824,139 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Task Detail View Modal
+    const taskDetailModal = document.getElementById('task-detail-modal');
+    const taskDetailTitle = document.getElementById('task-detail-title');
+    const taskDetailDescription = document.getElementById('task-detail-description');
+    const taskDetailLabel = document.getElementById('task-detail-label');
+    const taskDetailPriority = document.getElementById('task-detail-priority');
+    const taskDetailDueDate = document.getElementById('task-detail-due-date');
+    const taskDetailUrls = document.getElementById('task-detail-urls');
+    const closeTaskDetail = document.getElementById('close-task-detail');
+    const editTaskFromDetail = document.getElementById('edit-task-from-detail');
+
+    // Function to handle edit button click in detail view
+    function handleEditFromDetail(e) {
+        // Close detail modal
+        taskDetailModal.classList.add('hidden');
+
+        // Get task ID from the button's dataset
+        const taskId = e.currentTarget.dataset.taskId;
+
+        // Find and click the edit button for this task
+        const editButton = document.querySelector(`.edit-task-button[data-task-id="${taskId}"]`);
+        if (editButton) {
+            editButton.click();
+        }
+    }
+
+    // Add click event to all task elements
+    const taskElements = document.querySelectorAll('.task');
+    taskElements.forEach(task => {
+        task.addEventListener('click', function(e) {
+            // Don't open detail view if clicking on a button or link inside the task
+            if (e.target.closest('button') || e.target.closest('a')) {
+                return;
+            }
+
+            const taskId = this.dataset.taskId;
+            const taskTitle = this.dataset.taskTitle;
+            const taskDescription = this.dataset.taskDescription;
+            const taskLabel = this.dataset.taskLabel;
+            const taskPriority = this.dataset.taskPriority;
+            const taskDueDate = this.dataset.taskDueDate;
+            const taskUrls = JSON.parse(this.dataset.taskUrls || '[]');
+
+            // Populate the modal
+            taskDetailTitle.textContent = taskTitle;
+            taskDetailDescription.innerHTML = taskDescription || '';
+
+            // Set label if exists
+            if (taskLabel) {
+                taskDetailLabel.textContent = taskLabel;
+                taskDetailLabel.classList.remove('hidden');
+            } else {
+                taskDetailLabel.classList.add('hidden');
+            }
+
+            // Set priority if exists
+            if (taskPriority) {
+                taskDetailPriority.textContent = taskPriority;
+                taskDetailPriority.classList.remove('hidden');
+            } else {
+                taskDetailPriority.classList.add('hidden');
+            }
+
+            // Set due date if exists
+            if (taskDueDate) {
+                const date = new Date(taskDueDate);
+                taskDetailDueDate.textContent = date.toLocaleDateString();
+                taskDetailDueDate.classList.remove('hidden');
+            } else {
+                taskDetailDueDate.classList.add('hidden');
+            }
+
+            // Set URLs if exist
+            taskDetailUrls.innerHTML = '';
+            if (taskUrls && taskUrls.length > 0) {
+                const urlList = document.createElement('ul');
+                urlList.className = 'mt-2 space-y-1';
+
+                taskUrls.forEach(url => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.className = 'text-blue-400 hover:text-blue-300 underline';
+                    a.textContent = url;
+                    li.appendChild(a);
+                    urlList.appendChild(li);
+                });
+
+                taskDetailUrls.appendChild(urlList);
+                taskDetailUrls.classList.remove('hidden');
+            } else {
+                taskDetailUrls.classList.add('hidden');
+            }
+
+            // Set up edit button
+            if (editTaskFromDetail) {
+                // Store the task ID in the button's dataset
+                editTaskFromDetail.dataset.taskId = taskId;
+
+                // Use the handleEditFromDetail function with the current task ID
+                editTaskFromDetail.onclick = function() {
+                    // Close detail modal
+                    taskDetailModal.classList.add('hidden');
+
+                    // Find and click the edit button for this task
+                    const editButton = document.querySelector(`.edit-task-button[data-task-id="${taskId}"]`);
+                    if (editButton) {
+                        editButton.click();
+                    }
+                };
+            }
+
+            // Show the modal
+            taskDetailModal.classList.remove('hidden');
+        });
+    });
+
+    // Close detail modal
+    if (closeTaskDetail) {
+        closeTaskDetail.addEventListener('click', function() {
+            taskDetailModal.classList.add('hidden');
+        });
+    }
+
+    // Close detail modal with the close button
+    const closeTaskDetailBtn = document.getElementById('close-task-detail-btn');
+    if (closeTaskDetailBtn) {
+        closeTaskDetailBtn.addEventListener('click', function() {
+            taskDetailModal.classList.add('hidden');
+        });
+    }
+
     // Close modals when clicking outside
     window.addEventListener('click', function(e) {
         if (e.target === addLaneModal) {
@@ -658,6 +974,8 @@ document.addEventListener('DOMContentLoaded', function() {
             editTaskModal.classList.add('hidden');
             editTaskForm.reset();
             tinymce.get('edit-task-description')?.setContent('');
+        } else if (e.target === taskDetailModal) {
+            taskDetailModal.classList.add('hidden');
         }
     });
 });

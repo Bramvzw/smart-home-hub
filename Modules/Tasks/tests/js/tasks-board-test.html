@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Tasks Board Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a202c;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            background-color: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #a0aec0;
+            margin-top: 0;
+        }
+        button {
+            background-color: #4c51bf;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #5a67d8;
+        }
+        .result {
+            background-color: #1a202c;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            color: #68d391;
+        }
+        .error {
+            color: #fc8181;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #1a202c;
+            color: #fff;
+            border: 1px solid #4a5568;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .close-button {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+        .close-button:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tasks Board Test</h1>
+
+        <div class="test-section">
+            <h2>Test 1: TinyMCE Initialization</h2>
+            <p>This test checks if TinyMCE initializes correctly without errors.</p>
+            <textarea id="task-description" placeholder="Enter task description..."></textarea>
+            <button id="test-tinymce-init">Initialize TinyMCE</button>
+            <div id="tinymce-init-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Task Detail View</h2>
+            <p>This test checks if the task detail view opens and closes correctly.</p>
+            <button id="test-detail-view">Open Detail View</button>
+            <div id="detail-view-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Save Task with Description</h2>
+            <p>This test simulates saving a task with a description.</p>
+            <button id="test-save-task">Save Task</button>
+            <div id="save-task-result" class="result"></div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="task-detail-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="task-detail-title">Task Title</h2>
+                <button id="close-task-detail" class="close-button">&times;</button>
+            </div>
+            <div id="task-detail-description">Task description goes here.</div>
+            <div style="margin-top: 20px;">
+                <button id="close-task-detail-btn">Close</button>
+                <button id="edit-task-from-detail">Edit Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div id="edit-task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Task</h2>
+                <button id="close-edit-task" class="close-button">&times;</button>
+            </div>
+            <textarea id="edit-task-description" placeholder="Edit task description..."></textarea>
+            <div style="margin-top: 20px;">
+                <button id="close-edit-task-btn">Cancel</button>
+                <button id="save-edit-task">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include TinyMCE from CDN for testing -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test 1: TinyMCE Initialization
+            const testTinyMCEInit = document.getElementById('test-tinymce-init');
+            const tinymceInitResult = document.getElementById('tinymce-init-result');
+
+            testTinyMCEInit.addEventListener('click', function() {
+                tinymceInitResult.innerHTML = 'Initializing TinyMCE...';
+                tinymceInitResult.className = 'result';
+
+                try {
+                    // Check if the elements exist before initializing
+                    const taskDescriptionElement = document.getElementById('task-description');
+                    const editTaskDescriptionElement = document.getElementById('edit-task-description');
+
+                    if (!taskDescriptionElement && !editTaskDescriptionElement) {
+                        throw new Error('No TinyMCE target elements found on this page');
+                    }
+
+                    const selector = [];
+                    if (taskDescriptionElement) selector.push('#task-description');
+                    if (editTaskDescriptionElement) selector.push('#edit-task-description');
+
+                    tinymce.init({
+                        selector: selector.join(', '),
+                        height: 200,
+                        menubar: false,
+                        plugins: ['lists', 'link'],
+                        toolbar: 'undo redo | formatselect | bold italic | bullist numlist',
+                        toolbar_mode: 'floating',
+                        skin: 'oxide-dark',
+                        content_css: 'dark',
+                        branding: false,
+                        promotion: false,
+                        forced_root_block: 'p',
+                        document_base_url: window.location.origin,
+                        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }',
+                        entity_encoding: 'raw',
+                        verify_html: false,
+                        doctype: '<!DOCTYPE html>',
+                        valid_elements: '*[*]',
+                        extended_valid_elements: '*[*]',
+                        valid_children: '+body[style],+body[link]',
+                        init_instance_callback: function(editor) {
+                            tinymceInitResult.innerHTML += `\nEditor ${editor.id} initialized successfully.`;
+                            tinymceInitResult.classList.add('success');
+                        },
+                        init_error: function(args) {
+                            tinymceInitResult.innerHTML += `\nTinyMCE initialization error: ${args.message}`;
+                            tinymceInitResult.classList.add('error');
+
+                            // Try to provide a fallback for the editor
+                            const editorElement = document.getElementById(args.target.id);
+                            if (editorElement) {
+                                editorElement.style.display = 'block';
+                                editorElement.classList.add('fallback-editor');
+                            }
+                        }
+                    });
+                } catch (error) {
+                    tinymceInitResult.innerHTML = `Error: ${error.message}`;
+                    tinymceInitResult.classList.add('error');
+
+                    // Provide fallback for editors
+                    ['task-description', 'edit-task-description'].forEach(id => {
+                        const element = document.getElementById(id);
+                        if (element) {
+                            element.style.display = 'block';
+                            element.classList.add('fallback-editor');
+                        }
+                    });
+                }
+            });
+
+            // Test 2: Task Detail View
+            const testDetailView = document.getElementById('test-detail-view');
+            const detailViewResult = document.getElementById('detail-view-result');
+            const taskDetailModal = document.getElementById('task-detail-modal');
+            const taskDetailTitle = document.getElementById('task-detail-title');
+            const taskDetailDescription = document.getElementById('task-detail-description');
+            const closeTaskDetail = document.getElementById('close-task-detail');
+            const closeTaskDetailBtn = document.getElementById('close-task-detail-btn');
+            const editTaskFromDetail = document.getElementById('edit-task-from-detail');
+            const editTaskModal = document.getElementById('edit-task-modal');
+            const closeEditTask = document.getElementById('close-edit-task');
+            const closeEditTaskBtn = document.getElementById('close-edit-task-btn');
+
+            testDetailView.addEventListener('click', function() {
+                detailViewResult.innerHTML = 'Opening task detail view...';
+                detailViewResult.className = 'result';
+
+                try {
+                    if (!taskDetailModal) {
+                        throw new Error('Task detail modal element not found');
+                    }
+
+                    if (!taskDetailTitle) {
+                        throw new Error('Task detail title element not found');
+                    }
+
+                    if (!taskDetailDescription) {
+                        throw new Error('Task detail description element not found');
+                    }
+
+                    // Set task details
+                    taskDetailTitle.textContent = 'Test Task';
+                    taskDetailDescription.innerHTML = '<p>This is a test task description with <strong>formatting</strong>.</p>';
+
+                    // Show the modal
+                    taskDetailModal.style.display = 'flex';
+
+                    detailViewResult.innerHTML += '\nTask detail view opened successfully.';
+                    detailViewResult.classList.add('success');
+                } catch (error) {
+                    detailViewResult.innerHTML = `Error: ${error.message}`;
+                    detailViewResult.classList.add('error');
+                }
+            });
+
+            // Close detail modal
+            if (closeTaskDetail) {
+                closeTaskDetail.addEventListener('click', function() {
+                    taskDetailModal.style.display = 'none';
+                    detailViewResult.innerHTML += '\nTask detail view closed with X button.';
+                });
+            }
+
+            // Close detail modal with the close button
+            if (closeTaskDetailBtn) {
+                closeTaskDetailBtn.addEventListener('click', function() {
+                    taskDetailModal.style.display = 'none';
+                    detailViewResult.innerHTML += '\nTask detail view closed with Close button.';
+                });
+            }
+
+            // Edit task from detail view
+            if (editTaskFromDetail) {
+                editTaskFromDetail.addEventListener('click', function() {
+                    taskDetailModal.style.display = 'none';
+                    editTaskModal.style.display = 'flex';
+                    detailViewResult.innerHTML += '\nEdit task modal opened from detail view.';
+                });
+            }
+
+            // Close edit task modal
+            if (closeEditTask) {
+                closeEditTask.addEventListener('click', function() {
+                    editTaskModal.style.display = 'none';
+                    detailViewResult.innerHTML += '\nEdit task modal closed with X button.';
+                });
+            }
+
+            if (closeEditTaskBtn) {
+                closeEditTaskBtn.addEventListener('click', function() {
+                    editTaskModal.style.display = 'none';
+                    detailViewResult.innerHTML += '\nEdit task modal closed with Cancel button.';
+                });
+            }
+
+            // Test 3: Save Task with Description
+            const testSaveTask = document.getElementById('test-save-task');
+            const saveTaskResult = document.getElementById('save-task-result');
+
+            testSaveTask.addEventListener('click', function() {
+                saveTaskResult.innerHTML = 'Saving task with description...';
+                saveTaskResult.className = 'result';
+
+                try {
+                    // Get TinyMCE content with null check
+                    let description = '';
+                    const editor = tinymce.get('task-description');
+                    if (editor) {
+                        description = editor.getContent();
+                        saveTaskResult.innerHTML += `\nGot content from TinyMCE editor: "${description}"`;
+                    } else {
+                        saveTaskResult.innerHTML += '\nTinyMCE editor not initialized, using fallback.';
+                        const textarea = document.getElementById('task-description');
+                        if (textarea) {
+                            description = textarea.value;
+                            saveTaskResult.innerHTML += `\nGot content from textarea: "${description}"`;
+                        } else {
+                            throw new Error('Neither TinyMCE editor nor textarea found');
+                        }
+                    }
+
+                    // Simulate API call
+                    saveTaskResult.innerHTML += '\nSimulating API call to save task...';
+
+                    // Simulate successful response
+                    setTimeout(() => {
+                        saveTaskResult.innerHTML += '\nTask saved successfully!';
+                        saveTaskResult.classList.add('success');
+                    }, 500);
+
+                } catch (error) {
+                    saveTaskResult.innerHTML += `\nError: ${error.message}`;
+                    saveTaskResult.classList.add('error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

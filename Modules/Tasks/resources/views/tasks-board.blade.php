@@ -390,4 +390,52 @@
         <option value="documentation">
         <option value="question">
     </datalist>
+
+    {{-- Task Detail Modal --}}
+    <div id="task-detail-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-[500px] max-h-[90vh] overflow-y-auto border border-gray-700 transform transition-all duration-300">
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="task-detail-title" class="text-xl font-bold text-white">Task Title</h2>
+                <button type="button" id="close-task-detail" class="text-gray-400 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <div id="task-detail-description" class="text-gray-300 prose prose-sm prose-invert max-w-none">
+                    <!-- Task description will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mb-6 space-y-4">
+                <div id="task-detail-label" class="hidden px-3 py-1 bg-indigo-900 text-indigo-100 text-sm rounded-full inline-block">
+                    <!-- Label will be inserted here -->
+                </div>
+
+                <div id="task-detail-priority" class="hidden px-3 py-1 bg-red-900 text-red-100 text-sm rounded-full inline-block">
+                    <!-- Priority will be inserted here -->
+                </div>
+
+                <div id="task-detail-due-date" class="hidden px-3 py-1 bg-gray-700 text-gray-200 text-sm rounded-full inline-block">
+                    <!-- Due date will be inserted here -->
+                </div>
+            </div>
+
+            <div id="task-detail-urls" class="mb-6 hidden">
+                <h3 class="text-white font-medium mb-2">URLs</h3>
+                <!-- URLs will be inserted here -->
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" id="close-task-detail-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+                    Close
+                </button>
+                <button type="button" id="edit-task-from-detail" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
+                    Edit Task
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection

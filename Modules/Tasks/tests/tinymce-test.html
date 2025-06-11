@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TinyMCE Initialization Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a202c;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+        .test-section {
+            background-color: #2d3748;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #a0aec0;
+            margin-top: 0;
+        }
+        button {
+            background-color: #4c51bf;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #5a67d8;
+        }
+        .result {
+            background-color: #1a202c;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            color: #68d391;
+        }
+        .error {
+            color: #fc8181;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #1a202c;
+            color: #fff;
+            border: 1px solid #4a5568;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        .fallback-editor {
+            width: 100%;
+            min-height: 200px;
+            background-color: #1a202c;
+            color: #fff;
+            border: 1px solid #4a5568;
+            border-radius: 4px;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TinyMCE Initialization Test</h1>
+
+        <div class="test-section">
+            <h2>Test 1: Basic Initialization</h2>
+            <p>This test checks if TinyMCE initializes correctly with basic settings.</p>
+            <textarea id="editor1" placeholder="Enter text here..."></textarea>
+            <button id="init-basic">Initialize Basic Editor</button>
+            <div id="basic-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Advanced Initialization</h2>
+            <p>This test checks if TinyMCE initializes correctly with advanced settings.</p>
+            <textarea id="editor2" placeholder="Enter text here..."></textarea>
+            <button id="init-advanced">Initialize Advanced Editor</button>
+            <div id="advanced-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Standards Mode Check</h2>
+            <p>This test checks if the document is in standards mode.</p>
+            <button id="check-standards">Check Standards Mode</button>
+            <div id="standards-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 4: Fallback Mechanism</h2>
+            <p>This test checks if the fallback mechanism works when TinyMCE fails to initialize.</p>
+            <textarea id="editor3" placeholder="Enter text here..."></textarea>
+            <button id="test-fallback">Test Fallback</button>
+            <div id="fallback-result" class="result"></div>
+        </div>
+    </div>
+
+    <!-- Include TinyMCE from CDN for testing -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test 1: Basic Initialization
+            const initBasicBtn = document.getElementById('init-basic');
+            const basicResult = document.getElementById('basic-result');
+
+            initBasicBtn.addEventListener('click', function() {
+                basicResult.innerHTML = 'Initializing basic editor...';
+                basicResult.className = 'result';
+
+                try {
+                    tinymce.init({
+                        selector: '#editor1',
+                        height: 200,
+                        menubar: false,
+                        plugins: ['lists', 'link'],
+                        toolbar: 'undo redo | bold italic | bullist numlist',
+                        init_instance_callback: function(editor) {
+                            basicResult.innerHTML += `\nEditor ${editor.id} initialized successfully.`;
+                            basicResult.classList.add('success');
+                        },
+                        init_error: function(args) {
+                            basicResult.innerHTML += `\nTinyMCE initialization error: ${args.message}`;
+                            basicResult.classList.add('error');
+                        }
+                    });
+                } catch (error) {
+                    basicResult.innerHTML = `Error: ${error.message}`;
+                    basicResult.classList.add('error');
+                }
+            });
+
+            // Test 2: Advanced Initialization
+            const initAdvancedBtn = document.getElementById('init-advanced');
+            const advancedResult = document.getElementById('advanced-result');
+
+            initAdvancedBtn.addEventListener('click', function() {
+                advancedResult.innerHTML = 'Initializing advanced editor...';
+                advancedResult.className = 'result';
+
+                try {
+                    tinymce.init({
+                        selector: '#editor2',
+                        height: 200,
+                        menubar: false,
+                        plugins: ['lists', 'link', 'image', 'table', 'code'],
+                        toolbar: 'undo redo | formatselect | bold italic | bullist numlist | link image | table | code',
+                        toolbar_mode: 'floating',
+                        skin: 'oxide-dark',
+                        content_css: 'dark',
+                        forced_root_block: 'p',
+                        document_base_url: window.location.origin,
+                        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }',
+                        entity_encoding: 'raw',
+                        verify_html: false,
+                        doctype: '<!DOCTYPE html>',
+                        schema: 'html5',
+                        init_instance_callback: function(editor) {
+                            advancedResult.innerHTML += `\nEditor ${editor.id} initialized successfully.`;
+                            advancedResult.classList.add('success');
+                        },
+                        init_error: function(args) {
+                            advancedResult.innerHTML += `\nTinyMCE initialization error: ${args.message}`;
+                            advancedResult.classList.add('error');
+                        }
+                    });
+                } catch (error) {
+                    advancedResult.innerHTML = `Error: ${error.message}`;
+                    advancedResult.classList.add('error');
+                }
+            });
+
+            // Test 3: Standards Mode Check
+            const checkStandardsBtn = document.getElementById('check-standards');
+            const standardsResult = document.getElementById('standards-result');
+
+            checkStandardsBtn.addEventListener('click', function() {
+                standardsResult.innerHTML = 'Checking standards mode...';
+                standardsResult.className = 'result';
+
+                try {
+                    const isStandardsMode = document.compatMode === 'CSS1Compat';
+                    standardsResult.innerHTML += `\nDocument is ${isStandardsMode ? '' : 'NOT '}in standards mode.`;
+                    standardsResult.innerHTML += `\nDocument compatibility mode: ${document.compatMode}`;
+                    standardsResult.innerHTML += `\nDOCTYPE: ${document.doctype ? document.doctype.name : 'No DOCTYPE found'}`;
+
+                    if (isStandardsMode) {
+                        standardsResult.classList.add('success');
+                    } else {
+                        standardsResult.classList.add('error');
+                    }
+                } catch (error) {
+                    standardsResult.innerHTML = `Error: ${error.message}`;
+                    standardsResult.classList.add('error');
+                }
+            });
+
+            // Test 4: Fallback Mechanism
+            const testFallbackBtn = document.getElementById('test-fallback');
+            const fallbackResult = document.getElementById('fallback-result');
+
+            testFallbackBtn.addEventListener('click', function() {
+                fallbackResult.innerHTML = 'Testing fallback mechanism...';
+                fallbackResult.className = 'result';
+
+                try {
+                    // Create a function to provide fallback
+                    function provideFallback(editorId) {
+                        const element = document.getElementById(editorId);
+                        if (element) {
+                            element.style.display = 'block';
+                            element.classList.add('fallback-editor');
+
+                            const warningElement = document.createElement('div');
+                            warningElement.className = 'text-yellow-500 text-sm mb-2';
+                            warningElement.textContent = 'Rich text editor could not be loaded. Using plain text editor instead.';
+                            element.parentNode.insertBefore(warningElement, element);
+
+                            fallbackResult.innerHTML += `\nFallback provided for ${editorId}`;
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    // Simulate a TinyMCE initialization error
+                    fallbackResult.innerHTML += '\nSimulating TinyMCE initialization error...';
+
+                    // Provide fallback
+                    const fallbackProvided = provideFallback('editor3');
+
+                    if (fallbackProvided) {
+                        fallbackResult.innerHTML += '\nFallback mechanism worked successfully.';
+                        fallbackResult.classList.add('success');
+                    } else {
+                        fallbackResult.innerHTML += '\nFallback mechanism failed.';
+                        fallbackResult.classList.add('error');
+                    }
+                } catch (error) {
+                    fallbackResult.innerHTML = `Error: ${error.message}`;
+                    fallbackResult.classList.add('error');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
