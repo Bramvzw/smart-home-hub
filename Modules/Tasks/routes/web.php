@@ -11,10 +11,17 @@
 |
 */
 
+use Http\NotificationController;
 use Illuminate\Support\Facades\Route;
+use Modules\Tasks\app\Models\Lane;
 
-Route::prefix('tasks')->group(function() {
-    Route::get('/', function() {
-        return view('tasks::tasks-board');
+Route::prefix('tasks')->group(function () {
+
+    Route::get('/', function () {
+        $lanes = Lane::with('tasks')->orderBy('position')->get();
+        return view('tasks::tasks-board', compact('lanes'));
     });
+
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('tasks.notifications');
 });
