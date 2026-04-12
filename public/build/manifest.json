@@ -1,6 +1,26 @@
 {
+  "Modules/Spotify/resources/assets/js/core/player.js": {
+    "file": "assets/player-z_BXjX_F.js",
+    "name": "player",
+    "src": "Modules/Spotify/resources/assets/js/core/player.js",
+    "isEntry": true
+  },
+  "Modules/Tasks/resources/assets/css/tasks.css": {
+    "file": "assets/tasks-C4ySau-5.css",
+    "src": "Modules/Tasks/resources/assets/css/tasks.css",
+    "isEntry": true
+  },
+  "Modules/Tasks/resources/assets/js/tasks-board.js": {
+    "file": "assets/tasks-board-D5esgQlD.js",
+    "name": "tasks-board",
+    "src": "Modules/Tasks/resources/assets/js/tasks-board.js",
+    "isEntry": true,
+    "css": [
+      "assets/tasks-board-CGQnoUHM.css"
+    ]
+  },
   "resources/css/app.css": {
-    "file": "assets/app-Cn5lQOrN.css",
+    "file": "assets/app-f2yBexVO.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },

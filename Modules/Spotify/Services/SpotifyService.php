@@ -3,22 +3,26 @@
 namespace Modules\Spotify\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
+use Modules\Spotify\Events\PlaybackChanged;
+use Modules\Spotify\Events\TrackLiked;
 
 class SpotifyService
 {
-    protected $client;
+    protected ClientInterface $client;
     protected $clientId;
     protected $clientSecret;
     protected $redirectUri;
     protected $apiUrl = 'https://api.spotify.com/v1';
     protected $authUrl = 'https://accounts.spotify.com/api/token';
 
-    public function __construct()
+    public function __construct(?ClientInterface $client = null)
     {
-        $this->client = new Client();
+        $this->client = $client ?? new Client();
         $this->clientId = config('services.spotify.client_id');
         $this->clientSecret = config('services.spotify.client_secret');
         $this->redirectUri = config('services.spotify.redirect_uri');
@@ -29,7 +33,7 @@ class SpotifyService
      *
      * @return string
      */
-    public function getAuthorizationUrl()
+    public function getAuthorizationUrl(): string
     {
         $scopes = [
             'user-read-private',
@@ -44,12 +48,15 @@ class SpotifyService
             'playlist-read-collaborative',
         ];
 
+        $state = bin2hex(random_bytes(16));
+        Session::put('spotify_oauth_state', $state);
+
         $query = http_build_query([
             'client_id' => $this->clientId,
             'response_type' => 'code',
             'redirect_uri' => $this->redirectUri,
             'scope' => implode(' ', $scopes),
-            'state' => bin2hex(random_bytes(16)),
+            'state' => $state,
         ]);
 
         return 'https://accounts.spotify.com/authorize?' . $query;
@@ -61,7 +68,7 @@ class SpotifyService
      * @param string $code
      * @return array
      */
-    public function getAccessToken($code)
+    public function getAccessToken(string $code): array
     {
         try {
             $response = $this->client->post('https://accounts.spotify.com/api/token', [
@@ -84,7 +91,7 @@ class SpotifyService
             return $data;
         } catch (GuzzleException $e) {
             Log::error('Spotify token error: ' . $e->getMessage());
-            return ['error' => $e->getMessage()];
+            return ['error' => 'Failed to obtain Spotify access token'];
         }
     }
 
@@ -93,9 +100,9 @@ class SpotifyService
      *
      * @return array
      */
-    public function refreshAccessToken()
+    public function refreshAccessToken(): array
     {
-        $refreshToken = Cache::get('spotify_refresh_token');
+        $refreshToken = Cache::store('database')->get('spotify_refresh_token');
 
         if (!$refreshToken) {
             return ['error' => 'No refresh token available'];
@@ -122,7 +129,7 @@ class SpotifyService
             return $data;
         } catch (GuzzleException $e) {
             Log::error('Spotify token refresh error: ' . $e->getMessage());
-            return ['error' => $e->getMessage()];
+            return ['error' => 'Failed to refresh Spotify access token'];
         }
     }
 
@@ -135,11 +142,11 @@ class SpotifyService
     protected function storeTokens($data)
     {
         if (isset($data['access_token'])) {
-            Cache::put('spotify_access_token', $data['access_token'], now()->addSeconds($data['expires_in'] - 60));
+            Cache::store('database')->put('spotify_access_token', $data['access_token'], now()->addSeconds($data['expires_in'] - 60));
         }
 
         if (isset($data['refresh_token'])) {
-            Cache::put('spotify_refresh_token', $data['refresh_token'], now()->addDays(30));
+            Cache::store('database')->put('spotify_refresh_token', $data['refresh_token'], now()->addDays(30));
         }
     }
 
@@ -158,17 +165,7 @@ class SpotifyService
      *
      * @return array
      */
-    public function getCurrentPlayback()
-    {
-        return $this->makeRequest('GET', '/me/player');
-    }
-
-    /**
-     * Get the current playback state
-     *
-     * @return array
-     */
-    public function getCurrentEpisode()
+    public function getCurrentPlayback(): array
     {
         return $this->makeRequest('GET', '/me/player');
     }
@@ -179,8 +176,17 @@ class SpotifyService
      * @param string|null $uri URI of the track, album, or playlist to play
      * @return array
      */
-    public function play($uri = null)
+    private function validateSpotifyUri(string $uri): bool
     {
+        return (bool) preg_match('/^spotify:(track|album|playlist|artist|show|episode):[a-zA-Z0-9]{22}$/', $uri);
+    }
+
+    public function play(?string $uri = null): array
+    {
+        if ($uri && !$this->validateSpotifyUri($uri)) {
+            return ['error' => 'Invalid Spotify URI format'];
+        }
+
         $options = [];
 
         if ($uri) {
@@ -193,7 +199,14 @@ class SpotifyService
             }
         }
 
-        return $this->makeRequest('PUT', '/me/player/play', $options);
+        $result = $this->makeRequest('PUT', '/me/player/play', $options);
+
+        if (!isset($result['error'])) {
+            Cache::forget('spotify_recently_played');
+            event(new PlaybackChanged([]));
+        }
+
+        return $result;
     }
 
     /**
@@ -201,9 +214,15 @@ class SpotifyService
      *
      * @return array
      */
-    public function pause()
+    public function pause(): array
     {
-        return $this->makeRequest('PUT', '/me/player/pause');
+        $result = $this->makeRequest('PUT', '/me/player/pause');
+
+        if (!isset($result['error'])) {
+            event(new PlaybackChanged([]));
+        }
+
+        return $result;
     }
 
     /**
@@ -211,9 +230,16 @@ class SpotifyService
      *
      * @return array
      */
-    public function next()
+    public function next(): array
     {
-        return $this->makeRequest('POST', '/me/player/next');
+        $result = $this->makeRequest('POST', '/me/player/next');
+
+        if (!isset($result['error'])) {
+            Cache::forget('spotify_recently_played');
+            event(new PlaybackChanged([]));
+        }
+
+        return $result;
     }
 
     /**
@@ -221,9 +247,16 @@ class SpotifyService
      *
      * @return array
      */
-    public function previous()
+    public function previous(): array
     {
-        return $this->makeRequest('POST', '/me/player/previous');
+        $result = $this->makeRequest('POST', '/me/player/previous');
+
+        if (!isset($result['error'])) {
+            Cache::forget('spotify_recently_played');
+            event(new PlaybackChanged([]));
+        }
+
+        return $result;
     }
 
     /**
@@ -232,10 +265,10 @@ class SpotifyService
      * @param int $volumePercent
      * @return array
      */
-    public function setVolume($volumePercent)
+    public function setVolume(int $volume): array
     {
         return $this->makeRequest('PUT', '/me/player/volume', [
-            'query' => ['volume_percent' => $volumePercent]
+            'query' => ['volume_percent' => $volume]
         ]);
     }
 
@@ -245,7 +278,7 @@ class SpotifyService
      * @param int $positionMs
      * @return array
      */
-    public function seekToPosition($positionMs)
+    public function seekToPosition(int $positionMs): array
     {
         return $this->makeRequest('PUT', '/me/player/seek', [
             'query' => ['position_ms' => $positionMs]
@@ -253,13 +286,23 @@ class SpotifyService
     }
 
     /**
+     * Get the full playback queue
+     *
+     * @return array
+     */
+    public function getQueue(): array
+    {
+        return $this->makeRequest('GET', '/me/player/queue');
+    }
+
+    /**
      * Get the next track in the queue
      *
      * @return array
      */
-    public function getNextTrack()
+    public function getNextTrack(): array
     {
-        $queue = $this->makeRequest('GET', '/me/player/queue');
+        $queue = $this->getQueue();
 
         if (isset($queue['queue']) && !empty($queue['queue'])) {
             return ['next_track' => $queue['queue'][0]];
@@ -274,7 +317,7 @@ class SpotifyService
      * @param int $limit
      * @return array
      */
-    public function getSavedTracks($limit = 50)
+    public function getSavedTracks(int $limit = 20): array
     {
         $response = $this->makeRequest('GET', '/me/tracks', [
             'query' => [
@@ -296,62 +339,58 @@ class SpotifyService
      * @param bool $includeLikedSongs
      * @return array
      */
-    public function getUserPlaylists($limit = 20, $includeLikedSongs = true)
+    public function getUserPlaylists(int $limit = 20, bool $includeLikedSongs = true): array
     {
-        // Get the user's playlists directly from the API
-        $response = $this->makeRequest('GET', '/me/playlists', [
-            'query' => [
-                'limit' => $limit
-            ]
-        ]);
+        $cacheKey = 'spotify_playlists_' . md5($limit . '_' . ($includeLikedSongs ? '1' : '0'));
+        return Cache::remember($cacheKey, 300, function () use ($limit, $includeLikedSongs) {
+            // Get the user's playlists directly from the API
+            $response = $this->makeRequest('GET', '/me/playlists', [
+                'query' => [
+                    'limit' => $limit
+                ]
+            ]);
 
-        $playlists = [];
+            $playlists = [];
 
-        if (isset($response['items']) && !empty($response['items'])) {
-            $playlists = $response['items'];
-        }
-
-        // Include liked songs as a special playlist if requested
-        if ($includeLikedSongs) {
-            // Get a sample of liked songs to use as a preview
-            $savedTracks = $this->getSavedTracks(5);
-
-            if (!empty($savedTracks)) {
-                // Create a special playlist for liked songs
-                $likedSongsPlaylist = [
-                    'id' => 'liked-songs',
-                    'name' => 'Liked Songs',
-                    'uri' => 'spotify:user:liked-songs',
-                    'type' => 'playlist',
-                    'images' => [
-                        [
-                            'url' => 'https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png',
-                            'height' => 300,
-                            'width' => 300
-                        ]
-                    ],
-                    'owner' => [
-                        'display_name' => 'You'
-                    ],
-                    'tracks' => [
-                        'total' => count($savedTracks)
-                    ]
-                ];
-
-                // Add the liked songs playlist to the beginning of the array
-                array_unshift($playlists, $likedSongsPlaylist);
+            if (isset($response['items']) && !empty($response['items'])) {
+                $playlists = $response['items'];
             }
-        }
 
-        return ['playlists' => $playlists];
+            // Include liked songs as a special playlist if requested
+            if ($includeLikedSongs) {
+                // Get a sample of liked songs to use as a preview
+                $savedTracks = $this->getSavedTracks(5);
+
+                if (!empty($savedTracks)) {
+                    // Create a special playlist for liked songs
+                    $likedSongsPlaylist = [
+                        'id' => 'liked-songs',
+                        'name' => 'Liked Songs',
+                        'uri' => 'spotify:user:liked-songs',
+                        'type' => 'playlist',
+                        'images' => [
+                            [
+                                'url' => 'https://t.scdn.co/images/3099b3803ad9496896c43f22fe9be8c4.png',
+                                'height' => 300,
+                                'width' => 300
+                            ]
+                        ],
+                        'owner' => [
+                            'display_name' => 'You'
+                        ],
+                        'tracks' => [
+                            'total' => count($savedTracks)
+                        ]
+                    ];
+
+                    // Add the liked songs playlist to the beginning of the array
+                    array_unshift($playlists, $likedSongsPlaylist);
+                }
+            }
+
+            return ['playlists' => $playlists];
+        });
     }
-
-    /**
-     * Get the user's recently played playlists/albums
-     *
-     * @param int $limit
-     * @return array
-     */
 
     /**
      * Start playback with shuffle mode enabled for a playlist
@@ -359,8 +398,12 @@ class SpotifyService
      * @param string $playlistUri
      * @return array
      */
-    public function shufflePlayPlaylist($playlistUri)
+    public function shufflePlayPlaylist(string $uri): array
     {
+        if ($uri && !$this->validateSpotifyUri($uri)) {
+            return ['error' => 'Invalid Spotify URI format'];
+        }
+
         // First enable shuffle mode
         $shuffleResult = $this->makeRequest('PUT', '/me/player/shuffle', [
             'query' => ['state' => 'true']
@@ -371,7 +414,97 @@ class SpotifyService
         }
 
         // Then start playing the playlist
-        return $this->play($playlistUri);
+        $result = $this->play($uri);
+        $this->clearPlaylistCache();
+        return $result;
+    }
+
+    /**
+     * Clear the cached playlist data
+     *
+     * @return void
+     */
+    public function clearPlaylistCache(): void
+    {
+        Cache::forget('spotify_playlists_' . md5('20_1'));
+        Cache::forget('spotify_playlists_' . md5('20_0'));
+    }
+
+    /**
+     * Toggle shuffle mode
+     *
+     * @param bool $state
+     * @return array
+     */
+    public function setShuffle(bool $state): array
+    {
+        return $this->makeRequest('PUT', '/me/player/shuffle', [
+            'query' => ['state' => $state ? 'true' : 'false']
+        ]);
+    }
+
+    /**
+     * Set repeat mode
+     *
+     * @param string $state off, context, track
+     * @return array
+     */
+    public function setRepeatMode(string $state): array
+    {
+        return $this->makeRequest('PUT', '/me/player/repeat', [
+            'query' => ['state' => $state]
+        ]);
+    }
+
+    /**
+     * Add a track to the playback queue
+     *
+     * @param string $uri
+     * @return array
+     */
+    public function addToQueue(string $uri): array
+    {
+        if ($uri && !$this->validateSpotifyUri($uri)) {
+            return ['error' => 'Invalid Spotify URI format'];
+        }
+
+        return $this->makeRequest('POST', '/me/player/queue', [
+            'query' => ['uri' => $uri]
+        ]);
+    }
+
+    /**
+     * Get recently played tracks
+     *
+     * @param int $limit
+     * @return array
+     */
+    public function getRecentlyPlayed(int $limit = 20): array
+    {
+        return Cache::remember('spotify_recently_played', 120, function () use ($limit) {
+            return $this->makeRequest('GET', '/me/player/recently-played', [
+                'query' => ['limit' => $limit]
+            ]);
+        });
+    }
+
+    /**
+     * Search for tracks, artists, or albums
+     *
+     * @param string $query
+     * @param string $type comma-separated: track,artist,album
+     * @param int $limit
+     * @return array
+     */
+    public function search(string $query, string $type = 'track', int $limit = 20): array
+    {
+        return $this->makeRequest('GET', '/search', [
+            'query' => [
+                'q' => $query,
+                'type' => $type,
+                'limit' => $limit,
+            ]
+        ]);
     }
 
     /**
@@ -380,7 +513,7 @@ class SpotifyService
      * @param array $ids
      * @return array
      */
-    public function checkSavedTracks($ids)
+    public function checkSavedTracks(array $ids): array
     {
         return $this->makeRequest('GET', '/me/tracks/contains', [
             'query' => ['ids' => implode(',', $ids)]
@@ -393,11 +526,19 @@ class SpotifyService
      * @param array $ids
      * @return array
      */
-    public function saveTracks($ids)
+    public function saveTracks(array $ids): array
     {
-        return $this->makeRequest('PUT', '/me/tracks', [
+        $result = $this->makeRequest('PUT', '/me/tracks', [
             'json' => ['ids' => $ids]
         ]);
+
+        if (!isset($result['error'])) {
+            foreach ($ids as $id) {
+                event(new TrackLiked($id, true));
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -406,10 +547,42 @@ class SpotifyService
      * @param array $ids
      * @return array
      */
-    public function removeTracks($ids)
+    public function removeTracks(array $ids): array
     {
-        return $this->makeRequest('DELETE', '/me/tracks', [
+        $result = $this->makeRequest('DELETE', '/me/tracks', [
             'json' => ['ids' => $ids]
+        ]);
+
+        if (!isset($result['error'])) {
+            foreach ($ids as $id) {
+                event(new TrackLiked($id, false));
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get available devices
+     *
+     * @return array
+     */
+    public function getAvailableDevices(): array
+    {
+        return $this->makeRequest('GET', '/me/player/devices');
+    }
+
+    /**
+     * Transfer playback to a device
+     *
+     * @param string $deviceId
+     * @param bool $play
+     * @return array
+     */
+    public function transferPlayback(string $deviceId, bool $play = true): array
+    {
+        return $this->makeRequest('PUT', '/me/player', [
+            'json' => ['device_ids' => [$deviceId], 'play' => $play]
         ]);
     }
 
@@ -421,16 +594,16 @@ class SpotifyService
      * @param array $options
      * @return array
      */
-    protected function makeRequest($method, $endpoint, $options = [])
+    protected function makeRequest($method, $endpoint, $options = [], bool $retried = false)
     {
-        $accessToken = Cache::get('spotify_access_token');
+        $accessToken = Cache::store('database')->get('spotify_access_token');
 
         if (!$accessToken) {
             $refreshResult = $this->refreshAccessToken();
             if (isset($refreshResult['error'])) {
                 return $refreshResult;
             }
-            $accessToken = Cache::get('spotify_access_token');
+            $accessToken = Cache::store('database')->get('spotify_access_token');
         }
 
         try {
@@ -441,23 +614,26 @@ class SpotifyService
 
             $response = $this->client->request($method, $this->apiUrl . $endpoint, $options);
 
-            if ($response->getStatusCode() === 204) {
+            $statusCode = $response->getStatusCode();
+            $body = (string) $response->getBody();
+
+            if ($statusCode === 204 || $body === '') {
                 return ['success' => true];
             }
 
-            return json_decode($response->getBody(), true);
+            $decoded = json_decode($body, true);
+            return is_array($decoded) ? $decoded : ['error' => 'Invalid response from Spotify API'];
         } catch (GuzzleException $e) {
             $statusCode = $e->getCode();
 
-            // If token expired, refresh and try again
-            if ($statusCode === 401) {
+            // If token expired and not already retried, refresh and try once more
+            if ($statusCode === 401 && !$retried) {
                 $refreshResult = $this->refreshAccessToken();
                 if (isset($refreshResult['error'])) {
                     return $refreshResult;
                 }
 
-                // Try the request again with the new token
-                return $this->makeRequest($method, $endpoint, $options);
+                return $this->makeRequest($method, $endpoint, $options, true);
             }
 
             // Handle specific case for volume control not supported
@@ -467,7 +643,7 @@ class SpotifyService
             }
 
             Log::error('Spotify API error: ' . $e->getMessage());
-            return ['error' => $e->getMessage()];
+            return ['error' => 'Spotify API request failed'];
         }
     }
 }

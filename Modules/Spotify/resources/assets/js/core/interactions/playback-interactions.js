@@ -21,7 +21,13 @@ export function setupPlaybackInteractions(controller) {
         },
 
         seekOnClick: e => {
-            seekOnClick(controller.state, controller.elements, (els, pos) => seekToPosition(els, controller.updatePlayerState, pos), e);
-        }
+            controller.state = seekOnClick(
+                controller.state,
+                controller.elements,
+                updateState,
+                (els, pos) => seekToPosition(els, controller.updatePlayerState, pos),
+                e
+            );
+        },
     };
 }

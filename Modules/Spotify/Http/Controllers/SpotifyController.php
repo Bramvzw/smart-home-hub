@@ -2,28 +2,81 @@
 
 namespace Modules\Spotify\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
+use Modules\Spotify\Http\Requests\CheckSavedTracksRequest;
+use Modules\Spotify\Http\Requests\PlayRequest;
+use Modules\Spotify\Http\Requests\SearchRequest;
+use Modules\Spotify\Http\Requests\SeekRequest;
+use Modules\Spotify\Http\Requests\SetRepeatRequest;
+use Modules\Spotify\Http\Requests\SetShuffleRequest;
+use Modules\Spotify\Http\Requests\SetVolumeRequest;
+use Modules\Spotify\Http\Requests\ToggleSaveTrackRequest;
+use Modules\Spotify\Http\Requests\TransferPlaybackRequest;
+use Modules\Spotify\Http\Requests\UriRequest;
 use Modules\Spotify\Services\SpotifyService;
 
 class SpotifyController extends Controller
 {
-    protected $spotifyService;
+    public function __construct(protected SpotifyService $spotifyService) {}
 
-    public function __construct(SpotifyService $spotifyService)
+    /**
+     * Return a JSON response from a service call, handling errors consistently.
+     */
+    private function serviceResponse(array $response, array $extra = []): JsonResponse
     {
-        $this->spotifyService = $spotifyService;
+        if (isset($response['error'])) {
+            $errorCode = $response['code'] ?? null;
+            $payload = ['success' => false, 'message' => $response['error']];
+
+            if ($errorCode) {
+                $payload['code'] = $errorCode;
+            }
+
+            $status = match ($errorCode) {
+                'auth_required' => 401,
+                'volume_control_not_supported' => 422,
+                default => isset($response['error']) ? 502 : 200,
+            };
+
+            return response()->json($payload, $status);
+        }
+
+        return response()->json(array_merge(['success' => true], $extra));
     }
 
     /**
-     * Display the Spotify interface
+     * Return a JSON response for read operations, extracting specific data keys.
+     */
+    private function readResponse(array $response, array $dataKeys = []): JsonResponse
+    {
+        if (isset($response['error'])) {
+            $status = match ($response['code'] ?? null) {
+                'auth_required' => 401,
+                default => 502,
+            };
+            return response()->json(['success' => false, 'message' => $response['error']], $status);
+        }
+
+        $data = ['success' => true];
+        foreach ($dataKeys as $key) {
+            $data[$key] = $response[$key] ?? null;
+        }
+
+        return response()->json($data);
+    }
+
+    /**
+     * Display the Spotify interface.
      *
      * @return \Illuminate\View\View
      */
     public function index()
     {
-        $isConnected = Cache::has('spotify_access_token');
+        $isConnected = Cache::store('database')->has('spotify_access_token');
         $playbackState = null;
 
         if ($isConnected) {
@@ -38,13 +91,20 @@ class SpotifyController extends Controller
     }
 
     /**
-     * Handle the callback from Spotify authorization
+     * Handle the callback from Spotify authorization.
      *
-     * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function callback(Request $request)
     {
+        $state = $request->query('state');
+        $expectedState = session()->pull('spotify_oauth_state');
+
+        if (!$state || $state !== $expectedState) {
+            return redirect()->route('spotify.index')
+                ->with('error', 'Authorization failed: Invalid state parameter');
+        }
+
         $code = $request->query('code');
 
         if (!$code) {
@@ -63,155 +123,100 @@ class SpotifyController extends Controller
             ->with('success', 'Successfully connected to Spotify');
     }
 
+    // ── Playback Controls ─────────────────────────────────────────────
+
     /**
-     * Play music
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Start or resume playback, optionally with a URI.
      */
-    public function play(Request $request)
+    public function play(PlayRequest $request): JsonResponse
     {
-        $uri = $request->input('uri');
-        $response = $this->spotifyService->play($uri);
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true]);
+        return $this->serviceResponse(
+            $this->spotifyService->play($request->input('uri'))
+        );
     }
 
     /**
-     * Pause music
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Pause playback.
      */
-    public function pause()
+    public function pause(): JsonResponse
     {
-        $response = $this->spotifyService->pause();
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true]);
+        return $this->serviceResponse($this->spotifyService->pause());
     }
 
     /**
-     * Skip to next track
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Skip to next track.
      */
-    public function next()
+    public function next(): JsonResponse
     {
-        $response = $this->spotifyService->next();
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true]);
+        return $this->serviceResponse($this->spotifyService->next());
     }
 
     /**
-     * Skip to previous track
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Skip to previous track.
      */
-    public function previous()
+    public function previous(): JsonResponse
     {
-        $response = $this->spotifyService->previous();
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true]);
+        return $this->serviceResponse($this->spotifyService->previous());
     }
 
     /**
-     * Set volume
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Set playback volume (0–100).
      */
-    public function setVolume(Request $request)
+    public function setVolume(SetVolumeRequest $request): JsonResponse
     {
-        $volume = $request->input('volume');
-
-        if ($volume === null || $volume < 0 || $volume > 100) {
-            return response()->json(['success' => false, 'message' => 'Invalid volume value']);
-        }
-
-        $response = $this->spotifyService->setVolume($volume);
-
-        if (isset($response['error'])) {
-            $errorMessage = $response['error'];
-            $errorCode = $response['code'] ?? null;
-
-            if ($errorCode === 'volume_control_not_supported') {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage,
-                    'code' => $errorCode
-                ], 422);
-            }
-
-            return response()->json(['success' => false, 'message' => $errorMessage]);
-        }
-
-        return response()->json(['success' => true]);
+        return $this->serviceResponse($this->spotifyService->setVolume($request->integer('volume')));
     }
 
     /**
-     * Get current playback state
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * Seek to a position in the currently playing track.
      */
-    public function getPlaybackState()
+    public function seekToPosition(SeekRequest $request): JsonResponse
+    {
+        return $this->serviceResponse($this->spotifyService->seekToPosition($request->integer('position_ms')));
+    }
+
+    /**
+     * Toggle shuffle mode on/off.
+     */
+    public function setShuffle(SetShuffleRequest $request): JsonResponse
+    {
+        $state = (bool) $request->input('state');
+
+        return $this->serviceResponse(
+            $this->spotifyService->setShuffle($state),
+            ['state' => $state]
+        );
+    }
+
+    /**
+     * Cycle repeat mode (off → context → track → off).
+     */
+    public function setRepeatMode(SetRepeatRequest $request): JsonResponse
+    {
+        $state = $request->input('state');
+
+        return $this->serviceResponse(
+            $this->spotifyService->setRepeatMode($state),
+            ['state' => $state]
+        );
+    }
+
+    // ── Playback State & Queue ────────────────────────────────────────
+
+    /**
+     * Get the current playback state.
+     */
+    public function getPlaybackState(): JsonResponse
     {
         $response = $this->spotifyService->getCurrentPlayback();
 
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        // Return the full playback state with success flag
-        return response()->json(array_merge(
-            ['success' => true],
-            $response
-        ));
+        return $this->readResponse($response, ['item', 'is_playing', 'progress_ms', 'shuffle_state', 'repeat_state', 'device', 'actions']);
     }
 
     /**
-     * Seek to position in currently playing track
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Get the next track in the queue.
      */
-    public function seekToPosition(Request $request)
-    {
-        $positionMs = $request->input('position_ms');
-
-        if ($positionMs === null || $positionMs < 0) {
-            return response()->json(['success' => false, 'message' => 'Invalid position value']);
-        }
-
-        $response = $this->spotifyService->seekToPosition($positionMs);
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Get the next track in the queue
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getNextTrack()
+    public function getNextTrack(): JsonResponse
     {
         $response = $this->spotifyService->getNextTrack();
 
@@ -219,19 +224,82 @@ class SpotifyController extends Controller
             return response()->json(['success' => false, 'message' => $response['error']]);
         }
 
-        return response()->json(array_merge(
-            ['success' => true],
-            $response
-        ));
+        return response()->json(array_merge(['success' => true], $response));
     }
 
     /**
-     * Get the user's library playlists
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Get the current playback queue.
      */
-    public function getUserPlaylists(Request $request)
+    public function getQueue(): JsonResponse
+    {
+        $response = $this->spotifyService->getQueue();
+
+        return $this->readResponse($response, ['queue']);
+    }
+
+    /**
+     * Add a track to the playback queue.
+     */
+    public function addToQueue(UriRequest $request): JsonResponse
+    {
+        return $this->serviceResponse($this->spotifyService->addToQueue($request->input('uri')));
+    }
+
+    /**
+     * Get recently played tracks.
+     */
+    public function getRecentlyPlayed(): JsonResponse
+    {
+        $response = $this->spotifyService->getRecentlyPlayed(20);
+
+        return $this->readResponse($response, ['items']);
+    }
+
+    /**
+     * Get available playback devices.
+     */
+    public function getDevices(): JsonResponse
+    {
+        $response = $this->spotifyService->getAvailableDevices();
+
+        return $this->readResponse($response, ['devices']);
+    }
+
+    /**
+     * Transfer playback to a different device.
+     */
+    public function transferPlayback(TransferPlaybackRequest $request): JsonResponse
+    {
+        return $this->serviceResponse($this->spotifyService->transferPlayback($request->input('device_id')));
+    }
+
+    /**
+     * Search for tracks, albums, and playlists.
+     */
+    public function search(SearchRequest $request): JsonResponse
+    {
+        $query = $request->input('q');
+        $type = $request->input('type', 'track,album,playlist');
+        $response = $this->spotifyService->search($query, $type, 10);
+
+        if (isset($response['error'])) {
+            return response()->json(['success' => false, 'message' => $response['error']], 502);
+        }
+
+        return response()->json([
+            'success' => true,
+            'tracks' => $response['tracks']['items'] ?? [],
+            'albums' => $response['albums']['items'] ?? [],
+            'playlists' => $response['playlists']['items'] ?? [],
+        ]);
+    }
+
+    // ── Playlists ─────────────────────────────────────────────────────
+
+    /**
+     * Get the user's playlists.
+     */
+    public function getUserPlaylists(Request $request): JsonResponse
     {
         $limit = $request->input('limit', 20);
         $includeLikedSongs = $request->input('include_liked_songs', true);
@@ -240,101 +308,56 @@ class SpotifyController extends Controller
             $response = $this->spotifyService->getUserPlaylists($limit, $includeLikedSongs);
 
             if (isset($response['error'])) {
-                return response()->json(['success' => false, 'message' => $response['error']]);
+                return response()->json(['success' => false, 'message' => $response['error']], 502);
             }
 
-            return response()->json(array_merge(
-                ['success' => true],
-                $response
-            ));
+            return response()->json(array_merge(['success' => true], $response));
         } catch (\Exception $e) {
-            \Log::error('Error in getUserPlaylists: ' . $e->getMessage());
+            Log::error('Error in getUserPlaylists: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Server error: ' . $e->getMessage()
+                'message' => 'An error occurred',
             ], 500);
         }
     }
 
     /**
-     * Get the user's recently played playlists/albums
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Shuffle-play a playlist.
      */
-
-
-    /**
-     * Start playback with shuffle mode enabled for a playlist
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function shufflePlayPlaylist(Request $request)
+    public function shufflePlayPlaylist(UriRequest $request): JsonResponse
     {
-        $uri = $request->input('uri');
-
-        if (!$uri) {
-            return response()->json(['success' => false, 'message' => 'Playlist URI is required']);
-        }
-
-        $response = $this->spotifyService->shufflePlayPlaylist($uri);
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true]);
+        return $this->serviceResponse($this->spotifyService->shufflePlayPlaylist($request->input('uri')));
     }
 
+    // ── Library ───────────────────────────────────────────────────────
+
     /**
-     * Check if tracks are saved in the user's library
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Check if tracks are saved in the user's library.
      */
-    public function checkSavedTracks(Request $request)
+    public function checkSavedTracks(CheckSavedTracksRequest $request): JsonResponse
     {
         $ids = $request->input('ids');
-
-        if (!$ids || !is_array($ids)) {
-            return response()->json(['success' => false, 'message' => 'Track IDs are required']);
-        }
-
         $response = $this->spotifyService->checkSavedTracks($ids);
 
         if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
+            return response()->json(['success' => false, 'message' => $response['error']], 502);
         }
 
         return response()->json(['success' => true, 'results' => $response]);
     }
 
     /**
-     * Save or remove a track from the user's library
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Save or remove a track from the user's library.
      */
-    public function toggleSaveTrack(Request $request)
+    public function toggleSaveTrack(ToggleSaveTrackRequest $request): JsonResponse
     {
         $id = $request->input('id');
-        $saved = $request->input('saved');
+        $saved = $request->boolean('saved');
 
-        if (!$id) {
-            return response()->json(['success' => false, 'message' => 'Track ID is required']);
-        }
+        $response = $saved
+            ? $this->spotifyService->saveTracks([$id])
+            : $this->spotifyService->removeTracks([$id]);
 
-        if ($saved) {
-            $response = $this->spotifyService->saveTracks([$id]);
-        } else {
-            $response = $this->spotifyService->removeTracks([$id]);
-        }
-
-        if (isset($response['error'])) {
-            return response()->json(['success' => false, 'message' => $response['error']]);
-        }
-
-        return response()->json(['success' => true, 'saved' => $saved]);
+        return $this->serviceResponse($response, ['saved' => $saved]);
     }
 }

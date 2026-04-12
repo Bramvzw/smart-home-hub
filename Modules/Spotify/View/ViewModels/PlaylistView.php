@@ -13,7 +13,7 @@ class PlaylistView
     {
         $this->id = $playlist['id'];
         $this->name = $playlist['name'];
-        $this->imageUrl = $playlist['images'][0]['url'];
+        $this->imageUrl = $playlist['images'][0]['url'] ?? '/images/no-playlist.webp';
         $this->externalUrl = $playlist['uri'];
     }
 }
