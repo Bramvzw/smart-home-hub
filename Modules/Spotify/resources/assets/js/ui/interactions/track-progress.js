@@ -1,68 +1,52 @@
 /**
- * Progress Bar module
- * Contains functions for handling the progress bar and seeking functionality
+ * Progress Bar module — drag, click-to-seek, and API seek
  */
 
 import { postOptions, updateElementContent, handleResponse } from '../../utils/index.js';
 
-/**
- * Start dragging the progress bar
- */
 export function startDrag(state, updateState, drag, e) {
     const newState = updateState(state, { isDragging: true });
     drag(newState, e);
     return newState;
 }
 
-/**
- * Handle dragging of the progress bar
- */
 export function drag(state, elements, formatTime, e) {
     if (!state.isDragging || !elements.progressContainer) return;
-
-    const rect = elements.progressContainer.getBoundingClientRect();
-    const position = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const positionMs = Math.floor(position * state.currentDuration);
-
-    if (elements.progressBar) {
-        elements.progressBar.style.width = `${position * 100}%`;
-    }
-    updateElementContent('current-time', formatTime(positionMs));
+    const rect     = elements.progressContainer.getBoundingClientRect();
+    const ratio    = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const posMs    = Math.floor(ratio * state.durationMs);
+    if (elements.progressBar) elements.progressBar.style.width = `${ratio * 100}%`;
+    updateElementContent('current-time', formatTime(posMs));
 }
 
-/**
- * End dragging and seek to position
- */
 export function endDrag(state, elements, updateState, seekToPosition, e) {
     if (!state.isDragging) return state;
-
-    const rect = elements.progressContainer.getBoundingClientRect();
-    const position = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const positionMs = Math.floor(position * state.currentDuration);
-
-    seekToPosition(elements, positionMs);
-
-    return updateState(state, { isDragging: false });
+    const rect  = elements.progressContainer.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const posMs = Math.floor(ratio * state.durationMs);
+    seekToPosition(elements, posMs);
+    // Update anchor immediately so the ticker reflects the new position right away
+    return updateState(state, {
+        isDragging:  false,
+        progressMs:  posMs,
+        progressAt:  state.isPlaying ? Date.now() : null,
+    });
 }
 
-/**
- * Handle click on progress bar
- */
-export function seekOnClick(state, elements, seekToPosition, e) {
-    const rect = elements.progressContainer.getBoundingClientRect();
-    const position = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const positionMs = Math.floor(position * state.currentDuration);
-
-    // Seek to position
-    seekToPosition(elements, positionMs);
+export function seekOnClick(state, elements, updateState, seekToPosition, e) {
+    const rect  = elements.progressContainer.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const posMs = Math.floor(ratio * state.durationMs);
+    seekToPosition(elements, posMs);
+    return updateState(state, {
+        progressMs: posMs,
+        progressAt: state.isPlaying ? Date.now() : null,
+    });
 }
 
-/**
- * Seek to a specific position in the track
- */
 export function seekToPosition(elements, updatePlayerState, positionMs) {
     return fetch('/spotify/seek', {
         ...postOptions(elements.csrfToken),
-        body: JSON.stringify({ position_ms: positionMs })
-    }).then(response => handleResponse(response, updatePlayerState, elements));
+        body: JSON.stringify({ position_ms: positionMs }),
+    }).then(r => handleResponse(r, updatePlayerState, elements));
 }

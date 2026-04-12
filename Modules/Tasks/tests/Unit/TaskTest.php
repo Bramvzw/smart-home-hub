@@ -11,6 +11,12 @@ class TaskTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        \Modules\Tasks\Models\Lane::create(['name' => 'Default Lane', 'position' => 0]);
+    }
+
     /**
      * Test task creation with basic attributes.
      *

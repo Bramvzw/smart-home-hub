@@ -22,8 +22,4 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 
-.idea/*
-!.idea/php.xml
-!.idea/phpunit.xml
-!.idea/laravel-idea.xml
-!.idea/vcs.xml
+.idea/

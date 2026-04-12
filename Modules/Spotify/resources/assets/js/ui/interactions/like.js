@@ -36,10 +36,6 @@ export function checkIfTrackIsLiked(state, elements, updateState, updateLikeButt
 }
 
 /**
- *  ToDo: when track is paused be able to like/unlike it
- */
-
-/**
  * Toggle like status for the current track
  */
 export function toggleLike(state, elements, updateState, updateLikeButton) {
@@ -47,8 +43,12 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
 
     if (!trackId) {
         showErrorMessage(elements, 'Cannot like/unlike: No track is playing');
-        return;
+        return Promise.resolve(state);
     }
+
+    // Optimistic update — flip immediately, revert on failure
+    const optimisticState = updateState(state, { isTrackLiked: !state.isTrackLiked });
+    updateLikeButton(optimisticState, elements);
 
     return fetch('/spotify/tracks/toggle', {
         method: 'POST',
@@ -73,10 +73,12 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
                 updateLikeButton(state, elements);
                 return state;
             } else {
+                updateLikeButton(state, elements); // revert optimistic update
                 showErrorMessage(elements, 'Failed to update like status');
             }
         })
         .catch(() => {
+            updateLikeButton(state, elements); // revert optimistic update
             showErrorMessage(elements, 'Error updating like status');
         });
 }
@@ -86,8 +88,16 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
  */
 export function updateLikeButton(state, elements) {
     if (elements.likeIcon && elements.likeBtn) {
-        elements.likeIcon.classList.toggle('fas', state.isTrackLiked);
-        elements.likeIcon.classList.toggle('far', !state.isTrackLiked);
-        elements.likeBtn.classList.toggle('active', state.isTrackLiked);
+        if (state.isTrackLiked) {
+            elements.likeIcon.setAttribute('fill', 'currentColor');
+            elements.likeIcon.setAttribute('stroke', 'currentColor');
+            elements.likeBtn.classList.remove('text-gray-600');
+            elements.likeBtn.classList.add('text-green-400');
+        } else {
+            elements.likeIcon.setAttribute('fill', 'none');
+            elements.likeIcon.setAttribute('stroke', 'currentColor');
+            elements.likeBtn.classList.remove('text-green-400');
+            elements.likeBtn.classList.add('text-gray-600');
+        }
     }
 }

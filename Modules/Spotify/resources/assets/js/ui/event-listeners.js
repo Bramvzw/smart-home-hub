@@ -1,3 +1,11 @@
+function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
 export function initializeEventListeners(elements, getState, callbacks) {
     const {
         startPlayback,
@@ -32,6 +40,6 @@ export function initializeEventListeners(elements, getState, callbacks) {
         elements.progressContainer.addEventListener('mousedown', startDrag);
         document.addEventListener('mousemove', drag);
         document.addEventListener('mouseup', endDrag);
-        elements.progressContainer.addEventListener('click', seekOnClick);
+        elements.progressContainer.addEventListener('click', debounce(seekOnClick, 300));
     }
 }

@@ -33,10 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const initTiny = selector => {
-        if (!document.querySelector(selector)) {
-            console.warn(`TinyMCE initialization failed: Element ${selector} not found`);
-            return;
-        }
+        if (!document.querySelector(selector)) return;
         const id = selector.replace('#', '');
         if (!tinymce.get(id)) {
             tinymce.init({
@@ -96,30 +93,53 @@ document.addEventListener('DOMContentLoaded', () => {
                 setup: function(editor) {
 
                 }
-            }).then(() => {
-                console.log(`TinyMCE initialization completed for ${selector}`);
             }).catch(err => {
-                console.error(`TinyMCE initialization error for ${selector}:`, err);
+                console.error('TinyMCE initialization error:', err);
             });
-        } else {
-            console.log(`TinyMCE already initialized for ${selector}`);
         }
     };
 
     const removeTiny = selector => {
-        try {
-            const id = selector.replace('#','');
-            const ed = tinymce.get(id);
-            if (ed) {
-                console.log(`Removing TinyMCE for ${selector}`);
-                ed.remove();
-                console.log(`TinyMCE removed for ${selector}`);
-            } else {
-                console.warn(`TinyMCE removal failed: Editor instance for ${selector} not found`);
-            }
-        } catch (err) {
-            console.error(`Error removing TinyMCE for ${selector}:`, err);
+        const id = selector.replace('#','');
+        const ed = tinymce.get(id);
+        if (ed) ed.remove();
+    };
+
+    // Shared helper: get TinyMCE content with retry, then call callback
+    const getTinyContentAndSubmit = (editorId, callback, attempts = 0) => {
+        const editor = tinymce.get(editorId);
+        if (editor) {
+            callback(editor.getContent());
+        } else if (attempts < 3) {
+            setTimeout(() => getTinyContentAndSubmit(editorId, callback, attempts + 1), 100 * (attempts + 1));
+        } else {
+            callback('');
         }
+    };
+
+    // Shared helper: submit form data and handle response
+    const submitTaskForm = (url, method, fd) => {
+        fetch(url, { method, headers: csrfHeader(), body: fd })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return Promise.reject('redirect');
+                }
+                const ct = response.headers.get('content-type') || '';
+                if (ct.includes('application/json')) return response.json();
+                if (response.ok) {
+                    window.location.reload();
+                    return Promise.reject('reload');
+                }
+                throw new Error(`Unexpected response: ${response.status}`);
+            })
+            .then(json => {
+                if (json.success) window.location.reload();
+                else console.error('Server error:', json.message);
+            })
+            .catch(err => {
+                if (err !== 'redirect' && err !== 'reload') console.error('Error:', err);
+            });
     };
 
 
@@ -165,8 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const addLaneForm  = document.getElementById('add-lane-form');
 
     addLaneBtn?.addEventListener('click',    () => toggleModal(addLaneModal, true));
-    document.getElementById('cancel-add-lane')
-        ?.addEventListener('click', () => { toggleModal(addLaneModal, false); addLaneForm?.reset(); });
+    document.querySelectorAll('.cancel-add-lane').forEach(btn =>
+        btn.addEventListener('click', () => { toggleModal(addLaneModal, false); addLaneForm?.reset(); })
+    );
     addLaneForm?.addEventListener('submit', e => {
         e.preventDefault();
         fetch('/tasks/lanes', {
@@ -247,106 +268,11 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     addTaskForm?.addEventListener('submit', e => {
         e.preventDefault();
-
-        // Get TinyMCE content with retry mechanism
-        let description = '';
-
-        // Function to get TinyMCE content and submit the form
-        const getTinyMCEContentAndSubmit = (attempts = 0) => {
-            const editor = tinymce.get('task-description');
-            if (editor) {
-                description = editor.getContent();
-                submitForm();
-                return true;
-            } else if (attempts < 3) {
-                // Retry up to 3 times with increasing delay
-                setTimeout(() => {
-                    if (getTinyMCEContentAndSubmit(attempts + 1)) {
-                        console.log('Successfully got TinyMCE content on retry');
-                    }
-                }, 100 * (attempts + 1));
-            } else {
-                console.warn('Failed to get TinyMCE content after multiple attempts');
-                // Submit the form anyway with empty description
-                submitForm();
-            }
-            return false;
-        };
-
-        // Function to submit the form
-        const submitForm = () => {
-            console.log('Submitting form with description:', description);
-
-            // Log form data for debugging
+        getTinyContentAndSubmit('task-description', description => {
             const fd = new FormData(addTaskForm);
             fd.set('description', description || '');
-
-            console.log('Form data being submitted:');
-            for (let [key, value] of fd.entries()) {
-                console.log(`${key}: ${value.length > 100 ? value.substring(0, 100) + '...' : value}`);
-            }
-
-            console.log('Sending POST request to /tasks/tasks');
-            fetch('/tasks/tasks', {
-                method: 'POST',
-                headers: csrfHeader(),
-                body: fd
-            })
-                .then(response => {
-                    console.log(`Response received: status ${response.status} ${response.statusText}`);
-
-                    // Log response headers for debugging
-                    console.log('Response headers:');
-                    response.headers.forEach((value, name) => {
-                        console.log(`${name}: ${value}`);
-                    });
-
-                    // 1️⃣ Redirect (e.g. unauthenticated or normal redirect) → just follow it
-                    if (response.redirected) {
-                        console.log(`Redirected to: ${response.url}`);
-                        window.location.href = response.url;
-                        return Promise.reject('redirect');
-                    }
-
-                    // 2️⃣ JSON → parse & return
-                    const ct = response.headers.get('content-type') || '';
-                    console.log(`Content-Type: ${ct}`);
-
-                    if (ct.includes('application/json')) {
-                        console.log('Parsing JSON response');
-                        return response.json().then(data => {
-                            console.log('Parsed JSON response:', data);
-                            return data;
-                        });
-                    }
-
-                    // 3️⃣ OK HTML → assume success, reload
-                    if (response.ok) {
-                        console.log('Response OK but not JSON, reloading page');
-                        window.location.reload();
-                        return Promise.reject('reload');
-                    }
-
-                    // 4️⃣ Anything else → error
-                    console.error(`Error response: ${response.status} ${response.statusText}`);
-                    throw new Error(`Expected JSON but got ${response.status} ${ct}`);
-                })
-                .then(json => {
-                    if (json.success) {
-                        window.location.reload();
-                    } else {
-                        console.error('Server error:', json.message);
-                    }
-                })
-                .catch(err => {
-                    if (err !== 'redirect' && err !== 'reload') {
-                        console.error('Error submitting task:', err);
-                    }
-                });
-        };
-
-        // Start the process
-        getTinyMCEContentAndSubmit();
+            submitTaskForm('/tasks/tasks', 'POST', fd);
+        });
     });
 
     // EDIT TASK
@@ -392,107 +318,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editTaskForm?.addEventListener('submit', e => {
         e.preventDefault();
-
-        // Get TinyMCE content with retry mechanism
-        let description = '';
-
-        // Function to get TinyMCE content and submit the form
-        const getTinyMCEContentAndSubmit = (attempts = 0) => {
-            const editor = tinymce.get('edit-task-description');
-            if (editor) {
-                description = editor.getContent();
-                submitForm();
-                return true;
-            } else if (attempts < 3) {
-                // Retry up to 3 times with increasing delay
-                setTimeout(() => {
-                    if (getTinyMCEContentAndSubmit(attempts + 1)) {
-                        console.log('Successfully got TinyMCE content on retry for edit task');
-                    }
-                }, 100 * (attempts + 1));
-            } else {
-                console.warn('Failed to get TinyMCE content after multiple attempts for edit task');
-                // Submit the form anyway with empty description
-                submitForm();
-            }
-            return false;
-        };
-
-        // Function to submit the form
-        const submitForm = () => {
-            console.log('Submitting edit form with description:', description);
+        getTinyContentAndSubmit('edit-task-description', description => {
             const id = document.getElementById('edit-task-id').value;
-
-            // Log form data for debugging
             const fd = new FormData(editTaskForm);
             fd.set('description', description || '');
-
-            console.log('Form data being submitted for edit:');
-            for (let [key, value] of fd.entries()) {
-                console.log(`${key}: ${value.length > 100 ? value.substring(0, 100) + '...' : value}`);
-            }
-
-            console.log(`Sending PUT request to /tasks/tasks/${id}`);
-            fetch(`/tasks/tasks/${id}`, {
-                method: 'PUT',
-                headers: csrfHeader(),
-                body: fd
-            })
-                .then(response => {
-                    console.log(`Response received: status ${response.status} ${response.statusText}`);
-
-                    // Log response headers for debugging
-                    console.log('Response headers:');
-                    response.headers.forEach((value, name) => {
-                        console.log(`${name}: ${value}`);
-                    });
-
-                    // 1️⃣ Redirect (e.g. unauthenticated or normal redirect) → just follow it
-                    if (response.redirected) {
-                        console.log(`Redirected to: ${response.url}`);
-                        window.location.href = response.url;
-                        return Promise.reject('redirect');
-                    }
-
-                    // 2️⃣ JSON → parse & return
-                    const ct = response.headers.get('content-type') || '';
-                    console.log(`Content-Type: ${ct}`);
-
-                    if (ct.includes('application/json')) {
-                        console.log('Parsing JSON response');
-                        return response.json().then(data => {
-                            console.log('Parsed JSON response:', data);
-                            return data;
-                        });
-                    }
-
-                    // 3️⃣ OK HTML → assume success, reload
-                    if (response.ok) {
-                        console.log('Response OK but not JSON, reloading page');
-                        window.location.reload();
-                        return Promise.reject('reload');
-                    }
-
-                    // 4️⃣ Anything else → error
-                    console.error(`Error response: ${response.status} ${response.statusText}`);
-                    throw new Error(`Expected JSON but got ${response.status} ${ct}`);
-                })
-                .then(json => {
-                    if (json.success) {
-                        window.location.reload();
-                    } else {
-                        console.error('Server error:', json.message);
-                    }
-                })
-                .catch(err => {
-                    if (err !== 'redirect' && err !== 'reload') {
-                        console.error('Error updating task:', err);
-                    }
-                });
-        };
-
-        // Start the process
-        getTinyMCEContentAndSubmit();
+            submitTaskForm(`/tasks/tasks/${id}`, 'PUT', fd);
+        });
     });
 
     // DELETE TASK

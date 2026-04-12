@@ -11,6 +11,23 @@ import { displayMessage } from '../../utils/index.js';
  * Load the upcoming track from the queue
  */
 export function loadUpcomingTrack(elements, renderNextTrackFn) {
+    // If repeat track is on, next up is the current track
+    const repeatBtn = document.getElementById('repeat-btn');
+    if (repeatBtn && repeatBtn.dataset.repeatState === 'track') {
+        return fetch('/spotify/playback-state')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.item) {
+                    renderNextTrackFn(elements, data.item);
+                } else {
+                    displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'No upcoming tracks');
+                }
+            })
+            .catch(() => {
+                displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'Error loading next track');
+            });
+    }
+
     return fetch('/spotify/next-track')
         .then(res => res.json())
         .then(data => {

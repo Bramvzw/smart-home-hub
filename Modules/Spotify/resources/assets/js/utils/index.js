@@ -4,6 +4,59 @@
  */
 
 /**
+ * Fetch a URL and return parsed JSON, throwing on non-OK responses.
+ * @param {string} url
+ * @param {RequestInit} [options]
+ * @returns {Promise<any>}
+ */
+export async function fetchJson(url, options = {}) {
+    const res = await fetch(url, options);
+    if (res.status === 401) {
+        throw Object.assign(new Error('auth_required'), { status: 401 });
+    }
+    if (!res.ok) {
+        throw Object.assign(new Error(`HTTP error ${res.status}`), { status: res.status });
+    }
+    return res.json();
+}
+
+/**
+ * POST JSON data with CSRF token.
+ * @param {string} url
+ * @param {object} body
+ * @param {string} csrfToken
+ * @returns {Promise<any>}
+ */
+export function postJson(url, body, csrfToken) {
+    return fetchJson(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        },
+        body: JSON.stringify(body),
+    });
+}
+
+/**
+ * Handle auth errors by showing a reconnect prompt.
+ * @param {Error} err
+ * @param {object} elements
+ */
+export function handleAuthError(err, elements) {
+    if (err.status === 401) {
+        // Show a visible reconnect prompt
+        const msg = document.createElement('div');
+        msg.id = 'spotify-reconnect-banner';
+        msg.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ef4444;color:#fff;text-align:center;padding:12px;z-index:9999;font-size:14px;';
+        msg.innerHTML = 'Spotify session expired. <a href="/spotify" style="color:#fff;text-decoration:underline;font-weight:600;">Reconnect</a>';
+        if (!document.getElementById('spotify-reconnect-banner')) {
+            document.body.appendChild(msg);
+        }
+    }
+}
+
+/**
  * Format milliseconds to mm:ss format
  * @param {number} ms - Time in milliseconds
  * @returns {string} Formatted time string
@@ -143,6 +196,36 @@ export function handleResponse(response, updatePlayerState, elements) {
             self.showErrorMessage(elements, 'An error occurred with the Spotify API');
             return { success: false, error: error.message };
         });
+}
+
+/**
+ * Safely get an image URL from a Spotify API object.
+ * Handles null images, null parent objects, and empty arrays.
+ *
+ * @param {Object} obj - The Spotify object (track, album, playlist)
+ * @param {string} [key] - Optional nested key to access images from (e.g. 'album')
+ * @returns {string} Image URL or empty string
+ */
+export function getImageUrl(obj, key) {
+    try {
+        const images = key ? obj?.[key]?.images : obj?.images;
+        if (images && Array.isArray(images) && images.length > 0) {
+            return images[images.length - 1]?.url || '';
+        }
+    } catch (e) { /* ignore */ }
+    return '';
+}
+
+/**
+ * Escape HTML entities to prevent XSS in dynamic content.
+ *
+ * @param {string} text - The text to escape
+ * @returns {string} Escaped HTML string
+ */
+export function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 /**

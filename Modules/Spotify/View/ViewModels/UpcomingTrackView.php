@@ -10,8 +10,15 @@ class UpcomingTrackView
 
     public function __construct(?array $track = null)
     {
-        $this->trackImage = $track['album']['images'][0]['url'] ?? $track['images'][0]['url'];
-        $this->trackName = $track['name'];
+        if ($track === null) {
+            $this->trackImage = '/images/no-track.webp';
+            $this->trackName = '';
+            $this->artistNames = '';
+            return;
+        }
+
+        $this->trackImage = $track['album']['images'][0]['url'] ?? ($track['images'][0]['url'] ?? '/images/no-track.webp');
+        $this->trackName = $track['name'] ?? '';
 
         $artists = $track['artists'] ?? [];
         $artistNames = [];

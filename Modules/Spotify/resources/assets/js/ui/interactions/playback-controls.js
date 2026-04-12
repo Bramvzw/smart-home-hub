@@ -1,94 +1,124 @@
 /**
  * Player Controls module
- * Contains functions for controlling playback and updating player state
  */
 
-import { postOptions, handleResponse, formatTime } from '../../utils/index.js';
-
-/**
- * ToDo refactor seperate interactions from upatePlayerState
- */
+import { postOptions, handleResponse } from '../../utils/index.js';
 
 /**
  * Start playback, optionally with a specific URI
  */
 export function startPlayback(elements, updatePlayerStateFn, uri = null) {
     const options = postOptions(elements.csrfToken);
-    if (uri) {
-        options.body = JSON.stringify({ uri });
-    }
-    return fetch('/spotify/play', options).then(response =>
-        handleResponse(response, updatePlayerStateFn, elements)
-    );
+    if (uri) options.body = JSON.stringify({ uri });
+    return fetch('/spotify/play', options).then(r => handleResponse(r, updatePlayerStateFn, elements));
 }
 
 /**
  * Pause the current playback
  */
 export function pausePlayback(elements, updatePlayerStateFn) {
-    return fetch('/spotify/pause', postOptions(elements.csrfToken)).then(response =>
-        handleResponse(response, updatePlayerStateFn, elements)
-    );
+    return fetch('/spotify/pause', postOptions(elements.csrfToken))
+        .then(r => handleResponse(r, updatePlayerStateFn, elements));
 }
 
 /**
- * Control playback (previous/next)
+ * Control playback (next / previous)
  */
 export function control(elements, updatePlayerStateFn, action) {
-    return fetch(`/spotify/${action}`, postOptions(elements.csrfToken)).then(response =>
-        handleResponse(response, updatePlayerStateFn, elements)
-    );
+    return fetch(`/spotify/${action}`, postOptions(elements.csrfToken))
+        .then(r => handleResponse(r, updatePlayerStateFn, elements));
 }
 
 /**
- * Start periodic updates of player state
+ * Start periodic polling (3 s playing / 15 s paused).
+ * Returns forcePoll() — call it to cancel the pending timer and poll immediately.
  */
-export function startPeriodicUpdates(state, updatePlayerStateFn, updateState) {
-    // Clear any existing interval
-    if (state.updateInterval) {
-        clearInterval(state.updateInterval);
+export function startPeriodicUpdates(state, updatePlayerStateFn, updateState, getState) {
+    let consecutiveErrors = 0;
+    let timeoutId = null;
+
+    function getInterval() {
+        if (consecutiveErrors > 0) return Math.min(5000 * Math.pow(2, consecutiveErrors - 1), 60000);
+        return getState?.().isPlaying ? 3000 : 15000;
     }
 
-    // Update immediately
-    updatePlayerStateFn();
+    function scheduleNext() {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            if (document.hidden) { scheduleNext(); return; }
+            updatePlayerStateFn()
+                .then(() => { consecutiveErrors = 0; scheduleNext(); })
+                .catch(() => { consecutiveErrors++;  scheduleNext(); });
+        }, getInterval());
+    }
 
-    // Then set up interval for future updates
-    const updateInterval = setInterval(() => updatePlayerStateFn(), 1000);
+    function forcePoll() {
+        clearTimeout(timeoutId);
+        updatePlayerStateFn()
+            .then(() => { consecutiveErrors = 0; scheduleNext(); })
+            .catch(() => { consecutiveErrors++;  scheduleNext(); });
+    }
 
-    // Update state with new interval
-    return updateState(state, { updateInterval });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) forcePoll(); });
+
+    // Initial poll
+    updatePlayerStateFn()
+        .then(() => { consecutiveErrors = 0; scheduleNext(); })
+        .catch(() => { consecutiveErrors++;  scheduleNext(); });
+
+    return { state: updateState(state, { updateInterval: timeoutId }), forcePoll };
 }
 
 /**
- * Fetch and update the current player state
+ * Progress ticker — owns progressBar and current-time DOM writes.
+ *
+ * Reads the (progressMs, progressAt) anchor from state and renders:
+ *   displayed = progressMs + (Date.now() - progressAt)   [while playing]
+ * The ticker never mutates state. DOM writes are throttled to 250 ms.
  */
-export function updatePlayerState(state, elements, updatePlayerUI, updateState, checkIfTrackIsLiked, loadNextTrack) {
-    // Don't update while dragging
-    if (state.isDragging) return Promise.resolve(state);
+export function startProgressTicker(getState, elements, formatTimeFn, onTrackEnd) {
+    let lastRender      = 0;
+    let trackEndFired   = false;
+    let lastSeenTrackId = null;
 
-    return fetch('/spotify/playback-state')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                state = updatePlayerUI(state, elements, data, updateState, formatTime);
+    function tick(timestamp) {
+        const state = getState();
 
-                // If track changed, update like status and next track
-                if (state.currentTrackId !== data.item?.id) {
-                    const newTrackId = data.item?.id;
-                    state = updateState(state, { currentTrackId: newTrackId });
+        // Reset end-of-track guard on track change
+        if (state.currentTrackId !== lastSeenTrackId) {
+            lastSeenTrackId = state.currentTrackId;
+            trackEndFired   = false;
+        }
 
-                    if (newTrackId) {
-                        checkIfTrackIsLiked(newTrackId);
-                        loadNextTrack();
-                    }
-                }
-            } else {
-                // Silent fail - no need to show errors for routine updates
-                // This happens normally when playback is inactive
+        if (state.isDragging || state.durationMs <= 0) {
+            requestAnimationFrame(tick);
+            return;
+        }
+
+        // Interpolate position from anchor — read-only, no state mutation
+        const displayed = state.isPlaying && state.progressAt
+            ? Math.min(state.progressMs + (Date.now() - state.progressAt), state.durationMs)
+            : state.progressMs;
+
+        // Throttle DOM writes to 250 ms
+        if (timestamp - lastRender >= 250) {
+            lastRender = timestamp;
+
+            if (elements.progressBar) {
+                elements.progressBar.style.width = `${(displayed / state.durationMs) * 100}%`;
             }
-            return state;
-        })
-        .catch(() => state);
-}
+            const timeEl = document.getElementById('current-time');
+            if (timeEl) timeEl.textContent = formatTimeFn(displayed);
+        }
 
-export { updatePlayerUI } from '../player-renderer.js'
+        // Trigger immediate poll when track is estimated to have ended
+        if (state.isPlaying && displayed >= state.durationMs && !trackEndFired) {
+            trackEndFired = true;
+            onTrackEnd?.();
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+}
