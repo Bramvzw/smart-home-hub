@@ -43,7 +43,7 @@ export function shufflePlayPlaylist(elements, updatePlayerState, uri) {
             if (data.success) {
                 updatePlayerState();
             } else {
-                console.error(elements, 'Failed to play playlist');
+                console.error('Failed to play playlist:', data);
             }
         })
         .catch(() => {

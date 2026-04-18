@@ -1,12 +1,10 @@
 import { updatePlayerUI } from '../../ui/player-renderer.js';
 import { updateState } from '../state.js';
-import { formatTime } from '../../utils/index.js';
+import { formatTime, handleAuthError } from '../../utils/index.js';
 import { loadUpcomingTrack, renderNextTrack } from '../../ui/interactions/upcoming-track.js';
 
-// Sequential lock: only one poll in-flight at a time.
-// This eliminates all race conditions between concurrent polls — no sequence
-// counters or other machinery needed.
 let polling = false;
+let consecutiveErrors = 0;
 
 export function updatePlayerState(controller) {
     if (polling || controller.state.isDragging) {
@@ -16,16 +14,22 @@ export function updatePlayerState(controller) {
     polling = true;
 
     return fetch('/spotify/playback-state')
-        .then(res => res.json())
+        .then(res => {
+            if (res.status === 401) {
+                throw Object.assign(new Error('auth_required'), { status: 401 });
+            }
+            return res.json();
+        })
         .then(data => {
             if (!data.success) return;
+
+            consecutiveErrors = 0;
 
             const prevTrackId = controller.state.currentTrackId;
             controller.state  = updatePlayerUI(
                 controller.state, controller.elements, data, updateState, formatTime
             );
 
-            // Side-effects when the track changed
             if (controller.state.currentTrackId !== prevTrackId && controller.state.currentTrackId) {
                 controller.likeInteractions.checkIfTrackIsLiked(controller.state.currentTrackId);
                 loadUpcomingTrack(
@@ -34,11 +38,13 @@ export function updatePlayerState(controller) {
                 );
             }
 
-            // Spotify hasn't processed the skip yet — retry soon
             if (controller.state.skipPending) {
                 setTimeout(() => controller.forcePoll?.(), 500);
             }
         })
-        .catch(() => {})
+        .catch((err) => {
+            consecutiveErrors++;
+            handleAuthError(err, controller.elements);
+        })
         .finally(() => { polling = false; });
 }

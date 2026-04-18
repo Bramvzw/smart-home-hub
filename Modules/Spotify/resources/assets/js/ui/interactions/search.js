@@ -45,8 +45,13 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
                             const name = track.name || 'Unknown';
                             const artists = (track.artists || []).filter(a => a != null).map(a => a.name || '').join(', ');
                             const duration = formatTime(track.duration_ms || 0);
-                            return `<button class="track-row w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-left" data-uri="${escapeHtml(track.uri)}" data-type="track">
-                                <img src="${image}" alt="" class="w-8 h-8 rounded object-cover shrink-0 bg-white/5">
+                            return `<button class="track-row group w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-left" data-uri="${escapeHtml(track.uri)}" data-type="track">
+                                <div class="relative w-8 h-8 shrink-0">
+                                    <img src="${image}" alt="" class="w-8 h-8 rounded object-cover bg-white/5">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/60 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="text-sm text-white truncate">${escapeHtml(name)}</div>
                                     <div class="text-xs text-gray-500 truncate">${escapeHtml(artists)}</div>
@@ -62,8 +67,13 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
                             const image = getImageUrl(album);
                             const name = album.name || 'Unknown';
                             const artists = (album.artists || []).filter(a => a != null).map(a => a.name || '').join(', ');
-                            return `<button class="track-row w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-left" data-uri="${escapeHtml(album.uri)}" data-type="context">
-                                <img src="${image}" alt="" class="w-8 h-8 rounded object-cover shrink-0 bg-white/5">
+                            return `<button class="track-row group w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-left" data-uri="${escapeHtml(album.uri)}" data-type="context">
+                                <div class="relative w-8 h-8 shrink-0">
+                                    <img src="${image}" alt="" class="w-8 h-8 rounded object-cover bg-white/5">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/60 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="text-sm text-white truncate">${escapeHtml(name)}</div>
                                     <div class="text-xs text-gray-500 truncate">${escapeHtml(artists)}</div>
@@ -78,8 +88,13 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
                             const image = getImageUrl(playlist);
                             const name = playlist.name || 'Unknown';
                             const owner = playlist.owner?.display_name || '';
-                            return `<button class="track-row w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-left" data-uri="${escapeHtml(playlist.uri)}" data-type="context">
-                                <img src="${image}" alt="" class="w-8 h-8 rounded object-cover shrink-0 bg-white/5">
+                            return `<button class="track-row group w-full flex items-center space-x-2 px-2 py-1.5 rounded-lg text-left" data-uri="${escapeHtml(playlist.uri)}" data-type="context">
+                                <div class="relative w-8 h-8 shrink-0">
+                                    <img src="${image}" alt="" class="w-8 h-8 rounded object-cover bg-white/5">
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black/60 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="text-sm text-white truncate">${escapeHtml(name)}</div>
                                     <div class="text-xs text-gray-500 truncate">by ${escapeHtml(owner)}</div>
@@ -90,14 +105,12 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
 
                     results.innerHTML = `<div class="grid gap-3 h-full" style="grid-template-columns: repeat(${cols.length}, minmax(0, 1fr))">${cols.map(c => `<div class="overflow-y-auto min-w-0">${c}</div>`).join('')}</div>`;
 
-                    // Tracks: queue and skip
                     results.querySelectorAll('[data-type="track"]').forEach(row => {
                         row.addEventListener('click', () => {
-                            queueAndSkip(elements, row.dataset.uri, updatePlayerStateFn);
+                            queueAndPlay(elements, row.dataset.uri, updatePlayerStateFn);
                         });
                     });
 
-                    // Albums & playlists: start playback with context
                     results.querySelectorAll('[data-type="context"]').forEach(row => {
                         row.addEventListener('click', () => {
                             startPlayback(row.dataset.uri);
@@ -112,28 +125,25 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
     });
 }
 
-function renderSection(title, items) {
-    return `<div class="mb-3">
-        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider px-3 mb-1">${title}</h3>
-        <div class="space-y-0.5">${items.join('')}</div>
-    </div>`;
-}
-
-function queueAndSkip(elements, uri, updatePlayerStateFn) {
+function queueAndPlay(elements, uri, updatePlayerStateFn) {
     const options = postOptions(elements.csrfToken);
     options.body = JSON.stringify({ uri });
 
     fetch('/spotify/add-to-queue', options)
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                return fetch('/spotify/next', postOptions(elements.csrfToken))
-                    .then(res => res.json())
-                    .then(() => {
-                        setTimeout(() => updatePlayerStateFn(), 500);
-                    });
-            }
+            if (!data.success) return;
+            return fetch('/spotify/next', postOptions(elements.csrfToken))
+                .then(res => res.json())
+                .then(() => setTimeout(() => updatePlayerStateFn(), 500));
         })
-        .catch(() => { /* skip failed silently */ });
+        .catch(err => console.error('Queue and play failed:', err));
+}
+
+function renderSection(title, items) {
+    return `<div class="mb-3">
+        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider px-3 mb-1">${title}</h3>
+        <div class="space-y-0.5">${items.join('')}</div>
+    </div>`;
 }
 

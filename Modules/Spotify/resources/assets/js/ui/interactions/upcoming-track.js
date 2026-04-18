@@ -83,7 +83,7 @@ export function renderNextTrack(elements, startPlayback, track) {
             playButton.parentNode.replaceChild(newPlayButton, playButton);
 
             newPlayButton.addEventListener('click', function() {
-                startPlayback(elements, null, track.uri);
+                startPlayback(track.uri);
             });
         }
     } catch (error) {
