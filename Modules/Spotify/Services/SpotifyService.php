@@ -102,7 +102,7 @@ class SpotifyService
      */
     public function refreshAccessToken(): array
     {
-        $refreshToken = Cache::store('database')->get('spotify_refresh_token');
+        $refreshToken = Cache::get('spotify_refresh_token');
 
         if (!$refreshToken) {
             return ['error' => 'No refresh token available'];
@@ -142,11 +142,11 @@ class SpotifyService
     protected function storeTokens($data)
     {
         if (isset($data['access_token'])) {
-            Cache::store('database')->put('spotify_access_token', $data['access_token'], now()->addSeconds($data['expires_in'] - 60));
+            Cache::put('spotify_access_token', $data['access_token'], now()->addSeconds($data['expires_in'] - 60));
         }
 
         if (isset($data['refresh_token'])) {
-            Cache::store('database')->put('spotify_refresh_token', $data['refresh_token'], now()->addDays(30));
+            Cache::forever('spotify_refresh_token', $data['refresh_token']);
         }
     }
 
@@ -202,7 +202,6 @@ class SpotifyService
         $result = $this->makeRequest('PUT', '/me/player/play', $options);
 
         if (!isset($result['error'])) {
-            Cache::forget('spotify_recently_played');
             event(new PlaybackChanged([]));
         }
 
@@ -235,7 +234,6 @@ class SpotifyService
         $result = $this->makeRequest('POST', '/me/player/next');
 
         if (!isset($result['error'])) {
-            Cache::forget('spotify_recently_played');
             event(new PlaybackChanged([]));
         }
 
@@ -252,7 +250,6 @@ class SpotifyService
         $result = $this->makeRequest('POST', '/me/player/previous');
 
         if (!isset($result['error'])) {
-            Cache::forget('spotify_recently_played');
             event(new PlaybackChanged([]));
         }
 
@@ -481,11 +478,9 @@ class SpotifyService
      */
     public function getRecentlyPlayed(int $limit = 20): array
     {
-        return Cache::remember('spotify_recently_played', 120, function () use ($limit) {
-            return $this->makeRequest('GET', '/me/player/recently-played', [
-                'query' => ['limit' => $limit]
-            ]);
-        });
+        return $this->makeRequest('GET', '/me/player/recently-played', [
+            'query' => ['limit' => $limit]
+        ]);
     }
 
     /**
@@ -596,14 +591,14 @@ class SpotifyService
      */
     protected function makeRequest($method, $endpoint, $options = [], bool $retried = false)
     {
-        $accessToken = Cache::store('database')->get('spotify_access_token');
+        $accessToken = Cache::get('spotify_access_token');
 
         if (!$accessToken) {
             $refreshResult = $this->refreshAccessToken();
             if (isset($refreshResult['error'])) {
                 return $refreshResult;
             }
-            $accessToken = Cache::store('database')->get('spotify_access_token');
+            $accessToken = Cache::get('spotify_access_token');
         }
 
         try {
@@ -622,7 +617,16 @@ class SpotifyService
             }
 
             $decoded = json_decode($body, true);
-            return is_array($decoded) ? $decoded : ['error' => 'Invalid response from Spotify API'];
+
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+
+            if ($statusCode >= 200 && $statusCode < 300) {
+                return ['success' => true];
+            }
+
+            return ['error' => 'Invalid response from Spotify API'];
         } catch (GuzzleException $e) {
             $statusCode = $e->getCode();
 

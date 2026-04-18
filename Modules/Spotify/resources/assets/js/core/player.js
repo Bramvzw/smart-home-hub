@@ -84,13 +84,11 @@ class SpotifyPlayer {
             updateRepeatUI(this.elements, window.SPOTIFY_STATE.repeat_state);
         }
 
-        let recentLoaded = false;
         setupTabs((tabId) => {
             if (tabId === 'panel-queue') {
                 loadQueue(this.elements, this.controller.startPlayback);
             }
-            if (tabId === 'panel-recent' && !recentLoaded) {
-                recentLoaded = true;
+            if (tabId === 'panel-recent') {
                 loadRecentlyPlayed(this.elements, this.controller.startPlayback);
             }
         });

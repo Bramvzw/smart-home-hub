@@ -119,30 +119,21 @@ export function updateElementContent(elementId, content, property = 'textContent
  * @param {string} type - The type of alert ('success' or 'error')
  */
 export function showAlert(elements, message, type) {
-    if (!elements.alertTemplate || !elements.alertTemplate.content || !elements.alertTemplate.content.firstElementChild) {
-        return;
-    }
-
-    const alert = elements.alertTemplate.content.firstElementChild.cloneNode(true);
-    const messageEl = alert.querySelector('.message');
-    const closeBtn = alert.querySelector('.close-btn');
-
-    if (messageEl) {
-        messageEl.textContent = message;
-    }
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => alert.remove());
-    }
+    const alert = document.createElement('div');
+    alert.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;border-radius:8px;font-size:14px;font-family:inherit;max-width:90%;text-align:center;transition:opacity 0.3s;';
 
     if (type === 'error') {
-        alert.classList.add('bg-red-100', 'border-l-4', 'border-red-500', 'text-red-700');
+        alert.style.background = 'rgba(239,68,68,0.95)';
+        alert.style.color = '#fff';
         setTimeout(() => alert.remove(), 5000);
     } else {
-        alert.classList.add('bg-green-100', 'border-l-4', 'border-green-500', 'text-green-700');
+        alert.style.background = 'rgba(34,197,94,0.95)';
+        alert.style.color = '#fff';
         setTimeout(() => alert.remove(), 3000);
     }
 
+    alert.textContent = message;
+    alert.addEventListener('click', () => alert.remove());
     document.body.appendChild(alert);
 }
 
@@ -182,10 +173,11 @@ export function handleResponse(response, updatePlayerState, elements) {
             if (data.success) {
                 updatePlayerState(data);
                 return data;
-            } else if (data.error) {
+            } else if (data.message || data.error) {
                 handledError = true;
-                self.showErrorMessage(elements, data.error);
-                throw new Error(data.error);
+                const msg = data.message || data.error;
+                self.showErrorMessage(elements, msg);
+                throw new Error(msg);
             }
             return data;
         })

@@ -76,7 +76,7 @@ class SpotifyController extends Controller
      */
     public function index()
     {
-        $isConnected = Cache::store('database')->has('spotify_access_token');
+        $isConnected = Cache::has('spotify_access_token');
         $playbackState = null;
 
         if ($isConnected) {
