@@ -1,221 +1,219 @@
-/* Task Description Styles */
-.task-description {
-    max-height: 150px;
-    overflow-y: auto;
-    padding-right: 5px;
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+
+.tasks-ui {
+    font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.task-description::-webkit-scrollbar {
-    width: 4px;
+/* ─── Lane hover — reveal action buttons ────────────────────────────────── */
+
+.lane:hover .lane-actions {
+    opacity: 1;
 }
 
-.task-description::-webkit-scrollbar-track {
-    background: rgba(75, 85, 99, 0.2);
-    border-radius: 10px;
+/* ─── Sortable drag ghost ────────────────────────────────────────────────── */
+
+.task.sortable-ghost {
+    opacity: 0.35;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-.task-description::-webkit-scrollbar-thumb {
-    background: rgba(74, 7, 27, 0.5);
-    border-radius: 10px;
+.task.sortable-chosen {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
-.task-description::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.8);
+/* ─── Scrollbars ─────────────────────────────────────────────────────────── */
+
+.tasks-container::-webkit-scrollbar,
+.tasks-modal::-webkit-scrollbar {
+    width: 3px;
 }
 
-/* 1) Round the corners & hide the default border */
-.tox .tox-editor-container {
-    border-radius: 0.75rem 0.75rem 0 0;
-    overflow: hidden;
-    border: none;
+.tasks-container::-webkit-scrollbar-track,
+.tasks-modal::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.tox .tox-editor-header {
-    background-color: #364153 !important;    /* your gray-700 */
+.tasks-container::-webkit-scrollbar-thumb,
+.tasks-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
 }
 
-/* 2) Match your card header color + subtle bottom divider */
-.tox .tox-toolbar,
-.tox .tox-toolbar__primary,
-.tox .tox-menubar {
-    background-color: #364153 !important;    /* your gray-700 */
-    border-bottom: 1px solid #364153 !important; /* your gray-600 */
+.tasks-container::-webkit-scrollbar-thumb:hover,
+.tasks-modal::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
-/* 3) Tweak icon groups so they don’t feel cramped */
-.tox .tox-toolbar__group {
-    border: none !important;
-    margin-right: 0.5rem;
+#lanes-container::-webkit-scrollbar {
+    height: 4px;
 }
 
-/* 4) Icon buttons: transparent bg, lighter text, hover state */
-.tox .tox-toolbar button,
-.tox .tox-menubar button {
-    background: transparent !important;
-    color: #d1d5db !important; /* gray-300 */
-    margin: 0 0.25rem;
-}
-.tox .tox-toolbar button:hover,
-.tox .tox-menubar button:hover {
-    background-color: #4b5563 !important; /* gray-600 */
+#lanes-container::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-/* 5) Overflow menu (the “…” panel) */
-.tox .tox-toolbar__overflow {
-    background-color: #374151 !important;
-    border: none !important;
+#lanes-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
 }
 
-/* 6) Status bar (if you’re showing it) */
-.tox .tox-statusbar {
-    background-color: #374151 !important;
-    border-top: 1px solid #4b5563 !important;
+/* ─── Filter animation ───────────────────────────────────────────────────── */
+
+@keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* 7) Make sure your dark skin is enabled */
-.tox-tinymce {
-    /* if you’re doing skin:false, remove it and use oxide-dark instead */
+.animate-fade-in {
+    animation: fadeSlideDown 0.2s ease-out forwards;
 }
 
+/* ─── Task description (detail modal prose) ──────────────────────────────── */
 
-/* Rich Text Content Styles */
 .task-description ul,
 .task-description ol {
-    padding-left: 1.5rem;
-    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+    margin: 0.4rem 0;
 }
 
-.task-description ul {
-    list-style-type: disc;
-}
-
-.task-description ol {
-    list-style-type: decimal;
-}
+.task-description ul { list-style-type: disc; }
+.task-description ol { list-style-type: decimal; }
 
 .task-description ul[data-checked="true"],
 .task-description ul[data-checked="false"] {
     list-style-type: none;
+    padding-left: 0;
 }
 
 .task-description ul[data-checked="true"] li,
 .task-description ul[data-checked="false"] li {
     position: relative;
-    padding-left: 1.5rem;
+    padding-left: 1.4rem;
 }
 
-.task-description ul[data-checked="true"] li:before,
-.task-description ul[data-checked="false"] li:before {
+.task-description ul[data-checked="true"] li::before,
+.task-description ul[data-checked="false"] li::before {
     content: '';
     position: absolute;
     left: 0;
     top: 0.25rem;
-    width: 1rem;
-    height: 1rem;
-    border: 1px solid rgba(156, 163, 175, 0.5);
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 3px;
 }
 
-.task-description ul[data-checked="true"] li:before {
-    background-color: rgba(99, 102, 241, 0.8);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='18px' height='18px'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
-    background-size: 0.75rem;
+.task-description ul[data-checked="true"] li::before {
+    background-color: rgba(34, 197, 94, 0.7);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-size: 0.6rem;
     background-repeat: no-repeat;
     background-position: center;
+    border-color: rgba(34, 197, 94, 0.5);
 }
 
 .task-description a {
-    color: rgba(99, 102, 241, 0.8);
+    color: rgba(99, 102, 241, 0.85);
     text-decoration: underline;
 }
-
 .task-description a:hover {
     color: rgba(99, 102, 241, 1);
 }
 
-.task-description p {
-    margin-bottom: 0.5rem;
-}
-
-.task-description strong {
-    font-weight: 600;
-}
-
-.task-description em {
-    font-style: italic;
-}
+.task-description p { margin-bottom: 0.4rem; }
+.task-description strong { font-weight: 600; }
+.task-description em { font-style: italic; }
 
 .task-description code {
     font-family: monospace;
-    background-color: rgba(75, 85, 99, 0.3);
+    background-color: rgba(255, 255, 255, 0.06);
     padding: 0.1rem 0.3rem;
     border-radius: 3px;
+    font-size: 0.85em;
 }
 
 .task-description pre {
-    background-color: rgba(31, 41, 55, 0.8);
-    padding: 0.75rem;
-    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
     overflow-x: auto;
-    margin: 0.75rem 0;
+    margin: 0.5rem 0;
 }
 
 .task-description blockquote {
-    border-left: 3px solid rgba(99, 102, 241, 0.8);
+    border-left: 2px solid rgba(255, 255, 255, 0.12);
     padding-left: 0.75rem;
-    margin: 0.75rem 0;
-    color: rgba(209, 213, 219, 0.8);
+    margin: 0.5rem 0;
+    color: rgba(156, 163, 175, 0.9);
 }
 
-/* TinyMCE Editor Styles */
+/* ─── TinyMCE editor skin overrides ─────────────────────────────────────── */
+
+#task-description,
+#edit-task-description {
+    min-height: 160px;
+}
+
 .tox-tinymce {
-    border-radius: 0.5rem !important;
-    border-color: rgba(75, 85, 99, 0.5) !important;
-    border: none !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    overflow: hidden;
+}
+
+.tox .tox-editor-container {
+    border-radius: 0.75rem 0.75rem 0 0;
+    overflow: hidden;
+    border: none;
+    background-color: #161616 !important;
+}
+
+.tox .tox-editor-header,
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary,
+.tox .tox-menubar {
+    background-color: #1a1a1a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 .tox .tox-toolbar__group {
-    border-color: rgba(75, 85, 99, 0.5) !important;
+    border: none !important;
+    margin-right: 0.25rem;
 }
 
-/* Fix for white background in TinyMCE editor */
+.tox .tox-toolbar button,
+.tox .tox-menubar button {
+    background: transparent !important;
+    color: #9ca3af !important;
+}
+
+.tox .tox-toolbar button:hover,
+.tox .tox-menubar button:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
+}
+
+.tox .tox-toolbar__overflow {
+    background-color: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.tox .tox-statusbar {
+    background-color: #1a1a1a !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #6b7280 !important;
+}
+
 .tox .tox-edit-area__iframe {
-    background-color: #1f2937 !important;
+    background-color: #161616 !important;
+}
+
+.mce-content-body,
+body.mce-content-body {
+    background-color: #161616 !important;
+    color: #e5e7eb !important;
 }
 
 .tox-tinymce-aux {
     z-index: 99999 !important;
-}
-
-/* Ensure the content area has dark background */
-.mce-content-body {
-    background-color: #1f2937 !important;
-    color: #ffffff !important;
-}
-
-/* Additional styles for TinyMCE editor */
-.tox .tox-editor-container {
-    background-color: #1f2937 !important;
-}
-
-.tox .tox-toolbar,
-.tox .tox-toolbar__overflow,
-.tox .tox-toolbar__primary {
-    background-color: #374151 !important;
-}
-
-.tox .tox-statusbar {
-    background-color: #374151 !important;
-    border-top: 1px solid #4b5563 !important;
-}
-
-/* Fix for iframe body */
-body.mce-content-body {
-    background-color: #1f2937 !important;
-    color: #ffffff !important;
-}
-
-/* Ensure TinyMCE is visible */
-#task-description, #edit-task-description {
-    min-height: 200px;
 }
