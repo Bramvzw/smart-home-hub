@@ -1,12 +1,12 @@
 {
   "Modules/Spotify/resources/assets/js/core/player.js": {
-    "file": "assets/player-CicXd5-s.js",
+    "file": "assets/player-DoVxTQ5I.js",
     "name": "player",
     "src": "Modules/Spotify/resources/assets/js/core/player.js",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/tasks.css": {
-    "file": "assets/tasks-C4ySau-5.css",
+    "file": "assets/tasks-BaHsyKZP.css",
     "src": "Modules/Tasks/resources/assets/css/tasks.css",
     "isEntry": true
   },
@@ -20,7 +20,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-Dyyxbo2I.css",
+    "file": "assets/app-CJS_gZkP.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },

@@ -2,172 +2,176 @@
     <x-slot:scripts>
         @vite(['Modules/Tasks/resources/assets/js/tasks-board.js', 'Modules/Tasks/resources/assets/css/tasks.css'])
     </x-slot:scripts>
+    <x-slot:head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    </x-slot:head>
 
-    <div class="flex flex-col h-full overflow-hidden text-white">
+    <div class="tasks-ui flex flex-col h-full overflow-hidden text-white">
         <div class="flex flex-grow overflow-hidden">
-            <div class="w-full p-6 flex flex-col overflow-hidden">
-                <div id="tasks-board" class="p-4 flex flex-col flex-grow overflow-hidden">
-                    <div class="flex flex-col space-y-4 mb-6">
-                        <div class="flex justify-between items-center">
-                            <div class="flex items-center space-x-4">
-                                <h1 class="text-3xl font-bold text-white">Tasks Board</h1>
-                                <a href="{{ route('tasks.notifications') }}" class="text-indigo-400 hover:text-indigo-300">Notifications</a>
-                            </div>
+            <div class="w-full flex flex-col overflow-hidden">
+                <div id="tasks-board" class="flex flex-col flex-grow overflow-hidden">
 
-                            {{-- Add Lane Button --}}
-                            <button id="add-lane-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-md shadow-md transition-all duration-200 transform hover:scale-105 flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    {{-- Header --}}
+                    <div class="px-5 pt-5 pb-4 border-b border-white/5 shrink-0">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-4">
+                                <h1 class="text-xl font-semibold text-white tracking-tight">Tasks</h1>
+                                <a href="{{ route('tasks.notifications') }}"
+                                   class="text-xs text-gray-500 hover:text-gray-300 transition-colors duration-150">
+                                    Notifications
+                                </a>
+                            </div>
+                            <button id="add-lane-button"
+                                class="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-white
+                                       bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10
+                                       px-3 py-1.5 rounded-lg transition-all duration-150">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                                 </svg>
-                                Add Lane
+                                Add lane
                             </button>
                         </div>
 
-                        {{-- Search and Filter --}}
-                        <div class="bg-gray-800 rounded-lg p-5 shadow-lg border border-gray-700 transform transition-all duration-300">
-                            <div class="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
-                                <div class="flex-grow">
-                                    <div class="relative group">
-                                        <input type="text" id="task-search" placeholder="Search tasks..."
-                                            class="w-full pl-12 pr-4 py-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg
-                                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                                            transition-all duration-300 shadow-sm hover:shadow-md">
-                                        <div class="absolute left-3 top-3 text-gray-400 group-hover:text-indigo-400 transition-colors duration-300">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </div>
-                                        <div id="search-clear" class="absolute right-3 top-3 text-gray-500 hover:text-gray-300 cursor-pointer opacity-0 transition-opacity duration-300 hidden">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div id="filter-results" class="text-sm text-indigo-300 font-medium mt-2 hidden animate-fade-in">
-                                        Showing <span id="visible-tasks-count" class="font-bold">0</span> of <span id="total-tasks-count">0</span> tasks
-                                    </div>
-                                </div>
+                        {{-- Search and Filter Bar --}}
+                        <div class="flex items-center gap-2">
+                            <div class="relative flex-1 max-w-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-600 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" id="task-search" placeholder="Search tasks…"
+                                    class="w-full pl-8 pr-7 py-1.5 bg-white/5 border border-white/5 text-sm text-white placeholder-gray-600
+                                           rounded-lg focus:outline-none focus:border-white/15 focus:bg-white/8 transition-all duration-150">
+                                <button id="search-clear" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-400 opacity-0 hidden transition-opacity duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
 
-                                <div class="flex space-x-3">
-                                    <button id="filter-button"
-                                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-5 rounded-lg
-                                        shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                                        </svg>
-                                        Filters
-                                        <span id="active-filters-indicator" class="ml-2 hidden w-3 h-3 bg-white rounded-full animate-pulse"></span>
-                                    </button>
+                            <button id="filter-button"
+                                class="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-white
+                                       bg-white/5 hover:bg-white/8 border border-white/5
+                                       px-3 py-1.5 rounded-lg transition-all duration-150">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                Filter
+                                <span id="active-filters-indicator" class="hidden w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+                            </button>
 
-                                    <button id="clear-filters-button"
-                                        class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-5 rounded-lg
-                                        shadow-sm hover:shadow-md transition-all duration-300 flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        Clear All
-                                    </button>
+                            <button id="clear-filters-button"
+                                class="text-xs text-gray-600 hover:text-gray-400 px-2 py-1.5 transition-colors duration-150">
+                                Clear
+                            </button>
+
+                            <div id="filter-results" class="hidden text-xs text-gray-600 ml-1">
+                                <span id="visible-tasks-count" class="text-gray-400 font-medium">0</span>
+                                <span> / </span>
+                                <span id="total-tasks-count">0</span>
+                            </div>
+                        </div>
+
+                        {{-- Filter Options (hidden by default) --}}
+                        <div id="filter-options" class="hidden mt-3 pt-3 border-t border-white/5 grid grid-cols-3 gap-3 animate-fade-in">
+                            <div>
+                                <label for="filter-priority" class="block text-xs text-gray-500 mb-1.5">Priority</label>
+                                <select id="filter-priority"
+                                    class="w-full px-2.5 py-1.5 bg-white/5 border border-white/5 text-sm text-white rounded-lg
+                                           focus:outline-none focus:border-white/15 transition-all duration-150 appearance-none">
+                                    <option value="">All</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                                <div id="priority-indicator" class="mt-1 hidden text-xs text-gray-500">
+                                    Active: <span id="priority-value" class="text-white">None</span>
                                 </div>
                             </div>
 
-                            {{-- Filter Options (Hidden by default) --}}
-                            <div id="filter-options" class="hidden mt-5 pt-5 border-t border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-5 animate-fade-in">
-                                <div class="bg-gray-750 p-4 rounded-lg shadow-inner">
-                                    <label for="filter-priority" class="block text-indigo-300 font-medium mb-2">Priority</label>
-                                    <select id="filter-priority"
-                                        class="w-full px-4 py-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg
-                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                                        transition-all duration-300 shadow-sm">
-                                        <option value="">All Priorities</option>
-                                        <option value="high" class="bg-red-900 text-white">High</option>
-                                        <option value="medium" class="bg-yellow-900 text-white">Medium</option>
-                                        <option value="low" class="bg-green-900 text-white">Low</option>
-                                    </select>
-                                    <div id="priority-indicator" class="mt-2 hidden">
-                                        <span class="text-xs font-medium text-indigo-300">Active filter: <span id="priority-value" class="text-white">None</span></span>
-                                    </div>
+                            <div>
+                                <label for="filter-label" class="block text-xs text-gray-500 mb-1.5">Label</label>
+                                <input type="text" id="filter-label" list="label-options"
+                                    class="w-full px-2.5 py-1.5 bg-white/5 border border-white/5 text-sm text-white rounded-lg
+                                           focus:outline-none focus:border-white/15 transition-all duration-150 placeholder-gray-600"
+                                    placeholder="All labels">
+                                <div id="label-indicator" class="mt-1 hidden text-xs text-gray-500">
+                                    Active: <span id="label-value" class="text-white">None</span>
                                 </div>
+                            </div>
 
-                                <div class="bg-gray-750 p-4 rounded-lg shadow-inner">
-                                    <label for="filter-label" class="block text-indigo-300 font-medium mb-2">Label</label>
-                                    <input type="text" id="filter-label" list="label-options"
-                                        class="w-full px-4 py-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg
-                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                                        transition-all duration-300 shadow-sm"
-                                        placeholder="All Labels">
-                                    <div id="label-indicator" class="mt-2 hidden">
-                                        <span class="text-xs font-medium text-indigo-300">Active filter: <span id="label-value" class="text-white">None</span></span>
-                                    </div>
-                                </div>
-
-                                <div class="bg-gray-750 p-4 rounded-lg shadow-inner">
-                                    <label for="filter-due-date" class="block text-indigo-300 font-medium mb-2">Due Date</label>
-                                    <select id="filter-due-date"
-                                        class="w-full px-4 py-3 bg-gray-700 border-2 border-gray-600 text-white rounded-lg
-                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                                        transition-all duration-300 shadow-sm">
-                                        <option value="">All Due Dates</option>
-                                        <option value="overdue">Overdue</option>
-                                        <option value="today">Due Today</option>
-                                        <option value="this-week">Due This Week</option>
-                                        <option value="next-week">Due Next Week</option>
-                                        <option value="this-month">Due This Month</option>
-                                        <option value="no-date">No Due Date</option>
-                                    </select>
-                                    <div id="due-date-indicator" class="mt-2 hidden">
-                                        <span class="text-xs font-medium text-indigo-300">Active filter: <span id="due-date-value" class="text-white">None</span></span>
-                                    </div>
+                            <div>
+                                <label for="filter-due-date" class="block text-xs text-gray-500 mb-1.5">Due Date</label>
+                                <select id="filter-due-date"
+                                    class="w-full px-2.5 py-1.5 bg-white/5 border border-white/5 text-sm text-white rounded-lg
+                                           focus:outline-none focus:border-white/15 transition-all duration-150 appearance-none">
+                                    <option value="">All</option>
+                                    <option value="overdue">Overdue</option>
+                                    <option value="today">Due Today</option>
+                                    <option value="this-week">This Week</option>
+                                    <option value="next-week">Next Week</option>
+                                    <option value="this-month">This Month</option>
+                                    <option value="no-date">No Date</option>
+                                </select>
+                                <div id="due-date-indicator" class="mt-1 hidden text-xs text-gray-500">
+                                    Active: <span id="due-date-value" class="text-white">None</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Lanes --}}
-                    <div id="lanes-container" class="flex flex-grow overflow-x-auto space-x-6 pb-4">
+                    {{-- Lanes Container --}}
+                    <div id="lanes-container" class="flex flex-grow overflow-x-auto gap-3 p-4">
                         @foreach($lanes as $lane)
                             <x-tasks::lane :lane="$lane" />
                         @endforeach
 
-                        {{-- Empty State --}}
                         @if($lanes->isEmpty())
                             <div class="flex items-center justify-center w-full h-full">
-                                <div class="text-center bg-gray-800 bg-opacity-50 p-8 rounded-xl shadow-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-indigo-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    <h2 class="text-2xl font-semibold mb-3 text-white">No lanes yet</h2>
-                                    <p class="text-gray-300">Click the "Add Lane" button to create your first lane.</p>
+                                <div class="text-center">
+                                    <div class="w-12 h-12 mx-auto mb-4 rounded-2xl bg-white/5 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-500">No lanes yet</p>
+                                    <p class="text-xs text-gray-600 mt-1">Add a lane to get started</p>
                                 </div>
                             </div>
                         @endif
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     {{-- Add Lane Modal --}}
-    <div id="add-lane-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
-        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-96 border border-gray-700 transform transition-all duration-300">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-white">Add Lane</h2>
-                <button type="button" id="cancel-add-lane-x" class="cancel-add-lane text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div id="add-lane-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center hidden backdrop-blur-sm z-50">
+        <div class="tasks-modal bg-[#141414] border border-white/8 rounded-2xl shadow-2xl w-80 p-5">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-semibold text-white">Add lane</h2>
+                <button type="button" id="cancel-add-lane-x" class="cancel-add-lane text-gray-600 hover:text-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
             <form id="add-lane-form">
-                <div class="mb-6">
-                    <label for="lane-name" class="block text-gray-300 font-medium mb-2">Lane Name</label>
-                    <input type="text" id="lane-name" name="name" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="Enter lane name..." required>
+                <div class="mb-4">
+                    <label for="lane-name" class="block text-xs text-gray-500 mb-1.5">Lane name</label>
+                    <input type="text" id="lane-name" name="name"
+                        class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors placeholder-gray-600"
+                        placeholder="e.g. To Do, In Progress…" required>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-add-lane-btn" class="cancel-add-lane bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+                <div class="flex justify-end gap-2 mt-5">
+                    <button type="button" id="cancel-add-lane-btn" class="cancel-add-lane text-xs text-gray-500 hover:text-gray-300 px-3 py-2 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
-                        Add Lane
+                    <button type="submit"
+                        class="text-xs font-medium bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-xl transition-all duration-150">
+                        Add lane
                     </button>
                 </div>
             </form>
@@ -175,12 +179,12 @@
     </div>
 
     {{-- Add Task Modal --}}
-    <div id="add-task-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
-        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-[500px] max-h-[90vh] overflow-y-auto border border-gray-700 transform transition-all duration-300">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-white">Add Task</h2>
-                <button type="button" id="cancel-add-task" class="text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div id="add-task-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center hidden backdrop-blur-sm z-50">
+        <div class="tasks-modal bg-[#141414] border border-white/8 rounded-2xl shadow-2xl w-[480px] max-h-[90vh] overflow-y-auto p-5">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-semibold text-white">Add task</h2>
+                <button type="button" id="cancel-add-task" class="text-gray-600 hover:text-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -188,28 +192,40 @@
             <form id="add-task-form">
                 <input type="hidden" id="task-lane-id" name="lane_id">
 
-                <div class="mb-5">
-                    <label for="task-title" class="block text-gray-300 font-medium mb-2">Title</label>
-                    <input type="text" id="task-title" name="title" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="Enter task title..." required>
+                <div class="mb-4">
+                    <label for="task-title" class="block text-xs text-gray-500 mb-1.5">Title</label>
+                    <input type="text" id="task-title" name="title"
+                        class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors placeholder-gray-600"
+                        placeholder="Task title…" required>
                 </div>
 
-                <div class="mb-5">
-                    <label for="task-description" class="block text-gray-300 font-medium mb-2">Description</label>
-                    <textarea id="task-description" name="description" class="task-description w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="Enter task description..."></textarea>
-                    <div class="mt-1 text-xs text-gray-400">
-                        <p>Keyboard shortcuts: <span class="bg-gray-700 px-1 rounded">⌘B</span> Bold, <span class="bg-gray-700 px-1 rounded">⌘I</span> Italic, <span class="bg-gray-700 px-1 rounded">⌘K</span> Link, <span class="bg-gray-700 px-1 rounded">⌘⇧7</span> Numbered list, <span class="bg-gray-700 px-1 rounded">⌘⇧8</span> Bullet list, <span class="bg-gray-700 px-1 rounded">⌘⇧9</span> Checklist</p>
+                <div class="mb-4">
+                    <label for="task-description" class="block text-xs text-gray-500 mb-1.5">Description</label>
+                    <textarea id="task-description" name="description"
+                        class="task-description w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors"
+                        placeholder="Add a description…"></textarea>
+                    <div class="mt-1 text-xs text-gray-600">
+                        <span class="bg-white/5 px-1 rounded">⌘B</span> Bold &middot;
+                        <span class="bg-white/5 px-1 rounded">⌘I</span> Italic &middot;
+                        <span class="bg-white/5 px-1 rounded">⌘K</span> Link
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                <div class="grid grid-cols-2 gap-3 mb-4">
                     <div>
-                        <label for="task-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                        <input type="text" id="task-label" name="label" list="label-options" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="None">
+                        <label for="task-label" class="block text-xs text-gray-500 mb-1.5">Label</label>
+                        <input type="text" id="task-label" name="label" list="label-options"
+                            class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                                   focus:outline-none focus:border-white/20 transition-colors placeholder-gray-600"
+                            placeholder="None">
                     </div>
-
                     <div>
-                        <label for="task-priority" class="block text-gray-300 font-medium mb-2">Priority</label>
-                        <select id="task-priority" name="priority" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
+                        <label for="task-priority" class="block text-xs text-gray-500 mb-1.5">Priority</label>
+                        <select id="task-priority" name="priority"
+                            class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                                   focus:outline-none focus:border-white/20 transition-colors appearance-none">
                             <option value="">None</option>
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -218,25 +234,28 @@
                     </div>
                 </div>
 
-                <div class="mb-5">
-                    <label for="task-due-date" class="block text-gray-300 font-medium mb-2">Due Date</label>
-                    <input type="date" id="task-due-date" name="due_date" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
+                <div class="mb-4">
+                    <label for="task-due-date" class="block text-xs text-gray-500 mb-1.5">Due date</label>
+                    <input type="date" id="task-due-date" name="due_date"
+                        class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors">
                 </div>
 
                 <div class="mb-5">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="task-notify" name="notify_before_expiry" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700">
-                        <label for="task-notify" class="ml-2 block text-gray-300 font-medium">Notify before expiry</label>
-                    </div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="task-notify" name="notify_before_expiry"
+                            class="w-3.5 h-3.5 rounded bg-white/5 border-white/10 text-green-400 focus:ring-0 focus:ring-offset-0">
+                        <span class="text-xs text-gray-400">Notify before expiry</span>
+                    </label>
                 </div>
 
-
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-add-task-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+                <div class="flex justify-end gap-2 pt-3 border-t border-white/5">
+                    <button type="button" id="cancel-add-task-btn" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-2 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
-                        Add Task
+                    <button type="submit"
+                        class="text-xs font-medium bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-xl transition-all duration-150">
+                        Add task
                     </button>
                 </div>
             </form>
@@ -244,12 +263,12 @@
     </div>
 
     {{-- Edit Task Modal --}}
-    <div id="edit-task-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
-        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-[500px] max-h-[90vh] overflow-y-auto border border-gray-700 transform transition-all duration-300">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-white">Edit Task</h2>
-                <button type="button" id="cancel-edit-task" class="text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div id="edit-task-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center hidden backdrop-blur-sm z-50">
+        <div class="tasks-modal bg-[#141414] border border-white/8 rounded-2xl shadow-2xl w-[480px] max-h-[90vh] overflow-y-auto p-5">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-semibold text-white">Edit task</h2>
+                <button type="button" id="cancel-edit-task" class="text-gray-600 hover:text-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -257,28 +276,39 @@
             <form id="edit-task-form">
                 <input type="hidden" id="edit-task-id" name="id">
 
-                <div class="mb-5">
-                    <label for="edit-task-title" class="block text-gray-300 font-medium mb-2">Title</label>
-                    <input type="text" id="edit-task-title" name="title" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" required>
+                <div class="mb-4">
+                    <label for="edit-task-title" class="block text-xs text-gray-500 mb-1.5">Title</label>
+                    <input type="text" id="edit-task-title" name="title"
+                        class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors"
+                        required>
                 </div>
 
-                <div class="mb-5">
-                    <label for="edit-task-description" class="block text-gray-300 font-medium mb-2">Description</label>
-                    <textarea id="edit-task-description" name="description" class="task-description w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"></textarea>
-                    <div class="mt-1 text-xs text-gray-400">
-                        <p>Keyboard shortcuts: <span class="bg-gray-700 px-1 rounded">⌘B</span> Bold, <span class="bg-gray-700 px-1 rounded">⌘I</span> Italic, <span class="bg-gray-700 px-1 rounded">⌘K</span> Link, <span class="bg-gray-700 px-1 rounded">⌘⇧7</span> Numbered list, <span class="bg-gray-700 px-1 rounded">⌘⇧8</span> Bullet list, <span class="bg-gray-700 px-1 rounded">⌘⇧9</span> Checklist</p>
+                <div class="mb-4">
+                    <label for="edit-task-description" class="block text-xs text-gray-500 mb-1.5">Description</label>
+                    <textarea id="edit-task-description" name="description"
+                        class="task-description w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors"></textarea>
+                    <div class="mt-1 text-xs text-gray-600">
+                        <span class="bg-white/5 px-1 rounded">⌘B</span> Bold &middot;
+                        <span class="bg-white/5 px-1 rounded">⌘I</span> Italic &middot;
+                        <span class="bg-white/5 px-1 rounded">⌘K</span> Link
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                <div class="grid grid-cols-2 gap-3 mb-4">
                     <div>
-                        <label for="edit-task-label" class="block text-gray-300 font-medium mb-2">Label</label>
-                        <input type="text" id="edit-task-label" name="label" list="label-options" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="None">
+                        <label for="edit-task-label" class="block text-xs text-gray-500 mb-1.5">Label</label>
+                        <input type="text" id="edit-task-label" name="label" list="label-options"
+                            class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                                   focus:outline-none focus:border-white/20 transition-colors placeholder-gray-600"
+                            placeholder="None">
                     </div>
-
                     <div>
-                        <label for="edit-task-priority" class="block text-gray-300 font-medium mb-2">Priority</label>
-                        <select id="edit-task-priority" name="priority" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
+                        <label for="edit-task-priority" class="block text-xs text-gray-500 mb-1.5">Priority</label>
+                        <select id="edit-task-priority" name="priority"
+                            class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                                   focus:outline-none focus:border-white/20 transition-colors appearance-none">
                             <option value="">None</option>
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -287,39 +317,44 @@
                     </div>
                 </div>
 
-                <div class="mb-5">
-                    <label for="edit-task-due-date" class="block text-gray-300 font-medium mb-2">Due Date</label>
-                    <input type="date" id="edit-task-due-date" name="due_date" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors">
+                <div class="mb-4">
+                    <label for="edit-task-due-date" class="block text-xs text-gray-500 mb-1.5">Due date</label>
+                    <input type="date" id="edit-task-due-date" name="due_date"
+                        class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors">
                 </div>
 
-                <div class="mb-5">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="edit-task-notify" name="notify_before_expiry" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700">
-                        <label for="edit-task-notify" class="ml-2 block text-gray-300 font-medium">Notify before expiry</label>
-                    </div>
-                </div>
-                <div class="mb-5">
-                    <label class="block text-gray-300 font-medium mb-2">Attachments</label>
-                    <div id="task-attachments-container" class="space-y-2 mb-2">
-                        <!-- Attachments will be listed here dynamically -->
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label for="attachment-file-input" class="cursor-pointer bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-4 rounded-lg transition-colors text-sm flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                            Upload File
-                        </label>
-                        <input id="attachment-file-input" type="file" class="hidden">
-                    </div>
+                <div class="mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="edit-task-notify" name="notify_before_expiry"
+                            class="w-3.5 h-3.5 rounded bg-white/5 border-white/10 text-green-400 focus:ring-0 focus:ring-offset-0">
+                        <span class="text-xs text-gray-400">Notify before expiry</span>
+                    </label>
                 </div>
 
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-edit-task-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+                <div class="mb-4">
+                    <label class="block text-xs text-gray-500 mb-2">Attachments</label>
+                    <div id="task-attachments-container" class="space-y-1.5 mb-2">
+                        {{-- Attachments injected dynamically --}}
+                    </div>
+                    <label for="attachment-file-input"
+                        class="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300
+                               bg-white/5 hover:bg-white/8 border border-white/5 px-3 py-1.5 rounded-lg cursor-pointer transition-all duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                        Upload file
+                    </label>
+                    <input id="attachment-file-input" type="file" class="hidden">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-white/5">
+                    <button type="button" id="cancel-edit-task-btn" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-2 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
-                        Save Changes
+                    <button type="submit"
+                        class="text-xs font-medium bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-xl transition-all duration-150">
+                        Save changes
                     </button>
                 </div>
             </form>
@@ -327,33 +362,38 @@
     </div>
 
     {{-- Edit Lane Modal --}}
-    <div id="edit-lane-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
-        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-96 border border-gray-700 transform transition-all duration-300">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-white">Edit Lane</h2>
-                <button type="button" id="cancel-edit-lane" class="text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div id="edit-lane-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center hidden backdrop-blur-sm z-50">
+        <div class="tasks-modal bg-[#141414] border border-white/8 rounded-2xl shadow-2xl w-80 p-5">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-sm font-semibold text-white">Edit lane</h2>
+                <button type="button" id="cancel-edit-lane" class="text-gray-600 hover:text-gray-400 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
             <form id="edit-lane-form">
                 <input type="hidden" id="edit-lane-id" name="id">
-                <div class="mb-6">
-                    <label for="edit-lane-name" class="block text-gray-300 font-medium mb-2">Lane Name</label>
-                    <input type="text" id="edit-lane-name" name="name" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors" placeholder="Enter lane name..." required>
+                <div class="mb-4">
+                    <label for="edit-lane-name" class="block text-xs text-gray-500 mb-1.5">Lane name</label>
+                    <input type="text" id="edit-lane-name" name="name"
+                        class="w-full px-3 py-2 bg-white/5 border border-white/8 text-sm text-white rounded-xl
+                               focus:outline-none focus:border-white/20 transition-colors placeholder-gray-600"
+                        placeholder="Lane name…" required>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-edit-lane-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+                <div class="flex justify-end gap-2 pt-3 border-t border-white/5">
+                    <button type="button" id="cancel-edit-lane-btn" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-2 transition-colors">
                         Cancel
                     </button>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
-                        Save Changes
+                    <button type="submit"
+                        class="text-xs font-medium bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-xl transition-all duration-150">
+                        Save
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
     <datalist id="label-options">
         <option value="bug">
         <option value="feature">
@@ -363,44 +403,34 @@
     </datalist>
 
     {{-- Task Detail Modal --}}
-    <div id="task-detail-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden backdrop-blur-sm z-50 transition-opacity duration-300">
-        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl w-[500px] max-h-[90vh] overflow-y-auto border border-gray-700 transform transition-all duration-300">
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="task-detail-title" class="text-xl font-bold text-white">Task Title</h2>
-                <button type="button" id="close-task-detail" class="text-gray-400 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div id="task-detail-modal" class="fixed inset-0 bg-black/75 flex items-center justify-center hidden backdrop-blur-sm z-50">
+        <div class="tasks-modal bg-[#141414] border border-white/8 rounded-2xl shadow-2xl w-[480px] max-h-[90vh] overflow-y-auto p-5">
+            <div class="flex justify-between items-start mb-4">
+                <h2 id="task-detail-title" class="text-base font-semibold text-white leading-snug pr-4">Task Title</h2>
+                <button type="button" id="close-task-detail" class="text-gray-600 hover:text-gray-400 transition-colors shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            <div class="mb-6">
-                <div id="task-detail-description" class="text-gray-300 prose prose-sm prose-invert max-w-none">
-                    <!-- Task description will be inserted here -->
-                </div>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+                <div id="task-detail-label" class="hidden text-xs px-2 py-0.5 rounded-md bg-white/8 text-gray-300 border border-white/8"></div>
+                <div id="task-detail-priority" class="hidden text-xs px-2 py-0.5 rounded-md bg-red-500/15 text-red-400 border border-red-500/20"></div>
+                <div id="task-detail-due-date" class="hidden text-xs px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/8"></div>
             </div>
 
-            <div class="mb-6 space-y-4">
-                <div id="task-detail-label" class="hidden px-3 py-1 bg-indigo-900 text-indigo-100 text-sm rounded-full inline-block">
-                    <!-- Label will be inserted here -->
-                </div>
-
-                <div id="task-detail-priority" class="hidden px-3 py-1 bg-red-900 text-red-100 text-sm rounded-full inline-block">
-                    <!-- Priority will be inserted here -->
-                </div>
-
-                <div id="task-detail-due-date" class="hidden px-3 py-1 bg-gray-700 text-gray-200 text-sm rounded-full inline-block">
-                    <!-- Due date will be inserted here -->
-                </div>
+            <div id="task-detail-description" class="text-sm text-gray-400 prose prose-sm prose-invert max-w-none mb-6">
+                {{-- Description injected dynamically --}}
             </div>
 
-
-            <div class="flex justify-end space-x-3">
-                <button type="button" id="close-task-detail-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-2 px-5 rounded-lg transition-colors">
+            <div class="flex justify-end gap-2 pt-3 border-t border-white/5">
+                <button type="button" id="close-task-detail-btn" class="text-xs text-gray-500 hover:text-gray-300 px-3 py-2 transition-colors">
                     Close
                 </button>
-                <button type="button" id="edit-task-from-detail" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-5 rounded-lg shadow-sm hover:shadow-md transition-all transform hover:scale-105">
-                    Edit Task
+                <button type="button" id="edit-task-from-detail"
+                    class="text-xs font-medium bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-xl transition-all duration-150">
+                    Edit task
                 </button>
             </div>
         </div>
