@@ -26,26 +26,26 @@ function loadDevices(elements) {
     const { deviceListItems, deviceName, csrfToken } = elements;
     if (!deviceListItems) return;
 
-    deviceListItems.innerHTML = '<div class="text-center text-gray-600 text-xs py-3">Loading...</div>';
+    deviceListItems.innerHTML = '<div class="text-center text-[var(--hub-dim)] text-xs py-3">Loading...</div>';
 
     fetch('/spotify/devices')
         .then(res => res.json())
         .then(data => {
             if (!data.success || !data.devices || data.devices.length === 0) {
-                deviceListItems.innerHTML = '<div class="text-center text-gray-600 text-xs py-3">No devices found</div>';
+                deviceListItems.innerHTML = '<div class="text-center text-[var(--hub-dim)] text-xs py-3">No devices found</div>';
                 return;
             }
 
             deviceListItems.innerHTML = data.devices.map(device => {
                 const isActive = device.is_active;
                 const typeIcon = getDeviceIcon(device.type);
-                return `<button class="device-item w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-white/5 transition-colors text-left ${isActive ? 'text-green-400' : 'text-gray-300'}"
+                return `<button class="device-item w-full flex items-center space-x-3 px-3 py-2.5 hover:bg-[var(--hub-line)] transition-colors text-left ${isActive ? 'text-[#95e2d3]' : 'text-[var(--hub-muted)]'}"
                     data-device-id="${escapeHtml(device.id)}"
                     data-device-name="${escapeHtml(device.name)}">
                     ${typeIcon}
                     <div class="min-w-0 flex-1">
                         <div class="text-xs font-medium truncate">${escapeHtml(device.name)}</div>
-                        <div class="text-[10px] text-gray-600 capitalize">${escapeHtml(device.type?.toLowerCase() ?? '')}</div>
+                        <div class="text-[10px] text-[var(--hub-dim)] capitalize">${escapeHtml(device.type?.toLowerCase() ?? '')}</div>
                     </div>
                     ${isActive ? '<svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>' : ''}
                 </button>`;
@@ -60,7 +60,7 @@ function loadDevices(elements) {
             });
         })
         .catch(() => {
-            deviceListItems.innerHTML = '<div class="text-center text-gray-600 text-xs py-3">Failed to load devices</div>';
+            deviceListItems.innerHTML = '<div class="text-center text-[var(--hub-dim)] text-xs py-3">Failed to load devices</div>';
         });
 }
 
