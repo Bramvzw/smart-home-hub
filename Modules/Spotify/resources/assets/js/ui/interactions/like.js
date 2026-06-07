@@ -91,13 +91,13 @@ export function updateLikeButton(state, elements) {
         if (state.isTrackLiked) {
             elements.likeIcon.setAttribute('fill', 'currentColor');
             elements.likeIcon.setAttribute('stroke', 'currentColor');
-            elements.likeBtn.classList.remove('text-gray-600');
-            elements.likeBtn.classList.add('text-green-400');
+            elements.likeBtn.classList.remove('text-[var(--hub-dim)]');
+            elements.likeBtn.classList.add('text-[#95e2d3]');
         } else {
             elements.likeIcon.setAttribute('fill', 'none');
             elements.likeIcon.setAttribute('stroke', 'currentColor');
-            elements.likeBtn.classList.remove('text-green-400');
-            elements.likeBtn.classList.add('text-gray-600');
+            elements.likeBtn.classList.remove('text-[#95e2d3]');
+            elements.likeBtn.classList.add('text-[var(--hub-dim)]');
         }
     }
 }
