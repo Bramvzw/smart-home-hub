@@ -9,8 +9,8 @@ export function setupTabs(onTabSwitch) {
             // Update tab styles
             tabBar.querySelectorAll('.spotify-tab').forEach(t => {
                 t.className = t === tab
-                    ? 'spotify-tab tab-active text-sm font-medium pb-2 px-1 min-h-[36px]'
-                    : 'spotify-tab tab-inactive text-sm font-medium pb-2 px-1 min-h-[36px]';
+                    ? 'spotify-tab tab-active text-sm font-semibold px-3 min-h-[34px]'
+                    : 'spotify-tab tab-inactive text-sm font-semibold px-3 min-h-[34px]';
             });
 
             // Show/hide panels
