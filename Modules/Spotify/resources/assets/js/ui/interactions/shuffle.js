@@ -49,10 +49,10 @@ export function updateShuffleUI(elements, active, disallowed = false) {
     btn.style.cursor  = disallowed ? 'not-allowed' : '';
 
     if (active) {
-        btn.classList.remove('text-gray-600');
-        btn.classList.add('text-green-400');
+        btn.classList.remove('text-[var(--hub-dim)]');
+        btn.classList.add('text-[#95e2d3]');
     } else {
-        btn.classList.remove('text-green-400');
-        btn.classList.add('text-gray-600');
+        btn.classList.remove('text-[#95e2d3]');
+        btn.classList.add('text-[var(--hub-dim)]');
     }
 }

@@ -5,102 +5,127 @@ namespace Modules\Tasks\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Modules\Tasks\Models\Lane;
-use Modules\Tasks\Models\Task;
-use Modules\Tasks\Models\TaskAttachment;
-use Modules\Tasks\Services\TasksService;
+use Modules\Tasks\Actions\Boards\CreateBoard;
+use Modules\Tasks\Actions\Boards\DeleteBoard;
+use Modules\Tasks\Actions\Boards\EnsureDefaultBoard;
+use Modules\Tasks\Actions\Columns\CreateColumn;
+use Modules\Tasks\Actions\Columns\DeleteColumn;
+use Modules\Tasks\Actions\Columns\ResequenceColumns;
+use Modules\Tasks\Actions\Columns\UpdateColumn;
+use Modules\Tasks\Actions\Tasks\ArchiveTask;
+use Modules\Tasks\Actions\Tasks\CreateTask;
+use Modules\Tasks\Actions\Tasks\DeleteTask;
+use Modules\Tasks\Actions\Tasks\MoveTask;
+use Modules\Tasks\Actions\Tasks\UpdateTask;
+use Modules\Tasks\Http\Requests\MoveTaskRequest;
+use Modules\Tasks\Http\Requests\ReorderColumnsRequest;
+use Modules\Tasks\Http\Requests\StoreBoardRequest;
+use Modules\Tasks\Http\Requests\StoreColumnRequest;
+use Modules\Tasks\Http\Requests\StoreTaskRequest;
+use Modules\Tasks\Http\Requests\UpdateTaskRequest;
+use Modules\Tasks\Models\KanbanTask;
+use Modules\Tasks\Models\TaskBoard;
+use Modules\Tasks\Models\TaskColumn;
+use Modules\Tasks\View\ViewModels\TasksBoardViewModel;
 
 class TasksController
 {
-    public function __construct(protected TasksService $service) {}
-
-    public function index(): View
-    {
-        $lanes = Lane::with('tasks.attachments')->orderBy('position')->get();
-        return view('tasks::index', compact('lanes'));
+    public function __construct(
+        private readonly TasksBoardViewModel $viewModel,
+    ) {
     }
 
-    public function storeLane(Request $request): JsonResponse
+    public function index(Request $request, EnsureDefaultBoard $ensureDefaultBoard): View
     {
-        $data = $request->validate(['name' => 'required|string|max:255']);
-        $lane = $this->service->createLane($data);
-        return response()->json(['success' => true, 'lane' => $lane]);
-    }
+        $board = TaskBoard::query()->find($request->integer('board')) ?? $ensureDefaultBoard();
 
-    public function updateLane(Request $request, Lane $lane): JsonResponse
-    {
-        $data = $request->validate(['name' => 'required|string|max:255']);
-        $lane = $this->service->updateLane($lane, $data);
-        return response()->json(['success' => true, 'lane' => $lane]);
-    }
-
-    public function destroyLane(Lane $lane): JsonResponse
-    {
-        $this->service->deleteLane($lane);
-        return response()->json(['success' => true]);
-    }
-
-    public function storeTask(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'lane_id' => 'required|exists:lanes,id',
-            'label' => 'nullable|string|max:255',
-            'priority' => 'nullable|in:low,medium,high',
-            'due_date' => 'nullable|date',
-            'notify_before_expiry' => 'nullable|boolean',
+        return view('tasks::index', [
+            'state' => $this->viewModel->state($board),
         ]);
-        $task = $this->service->createTask($data);
-        return response()->json(['success' => true, 'task' => $task]);
     }
 
-    public function updateTask(Request $request, Task $task): JsonResponse
+    public function storeBoard(StoreBoardRequest $request, CreateBoard $createBoard): JsonResponse
     {
-        $data = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'label' => 'nullable|string|max:255',
-            'priority' => 'nullable|in:low,medium,high',
-            'due_date' => 'nullable|date',
-            'notify_before_expiry' => 'nullable|boolean',
+        return $this->stateResponse($createBoard($request->validated('name')));
+    }
+
+    public function updateBoard(StoreBoardRequest $request, TaskBoard $board): JsonResponse
+    {
+        $board->update($request->validated());
+
+        return $this->stateResponse($board);
+    }
+
+    public function destroyBoard(TaskBoard $board, DeleteBoard $deleteBoard): JsonResponse
+    {
+        return $this->stateResponse($deleteBoard($board));
+    }
+
+    public function storeColumn(StoreColumnRequest $request, TaskBoard $board, CreateColumn $createColumn): JsonResponse
+    {
+        $column = $createColumn($board, $request->validated('name'));
+
+        return $this->stateResponse($column->board);
+    }
+
+    public function updateColumn(StoreColumnRequest $request, TaskColumn $column, UpdateColumn $updateColumn): JsonResponse
+    {
+        $column = $updateColumn($column, $request->validated('name'));
+
+        return $this->stateResponse($column->board);
+    }
+
+    public function destroyColumn(TaskColumn $column, DeleteColumn $deleteColumn): JsonResponse
+    {
+        return $this->stateResponse($deleteColumn($column));
+    }
+
+    public function reorderColumns(ReorderColumnsRequest $request, TaskBoard $board, ResequenceColumns $resequenceColumns): JsonResponse
+    {
+        $resequenceColumns($board, $request->validated('column_ids'));
+
+        return $this->stateResponse($board);
+    }
+
+    public function storeTask(StoreTaskRequest $request, TaskBoard $board, CreateTask $createTask): JsonResponse
+    {
+        $task = $createTask($board, $request->integer('column_id'), $request->validated('title'));
+
+        return $this->stateResponse($board, $task);
+    }
+
+    public function updateTask(UpdateTaskRequest $request, KanbanTask $task, UpdateTask $updateTask): JsonResponse
+    {
+        $task = $updateTask($task, $request->validated());
+
+        return $this->stateResponse($task->board, $task);
+    }
+
+    public function moveTask(MoveTaskRequest $request, KanbanTask $task, MoveTask $moveTask): JsonResponse
+    {
+        $task = $moveTask($task, $request->integer('column_id'), $request->validated('task_ids'));
+
+        return $this->stateResponse($task->board, $task);
+    }
+
+    public function archiveTask(KanbanTask $task, ArchiveTask $archiveTask): JsonResponse
+    {
+        $task = $archiveTask($task);
+
+        return $this->stateResponse($task->board, $task);
+    }
+
+    public function destroyTask(KanbanTask $task, DeleteTask $deleteTask): JsonResponse
+    {
+        return $this->stateResponse($deleteTask($task));
+    }
+
+    private function stateResponse(TaskBoard $board, ?KanbanTask $task = null): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'state' => $this->viewModel->state($board),
+            'selected_task_id' => $task?->id,
         ]);
-        $task = $this->service->updateTask($task, $data);
-        return response()->json(['success' => true, 'task' => $task]);
-    }
-
-    public function moveTask(Request $request, Task $task): JsonResponse
-    {
-        $data = $request->validate([
-            'lane_id' => 'required|exists:lanes,id',
-            'order' => 'required|integer|min:0',
-        ]);
-        $task = $this->service->moveTask($task, $data['lane_id'], $data['order']);
-        return response()->json(['success' => true, 'task' => $task]);
-    }
-
-    public function destroyTask(Task $task): JsonResponse
-    {
-        $this->service->deleteTask($task);
-        return response()->json(['success' => true]);
-    }
-
-    public function storeAttachment(Request $request, Task $task): JsonResponse
-    {
-        $request->validate(['file' => 'required|file|max:10240']);
-        $attachment = $this->service->addAttachment($task, $request->file('file'));
-        return response()->json(['success' => true, 'attachment' => $attachment]);
-    }
-
-    public function destroyAttachment(Task $task, TaskAttachment $attachment): JsonResponse
-    {
-        $this->service->removeAttachment($attachment);
-        return response()->json(['success' => true]);
-    }
-
-    public function search(Request $request): JsonResponse
-    {
-        $tasks = $this->service->searchTasks($request->only(['search', 'priority', 'label', 'lane_id']));
-        return response()->json(['success' => true, 'tasks' => $tasks]);
     }
 }

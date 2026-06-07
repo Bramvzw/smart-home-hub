@@ -1,107 +1,49 @@
 # Tasks Module
 
-The Tasks Module provides a Kanban-style task management system for the Smart Home Hub. It allows users to create, organize, and track tasks across different lanes (columns).
+Local Kanban task management for Smart Home Hub.
 
-## Features
+## Scope
 
-### Lane Management
-- Create, edit, and delete lanes to organize tasks
-- Drag and drop lanes to reorder them
-- Each lane represents a stage in your workflow (e.g., "To Do", "In Progress", "Done")
+- Multiple boards.
+- Per-board configurable columns.
+- Default board: `Tasks`.
+- Default columns: `Todo`, `Doing`, `Done`.
+- Board-scoped labels.
+- Task priority: `low`, `normal`, `high`.
+- Optional deadline, visible on cards and filterable.
+- Simple checklist items.
+- Archive and permanent delete.
 
-### Task Management
-- Create tasks with detailed information:
-  - Title
-  - Rich text description (using TinyMCE editor)
-  - Priority levels (Low, Medium, High)
-  - Custom labels (Bug, Feature, Enhancement, Documentation, Question, or custom)
-  - Due dates
-  - Notifications for upcoming due dates
-- Edit and delete tasks
-- Drag and drop tasks between lanes or to reorder within a lane
-- View task details in a modal
+This module is intentionally smaller than Trello, Jira, ClickUp or Vikunja. It is built for one local user and a calm dashboard workflow.
 
-### Task Attachments
-- Upload file attachments to tasks
-- View and download attachments
-- Delete attachments when no longer needed
+## Behavior
 
-### Task Filtering and Search
-- Search tasks by title or description
-- Filter tasks by:
-  - Priority
-  - Label
-  - Due date (Overdue, Due Today, Due This Week, etc.)
-- Clear filters with a single click
+- `/tasks` renders the Kanban board.
+- Creating the first visit ensures the default board exists.
+- Dragging a task into a column named `Done` marks it completed.
+- Moving a task out of `Done` marks it incomplete.
+- Filters are client-side over the loaded board state: search, label, priority, deadline and show archived.
+- Editing happens inline and in the right-side detail panel. The UI avoids modal-first task editing.
 
-### Task Notifications
-- View tasks that are about to expire
-- View overdue tasks
-- Enable notifications for tasks with approaching due dates
+## Main Classes
 
-## User Interface
+- `TasksController`: JSON endpoints and initial page state.
+- `EnsureDefaultBoard`: creates the default board and columns.
+- `TaskBoard`: board model.
+- `TaskColumn`: column model and `Done` detection.
+- `KanbanTask`: task card model.
+- `TaskLabel`: per-board label model.
+- `TaskChecklistItem`: checklist item model.
 
-### Tasks Board
-The main interface is a Kanban board with lanes and tasks. Each task is displayed as a card with key information visible at a glance:
-- Title
-- Description (truncated if long)
-- Priority indicator
-- Label
-- Due date
-- Attachment count
-- Overdue or "Due Soon" indicators
+## Assets
 
-### Task Details
-Clicking on a task opens a detailed view with:
-- Full description with rich text formatting
-- All metadata (priority, label, due date)
-- Attachment management
+- `resources/views/index.blade.php`: app mount point with initial state and route templates.
+- `resources/assets/js/tasks-board.js`: SortableJS interactions and JSON persistence.
+- `resources/assets/css/tasks.css`: compact dark Kanban styling based on the design handoff.
 
-### Task Creation and Editing
-Modal forms for creating and editing tasks with:
-- Title and description fields
-- Dropdown menus for priority and predefined labels
-- Date picker for due dates
-- Attachment upload interface
+## Checks
 
-## Technical Implementation
-
-### Models
-- **Lane**: Represents a column on the Kanban board
-- **Task**: The main task entity with all task properties
-- **TaskAttachment**: Stores file attachments for tasks
-
-### Controllers
-- **TasksController**: Handles all task-related actions
-  - Lane CRUD operations
-  - Task CRUD operations
-  - Task movement between lanes
-  - Attachment management
-  - Task search and filtering
-
-### Services
-- **TasksService**: Contains business logic for task operations
-  - Lane management
-  - Task management
-  - Attachment handling
-  - Task notifications
-
-### Views
-- Kanban board layout with lanes and tasks
-- Task cards with responsive design
-- Modal forms for task creation and editing
-- Task detail view
-
-### JavaScript
-- Drag and drop functionality using SortableJS
-- Rich text editing with TinyMCE
-- AJAX requests for seamless interaction
-- Responsive UI components
-
-## Getting Started
-
-1. Navigate to the Tasks module from the main dashboard
-2. Create your first lane by clicking "Add Lane"
-3. Add tasks to your lane by clicking "Add Task" in the lane header
-4. Organize your tasks by dragging them between lanes
-5. Track your progress and manage your workflow
+```bash
+php artisan test Modules/Tasks/tests
+npm run build
+```
