@@ -11,6 +11,7 @@ export default defineConfig({
                 'Modules/Tasks/resources/assets/css/tasks.css',
                 'Modules/Tasks/resources/assets/js/tasks-board.js',
                 'Modules/Spotify/resources/assets/js/core/player.js',
+                'Modules/Calendar/resources/assets/js/calendar.js',
             ],
             refresh: true,
         }),
