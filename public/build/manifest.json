@@ -1,4 +1,10 @@
 {
+  "Modules/Calendar/resources/assets/js/calendar.js": {
+    "file": "assets/calendar-CjoN4PD5.js",
+    "name": "calendar",
+    "src": "Modules/Calendar/resources/assets/js/calendar.js",
+    "isEntry": true
+  },
   "Modules/Spotify/resources/assets/js/core/player.js": {
     "file": "assets/player-FqSasrzH.js",
     "name": "player",
@@ -17,7 +23,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-DIY07r8Y.css",
+    "file": "assets/app-BmFh7Rey.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
