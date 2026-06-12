@@ -28,4 +28,4 @@ Homestead.json
 # Local agent tooling (not part of the project)
 .claude/
 .codesight/
-.guarddog/
+.guarddog/cache/
