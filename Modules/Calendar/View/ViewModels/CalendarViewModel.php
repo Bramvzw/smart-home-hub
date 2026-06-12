@@ -26,8 +26,26 @@ class CalendarViewModel
             'windowDays' => $days,
             'stale' => $feed->stale,
             'failed' => $feed->failed,
-            'configured' => count((array) config('calendar.ics_urls', [])) > 0,
+            'staleFeeds' => $feed->staleFeeds,
+            'sources' => $this->sources(),
+            'configured' => $this->sources() !== [],
         ];
+    }
+
+    /**
+     * Feed identities (label + colour) for the legend — never the secret URL.
+     *
+     * @return list<array{label: string, color: string}>
+     */
+    private function sources(): array
+    {
+        return array_values(array_map(
+            static fn ($feed) => [
+                'label' => (string) ($feed['label'] ?? 'Agenda'),
+                'color' => (string) ($feed['color'] ?? '#f2ad66'),
+            ],
+            array_filter((array) config('calendar.feeds', []), static fn ($feed) => ! empty($feed['url'])),
+        ));
     }
 
     /**

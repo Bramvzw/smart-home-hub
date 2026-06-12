@@ -1,5 +1,6 @@
 @php
     $tz = config('app.timezone', 'UTC');
+    $multiFeed = count($sources ?? []) > 1;
 @endphp
 
 {{-- List view: events grouped per day, each event a distinct card --}}
@@ -20,7 +21,7 @@
                     <div class="space-y-2">
                         @foreach($dayEvents as $event)
                             <div class="flex items-stretch overflow-hidden rounded-[12px] bg-[var(--hub-card)] ring-1 ring-[var(--hub-line-strong)] transition-colors hover:bg-[var(--hub-card-hover)] hover:ring-[var(--hub-accent-line)]">
-                                <span class="w-1 shrink-0 {{ $bucket['isToday'] ? 'bg-[var(--hub-accent)]' : 'bg-[var(--hub-line-strong)]' }}"></span>
+                                <span class="w-1 shrink-0" style="background-color: {{ $event->calendarColor }}"></span>
                                 <div class="flex min-w-0 flex-1 items-center gap-4 py-3 pl-4 pr-4">
                                     <div class="w-16 shrink-0 text-right">
                                         @if($event->allDay)
@@ -33,9 +34,17 @@
                                     <span class="h-9 w-px shrink-0 bg-[var(--hub-line)]"></span>
                                     <div class="min-w-0 flex-1">
                                         <p class="truncate text-[15px] font-semibold text-[var(--hub-text)]">{{ $event->summary }}</p>
-                                        @if($event->location)
-                                            <p class="mt-0.5 truncate text-[13px] text-[var(--hub-muted)]">{{ $event->location }}</p>
-                                        @endif
+                                        <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-[var(--hub-muted)]">
+                                            @if($multiFeed)
+                                                <span class="inline-flex items-center gap-1.5 text-[var(--hub-dim)]">
+                                                    <span class="h-2 w-2 rounded-full" style="background-color: {{ $event->calendarColor }}"></span>{{ $event->calendarLabel }}
+                                                </span>
+                                            @endif
+                                            @if($event->location)
+                                                @if($multiFeed)<span class="text-[var(--hub-line-strong)]">·</span>@endif
+                                                <span class="truncate">{{ $event->location }}</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -63,11 +72,14 @@
                 </div>
                 <div class="flex-1 space-y-1.5 overflow-y-auto p-2">
                     @forelse($dayEvents as $event)
-                        <div class="rounded-[9px] bg-[var(--hub-elevated)] px-2.5 py-2 ring-1 ring-[var(--hub-line-strong)]">
+                        <div class="rounded-[9px] bg-[var(--hub-elevated)] px-2.5 py-2 ring-1 ring-[var(--hub-line-strong)]" style="border-left: 3px solid {{ $event->calendarColor }}">
                             <p class="text-[11px] font-bold tabular-nums {{ $bucket['isToday'] ? 'text-[var(--hub-accent)]' : 'text-[var(--hub-muted)]' }}">
                                 {{ $event->allDay ? 'hele dag' : $event->start->setTimezone($tz)->format('H:i') }}
                             </p>
                             <p class="mt-0.5 line-clamp-2 text-xs font-medium text-[var(--hub-text)]">{{ $event->summary }}</p>
+                            @if($multiFeed)
+                                <p class="mt-1 truncate text-[10px] text-[var(--hub-dim)]">{{ $event->calendarLabel }}</p>
+                            @endif
                         </div>
                     @empty
                         <p class="px-1 pt-1 text-xs text-[var(--hub-dim)]">—</p>
