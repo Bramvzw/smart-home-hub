@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Modules\Calendar\Data\CalendarEvent;
 use Modules\Calendar\Data\CalendarFeed;
+use Modules\Calendar\Data\CalendarSource;
 use RuntimeException;
 use Sabre\VObject\Reader;
 use Throwable;
@@ -18,11 +19,12 @@ class CalendarService
     private const CACHE_PREFIX = 'calendar:feed';
 
     /**
-     * Build the event feed for the next $days, starting from $now.
+     * Build the merged event feed for the next $days, starting from $now.
      *
-     * A successful fetch is cached for the configured TTL. When the cache has
-     * expired and a refresh fails, the last known-good result is returned with
-     * a stale flag instead of bubbling the error to the page.
+     * Each configured feed is fetched and cached independently. A successful
+     * fetch is cached for the configured TTL. When one feed's refresh fails its
+     * last known-good events are served and that feed is flagged stale — the
+     * other feeds are unaffected (per-feed degradation).
      */
     public function feed(?int $days = null, ?CarbonImmutable $now = null): CalendarFeed
     {
@@ -32,65 +34,89 @@ class CalendarService
 
         $rangeStart = $now->startOfDay();
         $rangeEnd = $now->addDays($days)->endOfDay();
-
-        $cacheKey = self::CACHE_PREFIX.":{$days}";
-        $lastGoodKey = $cacheKey.':last-good';
-
-        $cached = Cache::get($cacheKey);
-        if (is_array($cached)) {
-            return new CalendarFeed($cached, stale: false, failed: false);
-        }
-
-        try {
-            $events = $this->fetchAndParse($rangeStart, $rangeEnd, $timezone);
-
-            Cache::put($cacheKey, $events, (int) config('calendar.cache_ttl', 900));
-            Cache::forever($lastGoodKey, $events);
-
-            return new CalendarFeed($events, stale: false, failed: false);
-        } catch (Throwable $e) {
-            $lastGood = Cache::get($lastGoodKey);
-
-            return new CalendarFeed(
-                is_array($lastGood) ? $lastGood : [],
-                stale: true,
-                failed: true,
-            );
-        }
-    }
-
-    /**
-     * @return list<CalendarEvent>
-     */
-    private function fetchAndParse(CarbonImmutable $rangeStart, CarbonImmutable $rangeEnd, string $timezone): array
-    {
-        $urls = (array) config('calendar.ics_urls', []);
-        $timeout = (int) config('calendar.request_timeout', 10);
+        $ttl = (int) config('calendar.cache_ttl', 900);
 
         $events = [];
+        $staleFeeds = [];
 
-        foreach ($urls as $url) {
-            $response = Http::timeout($timeout)->get($url);
+        foreach ($this->sources() as $source) {
+            $cacheKey = self::CACHE_PREFIX.':'.md5($source->url).":{$days}";
+            $lastGoodKey = $cacheKey.':last-good';
 
-            // Never include the (secret) URL in the message — only the status.
-            if (! $response->successful()) {
-                throw new RuntimeException("Calendar feed responded with HTTP {$response->status()}.");
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                $events = array_merge($events, $cached);
+
+                continue;
             }
 
-            foreach ($this->parse($response->body(), $rangeStart, $rangeEnd, $timezone) as $event) {
-                $events[] = $event;
+            try {
+                $fetched = $this->fetchAndParse($source, $rangeStart, $rangeEnd, $timezone);
+
+                Cache::put($cacheKey, $fetched, $ttl);
+                Cache::forever($lastGoodKey, $fetched);
+
+                $events = array_merge($events, $fetched);
+            } catch (Throwable $e) {
+                $staleFeeds[] = $source->label;
+
+                $lastGood = Cache::get($lastGoodKey);
+                $events = array_merge($events, is_array($lastGood) ? $lastGood : []);
             }
         }
 
         usort($events, static fn (CalendarEvent $a, CalendarEvent $b) => $a->start <=> $b->start);
 
-        return $events;
+        return new CalendarFeed(
+            $events,
+            stale: $staleFeeds !== [],
+            failed: $staleFeeds !== [],
+            staleFeeds: array_values(array_unique($staleFeeds)),
+        );
+    }
+
+    /**
+     * @return list<CalendarSource>
+     */
+    private function sources(): array
+    {
+        $sources = [];
+
+        foreach ((array) config('calendar.feeds', []) as $feed) {
+            $url = (string) ($feed['url'] ?? '');
+            if ($url === '') {
+                continue;
+            }
+
+            $sources[] = new CalendarSource(
+                label: (string) ($feed['label'] ?? 'Agenda'),
+                color: (string) ($feed['color'] ?? '#f2ad66'),
+                url: $url,
+            );
+        }
+
+        return $sources;
     }
 
     /**
      * @return list<CalendarEvent>
      */
-    private function parse(string $ics, CarbonImmutable $rangeStart, CarbonImmutable $rangeEnd, string $timezone): array
+    private function fetchAndParse(CalendarSource $source, CarbonImmutable $rangeStart, CarbonImmutable $rangeEnd, string $timezone): array
+    {
+        $response = Http::timeout((int) config('calendar.request_timeout', 10))->get($source->url);
+
+        // Never include the (secret) URL in the message — only the status.
+        if (! $response->successful()) {
+            throw new RuntimeException("Calendar feed responded with HTTP {$response->status()}.");
+        }
+
+        return $this->parse($response->body(), $source, $rangeStart, $rangeEnd, $timezone);
+    }
+
+    /**
+     * @return list<CalendarEvent>
+     */
+    private function parse(string $ics, CalendarSource $source, CarbonImmutable $rangeStart, CarbonImmutable $rangeEnd, string $timezone): array
     {
         $tz = new DateTimeZone($timezone);
 
@@ -120,6 +146,8 @@ class CalendarService
                 start: $start,
                 end: $end,
                 allDay: $allDay,
+                calendarLabel: $source->label,
+                calendarColor: $source->color,
                 location: isset($vevent->LOCATION) ? ((string) $vevent->LOCATION ?: null) : null,
             );
         }

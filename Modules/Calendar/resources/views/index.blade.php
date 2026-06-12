@@ -4,31 +4,38 @@
     </x-slot:scripts>
 
     <div class="flex h-full flex-col" data-calendar>
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hub-line)] px-6 py-4">
-            <div>
-                <h2 class="text-[20px] font-bold leading-tight text-[var(--hub-text)]">Agenda</h2>
-                <p class="mt-0.5 text-[13px] text-[var(--hub-dim)]">Komende {{ $windowDays }} dagen · alleen-lezen</p>
-            </div>
+        <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-[var(--hub-line)] px-6 py-3">
+            <p class="text-[13px] text-[var(--hub-dim)]">Komende {{ $windowDays }} dagen · alleen-lezen</p>
 
-            @if($configured && ! empty($events))
-                <div class="inline-flex items-center gap-1 rounded-[10px] bg-[var(--hub-card)] p-1 ring-1 ring-[var(--hub-line)]" role="tablist" aria-label="Weergave">
-                    <button type="button" data-view-toggle="list" class="rounded-[7px] px-3.5 py-1.5 text-sm font-semibold text-[var(--hub-dim)] transition-colors hover:text-[var(--hub-text)] aria-selected:bg-[var(--hub-accent-soft)] aria-selected:text-[var(--hub-text)]" aria-selected="true">Lijst</button>
-                    <button type="button" data-view-toggle="week" class="rounded-[7px] px-3.5 py-1.5 text-sm font-semibold text-[var(--hub-dim)] transition-colors hover:text-[var(--hub-text)] aria-selected:bg-[var(--hub-accent-soft)] aria-selected:text-[var(--hub-text)]" aria-selected="false">Week</button>
-                </div>
-            @endif
-        </div>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                @if($configured && count($sources) > 1)
+                    @foreach($sources as $source)
+                        <span class="inline-flex items-center gap-1.5 text-[13px] {{ in_array($source['label'], $staleFeeds, true) ? 'text-[var(--hub-dim)]' : 'text-[var(--hub-muted)]' }}">
+                            <span class="h-2.5 w-2.5 rounded-full" style="background-color: {{ $source['color'] }}"></span>
+                            {{ $source['label'] }}
+                            @if(in_array($source['label'], $staleFeeds, true))<span class="text-[var(--hub-danger)]">(verouderd)</span>@endif
+                        </span>
+                    @endforeach
+                @endif
 
-        @if($configured && ($failed || $stale))
-            <div class="px-6 pt-4">
-                @if($failed)
-                    <div class="rounded-[10px] bg-[var(--hub-danger-soft)] px-4 py-2.5 text-[13px] text-[var(--hub-danger)] ring-1 ring-[var(--hub-danger)]">
-                        De agenda kon niet worden opgehaald — laatst bekende afspraken worden getoond (mogelijk verouderd).
-                    </div>
-                @else
-                    <div class="rounded-[10px] bg-[var(--hub-card)] px-4 py-2.5 text-[13px] text-[var(--hub-dim)] ring-1 ring-[var(--hub-line)]">
-                        Verouderde gegevens worden getoond.
+                @if($configured && ! empty($events))
+                    <div class="inline-flex items-center gap-1 rounded-[10px] bg-[var(--hub-card)] p-1 ring-1 ring-[var(--hub-line)]" role="tablist" aria-label="Weergave">
+                        <button type="button" data-view-toggle="list" class="rounded-[7px] px-3.5 py-1.5 text-sm font-semibold text-[var(--hub-dim)] transition-colors hover:text-[var(--hub-text)] aria-selected:bg-[var(--hub-accent-soft)] aria-selected:text-[var(--hub-text)]" aria-selected="true">Lijst</button>
+                        <button type="button" data-view-toggle="week" class="rounded-[7px] px-3.5 py-1.5 text-sm font-semibold text-[var(--hub-dim)] transition-colors hover:text-[var(--hub-text)] aria-selected:bg-[var(--hub-accent-soft)] aria-selected:text-[var(--hub-text)]" aria-selected="false">Week</button>
                     </div>
                 @endif
+            </div>
+        </div>
+
+        @if($configured && $failed)
+            <div class="px-6 pt-4">
+                <div class="rounded-[10px] bg-[var(--hub-danger-soft)] px-4 py-2.5 text-[13px] text-[var(--hub-danger)] ring-1 ring-[var(--hub-danger)]">
+                    @if(count($staleFeeds))
+                        Kon niet bijwerken: {{ implode(', ', $staleFeeds) }} — laatst bekende afspraken worden getoond.
+                    @else
+                        De agenda kon niet worden opgehaald — laatst bekende afspraken worden getoond.
+                    @endif
+                </div>
             </div>
         @endif
 
@@ -40,7 +47,7 @@
                     </div>
                     <h3 class="text-sm font-bold text-[var(--hub-muted)]">Geen agenda gekoppeld</h3>
                     <p class="mt-1 max-w-sm text-sm text-[var(--hub-dim)]">
-                        Stel <code class="rounded bg-[var(--hub-card)] px-1.5 py-0.5 text-[var(--hub-muted)]">CALENDAR_ICS_URLS</code> in met je geheime iCal-adres van Google Agenda om afspraken te tonen.
+                        Stel <code class="rounded bg-[var(--hub-card)] px-1.5 py-0.5 text-[var(--hub-muted)]">CALENDAR_ICS_FEEDS</code> in met je geheime iCal-adres(sen) van Google Agenda om afspraken te tonen.
                     </p>
                 </div>
             @else

@@ -12,13 +12,19 @@ class CalendarServiceTest extends TestCase
 {
     private const FEED_URL = 'https://example.test/secret/basic.ics';
 
+    private const FEED_A = 'https://example.test/secret/work.ics';
+
+    private const FEED_B = 'https://example.test/secret/home.ics';
+
     protected function setUp(): void
     {
         parent::setUp();
 
         config([
             'app.timezone' => 'Europe/Amsterdam',
-            'calendar.ics_urls' => [self::FEED_URL],
+            'calendar.feeds' => [
+                ['label' => 'Werk', 'color' => '#f2ad66', 'url' => self::FEED_URL],
+            ],
             'calendar.window_days' => 7,
             'calendar.cache_ttl' => 900,
             'calendar.request_timeout' => 5,
@@ -55,6 +61,22 @@ class CalendarServiceTest extends TestCase
         ICS;
     }
 
+    private function singleEventIcs(string $uid, string $summary, string $start, string $end): string
+    {
+        return <<<ICS
+        BEGIN:VCALENDAR
+        VERSION:2.0
+        PRODID:-//Test//Calendar//EN
+        BEGIN:VEVENT
+        UID:{$uid}
+        SUMMARY:{$summary}
+        DTSTART;TZID=Europe/Amsterdam:{$start}
+        DTEND;TZID=Europe/Amsterdam:{$end}
+        END:VEVENT
+        END:VCALENDAR
+        ICS;
+    }
+
     private function now(): CarbonImmutable
     {
         return CarbonImmutable::parse('2026-06-08 00:00:00', 'Europe/Amsterdam');
@@ -77,6 +99,9 @@ class CalendarServiceTest extends TestCase
         $this->assertSame('Daily standup', $first->summary);
         // Raw wall-clock + offset: June is CEST, so +02:00 — assert without re-normalising.
         $this->assertSame('09:00+02:00', $first->start->format('H:iP'));
+        // Each event is tagged with its source calendar's label + colour.
+        $this->assertSame('Werk', $first->calendarLabel);
+        $this->assertSame('#f2ad66', $first->calendarColor);
 
         $dentist = array_values(array_filter($feed->events, fn ($event) => $event->summary === 'Tandarts'))[0];
         $this->assertSame('Kliniek', $dentist->location);
@@ -173,14 +198,61 @@ class CalendarServiceTest extends TestCase
         $this->assertFalse($fresh->stale);
         $this->assertFalse($fresh->failed);
 
-        // Expire the TTL entry so the next call refreshes and hits the failure.
-        Cache::forget('calendar:feed:7');
+        // Expire this feed's TTL entry so the next call refreshes and hits the failure.
+        Cache::forget('calendar:feed:'.md5(self::FEED_URL).':7');
 
         $stale = $service->feed(7, $this->now());
 
         $this->assertTrue($stale->failed);
         $this->assertTrue($stale->stale);
+        $this->assertSame(['Werk'], $stale->staleFeeds);
         // The page still shows the last known-good events.
         $this->assertCount(6, $stale->events);
+    }
+
+    public function test_merges_and_sorts_events_from_multiple_feeds(): void
+    {
+        config(['calendar.feeds' => [
+            ['label' => 'Werk', 'color' => '#f2ad66', 'url' => self::FEED_A],
+            ['label' => 'Privé', 'color' => '#54b896', 'url' => self::FEED_B],
+        ]]);
+
+        Http::fake([
+            self::FEED_A => Http::response($this->singleEventIcs('a-1', 'Werkoverleg', '20260609T100000', '20260609T110000'), 200),
+            self::FEED_B => Http::response($this->singleEventIcs('b-1', 'Tandarts', '20260609T080000', '20260609T083000'), 200),
+        ]);
+
+        $feed = $this->service()->feed(7, $this->now());
+
+        $this->assertCount(2, $feed->events);
+        // Sorted chronologically across feeds: 08:00 (Privé) before 10:00 (Werk).
+        $this->assertSame('Tandarts', $feed->events[0]->summary);
+        $this->assertSame('Privé', $feed->events[0]->calendarLabel);
+        $this->assertSame('Werkoverleg', $feed->events[1]->summary);
+        $this->assertSame('Werk', $feed->events[1]->calendarLabel);
+    }
+
+    public function test_one_failing_feed_does_not_blank_the_others(): void
+    {
+        config(['calendar.feeds' => [
+            ['label' => 'Werk', 'color' => '#f2ad66', 'url' => self::FEED_A],
+            ['label' => 'Privé', 'color' => '#54b896', 'url' => self::FEED_B],
+        ]]);
+
+        Http::fake([
+            self::FEED_A => Http::response('upstream down', 500),
+            self::FEED_B => Http::response($this->singleEventIcs('b-1', 'Tandarts', '20260609T080000', '20260609T083000'), 200),
+        ]);
+
+        $feed = $this->service()->feed(7, $this->now());
+
+        // The healthy feed still renders.
+        $this->assertCount(1, $feed->events);
+        $this->assertSame('Tandarts', $feed->events[0]->summary);
+        $this->assertSame('Privé', $feed->events[0]->calendarLabel);
+
+        // Only the failing feed is flagged stale.
+        $this->assertTrue($feed->stale);
+        $this->assertSame(['Werk'], $feed->staleFeeds);
     }
 }

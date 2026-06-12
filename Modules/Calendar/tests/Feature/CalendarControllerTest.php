@@ -37,7 +37,9 @@ class CalendarControllerTest extends TestCase
     public function test_index_page_lists_events_from_the_feed(): void
     {
         config([
-            'calendar.ics_urls' => [self::FEED_URL],
+            'calendar.feeds' => [
+                ['label' => 'Werk', 'color' => '#f2ad66', 'url' => self::FEED_URL],
+            ],
             'calendar.window_days' => 30,
         ]);
         Http::fake([self::FEED_URL => Http::response($this->ics(), 200)]);
@@ -54,7 +56,7 @@ class CalendarControllerTest extends TestCase
 
     public function test_index_page_shows_empty_state_when_no_feed_is_configured(): void
     {
-        config(['calendar.ics_urls' => []]);
+        config(['calendar.feeds' => []]);
 
         $response = $this->get(route('calendar.index'));
 

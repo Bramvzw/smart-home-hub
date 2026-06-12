@@ -12,6 +12,8 @@ final readonly class CalendarEvent
         public CarbonImmutable $start,
         public CarbonImmutable $end,
         public bool $allDay,
+        public string $calendarLabel,
+        public string $calendarColor,
         public ?string $location = null,
     ) {}
 
@@ -23,6 +25,8 @@ final readonly class CalendarEvent
             'start' => $this->start->toIso8601String(),
             'end' => $this->end->toIso8601String(),
             'all_day' => $this->allDay,
+            'calendar_label' => $this->calendarLabel,
+            'calendar_color' => $this->calendarColor,
             'location' => $this->location,
         ];
     }
