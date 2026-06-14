@@ -22,6 +22,7 @@ Entry point for project documentation. `AGENTS.md` is the canonical agent rulebo
 | Note | Description |
 |---|---|
 | [Setup/Definition of Done](Setup/Definition%20of%20Done.md) | Commit checklist for code, tests, API behavior, UI and docs |
+| [Setup/Raspberry Pi Hosting](Setup/Raspberry%20Pi%20Hosting.md) | Always-on Raspberry Pi hosting and local HTTPS notes |
 | [Setup/Testing](Setup/Testing.md) | Test commands and coverage expectations |
 
 ## UI

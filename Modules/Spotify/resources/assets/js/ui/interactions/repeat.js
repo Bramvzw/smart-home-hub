@@ -42,17 +42,18 @@ export function updateRepeatUI(elements, state) {
     const icon = elements.repeatIcon;
     if (!btn) return;
 
-    btn.dataset.repeatState = state;
+    const active = state !== 'off';
+    const buttons = new Set(document.querySelectorAll('[data-spotify-control="repeat"]'));
+    buttons.add(btn);
 
-    if (state === 'off') {
-        btn.classList.remove('text-[#95e2d3]');
-        btn.classList.add('text-[var(--hub-dim)]');
-        if (dot) dot.classList.add('hidden');
-    } else {
-        btn.classList.remove('text-[var(--hub-dim)]');
-        btn.classList.add('text-[#95e2d3]');
-        if (dot) dot.classList.remove('hidden');
-    }
+    buttons.forEach(button => {
+        button.dataset.repeatState = state;
+        button.classList.toggle('is-on', active);
+        button.classList.toggle('text-[#95e2d3]', active);
+        button.classList.toggle('text-[var(--hub-dim)]', !active);
+    });
+
+    if (dot) dot.classList.toggle('hidden', !active);
 
     // For track repeat, show a "1" indicator
     if (icon) {

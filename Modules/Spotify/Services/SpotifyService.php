@@ -35,6 +35,16 @@ class SpotifyService
         return $this->tokens->refreshAccessToken();
     }
 
+    public function hasStoredAuthorization(): bool
+    {
+        return $this->tokens->hasStoredAuthorization();
+    }
+
+    public function ensureAccessToken(): array
+    {
+        return $this->tokens->ensureAccessToken();
+    }
+
     public function getProfile(): array
     {
         return $this->playback->getProfile();

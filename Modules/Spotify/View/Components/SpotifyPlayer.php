@@ -9,6 +9,7 @@ use Modules\Spotify\View\ViewModels\UpcomingTrackView;
 class SpotifyPlayer extends Component
 {
     public bool $isPlaying;
+    public bool $hasCurrentTrack;
     public ?UpcomingTrackView $upcomingTrack;
 
     public function __construct(
@@ -17,9 +18,11 @@ class SpotifyPlayer extends Component
         public string $authUrl,
         SpotifyService $spotifyService,
     ) {
+        $this->playbackState ??= [];
         $this->isPlaying = $this->playbackState['is_playing'] ?? false;
+        $this->hasCurrentTrack = isset($this->playbackState['item']) && is_array($this->playbackState['item']);
 
-        if ($this->isPlaying) {
+        if ($this->hasCurrentTrack) {
             $nextTrackData = $spotifyService->getNextTrack();
             $this->upcomingTrack = new UpcomingTrackView($nextTrackData['next_track'] ?? null);
         } else {

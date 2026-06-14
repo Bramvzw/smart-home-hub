@@ -45,6 +45,24 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue(Session::has('spotify_oauth_state'));
     }
 
+    public function test_has_stored_authorization_uses_refresh_token()
+    {
+        Cache::put('spotify_refresh_token', 'test_refresh_token', 3600);
+
+        $service = new SpotifyService();
+
+        $this->assertTrue($service->hasStoredAuthorization());
+    }
+
+    public function test_ensure_access_token_succeeds_when_access_token_exists()
+    {
+        Cache::put('spotify_access_token', 'test_access_token', 3600);
+
+        $service = new SpotifyService();
+
+        $this->assertEquals(['success' => true], $service->ensureAccessToken());
+    }
+
     public function test_get_access_token_stores_tokens_in_cache()
     {
         $service = $this->createServiceWithMockClient([

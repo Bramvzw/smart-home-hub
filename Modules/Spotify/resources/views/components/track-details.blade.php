@@ -1,23 +1,13 @@
-<div class="flex flex-col items-center justify-center p-5 shrink-0 border-r border-[var(--hub-line)] bg-[var(--hub-elevated)]" style="width: 296px;">
-    <div class="relative w-full max-w-[200px] overflow-hidden">
-        <img src="{{ data_get($playbackState, 'item.album.images.0.url', '') }}"
-             class="album-glow rounded-[10px]" aria-hidden="true" />
-        <div class="relative rounded-[10px] overflow-hidden shadow-2xl ring-1 ring-[var(--hub-line-strong)] aspect-square">
+<section class="spotify-art-panel" aria-label="Albumhoes">
+    <div class="spotify-art-wrap">
+        <div class="spotify-cover-frame">
             <img id="track-image"
+                 data-track-image
                  src="{{ data_get($playbackState, 'item.album.images.0.url', asset('images/no-track.webp')) }}"
-                 alt="Album Art"
-                 class="w-full h-full object-cover" />
+                 alt="Albumhoes"
+                 loading="eager">
         </div>
     </div>
-    <div class="text-center w-full min-w-0 mt-4">
-        <h2 id="track-name" class="text-lg font-bold text-[var(--hub-text)] truncate leading-tight">
-            {{ $playbackState['item']['name'] ?? 'Unknown' }}
-        </h2>
-        <p id="artist-name" class="text-sm text-[var(--hub-muted)] mt-0.5 truncate">
-            {{ collect($playbackState['item']['artists'] ?? [])->pluck('name')->join(', ') }}
-        </p>
-        <p id="album-name" class="text-xs text-[var(--hub-dim)] mt-0.5 truncate">
-            {{ $playbackState['item']['album']['name'] ?? '' }}
-        </p>
-    </div>
-</div>
+
+    <x-spotify::upcoming-track :upcoming-track="$upcomingTrack" />
+</section>

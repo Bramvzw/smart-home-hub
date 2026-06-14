@@ -3,6 +3,7 @@
  */
 
 import { postOptions, handleResponse } from '../../utils/index.js';
+import { updateMirroredTime, updateProgressFills } from './track-progress.js';
 
 /**
  * Start playback, optionally with a specific URI
@@ -104,11 +105,8 @@ export function startProgressTicker(getState, elements, formatTimeFn, onTrackEnd
         if (timestamp - lastRender >= 250) {
             lastRender = timestamp;
 
-            if (elements.progressBar) {
-                elements.progressBar.style.width = `${(displayed / state.durationMs) * 100}%`;
-            }
-            const timeEl = document.getElementById('current-time');
-            if (timeEl) timeEl.textContent = formatTimeFn(displayed);
+            updateProgressFills(displayed / state.durationMs);
+            updateMirroredTime(formatTimeFn(displayed));
         }
 
         // Trigger immediate poll when track is estimated to have ended

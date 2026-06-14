@@ -87,17 +87,21 @@ export function toggleLike(state, elements, updateState, updateLikeButton) {
  * Update the like button UI based on current like status
  */
 export function updateLikeButton(state, elements) {
-    if (elements.likeIcon && elements.likeBtn) {
-        if (state.isTrackLiked) {
-            elements.likeIcon.setAttribute('fill', 'currentColor');
-            elements.likeIcon.setAttribute('stroke', 'currentColor');
-            elements.likeBtn.classList.remove('text-[var(--hub-dim)]');
-            elements.likeBtn.classList.add('text-[#95e2d3]');
-        } else {
-            elements.likeIcon.setAttribute('fill', 'none');
-            elements.likeIcon.setAttribute('stroke', 'currentColor');
-            elements.likeBtn.classList.remove('text-[#95e2d3]');
-            elements.likeBtn.classList.add('text-[var(--hub-dim)]');
-        }
-    }
+    const liked = Boolean(state.isTrackLiked);
+    const icons = new Set(document.querySelectorAll('[data-like-icon]'));
+    if (elements.likeIcon) icons.add(elements.likeIcon);
+
+    icons.forEach(icon => {
+        icon.setAttribute('fill', liked ? 'currentColor' : 'none');
+        icon.setAttribute('stroke', 'currentColor');
+    });
+
+    const buttons = new Set(document.querySelectorAll('[data-spotify-control="like"]'));
+    if (elements.likeBtn) buttons.add(elements.likeBtn);
+
+    buttons.forEach(button => {
+        button.classList.toggle('is-liked', liked);
+        button.classList.toggle('text-[#95e2d3]', liked);
+        button.classList.toggle('text-[var(--hub-dim)]', !liked);
+    });
 }
