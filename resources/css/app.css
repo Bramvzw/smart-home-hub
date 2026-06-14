@@ -13,8 +13,12 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-* {
-    cursor: none !important;
+/* Hide the cursor only on touch devices (the Pi kiosk); keep it on
+   mouse-driven screens. Touchscreens report no hover + a coarse pointer. */
+@media (hover: none), (pointer: coarse) {
+    * {
+        cursor: none !important;
+    }
 }
 
 :root {
