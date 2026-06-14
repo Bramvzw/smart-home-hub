@@ -32,6 +32,7 @@ export function initializeEventListeners(elements, getState, callbacks) {
     let volumeTimeout;
     elements.volumeSlider?.addEventListener('input', function () {
         clearTimeout(volumeTimeout);
+        syncVolumeInputs(this.value);
         volumeTimeout = setTimeout(() => setVolume(this.value), 300);
     });
 
@@ -42,4 +43,61 @@ export function initializeEventListeners(elements, getState, callbacks) {
         document.addEventListener('mouseup', endDrag);
         elements.progressContainer.addEventListener('click', debounce(seekOnClick, 300));
     }
+
+    document.querySelectorAll('[data-spotify-control]').forEach(button => {
+        button.addEventListener('click', () => {
+            const action = button.dataset.spotifyControl;
+
+            if (action === 'toggle-play') {
+                getState().isPlaying ? pausePlayback() : startPlayback();
+                return;
+            }
+
+            if (action === 'previous') {
+                control('previous');
+                return;
+            }
+
+            if (action === 'next') {
+                control('next');
+                return;
+            }
+
+            if (action === 'like') {
+                toggleLike();
+                return;
+            }
+
+            if (action === 'shuffle') {
+                elements.shuffleBtn?.click();
+                return;
+            }
+
+            if (action === 'repeat') {
+                elements.repeatBtn?.click();
+                return;
+            }
+
+            if (action === 'mute') {
+                const current = parseInt(elements.volumeSlider?.value || '0', 10);
+                const next = current > 0 ? 0 : 70;
+                syncVolumeInputs(next);
+                setVolume(next);
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-volume-proxy]').forEach(input => {
+        input.addEventListener('input', function () {
+            clearTimeout(volumeTimeout);
+            syncVolumeInputs(this.value);
+            volumeTimeout = setTimeout(() => setVolume(this.value), 300);
+        });
+    });
+}
+
+function syncVolumeInputs(value) {
+    document.querySelectorAll('#volume-slider, [data-volume-proxy]').forEach(input => {
+        input.value = value;
+    });
 }

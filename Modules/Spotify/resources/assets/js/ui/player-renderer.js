@@ -13,10 +13,19 @@ const PAUSE_PATH = 'M6 4h4v16H6V4zm8 0h4v16h-4V4z';
 const PLAY_PATH  = 'M8 5v14l11-7z';
 
 export function setPlayPauseIcon(svgEl, isPlaying) {
-    if (!svgEl) return;
-    const path = svgEl.querySelector('path');
-    if (path) path.setAttribute('d', isPlaying ? PAUSE_PATH : PLAY_PATH);
-    svgEl.classList.toggle('ml-0.5', !isPlaying);
+    const icons = new Set(document.querySelectorAll('[data-play-icon]'));
+    if (svgEl) icons.add(svgEl);
+
+    icons.forEach(icon => {
+        const path = icon.querySelector('path');
+        if (path) path.setAttribute('d', isPlaying ? PAUSE_PATH : PLAY_PATH);
+        icon.classList.toggle('ml-0.5', !isPlaying);
+        icon.dataset.playing = isPlaying ? 'true' : 'false';
+    });
+
+    document.querySelectorAll('[data-playing-indicator]').forEach(indicator => {
+        indicator.classList.toggle('is-on', isPlaying);
+    });
 }
 
 export function updatePlayerUI(state, elements, data, updateState, formatTime) {
@@ -74,19 +83,19 @@ export function updatePlayerUI(state, elements, data, updateState, formatTime) {
             const duration   = formatTime(durationMs);
 
             if (trackChanged) {
-                updateElementContent('track-image', imageUrl, 'src');
+                updateMirroredContent('track-image', '[data-track-image]', imageUrl, 'src');
                 setTimeout(() => {
-                    updateElementContent('track-name',  trackName);
-                    updateElementContent('artist-name', artists);
-                    updateElementContent('album-name',  albumName);
-                    updateElementContent('duration',    duration);
+                    updateMirroredContent('track-name', '[data-track-name]', trackName);
+                    updateMirroredContent('artist-name', '[data-track-artists]', artists);
+                    updateMirroredContent('album-name', '[data-track-album]', albumName);
+                    updateMirroredContent('duration', '[data-track-duration]', duration);
                 }, 50);
             } else {
-                updateElementContent('track-image',  imageUrl, 'src');
-                updateElementContent('track-name',   trackName);
-                updateElementContent('artist-name',  artists);
-                updateElementContent('album-name',   albumName);
-                updateElementContent('duration',     duration);
+                updateMirroredContent('track-image', '[data-track-image]', imageUrl, 'src');
+                updateMirroredContent('track-name', '[data-track-name]', trackName);
+                updateMirroredContent('artist-name', '[data-track-artists]', artists);
+                updateMirroredContent('album-name', '[data-track-album]', albumName);
+                updateMirroredContent('duration', '[data-track-duration]', duration);
             }
         } catch (e) {
             console.error('Error updating player UI:', e);
@@ -94,4 +103,17 @@ export function updatePlayerUI(state, elements, data, updateState, formatTime) {
     }
 
     return state;
+}
+
+function updateMirroredContent(id, selector, value, attr = null) {
+    updateElementContent(id, value, attr);
+
+    document.querySelectorAll(selector).forEach(element => {
+        if (element.id === id) return;
+        if (attr) {
+            element.setAttribute(attr, value || '');
+        } else {
+            element.textContent = value || '';
+        }
+    });
 }

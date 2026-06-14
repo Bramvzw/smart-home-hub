@@ -1,17 +1,21 @@
-<div class="w-full">
-    <div id="progress-container" class="h-2 cursor-pointer bg-[var(--hub-line-strong)] rounded-full relative touch-none">
-        <div id="progress-bar" class="h-full bg-[#34b8a0] rounded-full relative" style="width:
-            @if (isset($playbackState['progress_ms']) && isset($playbackState['item']['duration_ms']) && $playbackState['item']['duration_ms'] > 0)
-                {{ ($playbackState['progress_ms'] / $playbackState['item']['duration_ms']) * 100 }}%
-            @else
-                0%
-            @endif
-        ">
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-[#d8fff7] rounded-full shadow-lg -mr-1"></div>
+@php
+    $durationMs = data_get($playbackState, 'item.duration_ms', 0);
+    $progressMs = $playbackState['progress_ms'] ?? 0;
+    $progressPercent = $durationMs > 0 ? ($progressMs / $durationMs) * 100 : 0;
+@endphp
+
+<div class="spotify-progress">
+    <div class="spotify-progress-row">
+        <span id="current-time" data-current-time class="spotify-time">
+            {{ $progressMs ? gmdate("i:s", $progressMs / 1000) : '0:00' }}
+        </span>
+        <div id="progress-container" class="spotify-seek" role="slider" aria-label="Voortgang" aria-valuemin="0" aria-valuemax="{{ $durationMs }}" aria-valuenow="{{ $progressMs }}" tabindex="0">
+            <div id="progress-bar" data-progress-fill class="spotify-seek-fill spotify-progress-fill" style="width: {{ $progressPercent }}%">
+                <span class="spotify-seek-knob"></span>
+            </div>
         </div>
-    </div>
-    <div class="flex justify-between text-[11px] text-[var(--hub-dim)] mt-1 tabular-nums">
-        <span id="current-time">{{ isset($playbackState['progress_ms']) ? gmdate("i:s", $playbackState['progress_ms'] / 1000) : '0:00' }}</span>
-        <span id="duration">{{ isset($playbackState['item']['duration_ms']) ? gmdate("i:s", $playbackState['item']['duration_ms'] / 1000) : '0:00' }}</span>
+        <span id="duration" data-track-duration class="spotify-time">
+            {{ $durationMs ? gmdate("i:s", $durationMs / 1000) : '0:00' }}
+        </span>
     </div>
 </div>

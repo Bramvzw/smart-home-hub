@@ -3,7 +3,7 @@
  * Contains functions for handling the next track functionality
  */
 
-import { displayMessage } from '../../utils/index.js';
+import { getImageUrl, updateElementContent } from '../../utils/index.js';
 /*
 * ToDo refactor can be one function?
  */
@@ -20,11 +20,11 @@ export function loadUpcomingTrack(elements, renderNextTrackFn) {
                 if (data.success && data.item) {
                     renderNextTrackFn(elements, data.item);
                 } else {
-                    displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'No upcoming tracks');
+                    renderNextTrackFn(elements, null);
                 }
             })
             .catch(() => {
-                displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'Error loading next track');
+                renderNextTrackFn(elements, null);
             });
     }
 
@@ -34,12 +34,67 @@ export function loadUpcomingTrack(elements, renderNextTrackFn) {
             if (data.success && data.next_track) {
                 renderNextTrackFn(elements, data.next_track);
             } else {
-                displayMessage(elements.nextTrackContainer,  elements.messageTemplate, 'No upcoming tracks');
+                renderNextTrackFn(elements, null);
             }
         })
         .catch(() => {
-            displayMessage(elements.nextTrackContainer,  elements.messageTemplate, 'Error loading next track');
+            renderNextTrackFn(elements, null);
         });
+}
+
+function resolveNextTrackImage(track) {
+    return getImageUrl(track, 'album')
+        || getImageUrl(track)
+        || getImageUrl(track, 'show')
+        || getImageUrl(track?.track, 'album')
+        || getImageUrl(track?.track)
+        || '';
+}
+
+function setNextTrackEmptyState(isEmpty) {
+    const dock = document.querySelector('.spotify-next-dock');
+    const playButton = document.querySelector('.play-next-track-btn');
+
+    dock?.classList.toggle('is-empty', isEmpty);
+
+    if (playButton) {
+        playButton.disabled = isEmpty;
+    }
+}
+
+function updateNextTrackImage(imageUrl) {
+    const image = document.getElementById('next-track-image');
+    const thumb = image?.closest('.spotify-next-thumb');
+
+    if (!image || !thumb) return;
+
+    if (!imageUrl) {
+        thumb.classList.add('is-empty');
+        image.hidden = true;
+        return;
+    }
+
+    image.hidden = false;
+    thumb.classList.remove('is-empty');
+    updateElementContent('next-track-image', imageUrl, 'src');
+}
+
+function renderEmptyNextTrack() {
+    updateNextTrackImage('');
+    updateElementContent('next-track-name', 'Geen volgend nummer');
+    updateElementContent('next-track-artists', '');
+    setNextTrackEmptyState(true);
+}
+
+function resolveNextTrackArtists(track) {
+    const artists = track.artists || track.album?.artists || [];
+    const artistNames = artists.map(artist => artist.name).filter(Boolean);
+
+    if (artistNames.length > 0) {
+        return artistNames.join(', ');
+    }
+
+    return track.show?.publisher || '';
 }
 
 /**
@@ -49,44 +104,37 @@ export function renderNextTrack(elements, startPlayback, track) {
     if (!elements.nextTrackContainer) return;
 
     if (!track) {
-        displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'No upcoming tracks');
+        renderEmptyNextTrack();
         return;
     }
 
     try {
         // Safely access nested properties
-        const imageUrl = track.album?.images?.[0]?.url || '';
-        const artistNames = track.artists?.map(a => a.name || 'Unknown').join(', ') || 'Unknown Artist';
-        const trackName = track.name || 'Unknown Track';
+        const unwrappedTrack = track.track || track;
+        const imageUrl = resolveNextTrackImage(unwrappedTrack);
+        const artistNames = resolveNextTrackArtists(unwrappedTrack);
+        const trackName = unwrappedTrack.name || 'Unknown Track';
 
-        // Update the elements directly using updateElementContent
-        import('../../utils/index.js').then(utils => {
-            // First update the image (which has its own preloading mechanism)
-            utils.updateElementContent('next-track-image', imageUrl, 'src');
+        setNextTrackEmptyState(false);
+        updateNextTrackImage(imageUrl);
 
-            // Then update all text elements together with a small delay
-            // This allows CSS transitions to work properly in a coordinated way
-            setTimeout(() => {
-                // Set track name
-                utils.updateElementContent('next-track-name', trackName);
-
-                // Set artist names
-                utils.updateElementContent('next-track-artists', artistNames);
-            }, 50); // Small delay for smoother transition
-        });
+        setTimeout(() => {
+            updateElementContent('next-track-name', trackName);
+            updateElementContent('next-track-artists', artistNames);
+        }, 50);
 
         // Add event listener for the play button if it exists
         const playButton = elements.nextTrackContainer.querySelector('.play-next-track-btn');
-        if (playButton && track.uri) {
+        if (playButton && unwrappedTrack.uri) {
             // Remove existing listeners to prevent duplicates
             const newPlayButton = playButton.cloneNode(true);
             playButton.parentNode.replaceChild(newPlayButton, playButton);
 
             newPlayButton.addEventListener('click', function() {
-                startPlayback(track.uri);
+                startPlayback(unwrappedTrack.uri);
             });
         }
     } catch (error) {
-        displayMessage(elements.nextTrackContainer, elements.messageTemplate, 'Error displaying next track');
+        renderEmptyNextTrack();
     }
 }
