@@ -6,7 +6,7 @@
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/css/lighting.css": {
-    "file": "assets/lighting-BBCyipx3.css",
+    "file": "assets/lighting-BxmJOpKT.css",
     "src": "Modules/Lighting/resources/assets/css/lighting.css",
     "isEntry": true
   },
@@ -17,12 +17,12 @@
     "isEntry": true
   },
   "Modules/Spotify/resources/assets/css/player.css": {
-    "file": "assets/player-BUL0szFL.css",
+    "file": "assets/player-D4LV7ZtJ.css",
     "src": "Modules/Spotify/resources/assets/css/player.css",
     "isEntry": true
   },
   "Modules/Spotify/resources/assets/js/core/player.js": {
-    "file": "assets/player-2nygn8JH.js",
+    "file": "assets/player-V6G_U1Kq.js",
     "name": "player",
     "src": "Modules/Spotify/resources/assets/js/core/player.js",
     "isEntry": true
@@ -39,12 +39,12 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-Lbhw3POp.css",
+    "file": "assets/app-DRNxoe5g.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-CGKkQ02i.js",
+    "file": "assets/app-BUKGpEAC.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
