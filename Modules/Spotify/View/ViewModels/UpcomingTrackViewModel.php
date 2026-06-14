@@ -2,7 +2,7 @@
 
 namespace Modules\Spotify\View\ViewModels;
 
-class UpcomingTrackView
+class UpcomingTrackViewModel
 {
     public bool $hasTrack;
     public string $trackImage;

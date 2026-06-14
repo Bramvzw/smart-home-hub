@@ -42,6 +42,7 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 |---|---|
 | `Modules\Lighting\Providers\LightingServiceProvider` | Registers Lighting module metadata, routes and dashboard navigation. |
 | `Modules\Lighting\Http\Controllers\LightingController` | Thin HTTP boundary for the Lighting page and per-light JSON updates. |
+| `Modules\Lighting\Http\Requests\UpdateLightRequest` | Validation and colour normalisation for per-light update requests. |
 | `Modules\Lighting\Actions\ControlLight` | Write action for dispatching validated light changes to the owning provider. |
 | `Modules\Lighting\Actions\ApplyLightingPreset` | Write action for applying configured presets across reachable provider lights. |
 | `Modules\Lighting\Contracts\LightProvider` | Shared provider contract for listing and controlling lights. |
