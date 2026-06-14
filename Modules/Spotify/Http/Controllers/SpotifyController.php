@@ -4,7 +4,6 @@ namespace Modules\Spotify\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
 use Modules\Spotify\Http\Requests\CheckSavedTracksRequest;
@@ -76,17 +75,26 @@ class SpotifyController extends Controller
      */
     public function index()
     {
-        $isConnected = Cache::has('spotify_access_token');
+        $isConnected = $this->spotifyService->hasStoredAuthorization();
         $playbackState = null;
 
         if ($isConnected) {
-            $playbackState = $this->spotifyService->getCurrentPlayback();
+            $token = $this->spotifyService->ensureAccessToken();
+
+            if (isset($token['error'])) {
+                Log::warning('Spotify authorization could not be refreshed before rendering player', [
+                    'error' => $token['error'],
+                ]);
+                $isConnected = false;
+            } else {
+                $playbackState = $this->spotifyService->getCurrentPlayback();
+            }
         }
 
         return view('spotify::index', [
             'isConnected' => $isConnected,
             'playbackState' => $playbackState,
-            'authUrl' => $this->spotifyService->getAuthorizationUrl(),
+            'authUrl' => $isConnected ? '' : $this->spotifyService->getAuthorizationUrl(),
         ]);
     }
 

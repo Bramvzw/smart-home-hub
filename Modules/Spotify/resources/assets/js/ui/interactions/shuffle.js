@@ -40,19 +40,16 @@ export function setupShuffle(elements, onSuccess) {
 }
 
 export function updateShuffleUI(elements, active, disallowed = false) {
-    const btn = elements.shuffleBtn;
-    if (!btn) return;
+    const buttons = new Set(document.querySelectorAll('[data-spotify-control="shuffle"]'));
+    if (elements.shuffleBtn) buttons.add(elements.shuffleBtn);
 
-    btn.dataset.shuffleState = active ? 'true' : 'false';
-    btn.dataset.shuffleDisallowed = disallowed ? 'true' : 'false';
-    btn.style.opacity = disallowed ? '0.3' : '';
-    btn.style.cursor  = disallowed ? 'not-allowed' : '';
-
-    if (active) {
-        btn.classList.remove('text-[var(--hub-dim)]');
-        btn.classList.add('text-[#95e2d3]');
-    } else {
-        btn.classList.remove('text-[#95e2d3]');
-        btn.classList.add('text-[var(--hub-dim)]');
-    }
+    buttons.forEach(btn => {
+        btn.dataset.shuffleState = active ? 'true' : 'false';
+        btn.dataset.shuffleDisallowed = disallowed ? 'true' : 'false';
+        btn.style.opacity = disallowed ? '0.3' : '';
+        btn.style.cursor  = disallowed ? 'not-allowed' : '';
+        btn.classList.toggle('is-on', active);
+        btn.classList.toggle('text-[#95e2d3]', active);
+        btn.classList.toggle('text-[var(--hub-dim)]', !active);
+    });
 }

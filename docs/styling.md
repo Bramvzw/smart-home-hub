@@ -26,6 +26,7 @@ Rules:
 - Shared product UI should use `hub-*` component classes (`hub-shell`, `hub-sidebar`, `hub-nav-link`, `hub-card`, `hub-action`, `hub-input`, `hub-empty`) before adding new one-off styles.
 - Keep shared dashboard styling in the shared CSS entry.
 - Keep module-specific styling in the module asset when it does not belong to the dashboard shell.
+- The shared touch keyboard uses `touch-keyboard*` classes in `resources/css/app.css` because it is loaded by the app shell and applies across modules.
 - Prefer component classes for buttons, cards, pills, controls, empty states and modal surfaces.
 - Avoid one-off utility-heavy Blade markup for product UI.
 - Keep dynamic inline style fragments small and obvious.
@@ -37,6 +38,7 @@ Rules:
 When JavaScript renders or mutates UI:
 
 - Keep state and rendering helpers in module-local JS files.
+- Keep shared shell behavior in `resources/js/` when it must work across modules, such as the touch keyboard.
 - Do not duplicate backend business rules in JavaScript.
 - Document user-visible behavior in `docs/vault/UI Specification.md` when it changes.
 
@@ -45,6 +47,24 @@ When JavaScript renders or mutates UI:
 ## Tasks
 
 The active task UI is the local Kanban board in `Modules/Tasks`. Keep task styling in `Modules/Tasks/resources/assets/css/tasks.css`, but source shared surfaces, text, lines and accent values from the global `--hub-*` tokens.
+
+## Lighting
+
+The Lighting screen uses a module-local console stylesheet at `Modules/Lighting/resources/assets/css/lighting.css`.
+
+- Use the `lighting-console*` classes for the Variant B master-detail layout, lamp rail, scene buttons, stage glow, switches and colour ring.
+- Active preset display uses `lighting-console__scene[data-active="true"]` and `lighting-console__scene-active`.
+- Runtime lamp values may be injected as inline CSS variables such as `--light-color` and `--light-brightness`.
+- Keep provider/action behavior in `Modules/Lighting/resources/assets/js/lighting.js`; CSS should only describe presentation and responsive structure.
+
+## Spotify
+
+The Spotify afspeelpaneel uses a module-local stylesheet at `Modules/Spotify/resources/assets/css/player.css`, loaded as a Vite entry by the Spotify Blade view.
+
+- Use `spotify-*` classes for the cinematic player shell, artwork stage, centered playback stack, pill tabs, transport controls, mini player, playlist tiles, track rows and connect/empty states.
+- Spotify-specific visual tokens live in `player.css` and use warm amber OKLCH accents over the shared dark dashboard shell.
+- Keep backend and playback behavior in module-local JS. Blade and CSS must preserve the existing DOM IDs used by the controller, such as `play-pause-btn`, `progress-bar`, `track-image`, `volume-slider`, `queue-tracks-list`, `search-input` and `recent-tracks-list`.
+- Mirrored UI fragments should use data hooks such as `data-track-name`, `data-track-image`, `data-progress-fill`, `data-play-icon`, `data-like-icon` and `data-spotify-control` instead of duplicate IDs.
 
 ---
 
