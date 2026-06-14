@@ -4,11 +4,11 @@ namespace Modules\Lighting\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Modules\Lighting\Actions\ApplyLightingPreset;
 use Modules\Lighting\Actions\ControlLight;
 use Modules\Lighting\Exceptions\LightingControlBusy;
 use Modules\Lighting\Exceptions\UnknownLightingPreset;
+use Modules\Lighting\Http\Requests\UpdateLightRequest;
 use Modules\Lighting\Http\Resources\LightResource;
 use Modules\Lighting\View\ViewModels\LightingViewModel;
 use RuntimeException;
@@ -33,20 +33,10 @@ class LightingController
         return response()->json(['data' => $result->toArray()]);
     }
 
-    public function update(Request $request, string $provider, string $id, ControlLight $control): JsonResponse
+    public function update(UpdateLightRequest $request, string $provider, string $id, ControlLight $control): JsonResponse
     {
-        $changes = $request->validate([
-            'power' => ['sometimes', 'boolean'],
-            'brightness' => ['sometimes', 'integer', 'min:0', 'max:100'],
-            'color' => ['sometimes', 'string', 'regex:/^#?[0-9a-fA-F]{6}$/'],
-        ]);
-
-        if (isset($changes['color']) && ! str_starts_with($changes['color'], '#')) {
-            $changes['color'] = '#'.$changes['color'];
-        }
-
         try {
-            $light = $control($provider, $id, $changes);
+            $light = $control($provider, $id, $request->changes());
         } catch (LightingControlBusy $exception) {
             return response()->json(['message' => $exception->getMessage()], 409);
         } catch (RuntimeException) {

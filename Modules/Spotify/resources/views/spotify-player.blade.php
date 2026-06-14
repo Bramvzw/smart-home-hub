@@ -87,7 +87,7 @@
                     </div>
                     <div class="spotify-scroll-area">
                         @if ($hasPlaylists)
-                            <x-spotify::playlists/>
+                            <x-spotify::playlists :playlists="$playlists"/>
                         @else
                             <div class="text-center text-[var(--spotify-dim)] text-sm py-8">Geen afspeellijsten gevonden</div>
                         @endif

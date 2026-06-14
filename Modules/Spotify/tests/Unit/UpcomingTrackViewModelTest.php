@@ -2,14 +2,14 @@
 
 namespace Modules\Spotify\Tests\Unit;
 
-use Modules\Spotify\View\ViewModels\UpcomingTrackView;
+use Modules\Spotify\View\ViewModels\UpcomingTrackViewModel;
 use Tests\TestCase;
 
-class UpcomingTrackViewTest extends TestCase
+class UpcomingTrackViewModelTest extends TestCase
 {
     public function test_it_resolves_track_album_artwork(): void
     {
-        $view = new UpcomingTrackView([
+        $view = new UpcomingTrackViewModel([
             'name' => 'Next Track',
             'artists' => [['name' => 'Artist']],
             'album' => [
@@ -27,7 +27,7 @@ class UpcomingTrackViewTest extends TestCase
 
     public function test_it_resolves_episode_artwork(): void
     {
-        $view = new UpcomingTrackView([
+        $view = new UpcomingTrackViewModel([
             'name' => 'Next Episode',
             'images' => [
                 ['url' => 'https://i.scdn.co/image/episode-large'],
@@ -45,7 +45,7 @@ class UpcomingTrackViewTest extends TestCase
 
     public function test_it_marks_missing_next_track_without_placeholder_image(): void
     {
-        $view = new UpcomingTrackView(null);
+        $view = new UpcomingTrackViewModel(null);
 
         $this->assertFalse($view->hasTrack);
         $this->assertSame('', $view->trackImage);
