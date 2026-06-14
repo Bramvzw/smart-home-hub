@@ -12,6 +12,7 @@ Inventory of app and module classes that define the architecture. Update this wh
 | `App\Services\ModuleRegistry` | Collects module metadata and navigation entries. |
 | `App\Providers\ModuleServiceProvider` | Base provider for modules. |
 | `App\Providers\DashboardServiceProvider` | Dashboard-level service provider. |
+| `App\Http\Middleware\EnsurePrivateNetworkAccess` | Global HTTP guard that restricts the dashboard to configured private-network CIDR ranges. |
 | `App\View\Components\Dashboard\Layout` | Shared dashboard layout component. |
 | `App\Http\Controllers\DashboardController` | Dashboard route controller. |
 | `App\Models\User` | Laravel user model. |
@@ -32,6 +33,34 @@ Inventory of app and module classes that define the architecture. Update this wh
 | `Modules\Spotify\View\Components\*` | Blade components for Spotify player UI. |
 | `Modules\Spotify\View\ViewModels\*` | Presentation view objects for Spotify component fragments. |
 | `Modules\Spotify\Http\Requests\*` | Request validation for Spotify endpoints. |
+
+## Lighting Module
+
+Status: active. This module owns cloud-backed light controls at `/lighting`.
+
+| Class | Responsibility |
+|---|---|
+| `Modules\Lighting\Providers\LightingServiceProvider` | Registers Lighting module metadata, routes and dashboard navigation. |
+| `Modules\Lighting\Http\Controllers\LightingController` | Thin HTTP boundary for the Lighting page and per-light JSON updates. |
+| `Modules\Lighting\Http\Requests\UpdateLightRequest` | Validation and colour normalisation for per-light update requests. |
+| `Modules\Lighting\Actions\ControlLight` | Write action for dispatching validated light changes to the owning provider. |
+| `Modules\Lighting\Actions\ApplyLightingPreset` | Write action for applying configured presets across reachable provider lights. |
+| `Modules\Lighting\Contracts\LightProvider` | Shared provider contract for listing and controlling lights. |
+| `Modules\Lighting\Data\Light` | Shared light DTO used by providers, views and JSON resources. |
+| `Modules\Lighting\Data\LightPreset` | Typed preset definition used by the service, view model and JSON preset response. |
+| `Modules\Lighting\Data\LightingPresetResult` | Typed result for applied, skipped and failed preset targets. |
+| `Modules\Lighting\Data\LightingSnapshot` | Aggregated light list plus unreachable provider labels. |
+| `Modules\Lighting\Exceptions\LightingControlBusy` | Exception for write requests that cannot enter the Lighting control queue in time. |
+| `Modules\Lighting\Exceptions\UnknownLightingPreset` | Exception for unknown configured preset keys. |
+| `Modules\Lighting\Http\Resources\LightResource` | Stable JSON transformer for light update responses. |
+| `Modules\Lighting\Services\LightingService` | Aggregates configured providers, caches snapshots and isolates failures. |
+| `Modules\Lighting\Services\Providers\TuyaApiClient` | Signed Tuya Cloud OpenAPI transport. |
+| `Modules\Lighting\Services\Providers\TuyaTokenService` | Tuya access token caching and refresh. |
+| `Modules\Lighting\Services\Providers\TuyaProvider` | Calex/Tuya provider mapping for power, brightness and colour. |
+| `Modules\Lighting\Services\Providers\GoveeApiClient` | Govee Developer API transport with API-key headers. |
+| `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness and RGB colour. |
+| `Modules\Lighting\Support\Color` | Colour conversion helpers for shared hex, Govee RGB and Tuya HSV. |
+| `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data assembly for the Lighting screen. |
 
 ## Tasks Module
 

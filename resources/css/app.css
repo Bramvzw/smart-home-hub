@@ -13,6 +13,10 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+* {
+    cursor: none !important;
+}
+
 :root {
     --hub-bg: #0d0e12;
     --hub-sidebar: #101116;
@@ -298,7 +302,11 @@ body {
 }
 
 #sidebar.collapsed .brand-link {
-    pointer-events: none;
+    display: none;
+}
+
+#sidebar.collapsed .toggle-btn svg {
+    transform: rotate(180deg);
 }
 
 #sidebar.collapsed .hub-nav {
@@ -316,6 +324,146 @@ body {
     margin-right: 0;
 }
 
-#sidebar.collapsed .toggle-btn svg {
-    transform: rotate(180deg);
+.touch-keyboard {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 80;
+    border-top: 1px solid var(--hub-line-strong);
+    background: #11131a;
+    box-shadow: 0 -18px 48px rgba(0, 0, 0, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(calc(100% + 10px));
+    transition:
+        opacity 140ms cubic-bezier(0.25, 1, 0.5, 1),
+        transform 180ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.touch-keyboard.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.touch-keyboard-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: none;
+    margin: 0 auto;
+    padding: 8px 10px 10px;
+}
+
+.touch-keyboard-row {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(var(--touch-key-columns, 10), minmax(0, 1fr));
+    gap: 7px;
+}
+
+.touch-key {
+    display: grid;
+    min-width: 0;
+    height: 44px;
+    width: 100%;
+    place-items: center;
+    border: 1px solid var(--hub-line);
+    border-radius: 7px;
+    background: var(--hub-card);
+    color: var(--hub-text);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1;
+    touch-action: manipulation;
+    user-select: none;
+    transition:
+        background-color 120ms cubic-bezier(0.25, 1, 0.5, 1),
+        border-color 120ms cubic-bezier(0.25, 1, 0.5, 1),
+        color 120ms cubic-bezier(0.25, 1, 0.5, 1),
+        transform 120ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.touch-key:hover {
+    border-color: var(--hub-line-strong);
+    background: var(--hub-card-hover);
+}
+
+.touch-key:active {
+    transform: translateY(1px);
+}
+
+.touch-key span {
+    display: block;
+    overflow: hidden;
+    max-width: 100%;
+    padding: 0 4px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.touch-key-utility {
+    color: var(--hub-muted);
+    font-size: 14px;
+}
+
+.touch-key-utility.is-active {
+    border-color: var(--hub-accent-line);
+    background: var(--hub-accent-soft);
+    color: var(--hub-text);
+}
+
+.touch-key-space {
+    grid-column: span 4;
+    max-width: none;
+    color: var(--hub-muted);
+    font-size: 14px;
+}
+
+.touch-key-enter {
+    grid-column: span 2;
+    background: var(--hub-accent);
+    color: #f8f9ff;
+}
+
+.touch-key-enter:hover {
+    background: var(--hub-accent-hover);
+}
+
+.touch-keyboard-open .hub-main > main {
+    padding-bottom: 198px;
+}
+
+body:has(.touch-keyboard[data-mode="symbols"].is-open) .hub-main > main {
+    padding-bottom: 246px;
+}
+
+@media (max-width: 720px) {
+    .touch-keyboard-inner {
+        gap: 5px;
+        padding: 7px;
+    }
+
+    .touch-keyboard-row {
+        gap: 5px;
+    }
+
+    .touch-key {
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .touch-key-utility {
+        font-size: 12px;
+    }
+
+    .touch-keyboard-open .hub-main > main {
+        padding-bottom: 176px;
+    }
+
+    body:has(.touch-keyboard[data-mode="symbols"].is-open) .hub-main > main {
+        padding-bottom: 222px;
+    }
 }

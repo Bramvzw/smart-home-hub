@@ -16,7 +16,24 @@ export function drag(state, elements, formatTime, e) {
     const ratio    = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const posMs    = Math.floor(ratio * state.durationMs);
     if (elements.progressBar) elements.progressBar.style.width = `${ratio * 100}%`;
-    updateElementContent('current-time', formatTime(posMs));
+    updateProgressFills(ratio);
+    updateMirroredTime(formatTime(posMs));
+}
+
+export function updateProgressFills(ratio) {
+    const width = `${Math.max(0, Math.min(1, ratio)) * 100}%`;
+    document.querySelectorAll('[data-progress-fill]').forEach(fill => {
+        fill.style.width = width;
+    });
+}
+
+export function updateMirroredTime(value) {
+    updateElementContent('current-time', value);
+    document.querySelectorAll('[data-current-time]').forEach(element => {
+        if (element.id !== 'current-time') {
+            element.textContent = value;
+        }
+    });
 }
 
 export function endDrag(state, elements, updateState, seekToPosition, e) {
