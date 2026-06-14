@@ -50,7 +50,7 @@ class CalendarControllerTest extends TestCase
         $response = $this->get(route('calendar.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Agenda');
+        $response->assertSee('Komende 30 dagen');
         $response->assertSee('Tandarts afspraak');
     }
 
