@@ -4,7 +4,6 @@ namespace Modules\Spotify\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
 use Modules\Spotify\Http\Requests\CheckSavedTracksRequest;
@@ -18,6 +17,7 @@ use Modules\Spotify\Http\Requests\ToggleSaveTrackRequest;
 use Modules\Spotify\Http\Requests\TransferPlaybackRequest;
 use Modules\Spotify\Http\Requests\UriRequest;
 use Modules\Spotify\Services\SpotifyService;
+use Modules\Spotify\View\ViewModels\SpotifyPlayerViewModel;
 
 class SpotifyController extends Controller
 {
@@ -74,20 +74,9 @@ class SpotifyController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(SpotifyPlayerViewModel $viewModel)
     {
-        $isConnected = Cache::has('spotify_access_token');
-        $playbackState = null;
-
-        if ($isConnected) {
-            $playbackState = $this->spotifyService->getCurrentPlayback();
-        }
-
-        return view('spotify::index', [
-            'isConnected' => $isConnected,
-            'playbackState' => $playbackState,
-            'authUrl' => $this->spotifyService->getAuthorizationUrl(),
-        ]);
+        return view('spotify::index', $viewModel->page());
     }
 
     /**

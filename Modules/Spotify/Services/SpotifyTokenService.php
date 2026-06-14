@@ -58,6 +58,30 @@ class SpotifyTokenService
         return 'https://accounts.spotify.com/authorize?' . $query;
     }
 
+    public function hasAccessToken(): bool
+    {
+        return Cache::has('spotify_access_token');
+    }
+
+    public function hasRefreshToken(): bool
+    {
+        return Cache::has('spotify_refresh_token');
+    }
+
+    public function hasStoredAuthorization(): bool
+    {
+        return $this->hasAccessToken() || $this->hasRefreshToken();
+    }
+
+    public function ensureAccessToken(): array
+    {
+        if ($this->hasAccessToken()) {
+            return ['success' => true];
+        }
+
+        return $this->refreshAccessToken();
+    }
+
     public function getAccessToken(string $code): array
     {
         try {

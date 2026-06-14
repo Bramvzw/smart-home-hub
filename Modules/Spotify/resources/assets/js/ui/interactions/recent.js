@@ -8,7 +8,7 @@ export function loadRecentlyPlayed(elements, startPlayback) {
         .then(res => res.json())
         .then(data => {
             if (!data.success || !data.items || data.items.length === 0) {
-                container.innerHTML = '<div class="text-center text-[var(--hub-dim)] text-sm py-8">No recently played tracks</div>';
+                container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Geen recent afgespeelde nummers</div>';
                 return;
             }
 
@@ -22,13 +22,16 @@ export function loadRecentlyPlayed(elements, startPlayback) {
                 const duration = formatTime(track.duration_ms || 0);
                 const uri = track.uri;
 
-                return `<button class="track-row w-full flex items-center space-x-3 px-3 py-2 rounded-[7px] text-left" data-uri="${escapeHtml(uri)}">
-                    <img src="${image}" alt="" class="w-9 h-9 rounded-[7px] object-cover shrink-0 bg-[var(--hub-card)]">
-                    <div class="min-w-0 flex-1">
-                        <div class="text-sm text-[var(--hub-text)] truncate">${escapeHtml(name)}</div>
-                        <div class="text-xs text-[var(--hub-dim)] truncate">${escapeHtml(artists)}</div>
-                    </div>
-                    <div class="text-xs text-[var(--hub-dim)] tabular-nums shrink-0">${duration}</div>
+                return `<button class="track-row spotify-list-row" data-uri="${escapeHtml(uri)}">
+                    <span class="spotify-row-thumb"><img src="${image}" alt=""></span>
+                    <span class="spotify-row-meta">
+                        <span class="spotify-row-title">${escapeHtml(name)}</span>
+                        <span class="spotify-row-subtitle">${escapeHtml(artists)}</span>
+                    </span>
+                    <span class="spotify-row-time">${duration}</span>
+                    <span class="spotify-row-action" aria-hidden="true">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </span>
                 </button>`;
             }).join('');
 
@@ -37,6 +40,6 @@ export function loadRecentlyPlayed(elements, startPlayback) {
             });
         })
         .catch(() => {
-            container.innerHTML = '<div class="text-center text-[var(--hub-dim)] text-sm py-8">Failed to load</div>';
+            container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Recent laden mislukt</div>';
         });
 }

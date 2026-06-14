@@ -106,9 +106,7 @@ export function updateElementContent(elementId, content, property = 'textContent
             newImage.src = content;
         }
     } else {
-        // For text content, just update directly
-        // The CSS transitions will handle the smooth effect
-        element[property] = content;
+        element[property ?? 'textContent'] = content;
     }
 }
 

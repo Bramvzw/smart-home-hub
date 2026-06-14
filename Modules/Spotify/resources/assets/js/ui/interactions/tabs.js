@@ -2,25 +2,31 @@ export function setupTabs(onTabSwitch) {
     const tabBar = document.getElementById('tab-bar');
     if (!tabBar) return;
 
+    const activateTab = (targetId) => {
+        tabBar.querySelectorAll('.spotify-tab').forEach(tab => {
+            const active = tab.dataset.tab === targetId;
+            tab.classList.toggle('is-active', active);
+            tab.classList.toggle('tab-active', active);
+            tab.classList.toggle('tab-inactive', !active);
+            tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+
+        document.querySelectorAll('.spotify-panel').forEach(panel => {
+            panel.classList.toggle('hidden', panel.id !== targetId);
+        });
+
+        if (onTabSwitch) {
+            onTabSwitch(targetId);
+        }
+    };
+
     tabBar.querySelectorAll('.spotify-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            const targetId = tab.dataset.tab;
-
-            // Update tab styles
-            tabBar.querySelectorAll('.spotify-tab').forEach(t => {
-                t.className = t === tab
-                    ? 'spotify-tab tab-active text-sm font-semibold px-3 min-h-[34px]'
-                    : 'spotify-tab tab-inactive text-sm font-semibold px-3 min-h-[34px]';
-            });
-
-            // Show/hide panels
-            document.querySelectorAll('.spotify-panel').forEach(panel => {
-                panel.classList.toggle('hidden', panel.id !== targetId);
-            });
-
-            if (onTabSwitch) {
-                onTabSwitch(targetId);
-            }
+            activateTab(tab.dataset.tab);
         });
+    });
+
+    document.querySelectorAll('[data-tab-jump]').forEach(trigger => {
+        trigger.addEventListener('click', () => activateTab(trigger.dataset.tabJump));
     });
 }

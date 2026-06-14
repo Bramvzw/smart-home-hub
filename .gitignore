@@ -23,3 +23,9 @@ Homestead.json
 .phpunit.result.cache
 
 .idea/
+/.docker/
+
+# Local agent tooling (not part of the project)
+.claude/
+.codesight/
+.guarddog/cache/

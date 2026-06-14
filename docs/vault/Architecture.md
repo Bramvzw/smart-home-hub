@@ -54,6 +54,23 @@ Spotify has a compatibility facade, `Modules\Spotify\Services\SpotifyService`, t
 
 New Spotify behavior should go into the smallest matching service. Keep `SpotifyService` as a facade for compatibility unless a route or test is intentionally migrated away from it.
 
+### Lighting
+
+Lighting is a local dashboard module for controlling cloud-backed lights without storing device state in the database.
+
+- `LightingService`: aggregates configured light providers, caches short-lived snapshots and isolates provider failures.
+- `LightProvider`: shared provider interface for listing and controlling lights.
+- `TuyaProvider`: Calex/Tuya Cloud mapping for power, brightness and colour commands.
+- `GoveeProvider`: Govee Developer API mapping for power, brightness and RGB colour commands.
+- `ControlLight`: write action used by the controller for per-light updates.
+- `ApplyLightingPreset`: write action for applying configured presets to every reachable light across providers.
+- `LightPreset` / `LightingPresetResult`: typed preset definitions and apply results.
+- `LightingViewModel`: groups lights by provider and prepares page state for Blade.
+
+Provider credentials live only in config/env (`TUYA_*`, `GOVEE_API_KEY`). Provider clients must not include credentials or signed tokens in rendered views, logs or thrown messages. One failed provider or unreadable light should mark only that provider/light unreachable; the rest of the page stays usable.
+
+Govee model lookup is cached separately from light state so control calls do not need an extra device-list request before every command. Govee control commands are spaced slightly and retry transient API/transport failures. Preset application uses the current light snapshot to avoid commands for already-matching power, brightness and colour values. All Lighting writes run under a shared cache lock so presets and per-light controls cannot interleave provider command sequences.
+
 ### Tasks
 
 Task management is a local Laravel Kanban module. The active module is `Modules/Tasks` and `/tasks` renders the in-app board UI.

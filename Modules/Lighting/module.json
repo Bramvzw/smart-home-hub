@@ -1,0 +1,11 @@
+{
+    "name": "Lighting",
+    "alias": "lighting",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Lighting\\Providers\\LightingServiceProvider"
+    ],
+    "files": []
+}
