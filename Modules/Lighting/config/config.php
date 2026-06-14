@@ -1,0 +1,64 @@
+<?php
+
+return [
+    'name' => 'Lighting',
+
+    /*
+     * Provider credentials. Secrets are read here only and must never be
+     * rendered in views, logged, or exposed in exception messages.
+     */
+    'tuya' => [
+        'client_id' => env('TUYA_CLIENT_ID', ''),
+        'client_secret' => env('TUYA_CLIENT_SECRET', ''),
+        'region' => env('TUYA_REGION', 'eu'),
+        'uid' => env('TUYA_APP_UID', ''),
+    ],
+
+    'govee' => [
+        'api_key' => env('GOVEE_API_KEY', ''),
+        'model_cache_ttl' => (int) env('GOVEE_MODEL_CACHE_TTL', 300),
+        'control_retries' => (int) env('GOVEE_CONTROL_RETRIES', 2),
+        'command_pause_ms' => (int) env('GOVEE_COMMAND_PAUSE_MS', 160),
+    ],
+
+    'presets' => [
+        'bright' => [
+            'label' => 'Helder',
+            'power' => true,
+            'brightness' => 100,
+            'color' => '#f5f7ff',
+        ],
+        'cozy' => [
+            'label' => 'Gezellig',
+            'power' => true,
+            'brightness' => 72,
+            'color' => '#ffc26b',
+        ],
+        'movie' => [
+            'label' => 'Film',
+            'power' => true,
+            'brightness' => 42,
+            'color' => '#7f96ff',
+        ],
+        'night' => [
+            'label' => 'Nacht',
+            'power' => true,
+            'brightness' => 16,
+            'color' => '#ff8559',
+        ],
+        'off' => [
+            'label' => 'Alles uit',
+            'power' => false,
+        ],
+    ],
+
+    // Light-state cache lifetime in seconds (polling + cache, no realtime push).
+    'cache_ttl' => (int) env('LIGHTING_CACHE_TTL', 30),
+
+    // Network timeout per provider request, in seconds.
+    'request_timeout' => (int) env('LIGHTING_REQUEST_TIMEOUT', 10),
+
+    // Serialise writes so quick UI actions cannot interleave provider commands.
+    'control_lock_ttl' => (int) env('LIGHTING_CONTROL_LOCK_TTL', 20),
+    'control_lock_wait' => (int) env('LIGHTING_CONTROL_LOCK_WAIT', 8),
+];
