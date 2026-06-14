@@ -1,5 +1,9 @@
 # Raspberry Pi Hosting
 
+> **Alternatief:** als de NAS altijd aan staat, overweeg dan de app op de NAS te hosten en de Pi alleen als kiosk-browser te gebruiken. Zie [NAS Hosting.md](NAS%20Hosting.md).
+
+
+
 The Raspberry Pi should host the dashboard for always-on local access. Do not
 depend on a MacBook running Herd for the production-like home setup.
 
