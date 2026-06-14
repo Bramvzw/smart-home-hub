@@ -18,6 +18,7 @@ class CalendarViewModel
     {
         $days = (int) config('calendar.window_days', 7);
         $feed = $this->service->feed($days);
+        $sources = $this->sources();
 
         return [
             'events' => $feed->events,
@@ -27,8 +28,8 @@ class CalendarViewModel
             'stale' => $feed->stale,
             'failed' => $feed->failed,
             'staleFeeds' => $feed->staleFeeds,
-            'sources' => $this->sources(),
-            'configured' => $this->sources() !== [],
+            'sources' => $sources,
+            'configured' => $sources !== [],
         ];
     }
 

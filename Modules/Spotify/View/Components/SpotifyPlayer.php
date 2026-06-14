@@ -3,31 +3,26 @@
 namespace Modules\Spotify\View\Components;
 
 use Illuminate\View\Component;
-use Modules\Spotify\Services\SpotifyService;
-use Modules\Spotify\View\ViewModels\UpcomingTrackView;
+use Modules\Spotify\View\ViewModels\UpcomingTrackViewModel;
 
 class SpotifyPlayer extends Component
 {
     public bool $isPlaying;
     public bool $hasCurrentTrack;
-    public ?UpcomingTrackView $upcomingTrack;
 
+    /**
+     * @param  list<\Modules\Spotify\View\ViewModels\PlaylistView>  $playlists
+     */
     public function __construct(
         public ?array $playbackState,
         public bool $isConnected,
         public string $authUrl,
-        SpotifyService $spotifyService,
+        public ?UpcomingTrackViewModel $upcomingTrack = null,
+        public array $playlists = [],
     ) {
         $this->playbackState ??= [];
         $this->isPlaying = $this->playbackState['is_playing'] ?? false;
         $this->hasCurrentTrack = isset($this->playbackState['item']) && is_array($this->playbackState['item']);
-
-        if ($this->hasCurrentTrack) {
-            $nextTrackData = $spotifyService->getNextTrack();
-            $this->upcomingTrack = new UpcomingTrackView($nextTrackData['next_track'] ?? null);
-        } else {
-            $this->upcomingTrack = null;
-        }
     }
 
     public function hasPlaylists(): bool

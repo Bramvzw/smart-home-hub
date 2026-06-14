@@ -17,6 +17,7 @@ use Modules\Spotify\Http\Requests\ToggleSaveTrackRequest;
 use Modules\Spotify\Http\Requests\TransferPlaybackRequest;
 use Modules\Spotify\Http\Requests\UriRequest;
 use Modules\Spotify\Services\SpotifyService;
+use Modules\Spotify\View\ViewModels\SpotifyPlayerViewModel;
 
 class SpotifyController extends Controller
 {
@@ -73,29 +74,9 @@ class SpotifyController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(SpotifyPlayerViewModel $viewModel)
     {
-        $isConnected = $this->spotifyService->hasStoredAuthorization();
-        $playbackState = null;
-
-        if ($isConnected) {
-            $token = $this->spotifyService->ensureAccessToken();
-
-            if (isset($token['error'])) {
-                Log::warning('Spotify authorization could not be refreshed before rendering player', [
-                    'error' => $token['error'],
-                ]);
-                $isConnected = false;
-            } else {
-                $playbackState = $this->spotifyService->getCurrentPlayback();
-            }
-        }
-
-        return view('spotify::index', [
-            'isConnected' => $isConnected,
-            'playbackState' => $playbackState,
-            'authUrl' => $isConnected ? '' : $this->spotifyService->getAuthorizationUrl(),
-        ]);
+        return view('spotify::index', $viewModel->page());
     }
 
     /**

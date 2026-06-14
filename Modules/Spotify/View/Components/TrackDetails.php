@@ -3,13 +3,13 @@
 namespace Modules\Spotify\View\Components;
 
 use Illuminate\View\Component;
-use Modules\Spotify\View\ViewModels\UpcomingTrackView;
+use Modules\Spotify\View\ViewModels\UpcomingTrackViewModel;
 
 class TrackDetails extends Component
 {
     public function __construct(
         public array $playbackState = [],
-        public ?UpcomingTrackView $upcomingTrack = null,
+        public ?UpcomingTrackViewModel $upcomingTrack = null,
     ) {}
 
     public function render()

@@ -14,7 +14,7 @@ class GoveeApiClient
 {
     private const BASE = 'https://developer-api.govee.com';
 
-    private static float $lastControlAt = 0.0;
+    private float $lastControlAt = 0.0;
 
     public function devices(): array
     {
@@ -86,11 +86,11 @@ class GoveeApiClient
     {
         $pauseMs = max(0, (int) config('lighting.govee.command_pause_ms', 160));
 
-        if ($pauseMs === 0 || self::$lastControlAt === 0.0) {
+        if ($pauseMs === 0 || $this->lastControlAt === 0.0) {
             return;
         }
 
-        $elapsedMs = (microtime(true) - self::$lastControlAt) * 1000;
+        $elapsedMs = (microtime(true) - $this->lastControlAt) * 1000;
         $remainingMs = $pauseMs - $elapsedMs;
 
         if ($remainingMs > 0) {
@@ -100,6 +100,6 @@ class GoveeApiClient
 
     private function rememberControlSent(): void
     {
-        self::$lastControlAt = microtime(true);
+        $this->lastControlAt = microtime(true);
     }
 }
