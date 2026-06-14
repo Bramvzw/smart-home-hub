@@ -1,0 +1,20 @@
+services:
+  hub:
+    image: webdevops/php-nginx:8.3-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    env_file: .env
+    volumes:
+      - .:/app
+    environment:
+      WEB_DOCUMENT_ROOT: /app/public
+      APP_ENV: production
+      PHP_MEMORY_LIMIT: 128M
+      PHP_MAX_EXECUTION_TIME: 30
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
