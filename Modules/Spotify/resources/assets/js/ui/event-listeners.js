@@ -99,5 +99,6 @@ export function initializeEventListeners(elements, getState, callbacks) {
 function syncVolumeInputs(value) {
     document.querySelectorAll('#volume-slider, [data-volume-proxy]').forEach(input => {
         input.value = value;
+        input.style.setProperty('--vol', value + '%');
     });
 }

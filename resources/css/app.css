@@ -13,6 +13,10 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+* {
+    cursor: none !important;
+}
+
 :root {
     --hub-bg: #0d0e12;
     --hub-sidebar: #101116;
@@ -291,10 +295,6 @@ body {
     display: none;
 }
 
-#sidebar.collapsed .toggle-btn {
-    display: none;
-}
-
 #sidebar.collapsed .hub-brand {
     justify-content: center;
     padding-left: 10px;
@@ -302,10 +302,11 @@ body {
 }
 
 #sidebar.collapsed .brand-link {
-    width: 100%;
-    flex: none;
-    justify-content: center;
-    pointer-events: none;
+    display: none;
+}
+
+#sidebar.collapsed .toggle-btn svg {
+    transform: rotate(180deg);
 }
 
 #sidebar.collapsed .hub-nav {
