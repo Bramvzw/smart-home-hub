@@ -23,6 +23,69 @@ class SpotifyControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_index_refreshes_access_token_when_refresh_token_exists()
+    {
+        $mock = $this->mockSpotifyService();
+        $mock->shouldReceive('hasStoredAuthorization')->once()->andReturn(true);
+        $mock->shouldReceive('ensureAccessToken')->once()->andReturn(['access_token' => 'new_token']);
+        $mock->shouldReceive('getCurrentPlayback')->once()->andReturn(['is_playing' => false]);
+        $mock->shouldReceive('getUserPlaylists')->once()->andReturn(['playlists' => []]);
+        $mock->shouldNotReceive('getAuthorizationUrl');
+
+        $response = $this->get(route('spotify.index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('isConnected', true);
+        $response->assertSee('id="search-input"', false);
+        $response->assertDontSee('Geen muziek actief');
+    }
+
+    public function test_index_shows_player_for_paused_track()
+    {
+        $mock = $this->mockSpotifyService();
+        $mock->shouldReceive('hasStoredAuthorization')->once()->andReturn(true);
+        $mock->shouldReceive('ensureAccessToken')->once()->andReturn(['access_token' => 'new_token']);
+        $mock->shouldReceive('getCurrentPlayback')->once()->andReturn([
+            'is_playing' => false,
+            'progress_ms' => 1000,
+            'item' => [
+                'id' => 'track-id',
+                'name' => 'Paused Track',
+                'duration_ms' => 180000,
+                'artists' => [['name' => 'Artist']],
+                'album' => [
+                    'name' => 'Album',
+                    'images' => [['url' => 'https://i.scdn.co/image/album']],
+                ],
+            ],
+            'device' => ['supports_volume' => false],
+        ]);
+        $mock->shouldReceive('getNextTrack')->once()->andReturn(['next_track' => null]);
+        $mock->shouldReceive('getUserPlaylists')->once()->andReturn(['playlists' => []]);
+        $mock->shouldNotReceive('getAuthorizationUrl');
+
+        $response = $this->get(route('spotify.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Paused Track');
+        $response->assertSee('data-tab="panel-playing"', false);
+        $response->assertDontSee('Geen muziek actief');
+    }
+
+    public function test_index_shows_connect_when_refresh_token_cannot_be_used()
+    {
+        $mock = $this->mockSpotifyService();
+        $mock->shouldReceive('hasStoredAuthorization')->once()->andReturn(true);
+        $mock->shouldReceive('ensureAccessToken')->once()->andReturn(['error' => 'No refresh token available']);
+        $mock->shouldReceive('getAuthorizationUrl')->once()->andReturn('https://accounts.spotify.com/authorize?test=1');
+        $mock->shouldNotReceive('getCurrentPlayback');
+
+        $response = $this->get(route('spotify.index'));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('isConnected', false);
+    }
+
     public function test_callback_rejects_missing_state()
     {
         $response = $this->get(route('spotify.callback', ['code' => 'test_code']));

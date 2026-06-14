@@ -24,7 +24,7 @@
                     <span>Local dashboard</span>
                 </span>
             </a>
-            <button type="button" onclick="document.getElementById('sidebar').classList.toggle('collapsed')" class="hub-icon-button toggle-btn" title="Toggle navigation">
+            <button type="button" id="sidebar-toggle" class="hub-icon-button toggle-btn" title="Toggle navigation">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
                 </svg>
