@@ -10,6 +10,7 @@
                    min="0"
                    max="100"
                    value="{{ $playbackState['device']['volume_percent'] ?? 50 }}"
+                   style="--vol: {{ $playbackState['device']['volume_percent'] ?? 50 }}%"
                    aria-label="Volume">
         </div>
     @endif

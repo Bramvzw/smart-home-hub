@@ -259,16 +259,26 @@
 }
 
 .lighting-console__scenes {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: flex;
+    flex-direction: row;
     gap: 12px;
     margin-top: 26px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+
+.lighting-console__scenes::-webkit-scrollbar {
+    display: none;
 }
 
 .lighting-console__scene {
     position: relative;
     display: flex;
-    min-width: 0;
+    flex: none;
+    width: 152px;
     min-height: 106px;
     flex-direction: column;
     justify-content: space-between;
@@ -278,6 +288,7 @@
     border-radius: 18px;
     background: var(--lighting-glass);
     text-align: left;
+    scroll-snap-align: start;
     transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
@@ -331,8 +342,10 @@
     z-index: 1;
     display: block;
     color: var(--lighting-ink);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .lighting-console__scene-sub {
@@ -615,6 +628,17 @@
     opacity: 0.72;
 }
 
+@media (max-width: 1280px) {
+    .lighting-console__rail {
+        flex: 0 0 300px;
+    }
+
+    .lighting-console__stage {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+}
+
 @media (max-width: 980px) {
     .lighting-console {
         flex-direction: column;
@@ -642,10 +666,6 @@
         display: none;
     }
 
-    .lighting-console__scenes {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .lighting-console__stage {
         grid-template-columns: 1fr;
         align-items: start;
@@ -656,10 +676,6 @@
     .lighting-console__rail,
     .lighting-console__main {
         padding: 20px;
-    }
-
-    .lighting-console__scenes {
-        grid-template-columns: 1fr;
     }
 
     .lighting-console__stage {
