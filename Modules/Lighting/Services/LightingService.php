@@ -5,6 +5,7 @@ namespace Modules\Lighting\Services;
 use Closure;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
 use Modules\Lighting\Data\LightingPresetResult;
@@ -44,7 +45,16 @@ class LightingService
         foreach ($this->configuredProviders() as $provider) {
             try {
                 $lights = array_merge($lights, $this->cachedLights($provider));
-            } catch (Throwable) {
+            } catch (Throwable $e) {
+                // Surface why the provider could not be read (e.g. a Govee rate
+                // limit) instead of silently showing "unreachable". Only the
+                // provider-controlled RuntimeException message is logged; for
+                // any other throwable just the type, so transport internals
+                // never leak into the logs.
+                Log::warning('Lighting provider unreachable', [
+                    'provider' => $provider->label(),
+                    'reason' => $e instanceof RuntimeException ? $e->getMessage() : $e::class,
+                ]);
                 $unreachable[] = $provider->label();
             }
         }
