@@ -36,14 +36,14 @@ const lightStateFromCard = (card) => ({
 
 const stateLabel = (state) => {
     if (! state.reachable) {
-        return 'niet bereikbaar';
+        return 'unreachable';
     }
 
     if (! state.power) {
-        return 'uit';
+        return 'off';
     }
 
-    return `${state.brightness}% · ${state.supportsColor ? 'kleur' : 'wit'}`;
+    return `${state.brightness}% · ${state.supportsColor ? 'color' : 'white'}`;
 };
 
 const updateCardVisual = (card) => {
@@ -55,11 +55,22 @@ const updateCardVisual = (card) => {
     card.style.setProperty('--light-color', state.color);
     card.style.setProperty('--light-brightness', `${state.brightness}%`);
 
+    // Move the colour-wheel handle to the current hue (rim position, 0deg = up).
+    if (state.supportsColor) {
+        const handle = card.querySelector('[data-color-handle]');
+        if (handle) {
+            const rad = (hexToHue(state.color) * Math.PI) / 180;
+            // ~45% from centre places the handle on the coloured hue rim.
+            handle.style.setProperty('--handle-x', `${50 + Math.sin(rad) * 45}%`);
+            handle.style.setProperty('--handle-y', `${50 - Math.cos(rad) * 45}%`);
+        }
+    }
+
     card.querySelectorAll('[data-light-state]').forEach((element) => {
         element.textContent = stateLabel(state);
     });
     card.querySelectorAll('[data-light-percent]').forEach((element) => {
-        element.textContent = state.power ? `${state.brightness}%` : 'uit';
+        element.textContent = state.power ? `${state.brightness}%` : 'off';
     });
     card.querySelectorAll('[data-light-brightness-value]').forEach((element) => {
         element.textContent = `${state.brightness}%`;
@@ -74,7 +85,7 @@ const updateSummary = (root) => {
 
     const onCount = rows.filter((row) => row.dataset.on === 'true').length;
     root.querySelectorAll('[data-lighting-summary]').forEach((element) => {
-        element.textContent = `${onCount} van ${rows.length} aan`;
+        element.textContent = `${onCount} of ${rows.length} on`;
     });
 
     const master = root.querySelector('[data-master-toggle]');
@@ -208,6 +219,48 @@ const debounce = (fn, wait) => {
     };
 };
 
+// HSL -> #rrggbb. Used to turn a hue picked off the colour wheel into a hex.
+const hslToHex = (h, s, l) => {
+    s /= 100;
+    l /= 100;
+    const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const channel = (n) => {
+        const value = l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+        return Math.round(255 * value).toString(16).padStart(2, '0');
+    };
+
+    return `#${channel(0)}${channel(8)}${channel(4)}`;
+};
+
+// #rrggbb -> hue in degrees (0 for greys). Used to place the wheel handle.
+const hexToHue = (hex) => {
+    const value = String(hex).replace('#', '');
+    if (value.length < 6) {
+        return 0;
+    }
+
+    const r = parseInt(value.slice(0, 2), 16) / 255;
+    const g = parseInt(value.slice(2, 4), 16) / 255;
+    const b = parseInt(value.slice(4, 6), 16) / 255;
+    const max = Math.max(r, g, b);
+    const delta = max - Math.min(r, g, b);
+    if (delta === 0) {
+        return 0;
+    }
+
+    let hue;
+    if (max === r) {
+        hue = ((g - b) / delta) % 6;
+    } else if (max === g) {
+        hue = (b - r) / delta + 2;
+    } else {
+        hue = (r - g) / delta + 4;
+    }
+
+    return (Math.round(hue * 60) + 360) % 360;
+};
+
 const nullableNumber = (value) => (value === undefined || value === '' ? null : Number(value));
 
 const normaliseColor = (value) => {
@@ -284,7 +337,7 @@ const updateActivePreset = (root, activeKey = null) => {
     });
 
     root.querySelectorAll('[data-active-preset-label]').forEach((element) => {
-        const label = activePreset?.label ?? element.dataset.manualLabel ?? 'Handmatig';
+        const label = activePreset?.label ?? element.dataset.manualLabel ?? 'Manual';
         const labelTarget = element.querySelector('.lighting-console__active-preset-name') ?? element;
         labelTarget.textContent = label;
     });
@@ -354,6 +407,58 @@ const applyPreset = async (root, button) => {
     }
 };
 
+// Make the big colour wheel interactive: tap/drag picks a hue from the angle
+// to the centre, applies it optimistically and pushes it to the provider. No
+// native colour picker — the small swatch in the detail panel stays as fallback.
+const setupColorWheel = (root, card) => {
+    const surface = card.querySelector('[data-color-wheel]');
+    if (! surface) {
+        return;
+    }
+
+    const native = card.querySelector('[data-action="color"]');
+    const sendColor = debounce((payload) => send(card, payload), 250);
+    let dragging = false;
+
+    const pick = (clientX, clientY) => {
+        if (surface.disabled || isCommandBusy(root)) {
+            return;
+        }
+
+        const rect = surface.getBoundingClientRect();
+        const dx = clientX - (rect.left + rect.width / 2);
+        const dy = clientY - (rect.top + rect.height / 2);
+        // atan2(dx, -dy): 0deg points up, increasing clockwise — matches the
+        // conic-gradient and the handle positioning in updateCardVisual.
+        const hue = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360;
+        const hex = hslToHex(hue, 85, 58);
+
+        if (native) {
+            native.value = hex;
+        }
+        syncLight(root, card, { color: hex, power: true });
+        updateActivePreset(root);
+        sendColor({ power: true, color: hex });
+    };
+
+    surface.addEventListener('pointerdown', (event) => {
+        if (surface.disabled) {
+            return;
+        }
+        dragging = true;
+        surface.setPointerCapture?.(event.pointerId);
+        pick(event.clientX, event.clientY);
+    });
+    surface.addEventListener('pointermove', (event) => {
+        if (dragging) {
+            pick(event.clientX, event.clientY);
+        }
+    });
+    const stop = () => { dragging = false; };
+    surface.addEventListener('pointerup', stop);
+    surface.addEventListener('pointercancel', stop);
+};
+
 export const initLighting = () => {
     const root = document.querySelector('[data-lighting]');
     if (! root || root.dataset.lightingReady === 'true') {
@@ -399,6 +504,8 @@ export const initLighting = () => {
             send(card, { power: true, color: event.target.value });
         }, 250)));
 
+        setupColorWheel(root, card);
+
         updateCardVisual(card);
     });
 
@@ -407,7 +514,8 @@ export const initLighting = () => {
 };
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLighting);
+    document.addEventListener('DOMContentLoaded', initLighting, { once: true });
 } else {
     initLighting();
 }
+document.addEventListener('livewire:navigated', initLighting);
