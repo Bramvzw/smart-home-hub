@@ -50,7 +50,7 @@ class CalendarControllerTest extends TestCase
         $response = $this->get(route('calendar.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Komende 30 dagen');
+        $response->assertSee('Next 30 days');
         $response->assertSee('Tandarts afspraak');
     }
 
@@ -61,6 +61,6 @@ class CalendarControllerTest extends TestCase
         $response = $this->get(route('calendar.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Geen agenda gekoppeld');
+        $response->assertSee('No calendar connected');
     }
 }
