@@ -19,5 +19,5 @@ export const deadlineStatus = (date) => {
 
 export const formatDate = (date) => {
     if (! date) return '';
-    return new Intl.DateTimeFormat('nl-NL', { day: '2-digit', month: 'short' }).format(new Date(`${date}T00:00:00`));
+    return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short' }).format(new Date(`${date}T00:00:00`));
 };
