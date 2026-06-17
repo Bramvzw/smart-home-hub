@@ -13,29 +13,29 @@ export function bindTaskEvents(root, store, api, render) {
         if (! action) return;
 
         if (action === 'new-board') {
-            const name = window.prompt('Bordnaam', 'Nieuw bord');
+            const name = window.prompt('Board name', 'New board');
             if (name) api.request(api.routes.boardsStore, 'POST', { name });
         }
 
         if (action === 'delete-board') {
-            if (window.confirm(`Bord "${store.board().name}" verwijderen?`)) {
+            if (window.confirm(`Delete board "${store.board().name}"?`)) {
                 api.request(api.route('boardDestroy', { board: store.board().id }), 'DELETE');
             }
         }
 
         if (action === 'new-task') {
             const firstColumn = store.board().columns[0];
-            if (firstColumn) api.request(api.route('tasksStore', { board: store.board().id }), 'POST', { column_id: firstColumn.id, title: 'Nieuwe taak' });
+            if (firstColumn) api.request(api.route('tasksStore', { board: store.board().id }), 'POST', { column_id: firstColumn.id, title: 'New task' });
         }
 
         if (action === 'new-column') {
-            const name = window.prompt('Kolomnaam', 'Nieuwe kolom');
+            const name = window.prompt('Column name', 'New column');
             if (name) api.request(api.route('columnsStore', { board: store.board().id }), 'POST', { name });
         }
 
         if (action === 'delete-column') {
             const columnId = event.target.closest('.task-column').dataset.columnId;
-            if (window.confirm('Kolom en taken hierin verwijderen?')) {
+            if (window.confirm('Delete this column and its tasks?')) {
                 api.request(api.route('columnDestroy', { column: columnId }), 'DELETE');
             }
         }
@@ -57,7 +57,7 @@ export function bindTaskEvents(root, store, api, render) {
 
         if (action === 'archive-task' && task) api.request(api.route('taskArchive', { task: task.id }), 'POST');
 
-        if (action === 'delete-task' && task && window.confirm('Taak permanent verwijderen?')) {
+        if (action === 'delete-task' && task && window.confirm('Permanently delete task?')) {
             api.request(api.route('taskDestroy', { task: task.id }), 'DELETE').then(() => {
                 store.setSelectedTaskId(null);
             });

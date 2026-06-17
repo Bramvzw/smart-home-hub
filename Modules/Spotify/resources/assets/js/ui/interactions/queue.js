@@ -4,13 +4,13 @@ export function loadQueue(elements, startPlayback) {
     const container = elements.queueTracksList;
     if (!container) return;
 
-    container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Wachtrij laden...</div>';
+    container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Loading queue...</div>';
 
     fetch('/spotify/queue')
         .then(res => res.json())
         .then(data => {
             if (!data.success || !data.queue || data.queue.length === 0) {
-                container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">De wachtrij is leeg</div>';
+                container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">The queue is empty</div>';
                 return;
             }
 
@@ -29,7 +29,7 @@ export function loadQueue(elements, startPlayback) {
                         <span class="spotify-row-subtitle">${escapeHtml(artists)}</span>
                     </span>
                     <span class="spotify-row-time">${duration}</span>
-                    <button class="skip-to-btn spotify-row-action" title="Spring naar dit nummer" data-skip-count="${index + 1}">
+                    <button class="skip-to-btn spotify-row-action" title="Skip to this track" data-skip-count="${index + 1}">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="m6 18 8.5-6L6 6v12ZM16 6v12h2V6h-2Z"/></svg>
                     </button>
                 </div>`;
@@ -46,7 +46,7 @@ export function loadQueue(elements, startPlayback) {
             });
         })
         .catch(() => {
-            container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Wachtrij laden mislukt</div>';
+            container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Failed to load queue</div>';
         });
 }
 

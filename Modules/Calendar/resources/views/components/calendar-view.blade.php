@@ -12,10 +12,10 @@
                 <section>
                     <div class="mb-2.5 flex items-baseline gap-2">
                         <h3 class="text-xs font-bold uppercase tracking-wide {{ $bucket['isToday'] ? 'text-[var(--hub-accent)]' : 'text-[var(--hub-muted)]' }}">
-                            {{ \Carbon\CarbonImmutable::parse($bucket['date'])->locale('nl')->isoFormat('dddd D MMMM') }}
+                            {{ \Carbon\CarbonImmutable::parse($bucket['date'])->locale('en')->isoFormat('dddd D MMMM') }}
                         </h3>
                         @if($bucket['isToday'])
-                            <span class="rounded-full bg-[var(--hub-accent-soft)] px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--hub-accent)]">vandaag</span>
+                            <span class="rounded-full bg-[var(--hub-accent-soft)] px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--hub-accent)]">today</span>
                         @endif
                     </div>
                     <div class="space-y-2">
@@ -25,7 +25,7 @@
                                 <div class="flex min-w-0 flex-1 items-center gap-4 py-3 pl-4 pr-4">
                                     <div class="w-16 shrink-0 text-right">
                                         @if($event->allDay)
-                                            <p class="text-[13px] font-bold uppercase tracking-wide text-[var(--hub-muted)]">hele<br>dag</p>
+                                            <p class="text-[13px] font-bold uppercase tracking-wide text-[var(--hub-muted)]">all<br>day</p>
                                         @else
                                             <p class="text-[15px] font-bold tabular-nums text-[var(--hub-text)]">{{ $event->start->setTimezone($tz)->format('H:i') }}</p>
                                             <p class="text-xs tabular-nums text-[var(--hub-dim)]">{{ $event->end->setTimezone($tz)->format('H:i') }}</p>
@@ -64,7 +64,7 @@
             <div class="flex w-64 flex-col overflow-hidden rounded-[14px] bg-[var(--hub-card)] ring-1 {{ $bucket['isToday'] ? 'ring-[var(--hub-accent-line)]' : 'ring-[var(--hub-line)]' }}">
                 <div class="flex items-center justify-between border-b border-[var(--hub-line)] px-3 py-2.5">
                     <h4 class="text-xs font-bold {{ $bucket['isToday'] ? 'text-[var(--hub-accent)]' : 'text-[var(--hub-muted)]' }}">
-                        {{ \Carbon\CarbonImmutable::parse($bucket['date'])->locale('nl')->isoFormat('ddd D MMM') }}
+                        {{ \Carbon\CarbonImmutable::parse($bucket['date'])->locale('en')->isoFormat('ddd D MMM') }}
                     </h4>
                     @if(count($dayEvents))
                         <span class="rounded-full bg-[var(--hub-elevated)] px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-[var(--hub-dim)] ring-1 ring-[var(--hub-line)]">{{ count($dayEvents) }}</span>
@@ -74,7 +74,7 @@
                     @forelse($dayEvents as $event)
                         <div class="rounded-[9px] bg-[var(--hub-elevated)] px-2.5 py-2 ring-1 ring-[var(--hub-line-strong)]" style="border-left: 3px solid {{ $event->calendarColor }}">
                             <p class="text-[11px] font-bold tabular-nums {{ $bucket['isToday'] ? 'text-[var(--hub-accent)]' : 'text-[var(--hub-muted)]' }}">
-                                {{ $event->allDay ? 'hele dag' : $event->start->setTimezone($tz)->format('H:i') }}
+                                {{ $event->allDay ? 'all day' : $event->start->setTimezone($tz)->format('H:i') }}
                             </p>
                             <p class="mt-0.5 line-clamp-2 text-xs font-medium text-[var(--hub-text)]">{{ $event->summary }}</p>
                             @if($multiFeed)

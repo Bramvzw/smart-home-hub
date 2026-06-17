@@ -1,6 +1,7 @@
 import { createInitialState, updateState } from '../../../Modules/Spotify/resources/assets/js/core/state.js';
 import { getElements } from '../../../Modules/Spotify/resources/assets/js/ui/elements.js';
 import { updateLikeButton } from '../../../Modules/Spotify/resources/assets/js/ui/interactions/like.js';
+import { setupSearch } from '../../../Modules/Spotify/resources/assets/js/ui/interactions/search.js';
 import { drag, endDrag, seekOnClick, startDrag } from '../../../Modules/Spotify/resources/assets/js/ui/interactions/track-progress.js';
 import { setPlayPauseIcon } from '../../../Modules/Spotify/resources/assets/js/ui/player-renderer.js';
 import { escapeHtml, formatTime, showAlert } from '../../../Modules/Spotify/resources/assets/js/utils/index.js';
@@ -113,5 +114,55 @@ describe('Spotify current frontend modules', () => {
         expect(seek).toHaveBeenCalledWith(elements, 150000);
         expect(ended).toMatchObject({ isDragging: false, progressMs: 150000 });
         expect(clicked).toMatchObject({ progressMs: 75000 });
+    });
+
+    it('starts playback directly from a search track result', async () => {
+        jest.useRealTimers();
+
+        document.body.innerHTML = `
+            <input id="search-input">
+            <div id="search-results"></div>
+            <button data-tab="panel-playing"></button>
+        `;
+
+        const originalFetch = global.fetch;
+        global.fetch = jest.fn().mockResolvedValue({
+            json: () => Promise.resolve({
+                success: true,
+                tracks: [
+                    {
+                        uri: 'spotify:track:1234567890123456789012',
+                        name: 'Start Me',
+                        duration_ms: 180000,
+                        artists: [{ name: 'Artist' }],
+                        album: { images: [] },
+                    },
+                ],
+                albums: [],
+                playlists: [],
+            }),
+        });
+
+        const startPlayback = jest.fn().mockResolvedValue({ success: true });
+        const updatePlayerState = jest.fn();
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('search-results');
+
+        setupSearch({ searchInput: input, searchResults: results }, startPlayback, updatePlayerState);
+
+        input.value = 'start me';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+
+        await new Promise(resolve => setTimeout(resolve, 450));
+
+        document.querySelector('[data-type="track"]').click();
+
+        expect(startPlayback).toHaveBeenCalledWith('spotify:track:1234567890123456789012');
+        expect(global.fetch).not.toHaveBeenCalledWith('/spotify/add-to-queue', expect.anything());
+
+        await new Promise(resolve => setTimeout(resolve, 700));
+        expect(updatePlayerState).toHaveBeenCalled();
+
+        global.fetch = originalFetch;
     });
 });

@@ -8,7 +8,7 @@ export function loadRecentlyPlayed(elements, startPlayback) {
         .then(res => res.json())
         .then(data => {
             if (!data.success || !data.items || data.items.length === 0) {
-                container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Geen recent afgespeelde nummers</div>';
+                container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">No recently played tracks</div>';
                 return;
             }
 
@@ -40,6 +40,6 @@ export function loadRecentlyPlayed(elements, startPlayback) {
             });
         })
         .catch(() => {
-            container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Recent laden mislukt</div>';
+            container.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Failed to load recently played</div>';
         });
 }

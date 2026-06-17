@@ -22,6 +22,11 @@ return [
     ],
 
     'presets' => [
+        // 'off' first: it is the most-used preset on the kiosk.
+        'off' => [
+            'label' => 'Alles uit',
+            'power' => false,
+        ],
         'bright' => [
             'label' => 'Helder',
             'power' => true,
@@ -45,10 +50,6 @@ return [
             'power' => true,
             'brightness' => 16,
             'color' => '#ff8559',
-        ],
-        'off' => [
-            'label' => 'Alles uit',
-            'power' => false,
         ],
     ],
 

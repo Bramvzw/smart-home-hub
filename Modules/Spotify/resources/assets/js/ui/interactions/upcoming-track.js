@@ -81,7 +81,7 @@ function updateNextTrackImage(imageUrl) {
 
 function renderEmptyNextTrack() {
     updateNextTrackImage('');
-    updateElementContent('next-track-name', 'Geen volgend nummer');
+    updateElementContent('next-track-name', 'No upcoming track');
     updateElementContent('next-track-artists', '');
     setNextTrackEmptyState(true);
 }
