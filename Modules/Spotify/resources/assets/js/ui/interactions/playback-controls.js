@@ -37,6 +37,7 @@ export function control(elements, updatePlayerStateFn, action) {
 export function startPeriodicUpdates(state, updatePlayerStateFn, updateState, getState) {
     let consecutiveErrors = 0;
     let timeoutId = null;
+    let stopped = false;
 
     function getInterval() {
         if (consecutiveErrors > 0) return Math.min(5000 * Math.pow(2, consecutiveErrors - 1), 60000);
@@ -44,6 +45,7 @@ export function startPeriodicUpdates(state, updatePlayerStateFn, updateState, ge
     }
 
     function scheduleNext() {
+        if (stopped) return;
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
             if (document.hidden) { scheduleNext(); return; }
@@ -54,20 +56,30 @@ export function startPeriodicUpdates(state, updatePlayerStateFn, updateState, ge
     }
 
     function forcePoll() {
+        if (stopped) return;
         clearTimeout(timeoutId);
         updatePlayerStateFn()
             .then(() => { consecutiveErrors = 0; scheduleNext(); })
             .catch(() => { consecutiveErrors++;  scheduleNext(); });
     }
 
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) forcePoll(); });
+    function onVisibilityChange() { if (!document.hidden) forcePoll(); }
+
+    function stop() {
+        stopped = true;
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     // Initial poll
     updatePlayerStateFn()
         .then(() => { consecutiveErrors = 0; scheduleNext(); })
         .catch(() => { consecutiveErrors++;  scheduleNext(); });
 
-    return { state: updateState(state, { updateInterval: timeoutId }), forcePoll };
+    return { state: updateState(state, { updateInterval: timeoutId }), forcePoll, stop };
 }
 
 /**

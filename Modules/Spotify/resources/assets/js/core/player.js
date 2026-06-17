@@ -25,6 +25,13 @@ class SpotifyPlayer {
     }
 
     /**
+     * Stop the player's poll loop. Safe to call multiple times.
+     */
+    stop() {
+        this.controller.teardown();
+    }
+
+    /**
      * Start the player logic and attach UI event listeners.
      */
     start() {
@@ -98,7 +105,28 @@ class SpotifyPlayer {
 let _spotifyState = window.SPOTIFY_STATE;
 let _playerInstance = null;
 
+/**
+ * Tear down the current player instance and its poll loop. Called before
+ * navigating away (wire:navigating) and before re-initialising, so the
+ * always-on kiosk never runs two poll loops at once or leaks timers.
+ */
+export function teardownSpotifyPlayer() {
+    if (_playerInstance) {
+        _playerInstance.stop();
+        _playerInstance = null;
+    }
+}
+
 export function initSpotifyPlayer() {
+    // Only boot on the Spotify page; after navigating to another module the
+    // player UI is absent and there is nothing to initialise.
+    if (! document.querySelector('.spotify-ui')) {
+        return;
+    }
+
+    // Never run two instances/poll loops at once.
+    teardownSpotifyPlayer();
+
     _playerInstance = new SpotifyPlayer();
     _playerInstance.start();
 }
@@ -115,4 +143,14 @@ Object.defineProperty(window, 'SPOTIFY_STATE', {
     }
 });
 
-document.addEventListener('DOMContentLoaded', initSpotifyPlayer);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpotifyPlayer, { once: true });
+} else {
+    initSpotifyPlayer();
+}
+
+// Stop the poll loop before the body is swapped away from the Spotify page.
+document.addEventListener('livewire:navigating', teardownSpotifyPlayer);
+// Re-boot after navigating (back) to the Spotify page; the module script is
+// not re-executed by Livewire once loaded, so this listener is required.
+document.addEventListener('livewire:navigated', initSpotifyPlayer);
