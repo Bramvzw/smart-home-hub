@@ -30,7 +30,11 @@ Visual system:
 - Global tokens use the `--hub-*` prefix for background, sidebar, surface, card, line, text and accent values.
 - Sidebar navigation, module cards, primary actions, inputs and empty states should use the shared `hub-*` component classes.
 - Avoid decorative gradients, glassmorphism, oversized cards and violet-only styling.
-- When the sidebar is collapsed, labels and the collapse chevron are hidden so only centered brand and module icons remain visible.
+
+Sidebar collapse:
+- The sidebar has three states: `expanded` (full menu), `rail` (centered brand and module icons only, labels and chevron hidden) and `hidden` (sidebar gone, only a floating menu button remains).
+- The chevron toggle swaps between `expanded` and `rail`; the footer "Hide menu" button goes to `hidden`; the floating button restores `expanded`.
+- The chosen state is persisted in the unencrypted `sidebar_state` cookie and rendered server-side, so navigation never flashes the wrong state. Valid values are owned by `App\Dashboard\SidebarState`.
 
 Shared input behavior:
 - A global touch keyboard opens when focus enters an editable text field, textarea or contenteditable surface.
