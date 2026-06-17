@@ -16,6 +16,12 @@
     "src": "Modules/Lighting/resources/assets/js/lighting.js",
     "isEntry": true
   },
+  "Modules/PhonePing/resources/assets/js/phone-ping.js": {
+    "file": "assets/phone-ping-Cg4kU8DO.js",
+    "name": "phone-ping",
+    "src": "Modules/PhonePing/resources/assets/js/phone-ping.js",
+    "isEntry": true
+  },
   "Modules/Spotify/resources/assets/css/player.css": {
     "file": "assets/player-CcaPLaXi.css",
     "src": "Modules/Spotify/resources/assets/css/player.css",
@@ -39,7 +45,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BI_dMaOG.css",
+    "file": "assets/app-CnHC-WO2.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
