@@ -21,15 +21,14 @@ class NtfyClient
     /** @throws RequestException */
     public function send(string $title, string $message): void
     {
-        $request = Http::withHeaders($this->headers())
-            ->timeout(10);
-
-        $request->post("{$this->url}/{$this->topic}", [
-            'title'    => $title,
-            'message'  => $message,
-            'priority' => 'urgent',
-            'tags'     => ['loud_sound', 'phone'],
-        ])->throw();
+        Http::withHeaders(array_merge($this->headers(), [
+                'X-Title'    => $title,
+                'X-Priority' => '5',
+            ]))
+            ->timeout(10)
+            ->withBody($message, 'text/plain')
+            ->post("{$this->url}/{$this->topic}")
+            ->throw();
     }
 
     private function headers(): array
