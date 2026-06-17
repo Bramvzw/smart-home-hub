@@ -248,6 +248,37 @@ function renderRows({ shifted, symbols }) {
     return rows.join('');
 }
 
+// The document-level listeners are bound once for the lifetime of the page and
+// always address the current keyboard via _activeKeyboard. wire:navigate swaps
+// the <body>, so the keyboard element is recreated on every navigation; binding
+// these listeners per-instance would otherwise stack them on `document`.
+let _activeKeyboard = null;
+let _documentListenersBound = false;
+
+function bindKeyboardDocumentListeners() {
+    if (_documentListenersBound) return;
+    _documentListenersBound = true;
+
+    document.addEventListener('focusin', (event) => {
+        if (! isEditableElement(event.target)) return;
+        _activeKeyboard?.show(event.target);
+    });
+
+    document.addEventListener('focusout', () => {
+        window.setTimeout(() => {
+            const keyboard = _activeKeyboard?.element;
+            if (isEditableElement(document.activeElement) || keyboard?.contains(document.activeElement)) return;
+            _activeKeyboard?.hide();
+        }, 0);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && _activeKeyboard?.element.classList.contains('is-open')) {
+            _activeKeyboard.hide();
+        }
+    });
+}
+
 export function createTouchKeyboard({ root = document.body } = {}) {
     let activeTarget = null;
     let shifted = false;
@@ -255,7 +286,10 @@ export function createTouchKeyboard({ root = document.body } = {}) {
     let suppressNextClick = false;
 
     const existing = document.querySelector('[data-touch-keyboard-root]');
-    if (existing) return existing.touchKeyboardApi;
+    if (existing) {
+        _activeKeyboard = existing.touchKeyboardApi;
+        return existing.touchKeyboardApi;
+    }
 
     const keyboard = document.createElement('section');
     keyboard.className = 'touch-keyboard';
@@ -367,36 +401,26 @@ export function createTouchKeyboard({ root = document.body } = {}) {
         if (key) handleKey(key);
     });
 
-    document.addEventListener('focusin', (event) => {
-        if (! isEditableElement(event.target)) return;
-        show(event.target);
-    });
-
-    document.addEventListener('focusout', () => {
-        window.setTimeout(() => {
-            if (isEditableElement(document.activeElement) || keyboard.contains(document.activeElement)) return;
-            hide();
-        }, 0);
-    });
-
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && keyboard.classList.contains('is-open')) {
-            hide();
-        }
-    });
-
     const api = { element: keyboard, show, hide, isEditableElement };
     keyboard.touchKeyboardApi = api;
+    _activeKeyboard = api;
+    bindKeyboardDocumentListeners();
     render();
 
     return api;
 }
 
 export function initTouchKeyboard() {
+    const boot = () => createTouchKeyboard();
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => createTouchKeyboard(), { once: true });
-        return;
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+        boot();
     }
 
-    createTouchKeyboard();
+    // wire:navigate swaps the whole <body>, removing the keyboard element.
+    // Re-create it after each navigation (createTouchKeyboard is idempotent:
+    // it returns the existing instance when one is still present).
+    document.addEventListener('livewire:navigated', boot);
 }
