@@ -38,7 +38,8 @@ Rules:
 When JavaScript renders or mutates UI:
 
 - Keep state and rendering helpers in module-local JS files.
-- Keep shared shell behavior in `resources/js/` when it must work across modules, such as the touch keyboard.
+- Keep shared shell behavior in `resources/js/` when it must work across modules, such as the touch keyboard and the sidebar collapse logic (`resources/js/sidebar.js`).
+- The sidebar collapse state (`expanded | rail | hidden`) is styled via the `body[data-sidebar]` attribute; the allowed values are owned by `App\Dashboard\SidebarState` and mirrored in `resources/js/sidebar.js`.
 - Do not duplicate backend business rules in JavaScript.
 - Document user-visible behavior in `docs/vault/UI Specification.md` when it changes.
 

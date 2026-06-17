@@ -5,6 +5,7 @@ namespace Modules\Lighting\Services;
 use Closure;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
 use Modules\Lighting\Data\LightingPresetResult;
@@ -32,10 +33,7 @@ class LightingService
         return $this->configuredProviders() !== [];
     }
 
-    /**
-     * Aggregate lights across configured providers. A provider that is
-     * unreachable is reported separately — the others still render.
-     */
+    /** Unreachable providers are reported separately; the others still render. */
     public function snapshot(): LightingSnapshot
     {
         $lights = [];
@@ -44,7 +42,12 @@ class LightingService
         foreach ($this->configuredProviders() as $provider) {
             try {
                 $lights = array_merge($lights, $this->cachedLights($provider));
-            } catch (Throwable) {
+            } catch (Throwable $e) {
+                // Log RuntimeException messages (provider-controlled); for other throwables only the class to avoid leaking transport internals.
+                Log::warning('Lighting provider unreachable', [
+                    'provider' => $provider->label(),
+                    'reason' => $e instanceof RuntimeException ? $e->getMessage() : $e::class,
+                ]);
                 $unreachable[] = $provider->label();
             }
         }
@@ -72,11 +75,9 @@ class LightingService
                 $provider->setColor($id, (string) $changes['color']);
             }
 
-            // Drop the cached snapshot so the next page load reflects the change.
             Cache::forget($this->cacheKey($provider));
 
-            // Acknowledge optimistically — a full device re-fetch per action is what
-            // made every control feel laggy; the page reloads fresh state anyway.
+            // Optimistic return — re-fetching per action caused visible lag; the page reloads fresh state.
             return new Light(
                 provider: $providerKey,
                 id: $id,

@@ -5,6 +5,13 @@ const init = () => {
         return;
     }
 
+    // Guard against re-initialisation after wire:navigate (listeners persist
+    // across body swaps; the same root may be booted again).
+    if (root.dataset.calendarBooted === 'true') {
+        return;
+    }
+    root.dataset.calendarBooted = 'true';
+
     const toggles = root.querySelectorAll('[data-view-toggle]');
     const list = root.querySelector('[data-calendar-list]');
     const week = root.querySelector('[data-calendar-week]');
@@ -28,7 +35,8 @@ const init = () => {
 };
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', init, { once: true });
 } else {
     init();
 }
+document.addEventListener('livewire:navigated', init);

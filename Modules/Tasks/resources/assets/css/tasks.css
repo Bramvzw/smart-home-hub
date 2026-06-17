@@ -220,12 +220,12 @@
     height: 34px;
     padding: 0 14px;
     background: var(--tasks-accent);
-    color: white;
+    color: var(--hub-accent-ink);
     font-size: 13.5px;
 }
 
 .primary-action:hover {
-    background: #7c95f3;
+    background: var(--hub-accent-hover);
 }
 
 .toolbar-icon,

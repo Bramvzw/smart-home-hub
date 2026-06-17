@@ -3,7 +3,7 @@
         <section class="max-w-5xl">
             <div class="mb-5">
                 <h2 class="text-[22px] font-bold text-[var(--hub-text)] leading-tight">Modules</h2>
-                <p class="mt-1 text-sm text-[var(--hub-dim)]">Lokale bediening voor muziek en taken.</p>
+                <p class="mt-1 text-sm text-[var(--hub-dim)]">Local control for music and tasks.</p>
             </div>
 
             @if($modules->isNotEmpty())
@@ -21,11 +21,11 @@
                                     <h3 class="truncate text-[15px] font-bold text-[var(--hub-text)]">{{ $module->getModuleName() }}</h3>
                                     <p class="mt-1 text-sm text-[var(--hub-dim)]">
                                         @if($module->getModuleSlug() === 'spotify')
-                                            Playback, queue en playlists.
+                                            Playback, queue and playlists.
                                         @elseif($module->getModuleSlug() === 'tasks')
-                                            Boards, labels en todo's.
+                                            Boards, labels and todos.
                                         @else
-                                            Module openen.
+                                            Open module.
                                         @endif
                                     </p>
                                 </div>
@@ -41,8 +41,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                         </svg>
                     </div>
-                    <h2 class="text-sm font-bold text-[var(--hub-muted)]">Geen modules</h2>
-                    <p class="mt-1 text-sm text-[var(--hub-dim)]">Schakel modules in om te starten.</p>
+                    <h2 class="text-sm font-bold text-[var(--hub-muted)]">No modules</h2>
+                    <p class="mt-1 text-sm text-[var(--hub-dim)]">Enable modules to get started.</p>
                 </div>
             @endif
         </section>
