@@ -45,7 +45,7 @@ class LightingControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Strip');
-        $response->assertSee('Helderheid');
+        $response->assertSee('Brightness');
         $response->assertSee('Presets');
         $response->assertSee('Gezellig');
         $response->assertSee('data-preset-url-template', false);
@@ -58,7 +58,7 @@ class LightingControllerTest extends TestCase
         $response = $this->get(route('lighting.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Geen lampen gekoppeld');
+        $response->assertSee('No lights connected');
     }
 
     public function test_page_does_not_leak_the_api_key(): void
