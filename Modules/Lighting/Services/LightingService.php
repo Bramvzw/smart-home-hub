@@ -33,10 +33,7 @@ class LightingService
         return $this->configuredProviders() !== [];
     }
 
-    /**
-     * Aggregate lights across configured providers. A provider that is
-     * unreachable is reported separately — the others still render.
-     */
+    /** Unreachable providers are reported separately; the others still render. */
     public function snapshot(): LightingSnapshot
     {
         $lights = [];
@@ -46,11 +43,7 @@ class LightingService
             try {
                 $lights = array_merge($lights, $this->cachedLights($provider));
             } catch (Throwable $e) {
-                // Surface why the provider could not be read (e.g. a Govee rate
-                // limit) instead of silently showing "unreachable". Only the
-                // provider-controlled RuntimeException message is logged; for
-                // any other throwable just the type, so transport internals
-                // never leak into the logs.
+                // Log RuntimeException messages (provider-controlled); for other throwables only the class to avoid leaking transport internals.
                 Log::warning('Lighting provider unreachable', [
                     'provider' => $provider->label(),
                     'reason' => $e instanceof RuntimeException ? $e->getMessage() : $e::class,
@@ -82,11 +75,9 @@ class LightingService
                 $provider->setColor($id, (string) $changes['color']);
             }
 
-            // Drop the cached snapshot so the next page load reflects the change.
             Cache::forget($this->cacheKey($provider));
 
-            // Acknowledge optimistically — a full device re-fetch per action is what
-            // made every control feel laggy; the page reloads fresh state anyway.
+            // Optimistic return — re-fetching per action caused visible lag; the page reloads fresh state.
             return new Light(
                 provider: $providerKey,
                 id: $id,
