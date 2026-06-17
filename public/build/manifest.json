@@ -1,50 +1,50 @@
 {
   "Modules/Calendar/resources/assets/js/calendar.js": {
-    "file": "assets/calendar-CjoN4PD5.js",
+    "file": "assets/calendar-4tWE63HI.js",
     "name": "calendar",
     "src": "Modules/Calendar/resources/assets/js/calendar.js",
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/css/lighting.css": {
-    "file": "assets/lighting-BxmJOpKT.css",
+    "file": "assets/lighting-BPzhMfH0.css",
     "src": "Modules/Lighting/resources/assets/css/lighting.css",
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/js/lighting.js": {
-    "file": "assets/lighting-B1YuR-ps.js",
+    "file": "assets/lighting-Duhkjyso.js",
     "name": "lighting",
     "src": "Modules/Lighting/resources/assets/js/lighting.js",
     "isEntry": true
   },
   "Modules/Spotify/resources/assets/css/player.css": {
-    "file": "assets/player-D4LV7ZtJ.css",
+    "file": "assets/player-CcaPLaXi.css",
     "src": "Modules/Spotify/resources/assets/css/player.css",
     "isEntry": true
   },
   "Modules/Spotify/resources/assets/js/core/player.js": {
-    "file": "assets/player-V6G_U1Kq.js",
+    "file": "assets/player-DyDGVul4.js",
     "name": "player",
     "src": "Modules/Spotify/resources/assets/js/core/player.js",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/tasks.css": {
-    "file": "assets/tasks-DxXOMQp-.css",
+    "file": "assets/tasks-C-jZD9DR.css",
     "src": "Modules/Tasks/resources/assets/css/tasks.css",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/js/tasks-board.js": {
-    "file": "assets/tasks-board-CdJG7ZVJ.js",
+    "file": "assets/tasks-board-BgBKgG_v.js",
     "name": "tasks-board",
     "src": "Modules/Tasks/resources/assets/js/tasks-board.js",
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-CZ6BXqYl.css",
+    "file": "assets/app-FAQR3G0l.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-BUKGpEAC.js",
+    "file": "assets/app-GTSmL4Kd.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
