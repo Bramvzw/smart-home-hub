@@ -1,10 +1,6 @@
 @props(['title', 'navigation' => [], 'hideHeader' => false])
 @php
-    // Sidebar state is persisted in an unencrypted cookie (see bootstrap/app.php)
-    // and rendered server-side so navigation never flashes the wrong state.
-    $sidebarState = in_array(request()->cookie('sidebar_state'), ['expanded', 'rail', 'hidden'], true)
-        ? request()->cookie('sidebar_state')
-        : 'expanded';
+    $sidebarState = \App\Dashboard\SidebarState::resolve(request()->cookie(\App\Dashboard\SidebarState::COOKIE));
 @endphp
 <!DOCTYPE html>
 <html lang="en" class="dark">
