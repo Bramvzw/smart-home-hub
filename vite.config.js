@@ -15,6 +15,7 @@ export default defineConfig({
                 'Modules/Calendar/resources/assets/js/calendar.js',
                 'Modules/Lighting/resources/assets/css/lighting.css',
                 'Modules/Lighting/resources/assets/js/lighting.js',
+                'Modules/PhonePing/resources/assets/js/phone-ping.js',
             ],
             refresh: true,
         }),
