@@ -49,6 +49,6 @@ class UpcomingTrackViewModelTest extends TestCase
 
         $this->assertFalse($view->hasTrack);
         $this->assertSame('', $view->trackImage);
-        $this->assertSame('Geen volgend nummer', $view->trackName);
+        $this->assertSame('No upcoming track', $view->trackName);
     }
 }
