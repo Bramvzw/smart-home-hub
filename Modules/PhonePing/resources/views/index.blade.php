@@ -17,7 +17,6 @@
                 id="ping-btn"
                 type="button"
                 data-url="{{ route('phoneping.ping') }}"
-                data-csrf="{{ csrf_token() }}"
                 class="hub-action flex h-32 w-32 flex-col items-center justify-center gap-3 rounded-2xl text-lg font-bold"
             >
                 <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

@@ -9,9 +9,10 @@ if (btn) {
         status.textContent = '';
 
         try {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
             const res = await fetch(btn.dataset.url, {
                 method: 'POST',
-                headers: { 'X-CSRF-TOKEN': btn.dataset.csrf, 'Accept': 'application/json' },
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
             });
             const { message } = await res.json();
 
