@@ -1,42 +1,61 @@
-const btn = document.getElementById('ping-btn');
-if (btn) {
-    btn.addEventListener('click', async () => {
-        const label = document.getElementById('ping-label');
-        const status = document.getElementById('ping-status');
+const pingBtn = document.getElementById('ping-btn');
+const stopBtn = document.getElementById('stop-btn');
+const status = document.getElementById('ping-status');
 
-        btn.disabled = true;
-        label.textContent = 'Sending…';
-        status.textContent = '';
+const INTERVAL_MS = 5_000;
+// Safety cap so a forgotten tab doesn't drain the ntfy quota; ~3 minutes.
+const MAX_PINGS = 36;
 
-        try {
-            const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
-            const res = await fetch(btn.dataset.url, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
-            });
+let timer = null;
+let sent = 0;
+
+if (pingBtn && stopBtn) {
+    pingBtn.addEventListener('click', start);
+    stopBtn.addEventListener('click', () => stop('Stopped.'));
+}
+
+async function sendPing() {
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+    try {
+        const res = await fetch(pingBtn.dataset.url, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+        });
+
+        if (res.ok) {
+            sent += 1;
+            status.textContent = `Pinging your phone… (${sent} sent)`;
+        } else {
             const { message } = await res.json();
-
-            if (res.ok) {
-                label.textContent = 'Sent ✓';
-                status.textContent = message;
-            } else {
-                label.textContent = 'Ping';
-                status.textContent = message;
-                btn.disabled = false;
-            }
-        } catch {
-            label.textContent = 'Ping';
-            status.textContent = 'Network error.';
-            btn.disabled = false;
+            stop(message || 'Ping failed.');
         }
+    } catch {
+        stop('Network error.');
+    }
+}
 
-        // Re-enable after cooldown so double-pings don't flood ntfy.
-        if (btn.disabled) {
-            setTimeout(() => {
-                btn.disabled = false;
-                label.textContent = 'Ping';
-                status.textContent = '';
-            }, 10_000);
+function start() {
+    if (timer) {
+        return;
+    }
+    sent = 0;
+    pingBtn.hidden = true;
+    stopBtn.hidden = false;
+
+    sendPing();
+    timer = setInterval(() => {
+        if (sent >= MAX_PINGS) {
+            stop('Stopped automatically after 3 minutes.');
+            return;
         }
-    });
+        sendPing();
+    }, INTERVAL_MS);
+}
+
+function stop(message) {
+    clearInterval(timer);
+    timer = null;
+    stopBtn.hidden = true;
+    pingBtn.hidden = false;
+    status.textContent = message;
 }
