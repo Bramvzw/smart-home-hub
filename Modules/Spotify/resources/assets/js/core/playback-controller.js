@@ -67,16 +67,25 @@ export default class PlaybackController {
     setVolume = (volume) => setVolume(this.elements, this.updatePlayerState, volume);
 
     start = () => {
-        const { state, forcePoll } = startPeriodicUpdates(
+        const { state, forcePoll, stop } = startPeriodicUpdates(
             this.state, this.updatePlayerState, updateState, () => this.state
         );
         this.state    = state;
         this.forcePoll = forcePoll;
+        this.stopPolling = stop;
         startProgressTicker(() => this.state, this.elements, formatTime, forcePoll);
         this.playlistInteractions.loadUserPlaylists();
 
         if (this.state.currentTrackId) {
             this.likeInteractions.checkIfTrackIsLiked(this.state.currentTrackId);
         }
+    }
+
+    // Stop the poll loop. Used on wire:navigate teardown so the always-on
+    // kiosk never accumulates orphaned polling timers.
+    teardown = () => {
+        this.stopPolling?.();
+        this.stopPolling = null;
+        this.forcePoll = null;
     }
 }

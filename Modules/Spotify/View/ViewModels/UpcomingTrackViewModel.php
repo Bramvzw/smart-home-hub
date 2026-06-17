@@ -16,13 +16,13 @@ class UpcomingTrackViewModel
 
         if ($track === null) {
             $this->trackImage = '';
-            $this->trackName = 'Geen volgend nummer';
+            $this->trackName = 'No upcoming track';
             $this->artistNames = '';
             return;
         }
 
         $this->trackImage = $this->resolveImageUrl($track);
-        $this->trackName = $track['name'] ?? 'Onbekend nummer';
+        $this->trackName = $track['name'] ?? 'Unknown track';
         $this->artistNames = $this->resolveArtistNames($track);
     }
 

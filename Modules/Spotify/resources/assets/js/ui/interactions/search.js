@@ -20,18 +20,18 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
         const query = input.value.trim();
 
         if (query.length < 2) {
-            results.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Zoek naar nummers, albums of afspeellijsten</div>';
+            results.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Search for tracks, albums or playlists</div>';
             return;
         }
 
         debounceTimer = setTimeout(() => {
-            results.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Zoeken...</div>';
+            results.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Searching...</div>';
 
             fetch(`/spotify/search?q=${encodeURIComponent(query)}`)
                 .then(res => res.json())
                 .then(data => {
                     if (!data.success) {
-                        results.innerHTML = `<div class="text-center text-[var(--spotify-dim)] text-sm py-8">${data.message || 'Geen resultaten gevonden'}</div>`;
+                        results.innerHTML = `<div class="text-center text-[var(--spotify-dim)] text-sm py-8">${data.message || 'No results found'}</div>`;
                         return;
                     }
 
@@ -40,7 +40,7 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
                     const playlists = (data.playlists || []).filter(p => p != null);
 
                     if (tracks.length === 0 && albums.length === 0 && playlists.length === 0) {
-                        results.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Geen resultaten gevonden</div>';
+                        results.innerHTML = '<div class="text-center text-[var(--spotify-dim)] text-sm py-8">No results found</div>';
                         return;
                     }
 
@@ -48,7 +48,7 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
 
                     // Tracks
                     if (tracks.length > 0) {
-                        cols.push(renderSection('Nummers', tracks.map(track => {
+                        cols.push(renderSection('Tracks', tracks.map(track => {
                             const image = getImageUrl(track, 'album');
                             const name = track.name || 'Unknown';
                             const artists = (track.artists || []).filter(a => a != null).map(a => a.name || '').join(', ');
@@ -82,7 +82,7 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
 
                     // Playlists
                     if (playlists.length > 0) {
-                        cols.push(renderSection('Afspeellijsten', playlists.map(playlist => {
+                        cols.push(renderSection('Playlists', playlists.map(playlist => {
                             const image = getImageUrl(playlist);
                             const name = playlist.name || 'Unknown';
                             const owner = playlist.owner?.display_name || '';
@@ -90,7 +90,7 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
                                 <span class="spotify-row-thumb"><img src="${image}" alt=""></span>
                                 <span class="spotify-row-meta">
                                     <span class="spotify-row-title">${escapeHtml(name)}</span>
-                                    <span class="spotify-row-subtitle">van ${escapeHtml(owner)}</span>
+                                    <span class="spotify-row-subtitle">by ${escapeHtml(owner)}</span>
                                 </span>
                             </button>`;
                         })));
@@ -112,7 +112,7 @@ export function setupSearch(elements, startPlayback, updatePlayerStateFn) {
                 })
                 .catch(err => {
                     console.error('Search error:', err);
-                    results.innerHTML = `<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Zoeken mislukt: ${err.message || 'Onbekende fout'}</div>`;
+                    results.innerHTML = `<div class="text-center text-[var(--spotify-dim)] text-sm py-8">Search failed: ${err.message || 'Unknown error'}</div>`;
                 });
         }, 400);
     });
