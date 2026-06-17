@@ -36,7 +36,7 @@ return [
             $col = $parts[1] ?? '';
 
             $feeds[] = [
-                'label' => $label !== '' ? $label : 'Agenda',
+                'label' => $label !== '' ? $label : 'Calendar',
                 'color' => $col !== '' ? $colour($col) : $pick(count($feeds)),
                 'url' => $url,
             ];
@@ -45,7 +45,7 @@ return [
         if ($feeds === []) {
             $urls = array_values(array_filter(array_map('trim', explode(',', (string) env('CALENDAR_ICS_URLS', '')))));
             foreach ($urls as $i => $url) {
-                $feeds[] = ['label' => 'Agenda', 'color' => $pick($i), 'url' => $url];
+                $feeds[] = ['label' => 'Calendar', 'color' => $pick($i), 'url' => $url];
             }
         }
 

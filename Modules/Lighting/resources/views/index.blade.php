@@ -15,11 +15,11 @@
         $presetByKey = collect($presets)->keyBy('key');
         $masterPreset = $presetByKey->get($onCount > 0 ? 'off' : 'bright') ?? $presets[0] ?? null;
         $sceneSubtitles = [
-            'bright' => 'Koel werklicht',
-            'cozy' => 'Warm en helder',
-            'movie' => 'Gedimd blauw',
-            'night' => 'Zacht amber',
-            'off' => 'Schakel uit',
+            'bright' => 'Cool work light',
+            'cozy' => 'Warm and bright',
+            'movie' => 'Dimmed blue',
+            'night' => 'Soft amber',
+            'off' => 'Turn off',
         ];
         $normaliseColor = static fn (?string $color): ?string => filled($color) ? strtolower(str_starts_with((string) $color, '#') ? (string) $color : '#'.$color) : null;
         $reachableLights = $flatLights->where('reachable', true)->values();
@@ -55,16 +55,16 @@
             <div class="mb-4 grid h-12 w-12 place-items-center rounded-[12px] bg-[var(--hub-card)] text-[var(--hub-dim)] ring-1 ring-[var(--hub-line)]">
                 <x-dashboard.icons.lighting class="h-6 w-6" />
             </div>
-            <h3 class="text-sm font-bold text-[var(--hub-muted)]">Geen lampen gekoppeld</h3>
+            <h3 class="text-sm font-bold text-[var(--hub-muted)]">No lights connected</h3>
             <p class="mt-1 max-w-sm text-sm text-[var(--hub-dim)]">
-                Stel <code class="rounded bg-[var(--hub-card)] px-1.5 py-0.5 text-[var(--hub-muted)]">TUYA_*</code> (Calex) of
-                <code class="rounded bg-[var(--hub-card)] px-1.5 py-0.5 text-[var(--hub-muted)]">GOVEE_API_KEY</code> in om je lampen te besturen.
+                Set <code class="rounded bg-[var(--hub-card)] px-1.5 py-0.5 text-[var(--hub-muted)]">TUYA_*</code> (Calex) or
+                <code class="rounded bg-[var(--hub-card)] px-1.5 py-0.5 text-[var(--hub-muted)]">GOVEE_API_KEY</code> to control your lights.
             </p>
         </div>
     @elseif($totalLights === 0)
         <div class="flex h-full flex-col items-center justify-center px-6 text-center">
-            <h3 class="text-sm font-bold text-[var(--hub-muted)]">Geen lampen gevonden</h3>
-            <p class="mt-1 text-sm text-[var(--hub-dim)]">Er zijn geen bestuurbare lampen aangetroffen.</p>
+            <h3 class="text-sm font-bold text-[var(--hub-muted)]">No lights found</h3>
+            <p class="mt-1 text-sm text-[var(--hub-dim)]">No controllable lights were detected.</p>
         </div>
     @else
         <div
@@ -78,7 +78,7 @@
                         <x-dashboard.icons.lighting class="h-5 w-5" />
                     </div>
                     <div class="min-w-0">
-                        <div class="lighting-console__title">Verlichting</div>
+                        <div class="lighting-console__title">Lighting</div>
                         <div class="lighting-console__subtitle">Smart Home Hub</div>
                     </div>
                 </div>
@@ -96,8 +96,8 @@
                         class="lighting-console__master"
                     >
                         <span class="lighting-console__master-main">
-                            <span class="lighting-console__master-title" data-lighting-summary>{{ $onCount }} van {{ $totalLights }} aan</span>
-                            <span class="lighting-console__master-sub">Hoofdschakelaar</span>
+                            <span class="lighting-console__master-title" data-lighting-summary>{{ $onCount }} of {{ $totalLights }} on</span>
+                            <span class="lighting-console__master-sub">Master switch</span>
                         </span>
                         <span class="lighting-console__switch {{ $onCount > 0 ? '' : '' }}" aria-hidden="true" aria-checked="{{ $onCount > 0 ? 'true' : 'false' }}">
                             <span class="lighting-console__switch-dot"></span>
@@ -107,7 +107,7 @@
 
                 @if(count($unreachableProviders))
                     <div class="mt-4 rounded-[10px] bg-[var(--hub-danger-soft)] px-3 py-2 text-[12px] text-[var(--hub-danger)] ring-1 ring-[var(--hub-danger)]">
-                        Niet bereikbaar: {{ implode(', ', $unreachableProviders) }}
+                        Unreachable: {{ implode(', ', $unreachableProviders) }}
                     </div>
                 @endif
 
@@ -148,9 +148,9 @@
                                         <span class="lighting-console__row-name">{{ $light->name }}</span>
                                         <span class="lighting-console__row-state" data-light-state>
                                             @if($light->reachable)
-                                                {{ $light->on ? $light->brightness.'% · '.($light->supportsColor ? 'kleur' : 'wit') : 'uit' }}
+                                                {{ $light->on ? $light->brightness.'% · '.($light->supportsColor ? 'color' : 'white') : 'off' }}
                                             @else
-                                                niet bereikbaar
+                                                unreachable
                                             @endif
                                         </span>
                                     </span>
@@ -193,7 +193,7 @@
                             data-preset-label="{{ $preset->label }}"
                             data-active="{{ $activePreset?->key === $preset->key ? 'true' : 'false' }}"
                             aria-pressed="{{ $activePreset?->key === $preset->key ? 'true' : 'false' }}"
-                            aria-label="{{ $preset->label }} toepassen"
+                            aria-label="Apply {{ $preset->label }}"
                             class="lighting-console__scene"
                             style="--scene-color: {{ $preset->power ? ($preset->color ?? '#ffc26b') : '#7f7a72' }}"
                         >
@@ -202,7 +202,7 @@
                                 <span class="lighting-console__scene-name">{{ $preset->label }}</span>
                                 <span class="lighting-console__scene-sub">{{ $sceneSubtitles[$preset->key] ?? 'Preset' }}</span>
                             </span>
-                            <span class="lighting-console__scene-active">Actief</span>
+                            <span class="lighting-console__scene-active">Active</span>
                         </button>
                     @endforeach
                 </section>
@@ -234,18 +234,18 @@
                             <div class="lighting-console__ring-wrap">
                                 <div class="lighting-console__ring">
                                     @if($light->supportsColor)
-                                        <input
-                                            type="color"
-                                            value="{{ $light->color ?? '#ffffff' }}"
-                                            data-action="color"
+                                        <button
+                                            type="button"
+                                            data-color-wheel
                                             @disabled(! $light->reachable)
-                                            class="lighting-console__ring-input"
-                                            aria-label="Kleur voor {{ $light->name }}"
-                                        >
+                                            class="lighting-console__ring-surface"
+                                            aria-label="Color for {{ $light->name }}"
+                                        ></button>
+                                        <span class="lighting-console__ring-handle" data-color-handle aria-hidden="true"></span>
                                     @endif
                                     <div class="lighting-console__ring-center">
                                         <x-dashboard.icons.lighting class="h-8 w-8" />
-                                        <span class="lighting-console__ring-percent" data-light-percent>{{ $light->on ? $light->brightness.'%' : 'uit' }}</span>
+                                        <span class="lighting-console__ring-percent" data-light-percent>{{ $light->on ? $light->brightness.'%' : 'off' }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -268,7 +268,7 @@
 
                                 <div class="lighting-console__control-block">
                                     <div class="lighting-console__label">
-                                        Helderheid
+                                        Brightness
                                         <span class="lighting-console__value" data-light-brightness-value>{{ $light->brightness }}%</span>
                                     </div>
                                     <input
@@ -284,8 +284,8 @@
 
                                 <div class="lighting-console__control-block">
                                     <div class="lighting-console__label">
-                                        Lichtmodus
-                                        <span class="lighting-console__value">{{ $light->supportsColor ? 'kleur' : 'wit' }}</span>
+                                        Light mode
+                                        <span class="lighting-console__value">{{ $light->supportsColor ? 'color' : 'white' }}</span>
                                     </div>
                                     <div class="lighting-console__color-inline">
                                         @if($light->supportsColor)
@@ -295,11 +295,11 @@
                                                 data-action="color"
                                                 @disabled(! $light->reachable)
                                                 class="lighting-console__native-color"
-                                                aria-label="Kleur voor {{ $light->name }}"
+                                                aria-label="Color for {{ $light->name }}"
                                             >
-                                            <span class="lighting-console__meta">Gebruik de ring of swatch om de kleur te wijzigen.</span>
+                                            <span class="lighting-console__meta">Use the ring or swatch to change the color.</span>
                                         @else
-                                            <span class="lighting-console__meta">Deze lamp ondersteunt geen RGB-kleur via de provider.</span>
+                                            <span class="lighting-console__meta">This light does not support RGB color via the provider.</span>
                                         @endif
                                     </div>
                                 </div>

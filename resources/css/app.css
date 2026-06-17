@@ -14,11 +14,11 @@
 }
 
 /* Hide the cursor only on touch devices (the Pi kiosk); keep it on
-   mouse-driven screens. Touchscreens report no hover + a coarse pointer. */
-@media (hover: none), (pointer: coarse) {
-    * {
-        cursor: none !important;
-    }
+   mouse-driven screens (e.g. the Mac). The media-query approach is unreliable
+   on the Pi, which reports its touchscreen as a mouse, so resources/js/app.js
+   flags the device with .touch-device on the first touch instead. */
+html.touch-device * {
+    cursor: none !important;
 }
 
 :root {
@@ -34,10 +34,12 @@
     --hub-text: #e9eaef;
     --hub-muted: #a4a7b4;
     --hub-dim: #6b6e7c;
-    --hub-accent: #6b86f0;
-    --hub-accent-hover: #7c95f3;
-    --hub-accent-soft: rgba(107, 134, 240, 0.14);
-    --hub-accent-line: rgba(107, 134, 240, 0.4);
+    --hub-accent: oklch(0.82 0.13 62);
+    --hub-accent-hover: oklch(0.86 0.13 62);
+    --hub-accent-soft: oklch(0.82 0.13 62 / 0.14);
+    --hub-accent-line: oklch(0.82 0.13 62 / 0.4);
+    /* Dark, warm-tinted ink for text/icons placed on an amber accent fill. */
+    --hub-accent-ink: oklch(0.26 0.05 62);
     --hub-done: #54b896;
     --hub-danger: #e0575c;
     --hub-danger-soft: rgba(224, 87, 92, 0.13);
@@ -95,15 +97,23 @@ body {
 .hub-sidebar {
     width: 256px;
     flex-shrink: 0;
+    overflow: hidden;
     border-right: 1px solid var(--hub-line);
     background: var(--hub-sidebar);
+    transition:
+        width 220ms cubic-bezier(0.25, 1, 0.5, 1),
+        border-color 220ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.hub-sidebar.collapsed {
+body[data-sidebar="rail"] .hub-sidebar {
     width: 72px;
 }
 
-.hub-sidebar,
+body[data-sidebar="hidden"] .hub-sidebar {
+    width: 0;
+    border-right-color: transparent;
+}
+
 .hub-nav-link,
 .hub-icon-button,
 .hub-card,
@@ -164,7 +174,7 @@ body {
     place-items: center;
     border-radius: 8px;
     background: var(--hub-accent);
-    color: #f8f9ff;
+    color: var(--hub-accent-ink);
 }
 
 .hub-brand-text {
@@ -262,7 +272,7 @@ body {
     min-height: 34px;
     border-radius: 7px;
     background: var(--hub-accent);
-    color: #f8f9ff;
+    color: var(--hub-accent-ink);
     font-size: 13.5px;
     font-weight: 700;
     padding: 0 14px;
@@ -294,38 +304,96 @@ body {
     text-align: center;
 }
 
-#sidebar.collapsed .nav-label,
-#sidebar.collapsed .hub-brand-text {
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .nav-label,
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-brand-text {
     display: none;
 }
 
-#sidebar.collapsed .hub-brand {
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-brand {
     justify-content: center;
     padding-left: 10px;
     padding-right: 10px;
 }
 
-#sidebar.collapsed .brand-link {
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .brand-link {
     display: none;
 }
 
-#sidebar.collapsed .toggle-btn svg {
+body[data-sidebar="rail"] .toggle-btn svg {
     transform: rotate(180deg);
 }
 
-#sidebar.collapsed .hub-nav {
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-nav {
     padding-left: 8px;
     padding-right: 8px;
 }
 
-#sidebar.collapsed .hub-nav-link {
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-nav-link {
     justify-content: center;
     padding-left: 8px;
     padding-right: 8px;
 }
 
-#sidebar.collapsed .nav-icon {
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .nav-icon {
     margin-right: 0;
+}
+
+/* Footer holding the "hide menu" action, pinned to the bottom of the sidebar. */
+.hub-sidebar-footer {
+    flex: none;
+    padding: 10px;
+    border-top: 1px solid var(--hub-line);
+}
+
+body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-sidebar-footer {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.hub-sidebar-hide {
+    width: 100%;
+    color: var(--hub-dim);
+    cursor: pointer;
+}
+
+/* Floating menu button — only visible when the sidebar is fully hidden. */
+.hub-fab-menu {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 60;
+    display: none;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid var(--hub-line);
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--hub-sidebar) 82%, transparent);
+    color: var(--hub-muted);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    transition:
+        background-color 120ms cubic-bezier(0.25, 1, 0.5, 1),
+        color 120ms cubic-bezier(0.25, 1, 0.5, 1),
+        transform 120ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.hub-fab-menu:hover {
+    color: var(--hub-text);
+    background: color-mix(in oklab, var(--hub-sidebar) 92%, transparent);
+}
+
+.hub-fab-menu:active {
+    transform: scale(0.94);
+}
+
+body[data-sidebar="hidden"] .hub-fab-menu {
+    display: grid;
+}
+
+/* Keep the header title clear of the floating button when the menu is hidden. */
+body[data-sidebar="hidden"] .hub-header {
+    padding-left: 64px;
 }
 
 .touch-keyboard {
@@ -429,7 +497,7 @@ body {
 .touch-key-enter {
     grid-column: span 2;
     background: var(--hub-accent);
-    color: #f8f9ff;
+    color: var(--hub-accent-ink);
 }
 
 .touch-key-enter:hover {

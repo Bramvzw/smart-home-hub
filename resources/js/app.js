@@ -1,19 +1,23 @@
 import './bootstrap';
 import { initTouchKeyboard } from './touch-keyboard.js';
+import { bootSidebar } from './sidebar.js';
 
 initTouchKeyboard();
 
-// Sidebar collapse persistence
-const sidebar = document.getElementById('sidebar');
-const toggleBtn = document.getElementById('sidebar-toggle');
-
-if (sidebar) {
-    if (localStorage.getItem('sidebar-collapsed') === 'true') {
-        sidebar.classList.add('collapsed');
-    }
-
-    toggleBtn?.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed') ? 'true' : 'false');
-    });
+// Chromium on the Pi reports its touchscreen as a mouse, so (pointer: coarse) alone is unreliable.
+function flagTouchDevice() {
+    document.documentElement.classList.add('touch-device');
 }
+
+if (window.matchMedia?.('(pointer: coarse)').matches) {
+    flagTouchDevice();
+}
+
+window.addEventListener('touchstart', flagTouchDevice, { once: true });
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootSidebar, { once: true });
+} else {
+    bootSidebar();
+}
+document.addEventListener('livewire:navigated', bootSidebar);
