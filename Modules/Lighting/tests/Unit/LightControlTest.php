@@ -56,6 +56,33 @@ class LightControlTest extends TestCase
             && $request['commands'][0]['value'] === 500);
     }
 
+    public function test_tuya_brightness_in_colour_mode_updates_v_channel_without_switching_to_white(): void
+    {
+        Http::fake([
+            '*/v1.0/token*' => Http::response(['success' => true, 'result' => ['access_token' => 'tok', 'expire_time' => 7200]]),
+            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
+                ['code' => 'work_mode', 'value' => 'colour'],
+                ['code' => 'colour_data_v2', 'value' => json_encode(['h' => 120, 's' => 1000, 'v' => 1000])],
+            ]]),
+            '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
+        ]);
+
+        app(TuyaProvider::class)->setBrightness('d1', 50);
+
+        Http::assertSent(function ($request) {
+            if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
+                return false;
+            }
+            $codes = collect($request['commands'])->keyBy('code');
+
+            // Brightness moves the V channel, hue/saturation are preserved, and
+            // the lamp stays in colour mode instead of reverting to white.
+            return $codes->has('work_mode') && $codes['work_mode']['value'] === 'colour'
+                && $codes['colour_data_v2']['value'] === ['h' => 120, 's' => 1000, 'v' => 500]
+                && ! $codes->has('bright_value_v2');
+        });
+    }
+
     public function test_tuya_colour_sends_hsv_object(): void
     {
         Http::fake([
@@ -143,6 +170,9 @@ class LightControlTest extends TestCase
                     ['code' => 'colour_data_v2', 'value' => json_encode(['h' => 0, 's' => 0, 'v' => 1000])],
                 ]],
             ]]]),
+            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
+                ['code' => 'work_mode', 'value' => 'white'],
+            ]]),
             '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
             '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
                 ['device' => 'govee-1', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color']],
