@@ -27,11 +27,11 @@ describe('lighting controls', () => {
                 <button
                     type="button"
                     data-preset="cozy"
-                    data-preset-label="Gezellig"
+                    data-preset-label="Cozy"
                     data-preset-power="true"
                     data-preset-brightness="45"
                     data-preset-color="#ff9f4a"
-                >Gezellig</button>
+                >Cozy</button>
 
                 <article data-light data-reachable="true" data-supports-color="true">
                     <button type="button" data-action="power" aria-checked="false"></button>
@@ -90,7 +90,7 @@ describe('lighting controls', () => {
     it('turns reachable lights off without changing brightness', async () => {
         document.body.innerHTML = `
             <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button type="button" data-preset="off" data-preset-power="false">Alles uit</button>
+                <button type="button" data-preset="off" data-preset-power="false">All off</button>
                 <article data-light data-reachable="true" data-supports-color="false">
                     <button type="button" data-action="power" aria-checked="true"></button>
                     <input type="range" data-action="brightness" value="80">
@@ -126,8 +126,8 @@ describe('lighting controls', () => {
         const pending = deferred();
         document.body.innerHTML = `
             <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button type="button" data-preset="cozy" data-preset-power="true">Gezellig</button>
-                <button type="button" data-preset="movie" data-preset-power="true">Film</button>
+                <button type="button" data-preset="cozy" data-preset-power="true">Cozy</button>
+                <button type="button" data-preset="movie" data-preset-power="true">Movie</button>
                 <article data-light data-reachable="true" data-supports-color="false">
                     <button type="button" data-action="power" aria-checked="false"></button>
                     <input type="range" data-action="brightness" value="10">
@@ -203,11 +203,11 @@ describe('lighting controls', () => {
                 <button
                     type="button"
                     data-preset="cozy"
-                    data-preset-label="Gezellig"
+                    data-preset-label="Cozy"
                     data-preset-power="true"
                     data-preset-brightness="45"
                     data-preset-color="#ff9f4a"
-                >Gezellig</button>
+                >Cozy</button>
 
                 <article data-light data-light-row data-light-key="tuya::1" data-reachable="true" data-supports-color="true">
                     <button type="button" data-action="power" aria-checked="true"></button>

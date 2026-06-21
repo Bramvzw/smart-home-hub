@@ -24,31 +24,31 @@ return [
     'presets' => [
         // 'off' first: it is the most-used preset on the kiosk.
         'off' => [
-            'label' => 'Alles uit',
+            'label' => 'All off',
             'power' => false,
         ],
         'bright' => [
-            'label' => 'Helder',
+            'label' => 'Bright',
             'power' => true,
             'brightness' => 100,
             'color' => '#f5f7ff',
         ],
         'cozy' => [
-            'label' => 'Gezellig',
+            'label' => 'Cozy',
             'power' => true,
             'brightness' => 72,
             'color' => '#ffc26b',
         ],
         'movie' => [
-            'label' => 'Film',
+            'label' => 'Movie',
             'power' => true,
             'brightness' => 42,
             'color' => '#7f96ff',
         ],
         'night' => [
-            'label' => 'Nacht',
+            'label' => 'Night',
             'power' => true,
-            'brightness' => 16,
+            'brightness' => 1,
             'color' => '#ff8559',
         ],
     ],

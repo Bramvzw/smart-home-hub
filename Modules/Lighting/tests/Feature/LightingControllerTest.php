@@ -47,7 +47,7 @@ class LightingControllerTest extends TestCase
         $response->assertSee('Strip');
         $response->assertSee('Brightness');
         $response->assertSee('Presets');
-        $response->assertSee('Gezellig');
+        $response->assertSee('Cozy');
         $response->assertSee('data-preset-url-template', false);
     }
 
