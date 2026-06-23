@@ -16,6 +16,8 @@ export default defineConfig({
                 'Modules/Lighting/resources/assets/css/lighting.css',
                 'Modules/Lighting/resources/assets/js/lighting.js',
                 'Modules/PhonePing/resources/assets/js/phone-ping.js',
+                'Modules/Weather/resources/assets/css/weather.css',
+                'Modules/Weather/resources/assets/js/weather.js',
             ],
             refresh: true,
         }),
