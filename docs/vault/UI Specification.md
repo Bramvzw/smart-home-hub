@@ -88,7 +88,8 @@ Behavior:
 - Provider failures show a warning naming the unreachable provider while other providers continue rendering.
 - Unreadable lights remain visible but disabled and visually muted.
 - Clicking a lamp row changes the focused detail panel without a full page reload.
-- Presets include bright, cozy, movie, night and all-off scenes. They call the preset JSON endpoint, temporarily disable the clicked preset button, update reachable light cards optimistically and skip unreachable lights.
+- Presets include bright, cozy, movie, night, night light and all-off scenes. They call the preset JSON endpoint, temporarily disable the clicked preset button, update reachable light cards optimistically and skip unreachable lights.
+- Presets may define target name filters. The Night light preset targets lights whose name contains `strip`, so it only turns the LED strip on softly and leaves other reachable lights unchanged.
 - The active preset button uses `data-active="true"`, `aria-pressed="true"` and an `Actief` badge. Manual power, brightness or colour changes recalculate this state immediately.
 - Presets skip unchanged power, brightness and colour commands from the current snapshot to reduce cloud latency, especially for Govee LED strips.
 - Govee commands are paced and transient failures are retried so quick preset changes are less likely to drop a brightness or colour command.
@@ -96,6 +97,30 @@ Behavior:
 - The backend serialises all Lighting write requests with a short cache lock. If another device submits during an active action, the JSON endpoint returns `409` with a busy message instead of interleaving commands.
 - Control changes call the per-light JSON endpoint and optimistically update the UI; a failed update marks the card with the danger ring.
 - Secrets and provider tokens are never rendered.
+
+### Weather
+
+Shows rain-alert status and the next fixed hourly forecast blocks for the configured home location.
+
+Layout:
+- The page uses the shared dashboard shell with the page header hidden, matching the Spotify-style full-height module composition.
+- The module topbar shows the configured location and coordinates without secondary navigation.
+- The main view follows the imported Weather Module design: a large current-weather card sits beside a rain-alert status column.
+- The status column shows rain start/likely duration/intensity, or a no-alert-needed state with the active rain threshold, plus compact notification metadata.
+- Today and tomorrow cards show condition, min/max temperature, rain total/probability and max wind.
+- The hourly strip shows time, condition, precipitation, probability, intensity, wind and temperature. Rain-triggering blocks use a sky-blue marker and alert probability colour; wind-triggering blocks use a teal border.
+
+Behavior:
+- Default location is Herxen 17, Wijhe from the Google Maps coordinates supplied by the user.
+- The forecast source is Open-Meteo and the page degrades to a provider-failure state if it cannot be reached.
+- Rain detection checks fixed hourly blocks in the next 3 hours by default.
+- A block triggers when precipitation is greater than `WEATHER_RAIN_PRECIPITATION_THRESHOLD_MM` or probability is at least `WEATHER_RAIN_PROBABILITY_THRESHOLD`.
+- Rain alerts use ntfy, default to 30-minute scheduled checks, send at most once per rain period, keep a 1-hour cooldown, and include start time, minutes until start, likely duration and intensity.
+- Wind alerts use ntfy, default to 30-minute scheduled checks and trigger when wind speed or gusts meet `WEATHER_WIND_ALERT_THRESHOLD_KMH`.
+- The daily morning summary is scheduled at `WEATHER_DAILY_SUMMARY_TIME`, defaulting to 07:15, and includes today/tomorrow plus immediate rain/wind context.
+- Alerts are only sent between `WEATHER_ALERT_START_HOUR` and `WEATHER_ALERT_END_HOUR`, defaulting to 07:00 through 23:00.
+- The last sent message is shown on the dashboard for inspection.
+- The dashboard refreshes the Weather content region in-place every `WEATHER_REFRESH_SECONDS`, defaulting to 15 minutes, without a full page reload.
 
 ### Tasks
 

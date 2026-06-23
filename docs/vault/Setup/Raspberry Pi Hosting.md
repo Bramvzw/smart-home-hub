@@ -61,6 +61,20 @@ php artisan route:cache
 Use systemd services for any long-running queue workers if modules start using
 queued jobs.
 
+## Scheduler
+
+Weather alerts are registered in Laravel's scheduler:
+
+- `weather:check-rain` every 30 minutes between 07:00 and 23:00.
+- `weather:check-wind` every 30 minutes between 07:00 and 23:00.
+- `weather:daily-summary` once per day at `WEATHER_DAILY_SUMMARY_TIME`, default 07:15.
+
+The host still needs to run Laravel's scheduler entrypoint, typically once per minute:
+
+```cron
+* * * * * cd /path/to/smart-home-hub && php artisan schedule:run >> /dev/null 2>&1
+```
+
 ## HTTPS
 
 For local HTTPS, generate or configure a certificate for
