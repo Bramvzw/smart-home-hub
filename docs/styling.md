@@ -23,6 +23,7 @@ Primary shared entry points:
 Rules:
 
 - `resources/css/app.css` owns the app-wide Smart Home Hub tokens: `--hub-bg`, `--hub-sidebar`, `--hub-surface`, `--hub-elevated`, `--hub-card`, `--hub-line`, `--hub-text`, `--hub-muted`, `--hub-dim`, `--hub-accent` and semantic variants.
+- The shared shell header and sidebar brand use `--hub-topbar-height`; keep them on the same fixed height so their bottom borders align.
 - Shared product UI should use `hub-*` component classes (`hub-shell`, `hub-sidebar`, `hub-nav-link`, `hub-card`, `hub-action`, `hub-input`, `hub-empty`) before adding new one-off styles.
 - Keep shared dashboard styling in the shared CSS entry.
 - Keep module-specific styling in the module asset when it does not belong to the dashboard shell.
@@ -57,6 +58,15 @@ The Lighting screen uses a module-local console stylesheet at `Modules/Lighting/
 - Active preset display uses `lighting-console__scene[data-active="true"]` and `lighting-console__scene-active`.
 - Runtime lamp values may be injected as inline CSS variables such as `--light-color` and `--light-brightness`.
 - Keep provider/action behavior in `Modules/Lighting/resources/assets/js/lighting.js`; CSS should only describe presentation and responsive structure.
+
+## Weather
+
+The Weather screen uses a module-local stylesheet at `Modules/Weather/resources/assets/css/weather.css`.
+
+- Use the `weather-*` classes for the imported Weather Module composition: location topbar, current-weather card, status column, today/tomorrow cards, hourly strip, inline weather alerts and last-message panel.
+- The palette is restrained and dashboard-focused: warm dark neutrals, sky blue for rain, green for dry state, teal for wind and amber/orange for warning context.
+- Runtime weather values remain in Blade; `Modules/Weather/resources/assets/js/weather.js` only handles in-place live refresh of the weather content region.
+- Keep weather-alert behavior in `Modules/Weather/Services/WeatherService` and scheduled orchestration in `Modules/Weather/Actions/`.
 
 ## Spotify
 

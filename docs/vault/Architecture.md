@@ -71,6 +71,21 @@ Provider credentials live only in config/env (`TUYA_*`, `GOVEE_API_KEY`). Provid
 
 Govee model lookup is cached separately from light state so control calls do not need an extra device-list request before every command. Govee control commands are spaced slightly and retry transient API/transport failures. Preset application uses the current light snapshot to avoid commands for already-matching power, brightness and colour values. All Lighting writes run under a shared cache lock so presets and per-light controls cannot interleave provider command sequences.
 
+### Weather
+
+Weather is a local dashboard module for rainfall monitoring at the configured home location.
+
+- `OpenMeteoClient`: raw Open-Meteo forecast transport.
+- `WeatherService`: maps forecasts, evaluates rain/wind blocks and owns alert state.
+- `CheckRainForecast`: scheduled action used by the rain console command.
+- `CheckWindForecast`: scheduled action used by the wind console command.
+- `SendDailyWeatherSummary`: scheduled action for the morning weather summary.
+- `NtfyWeatherNotifier`: module-local ntfy transport for rain alerts.
+- `WeatherForecast` / `WeatherHour` / `WeatherDay` / `RainAlertResult` / `WeatherAlertResult`: typed weather and alert results.
+- `WeatherViewModel`: read-side page state for `/weather`.
+
+The default location is Herxen 17, Wijhe (`52.42632587203681`, `6.132287777181066`). Rain and wind alerts inspect fixed hourly forecast blocks in the configured window, defaulting to 3 hours. A block is rainy when precipitation is greater than the configured millimetre threshold or precipitation probability meets the configured probability threshold. A wind block triggers when wind speed or gusts meet the configured km/h threshold. Rain notifications include start time, minutes until start, likely duration and intensity. Alerts are sent through ntfy at most once per weather period, with a 1-hour default cooldown and only inside the configured alert hours. A daily summary is scheduled separately and includes today/tomorrow, rain and wind context.
+
 ### Tasks
 
 Task management is a local Laravel Kanban module. The active module is `Modules/Tasks` and `/tasks` renders the in-app board UI.

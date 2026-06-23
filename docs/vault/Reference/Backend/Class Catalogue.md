@@ -62,6 +62,28 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Support\Color` | Colour conversion helpers for shared hex, Govee RGB and Tuya HSV. |
 | `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data assembly for the Lighting screen. |
 
+## Weather Module
+
+Status: active. This module owns rainfall monitoring and ntfy alerts at `/weather`.
+
+| Class | Responsibility |
+|---|---|
+| `Modules\Weather\Providers\WeatherServiceProvider` | Registers Weather module metadata, service bindings and dashboard navigation. |
+| `Modules\Weather\Http\Controllers\WeatherController` | Thin HTTP boundary for the Weather page. |
+| `Modules\Weather\Actions\CheckRainForecast` | Scheduled action that checks the forecast and sends rain alerts when needed. |
+| `Modules\Weather\Actions\CheckWindForecast` | Scheduled action that checks the forecast and sends hard-wind alerts when needed. |
+| `Modules\Weather\Actions\SendDailyWeatherSummary` | Scheduled action that sends the morning weather summary. |
+| `Modules\Weather\Data\WeatherForecast` | Typed forecast snapshot for the configured location. |
+| `Modules\Weather\Data\WeatherHour` | Typed hourly forecast block with rain-threshold detection. |
+| `Modules\Weather\Data\WeatherDay` | Typed daily forecast summary for today/tomorrow cards and morning summaries. |
+| `Modules\Weather\Data\RainAlertResult` | Typed result for scheduled rain-alert checks. |
+| `Modules\Weather\Data\WeatherAlertResult` | Typed result for non-rain weather notifications. |
+| `Modules\Weather\Services\OpenMeteoClient` | Open-Meteo forecast API transport. |
+| `Modules\Weather\Services\NtfyWeatherNotifier` | ntfy transport for weather alerts. |
+| `Modules\Weather\Services\WeatherService` | Maps forecasts, evaluates rain windows and owns alert cooldown/period state. |
+| `Modules\Weather\Support\WeatherCode` | WMO weather-code labels for UI and notifications. |
+| `Modules\Weather\View\ViewModels\WeatherViewModel` | Read-side page data assembly for the Weather screen. |
+
 ## Tasks Module
 
 Status: active. This module owns the local in-app Kanban board at `/tasks`.

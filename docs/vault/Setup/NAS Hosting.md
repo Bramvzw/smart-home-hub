@@ -110,6 +110,18 @@ make cache      # Laravel caches opwarmen na config-wijziging
 make shell      # shell in de container openen
 ```
 
+### Scheduler
+
+De Weather module registreert `weather:check-rain` en `weather:check-wind`
+elke 30 minuten tussen 07:00 en 23:00. `weather:daily-summary` draait eenmaal
+per dag op `WEATHER_DAILY_SUMMARY_TIME`, standaard 07:15. Zorg dat de NAS of
+container één keer per minuut de scheduler aanroept, bijvoorbeeld via DSM Task
+Scheduler of cron:
+
+```bash
+docker compose exec -T hub php artisan schedule:run
+```
+
 ## Pi: kiosk-browser instellen
 
 1. Reserveer een vast IP voor de NAS in de router.
