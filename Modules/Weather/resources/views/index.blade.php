@@ -8,19 +8,41 @@
     </x-slot:scripts>
 
     @php
-        $conditionIcon = static function (string $condition, string $class = 'weather-glyph'): string {
-            $lower = strtolower($condition);
-            $inner = match (true) {
-                str_contains($lower, 'clear') =>
-                    '<circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/>',
-                str_contains($lower, 'partly') =>
-                    '<path d="M8 5.5V4M4.5 7l-1-1M12 8.5l1-1M5.5 11.5H4"/><circle cx="8" cy="9" r="2.6"/><path d="M9 19a4 4 0 01-.4-7.98A5.3 5.3 0 0118.7 12 3.2 3.2 0 0118 19z"/>',
-                str_contains($lower, 'rain') || str_contains($lower, 'shower') || str_contains($lower, 'drizzle') || str_contains($lower, 'thunder') =>
-                    '<path d="M7.5 14.5a4.3 4.3 0 01-.5-8.57A5.7 5.7 0 0118.3 7.1 3.5 3.5 0 0118 14H8"/><path d="M8.5 17l-1 2.5M12.5 17l-1 2.5M16.5 17l-1 2.5"/>',
-                default =>
-                    '<path d="M7.5 18a4.5 4.5 0 01-.5-8.97A6 6 0 0118.8 10.3 3.6 3.6 0 0118 18z"/>',
+        $wxIcon = static function (string $key, int $size = 20): string {
+            $inner = match ($key) {
+                'pin' => '<path d="M12 21s7-5.6 7-11a7 7 0 10-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/>',
+                'bell' => '<path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M9.5 19a2.5 2.5 0 005 0"/>',
+                'trigger' => '<path d="M4 7h9M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3M11 17h9"/><circle cx="9" cy="17" r="2"/>',
+                'clock' => '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.5 2"/>',
+                'clear' => '<circle cx="12" cy="12" r="4.1"/><path d="M12 3v2.4M12 18.6V21M3 12h2.4M18.6 12H21M5.6 5.6l1.7 1.7M16.7 16.7l1.7 1.7M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7"/>',
+                'rain' => '<path d="M7.5 14.5a4.3 4.3 0 01-.5-8.57A5.7 5.7 0 0118.3 7.1 3.5 3.5 0 0118 14H8"/><path d="M8.5 17l-1 2.5M12.5 17l-1 2.5M16.5 17l-1 2.5"/>',
+                default => '<path d="M8 5.5V4M4.5 7l-1-1M12 8.5l1-1M5.5 11.5H4"/><circle cx="8" cy="9" r="2.5"/><path d="M9 19a4 4 0 01-.4-7.98A5.3 5.3 0 0118.7 12 3.2 3.2 0 0118 19z"/>',
             };
-            return '<svg class="'.e($class).'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$inner.'</svg>';
+
+            return '<svg width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$inner.'</svg>';
+        };
+
+        $conditionKey = static function (string $condition): string {
+            $lower = strtolower($condition);
+
+            return match (true) {
+                str_contains($lower, 'clear') => 'clear',
+                str_contains($lower, 'partly') => 'partly',
+                str_contains($lower, 'rain') || str_contains($lower, 'shower')
+                    || str_contains($lower, 'drizzle') || str_contains($lower, 'thunder') => 'rain',
+                default => 'partly',
+            };
+        };
+
+        // lo/hi temps are mapped onto a shared scale for the min–max track
+        $tempMin = 14;
+        $tempMax = 40;
+        $tempPos = static function (?float $t) use ($tempMin, $tempMax): float {
+            if ($t === null) {
+                return 0.0;
+            }
+
+            return max(0.0, min(100.0, (($t - $tempMin) / ($tempMax - $tempMin)) * 100));
         };
 
         $rainExpected = count($rainyBlocks) > 0;
@@ -34,7 +56,7 @@
         $statusPill = $rainEvent ? 'Alert active · starts '.$rainEvent['first']->time->format('H:i') : 'No rain alert needed';
         $statusTone = $rainEvent ? 'rain' : 'dry';
         $notificationsLabel = $notificationsConfigured ? 'ntfy active' : 'ntfy not configured';
-        $alertHoursLabel = sprintf('%02d:00-%02d:00', $alertStartHour, $alertEndHour);
+        $alertHoursLabel = sprintf('%02d:00–%02d:00', $alertStartHour, $alertEndHour);
         $lastAlertSentAt = isset($lastAlert['sent_at'])
             ? \Carbon\CarbonImmutable::parse($lastAlert['sent_at'])->setTimezone((string) config('weather.location.timezone', 'Europe/Amsterdam'))->format('d-m H:i')
             : null;
@@ -46,227 +68,187 @@
         ], fn ($item) => $item['day'] !== null));
     @endphp
 
-    <div class="weather-dashboard" data-weather data-weather-refresh-seconds="{{ $refreshSeconds }}">
+    <div class="weather-page" data-weather data-weather-refresh-seconds="{{ $refreshSeconds }}">
         <div data-weather-content>
         @unless($configured)
-            <div class="weather-empty">
-                <div class="weather-empty__icon">
+            <div class="wxp-empty">
+                <div class="wxp-empty__icon">
                     <x-dashboard.icons.weather class="h-6 w-6" />
                 </div>
                 <h3>No weather location configured</h3>
                 <p>Set <code>WEATHER_LATITUDE</code> and <code>WEATHER_LONGITUDE</code> to enable rain alerts.</p>
             </div>
         @elseif($failed)
-            <div class="weather-empty weather-empty--error">
-                <div class="weather-empty__icon">
+            <div class="wxp-empty wxp-empty--error">
+                <div class="wxp-empty__icon">
                     <x-dashboard.icons.weather class="h-6 w-6" />
                 </div>
                 <h3>Weather data unavailable</h3>
-                    <p>Open-Meteo could not be loaded right now. The scheduled check will try again later.</p>
-                </div>
+                <p>Open-Meteo could not be loaded right now. The scheduled check will try again later.</p>
+            </div>
         @else
-            <header class="weather-topbar">
-                <div class="weather-location">
-                    <x-dashboard.icons.map-pin class="weather-location__icon" />
-                    <strong>{{ $locationLabel }}</strong>
-                    <span>{{ number_format($latitude, 5, ',', '') }}, {{ number_format($longitude, 5, ',', '') }}</span>
+            <div class="wxp">
+                <div class="wxp-loc">
+                    <span class="ic">{!! $wxIcon('pin', 17) !!}</span>
+                    <b>{{ $locationLabel }}</b>
+                    <span class="coords">{{ number_format($latitude, 5, ',', '') }}, {{ number_format($longitude, 5, ',', '') }}</span>
                 </div>
-            </header>
 
-            <section id="weather-now" class="weather-hero" data-rain="{{ $rainExpected ? 'true' : 'false' }}" data-wind="{{ $windExpected ? 'true' : 'false' }}">
-                <article class="weather-now-card" aria-label="Current weather">
-                    <div class="weather-now-card__head">
-                        <span>Now</span>
-                        <span>Updated {{ $forecast->fetchedAt->format('H:i') }}</span>
-                    </div>
-                    <div class="weather-now-card__temp">
-                        <strong>{{ $forecast->currentTemperature !== null ? number_format($forecast->currentTemperature, 1, '.', '') : 'n/a' }}</strong>
-                        @if($forecast->currentTemperature !== null)
-                            <span>°C</span>
-                        @endif
-                    </div>
-                    <div class="weather-now-card__condition">
-                        {!! $conditionIcon($forecast->currentConditionLabel()) !!}
-                        <span>{{ $forecast->currentConditionLabel() }}</span>
-                    </div>
-                    <dl class="weather-now-card__stats">
-                        <div>
-                            <dt>Precipitation</dt>
-                            <dd>{{ number_format($forecast->currentPrecipitationMm, 1, '.', '') }} mm</dd>
+                <div class="wxp-top">
+                    <div class="wxp-now" aria-label="Current weather">
+                        <div class="wxp-now-head">
+                            <span class="lbl">Now</span>
+                            <span class="upd">Updated {{ $forecast->fetchedAt->format('H:i') }}</span>
                         </div>
-                        <div>
-                            <dt>Rain chance</dt>
-                            <dd>{{ $currentProbability !== null ? $currentProbability.'%' : 'n/a' }}</dd>
+                        <div class="wxp-now-temp">
+                            <span class="deg">{{ $forecast->currentTemperature !== null ? number_format($forecast->currentTemperature, 1, '.', '') : 'n/a' }}@if($forecast->currentTemperature !== null)°@endif</span>
+                            @if($forecast->currentTemperature !== null)
+                                <span class="u">C</span>
+                            @endif
                         </div>
-                    </dl>
-                    <div class="weather-now-card__location">
-                        <x-dashboard.icons.map-pin class="weather-small-icon" />
-                        <span>{{ $locationLabel }}</span>
+                        <div class="wxp-now-cond">
+                            <span class="ic">{!! $wxIcon($conditionKey($forecast->currentConditionLabel()), 22) !!}</span>
+                            {{ $forecast->currentConditionLabel() }}
+                        </div>
+                        <div class="wxp-now-stats">
+                            <div class="wxp-now-stat">
+                                <div class="k">Precipitation</div>
+                                <div class="v">{{ number_format($forecast->currentPrecipitationMm, 1, '.', '') }} mm</div>
+                            </div>
+                            <div class="wxp-now-stat">
+                                <div class="k">Rain chance</div>
+                                <div class="v">{{ $currentProbability !== null ? $currentProbability.'%' : 'n/a' }}</div>
+                            </div>
+                        </div>
+                        <div class="wxp-now-foot">
+                            <span class="ic">{!! $wxIcon('pin', 15) !!}</span>
+                            {{ $locationLabel }}
+                        </div>
                     </div>
-                </article>
 
-                <div class="weather-hero__main">
-                    <div class="weather-eyebrow">
-                        <svg class="weather-small-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/>
-                            <path d="M9.5 19a2.5 2.5 0 005 0"/>
-                        </svg>
-                        <span>Alert window</span>
-                    </div>
-                    <h2>{{ $statusTitle }}</h2>
-                    <p>{{ $statusDetail }}</p>
-                    <div class="weather-status-row">
-                        <span class="weather-pill" data-tone="{{ $statusTone }}">
-                            <span></span>
-                            {{ $statusPill }}
-                        </span>
+                    <div class="wxp-alert">
+                        <span class="wxp-eyebrow">{!! $wxIcon('bell', 15) !!} Alert window</span>
+                        <h1 class="wxp-alert-title">{{ $statusTitle }}</h1>
+                        <p class="wxp-alert-sub">{{ $statusDetail }}</p>
+                        <div>
+                            <span class="wxp-pill" data-tone="{{ $statusTone }}"><span class="dot"></span> {{ $statusPill }}</span>
+                            @if($windEvent)
+                                <span class="wxp-pill" data-tone="rain"><span class="dot"></span> Wind from {{ $windEvent['first']->time->format('H:i') }}</span>
+                            @endif
+                        </div>
+                        <div class="wxp-config">
+                            <div class="wxp-cfg">
+                                <span class="ic">{!! $wxIcon('bell', 19) !!}</span>
+                                <div>
+                                    <div class="k">Notification</div>
+                                    <div class="v">{{ $notificationsLabel }}</div>
+                                </div>
+                            </div>
+                            <div class="wxp-cfg">
+                                <span class="ic">{!! $wxIcon('trigger', 19) !!}</span>
+                                <div>
+                                    <div class="k">Trigger</div>
+                                    <div class="v">&gt; {{ number_format($precipitationThresholdMm, 1, '.', '') }} mm or {{ $probabilityThreshold }}%</div>
+                                </div>
+                            </div>
+                            <div class="wxp-cfg">
+                                <span class="ic">{!! $wxIcon('clock', 19) !!}</span>
+                                <div>
+                                    <div class="k">Alert hours</div>
+                                    <div class="v">{{ $alertHoursLabel }}</div>
+                                </div>
+                            </div>
+                        </div>
                         @if($windEvent)
-                            <span class="weather-pill" data-tone="wind">
-                                <span></span>
-                                Wind from {{ $windEvent['first']->time->format('H:i') }}
-                            </span>
+                            <div class="wxp-inline-alert">
+                                Wind from {{ $windEvent['first']->time->format('H:i') }}: max {{ number_format($windEvent['max_wind'], 0, '.', '') }} km/h, gusts {{ number_format($windEvent['max_gusts'], 0, '.', '') }} km/h.
+                            </div>
                         @endif
                     </div>
-                    <div class="weather-meta">
-                        <div class="weather-meta-item">
-                            <svg class="weather-meta-icon" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M6 9a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6z"/>
-                                <path d="M9.5 19a2.5 2.5 0 005 0"/>
-                            </svg>
-                            <div>
-                                <div class="weather-meta-key">Notification</div>
-                                <div class="weather-meta-val">{{ $notificationsLabel }}</div>
-                            </div>
-                        </div>
-                        <div class="weather-meta-item">
-                            <svg class="weather-meta-icon" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M4 7h9M17 7h3"/>
-                                <circle cx="15" cy="7" r="2"/>
-                                <path d="M4 17h3M11 17h9"/>
-                                <circle cx="9" cy="17" r="2"/>
-                            </svg>
-                            <div>
-                                <div class="weather-meta-key">Trigger</div>
-                                <div class="weather-meta-val">&gt; {{ number_format($precipitationThresholdMm, 1, '.', '') }} mm or {{ $probabilityThreshold }}%</div>
-                            </div>
-                        </div>
-                        <div class="weather-meta-item">
-                            <svg class="weather-meta-icon" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <circle cx="12" cy="12" r="8.5"/>
-                                <path d="M12 7.5V12l3.5 2"/>
-                            </svg>
-                            <div>
-                                <div class="weather-meta-key">Alert hours</div>
-                                <div class="weather-meta-val">{{ $alertHoursLabel }}</div>
-                            </div>
-                        </div>
-                    </div>
-                    @if($windEvent)
-                        <div class="weather-inline-alert">
-                            Wind from {{ $windEvent['first']->time->format('H:i') }}: max {{ number_format($windEvent['max_wind'], 0, '.', '') }} km/h, gusts {{ number_format($windEvent['max_gusts'], 0, '.', '') }} km/h.
-                        </div>
-                    @endif
                 </div>
-            </section>
 
+                <hr class="wxp-divide" />
 
-            @if(count($dayCards))
-            <section class="weather-days-strip" aria-label="Daily forecast">
-                <div class="weather-section-head">
-                    <h3>Days ahead</h3>
-                    <span>Next {{ count($dayCards) }} days</span>
+                @if(count($dayCards))
+                <div class="wxp-sec">
+                    <span class="ttl">Days ahead</span>
+                    <span class="meta">Next {{ count($dayCards) }} days</span>
                 </div>
-                <div class="weather-day-cards">
+                <div class="wxp-days">
                     @foreach($dayCards as $item)
                         @php
                             $day = $item['day'];
                             $dayRainy = ($day->precipitationProbabilityMax ?? 0) >= $probabilityThreshold
                                 || $day->precipitationSumMm > $precipitationThresholdMm;
-                            $dayWindy = ($day->windSpeedMaxKmh ?? 0) >= $windThresholdKmh;
+                            $lo = $tempPos($day->temperatureMin);
+                            $hi = $tempPos($day->temperatureMax);
                         @endphp
-                        <article class="weather-day-card"
-                                 data-rain="{{ $dayRainy ? 'true' : 'false' }}"
-                                 data-wind="{{ $dayWindy ? 'true' : 'false' }}">
-                            <div class="weather-day-card__top">
-                                <div>
-                                    <span class="weather-day-card__label">{{ $item['label'] }}</span>
-                                    <div class="weather-day-card__date">{{ $day->date->format('l, j M') }}</div>
+                        <div class="wxp-day{{ $dayRainy ? ' active rain' : '' }}">
+                            <div class="wxp-day-head">
+                                <div class="wxp-day-when">
+                                    <div class="d">{{ $item['label'] }}</div>
+                                    <div class="dt">{{ $day->date->format('l, j M') }}</div>
                                 </div>
-                                {!! $conditionIcon($day->conditionLabel()) !!}
+                                <span class="wic">{!! $wxIcon($conditionKey($day->conditionLabel()), 26) !!}</span>
                             </div>
-                            <div class="weather-day-card__condition">{{ $day->conditionLabel() }}</div>
-                            <div class="weather-day-card__temp">
-                                <span>{{ $day->temperatureMin !== null ? number_format($day->temperatureMin, 0) : '?' }}</span>
+                            <div class="wxp-day-cond">{{ $day->conditionLabel() }}</div>
+                            <div class="wxp-day-temp">
+                                <span class="lo">{{ $day->temperatureMin !== null ? number_format($day->temperatureMin, 0) : '?' }}</span>
                                 <span class="sep">–</span>
-                                <span>{{ $day->temperatureMax !== null ? number_format($day->temperatureMax, 0) : '?' }}</span>
-                                <span class="unit">°C</span>
+                                <span class="hi">{{ $day->temperatureMax !== null ? number_format($day->temperatureMax, 0) : '?' }}</span>
+                                <span class="u">°C</span>
                             </div>
-                            <div class="weather-day-card__metrics">
-                                <span class="weather-day-card__mm">{{ number_format($day->precipitationSumMm, 1, '.', '') }} mm</span>
-                                <span class="weather-day-card__pct">{{ $day->precipitationProbabilityMax ?? 0 }}%</span>
+                            <div class="wxp-temp-track"><i style="left: {{ $lo }}%; width: {{ max(0, $hi - $lo) }}%"></i></div>
+                            <div class="wxp-day-precip">
+                                <span class="mm">{{ number_format($day->precipitationSumMm, 1, '.', '') }} mm</span>
+                                <span class="pct">{{ $day->precipitationProbabilityMax ?? 0 }}%</span>
                             </div>
-                            <div class="weather-day-card__bar" aria-hidden="true">
-                                <i style="width: {{ max(2, min(100, $day->precipitationProbabilityMax ?? 0)) }}%"></i>
-                            </div>
-                        </article>
+                            <div class="wxp-precip-bar"><i style="width: {{ max(1.5, min(100, $day->precipitationProbabilityMax ?? 0)) }}%"></i></div>
+                        </div>
                     @endforeach
                 </div>
-            </section>
-            @endif
+                @endif
 
-            <section id="weather-hours" class="weather-timeline" aria-label="Forecast blocks">
-                <div class="weather-section-head">
-                    <h3>Coming hours</h3>
-                    <span>Fixed hourly blocks · {{ $windowHours }} hours ahead · Live refresh {{ $refreshMinutes }} min</span>
+                <div class="wxp-sec" style="margin-top: 34px;">
+                    <span class="ttl">Coming hours</span>
+                    <span class="meta">Fixed hourly blocks · {{ $windowHours }} hours ahead · Live refresh {{ $refreshMinutes }} min</span>
                 </div>
-
-                <div class="weather-hours">
+                <div class="wxp-hours">
                     @foreach($windowBlocks as $hour)
                         @php
                             $isRainy = $hour->isRainy($precipitationThresholdMm, $probabilityThreshold);
-                            $isWindy = $hour->isWindy($windThresholdKmh);
+                            $intensity = $hour->rainIntensityLabel();
                         @endphp
-                        <article class="weather-hour" data-rain="{{ $isRainy ? 'true' : 'false' }}" data-wind="{{ $isWindy ? 'true' : 'false' }}">
-                            <div class="weather-hour__top">
-                                <time>{{ $hour->time->format('H:i') }}</time>
-                                {!! $conditionIcon($hour->conditionLabel()) !!}
+                        <div class="wxp-hour{{ $isRainy ? ' rain' : '' }}">
+                            <div class="wxp-hour-head">
+                                <span class="wxp-hour-time">{{ $hour->time->format('H:i') }}</span>
+                                <span class="wic">{!! $wxIcon($conditionKey($hour->conditionLabel()), 22) !!}</span>
                             </div>
-                            <strong>{{ $hour->conditionLabel() }}</strong>
-                            <div class="weather-hour__metrics">
-                                <span>{{ number_format($hour->precipitationMm, 1, '.', '') }} mm</span>
-                                <span>{{ $hour->precipitationProbability ?? 0 }}%</span>
+                            <div class="wxp-hour-cond">{{ $hour->conditionLabel() }}</div>
+                            <div class="wxp-hour-precip">
+                                <span class="mm">{{ number_format($hour->precipitationMm, 1, '.', '') }} mm</span>
+                                <span class="pct">{{ $hour->precipitationProbability ?? 0 }}%</span>
                             </div>
-                            <div class="weather-hour__bar" aria-hidden="true">
-                                <i style="width: {{ max(2, min(100, $hour->precipitationProbability ?? 0)) }}%"></i>
+                            <div class="wxp-hour-bar"><i style="width: {{ max(1.5, min(100, $hour->precipitationProbability ?? 0)) }}%"></i></div>
+                            <div class="wxp-hour-rows">
+                                <div class="wxp-hour-row"><span class="k">Intensity</span><span class="v{{ $intensity === 'Dry' ? ' dry' : '' }}">{{ $intensity }}</span></div>
+                                <div class="wxp-hour-row"><span class="k">Wind</span><span class="v">{{ $hour->windSpeedKmh !== null ? number_format($hour->windSpeedKmh, 0, '.', '').' km/h' : 'n/a' }}</span></div>
+                                <div class="wxp-hour-row"><span class="k">Temp</span><span class="v">{{ $hour->temperature !== null ? number_format($hour->temperature, 1, '.', '').'°C' : 'n/a' }}</span></div>
                             </div>
-                            <dl>
-                                <div>
-                                    <dt>Intensity</dt>
-                                    <dd>{{ $hour->rainIntensityLabel() }}</dd>
-                                </div>
-                                <div>
-                                    <dt>Wind</dt>
-                                    <dd>{{ $hour->windSpeedKmh !== null ? number_format($hour->windSpeedKmh, 0, '.', '').' km/h' : 'n/a' }}</dd>
-                                </div>
-                                <div>
-                                    <dt>Temp</dt>
-                                    <dd>{{ $hour->temperature !== null ? number_format($hour->temperature, 1, '.', '').'°C' : 'n/a' }}</dd>
-                                </div>
-                            </dl>
-                        </article>
+                        </div>
                     @endforeach
                 </div>
-            </section>
 
-            @if(isset($lastAlert['message']) && is_string($lastAlert['message']))
-                <section id="weather-alerts" class="weather-last-message" aria-label="Last rain message">
-                    <div class="weather-section-head">
-                        <h3>Last message</h3>
-                        <span>{{ $lastAlertSentAt }}</span>
+                @if(isset($lastAlert['message']) && is_string($lastAlert['message']))
+                    <div class="wxp-last">
+                        <div class="wxp-sec">
+                            <span class="ttl">Last message</span>
+                            <span class="meta">{{ $lastAlertSentAt }}</span>
+                        </div>
+                        <pre>{{ $lastAlert['message'] }}</pre>
                     </div>
-                    <pre>{{ $lastAlert['message'] }}</pre>
-                </section>
-            @endif
+                @endif
+            </div>
         @endunless
         </div>
     </div>
