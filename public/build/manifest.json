@@ -11,7 +11,7 @@
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/js/lighting.js": {
-    "file": "assets/lighting-Duhkjyso.js",
+    "file": "assets/lighting-C60ovlOE.js",
     "name": "lighting",
     "src": "Modules/Lighting/resources/assets/js/lighting.js",
     "isEntry": true
@@ -39,13 +39,24 @@
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/js/tasks-board.js": {
-    "file": "assets/tasks-board-BgBKgG_v.js",
+    "file": "assets/tasks-board-DfLuK9pd.js",
     "name": "tasks-board",
     "src": "Modules/Tasks/resources/assets/js/tasks-board.js",
     "isEntry": true
   },
+  "Modules/Weather/resources/assets/css/weather.css": {
+    "file": "assets/weather-DoymwwvH.css",
+    "src": "Modules/Weather/resources/assets/css/weather.css",
+    "isEntry": true
+  },
+  "Modules/Weather/resources/assets/js/weather.js": {
+    "file": "assets/weather-CukSCC1c.js",
+    "name": "weather",
+    "src": "Modules/Weather/resources/assets/js/weather.js",
+    "isEntry": true
+  },
   "resources/css/app.css": {
-    "file": "assets/app-CnHC-WO2.css",
+    "file": "assets/app-BwEjcuhq.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
