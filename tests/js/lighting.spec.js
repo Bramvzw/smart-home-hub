@@ -122,6 +122,65 @@ describe('lighting controls', () => {
         expect(card.querySelector('[data-action="brightness"]').value).toBe('80');
     });
 
+    it('applies targeted presets only to matching light cards', async () => {
+        document.body.innerHTML = `
+            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
+                <button
+                    type="button"
+                    data-preset="night_light"
+                    data-preset-label="Night light"
+                    data-preset-power="true"
+                    data-preset-brightness="1"
+                    data-preset-color="#ff8559"
+                    data-preset-target-name-contains="strip"
+                >Night light</button>
+
+                <article data-light data-light-row data-light-name="LED Strip" data-reachable="true" data-supports-color="true">
+                    <button type="button" data-action="power" aria-checked="false"></button>
+                    <input type="range" data-action="brightness" value="45">
+                    <input type="color" data-action="color" value="#ffffff">
+                </article>
+
+                <article data-light data-light-row data-light-name="Desk lamp" data-reachable="true" data-supports-color="true">
+                    <button type="button" data-action="power" aria-checked="false"></button>
+                    <input type="range" data-action="brightness" value="45">
+                    <input type="color" data-action="color" value="#ffffff">
+                </article>
+            </div>
+        `;
+
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                data: {
+                    preset: {
+                        key: 'night_light',
+                        label: 'Night light',
+                        power: true,
+                        brightness: 1,
+                        color: '#ff8559',
+                        target_name_contains: ['strip'],
+                    },
+                    failed_lights: [],
+                },
+            }),
+        });
+
+        initLighting();
+        document.querySelector('[data-preset="night_light"]').click();
+        await flushPromises();
+
+        const [strip, lamp] = document.querySelectorAll('[data-light]');
+        expect(strip.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('true');
+        expect(strip.querySelector('[data-action="brightness"]').value).toBe('1');
+        expect(strip.querySelector('[data-action="color"]').value).toBe('#ff8559');
+
+        expect(lamp.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
+        expect(lamp.querySelector('[data-action="brightness"]').value).toBe('45');
+        expect(lamp.querySelector('[data-action="color"]').value).toBe('#ffffff');
+        expect(document.querySelector('[data-preset="night_light"]').dataset.active).toBe('true');
+    });
+
     it('ignores preset clicks while a lighting action is already running', async () => {
         const pending = deferred();
         document.body.innerHTML = `

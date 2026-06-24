@@ -109,6 +109,12 @@ class LightingService
                 }
 
                 foreach ($lights as $light) {
+                    if (! $preset->targetsLight($light)) {
+                        $skipped++;
+
+                        continue;
+                    }
+
                     if (! $light->reachable) {
                         $skipped++;
 
@@ -232,7 +238,22 @@ class LightingService
             power: (bool) ($preset['power'] ?? true),
             brightness: isset($preset['brightness']) ? max(0, min(100, (int) $preset['brightness'])) : null,
             color: $color,
+            targetNameContains: $this->targetNameContains($preset),
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function targetNameContains(array $preset): array
+    {
+        return array_values(array_filter(
+            array_map(
+                static fn (mixed $target): string => strtolower(trim((string) $target)),
+                (array) ($preset['target_name_contains'] ?? []),
+            ),
+            static fn (string $target): bool => $target !== '',
+        ));
     }
 
     private function normaliseHex(?string $hex): ?string

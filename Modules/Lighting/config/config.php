@@ -51,6 +51,13 @@ return [
             'brightness' => 1,
             'color' => '#ff8559',
         ],
+        'night_light' => [
+            'label' => 'Night light',
+            'power' => true,
+            'brightness' => 1,
+            'color' => '#ff8559',
+            'target_name_contains' => ['strip'],
+        ],
     ],
 
     // Light-state cache lifetime in seconds (polling + cache, no realtime push).
