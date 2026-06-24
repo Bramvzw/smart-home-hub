@@ -104,6 +104,7 @@ const updateSummary = (root) => {
         master.dataset.presetPower = source.dataset.presetPower;
         master.dataset.presetBrightness = source.dataset.presetBrightness ?? '';
         master.dataset.presetColor = source.dataset.presetColor ?? '';
+        master.dataset.presetTargetNameContains = source.dataset.presetTargetNameContains ?? '';
     }
 };
 
@@ -261,7 +262,36 @@ const hexToHue = (hex) => {
     return (Math.round(hue * 60) + 360) % 360;
 };
 
-const nullableNumber = (value) => (value === undefined || value === '' ? null : Number(value));
+const nullableNumber = (value) => (value === undefined || value === null || value === '' ? null : Number(value));
+
+const listFromValue = (value) => {
+    if (Array.isArray(value)) {
+        return value.map((entry) => String(entry).trim().toLowerCase()).filter(Boolean);
+    }
+
+    if (typeof value !== 'string') {
+        return [];
+    }
+
+    const trimmed = value.trim();
+    if (trimmed === '') {
+        return [];
+    }
+
+    if (trimmed.startsWith('[')) {
+        try {
+            const decoded = JSON.parse(trimmed);
+
+            if (Array.isArray(decoded)) {
+                return listFromValue(decoded);
+            }
+        } catch {
+            return [];
+        }
+    }
+
+    return trimmed.split(',').map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+};
 
 const normaliseColor = (value) => {
     if (! value) {
@@ -273,15 +303,39 @@ const normaliseColor = (value) => {
     return color.startsWith('#') ? color : `#${color}`;
 };
 
-const presetFromButton = (button) => ({
+const normalisePreset = (preset) => ({
+    key: preset.key,
+    label: preset.label ?? '',
+    power: preset.power === true || preset.power === 'true',
+    brightness: nullableNumber(preset.brightness),
+    color: preset.color || null,
+    targetNameContains: listFromValue(preset.targetNameContains ?? preset.target_name_contains),
+});
+
+const presetFromButton = (button) => normalisePreset({
     key: button.dataset.preset,
     label: button.dataset.presetLabel ?? button.textContent.trim(),
     power: button.dataset.presetPower === 'true',
-    brightness: nullableNumber(button.dataset.presetBrightness),
+    brightness: button.dataset.presetBrightness,
     color: button.dataset.presetColor || null,
+    targetNameContains: button.dataset.presetTargetNameContains,
 });
 
+const presetTargetsCard = (card, preset) => {
+    if (! preset.targetNameContains?.length) {
+        return true;
+    }
+
+    const name = (card.dataset.lightName ?? '').toLowerCase();
+
+    return preset.targetNameContains.some((target) => target !== '' && name.includes(target));
+};
+
 const presetMatchesCard = (card, preset) => {
+    if (! presetTargetsCard(card, preset)) {
+        return true;
+    }
+
     const state = lightStateFromCard(card);
 
     if (! state.reachable) {
@@ -317,7 +371,11 @@ const detectActivePreset = (root) => {
 
     return [...root.querySelectorAll('[data-preset]:not([data-master-toggle])')]
         .map((button) => ({ button, preset: presetFromButton(button) }))
-        .find(({ preset }) => reachableLights.every((card) => presetMatchesCard(card, preset))) ?? null;
+        .find(({ preset }) => {
+            const targetedLights = reachableLights.filter((card) => presetTargetsCard(card, preset));
+
+            return targetedLights.length > 0 && targetedLights.every((card) => presetMatchesCard(card, preset));
+        }) ?? null;
 };
 
 const updateActivePreset = (root, activeKey = null) => {
@@ -344,7 +402,7 @@ const updateActivePreset = (root, activeKey = null) => {
 };
 
 const applyPresetToCard = (card, preset) => {
-    if (card.dataset.reachable !== 'true') {
+    if (card.dataset.reachable !== 'true' || ! presetTargetsCard(card, preset)) {
         return;
     }
 
@@ -396,7 +454,7 @@ const applyPreset = async (root, button) => {
             return;
         }
 
-        const appliedPreset = body.data?.preset ?? preset;
+        const appliedPreset = normalisePreset({ ...preset, ...(body.data?.preset ?? {}) });
         root.querySelectorAll('[data-light]').forEach((card) => applyPresetToCard(card, appliedPreset));
         updateSummary(root);
         updateActivePreset(root, appliedPreset.key);

@@ -48,6 +48,7 @@ class LightingControllerTest extends TestCase
         $response->assertSee('Brightness');
         $response->assertSee('Presets');
         $response->assertSee('Cozy');
+        $response->assertSee('Night light');
         $response->assertSee('data-preset-url-template', false);
     }
 
@@ -117,13 +118,60 @@ class LightingControllerTest extends TestCase
             && $request['cmd']['value'] === ['r' => 255, 'g' => 194, 'b' => 107]);
     }
 
+    public function test_night_light_preset_only_targets_the_led_strip(): void
+    {
+        config(['lighting.govee' => [
+            'api_key' => 'gkey',
+            'model_cache_ttl' => 300,
+            'control_retries' => 1,
+            'command_pause_ms' => 0,
+        ]]);
+
+        Http::fake([
+            '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
+                ['device' => 'STRIP1', 'model' => 'H6159', 'deviceName' => 'LED Strip', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color']],
+                ['device' => 'LAMP1', 'model' => 'H6008', 'deviceName' => 'Desk lamp', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color']],
+            ]]]),
+            '*/v1/devices/state*' => Http::response(['code' => 200, 'data' => ['properties' => [
+                ['online' => true], ['powerState' => 'off'], ['brightness' => 45], ['color' => ['r' => 255, 'g' => 255, 'b' => 255]],
+            ]]]),
+            '*/v1/devices/control' => Http::response(['code' => 200, 'data' => []]),
+        ]);
+
+        $response = $this->postJson(route('lighting.presets.apply', ['preset' => 'night_light']));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.preset.key', 'night_light');
+        $response->assertJsonPath('data.preset.target_name_contains.0', 'strip');
+        $response->assertJsonPath('data.applied', 1);
+        $response->assertJsonPath('data.skipped', 1);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+            && $request['device'] === 'STRIP1'
+            && $request['cmd']['name'] === 'turn'
+            && $request['cmd']['value'] === 'on');
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+            && $request['device'] === 'STRIP1'
+            && $request['cmd']['name'] === 'brightness'
+            && $request['cmd']['value'] === 1);
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+            && $request['device'] === 'STRIP1'
+            && $request['cmd']['name'] === 'color'
+            && $request['cmd']['value'] === ['r' => 255, 'g' => 133, 'b' => 89]);
+
+        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+            && $request['device'] === 'LAMP1');
+    }
+
     public function test_unknown_preset_returns_not_found(): void
     {
         $this->fakeGovee();
 
         $this->postJson(route('lighting.presets.apply', ['preset' => 'missing']))
             ->assertStatus(404)
-            ->assertJsonPath('message', 'Onbekende preset.');
+            ->assertJsonPath('message', 'Unknown preset.');
     }
 
     public function test_busy_lighting_queue_returns_conflict(): void
@@ -139,7 +187,7 @@ class LightingControllerTest extends TestCase
         try {
             $this->postJson(route('lighting.presets.apply', ['preset' => 'cozy']))
                 ->assertStatus(409)
-                ->assertJsonPath('message', 'Er loopt al een lampactie. Probeer het zo opnieuw.');
+                ->assertJsonPath('message', 'A lighting action is already running. Try again in a moment.');
         } finally {
             $lock->release();
         }
