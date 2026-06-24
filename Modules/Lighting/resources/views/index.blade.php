@@ -19,6 +19,7 @@
             'cozy' => 'Warm and bright',
             'movie' => 'Dimmed blue',
             'night' => 'Soft amber',
+            'night_light' => 'Soft strip glow',
             'off' => 'Turn off',
         ];
         $normaliseColor = static fn (?string $color): ?string => filled($color) ? strtolower(str_starts_with((string) $color, '#') ? (string) $color : '#'.$color) : null;
@@ -28,7 +29,15 @@
                 return false;
             }
 
-            return $reachableLights->every(function ($light) use ($preset, $normaliseColor) {
+            $presetLights = $reachableLights
+                ->filter(fn ($light) => $preset->targetsLight($light))
+                ->values();
+
+            if ($presetLights->isEmpty()) {
+                return false;
+            }
+
+            return $presetLights->every(function ($light) use ($preset, $normaliseColor) {
                 if (! $preset->power) {
                     return ! $light->on;
                 }
@@ -92,6 +101,7 @@
                         data-preset-power="{{ $masterPreset->power ? 'true' : 'false' }}"
                         data-preset-brightness="{{ $masterPreset->brightness }}"
                         data-preset-color="{{ $masterPreset->color }}"
+                        data-preset-target-name-contains="{{ implode(',', $masterPreset->targetNameContains) }}"
                         data-master-toggle
                         class="lighting-console__master"
                     >
@@ -190,6 +200,7 @@
                             data-preset-power="{{ $preset->power ? 'true' : 'false' }}"
                             data-preset-brightness="{{ $preset->brightness }}"
                             data-preset-color="{{ $preset->color }}"
+                            data-preset-target-name-contains="{{ implode(',', $preset->targetNameContains) }}"
                             data-preset-label="{{ $preset->label }}"
                             data-active="{{ $activePreset?->key === $preset->key ? 'true' : 'false' }}"
                             aria-pressed="{{ $activePreset?->key === $preset->key ? 'true' : 'false' }}"
