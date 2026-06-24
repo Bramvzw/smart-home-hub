@@ -142,7 +142,7 @@ class CalendarService
 
             $events[] = new CalendarEvent(
                 uid: (string) ($vevent->UID ?? ''),
-                summary: trim((string) ($vevent->SUMMARY ?? '')) ?: '(geen titel)',
+                summary: trim((string) ($vevent->SUMMARY ?? '')) ?: '(no title)',
                 start: $start,
                 end: $end,
                 allDay: $allDay,

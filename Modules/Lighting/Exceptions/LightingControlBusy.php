@@ -9,6 +9,6 @@ class LightingControlBusy extends RuntimeException
 {
     public static function queueTimeout(?Throwable $previous = null): self
     {
-        return new self('Er loopt al een lampactie. Probeer het zo opnieuw.', 0, $previous);
+        return new self('A lighting action is already running. Try again in a moment.', 0, $previous);
     }
 }
