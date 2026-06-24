@@ -4,6 +4,12 @@ Entry point for project documentation. `AGENTS.md` is the canonical agent rulebo
 
 ---
 
+## Planning
+
+| Note | Description |
+|---|---|
+| [Roadmap](Roadmap.md) | Planned and wanted modules, decisions per module, and the proposed build order |
+
 ## Architecture
 
 | Note | Description |
