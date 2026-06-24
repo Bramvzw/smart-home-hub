@@ -14,7 +14,7 @@ class DeleteColumn
 
     public function __invoke(TaskColumn $column): TaskBoard
     {
-        abort_if($column->board->columns()->count() <= 1, 422, 'Een bord heeft minstens één kolom nodig.');
+        abort_if($column->board->columns()->count() <= 1, 422, 'A board needs at least one column.');
 
         $board = $column->board;
         $column->delete();

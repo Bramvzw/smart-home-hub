@@ -26,7 +26,7 @@ class CalendarControllerTest extends TestCase
         PRODID:-//Test//Calendar//EN
         BEGIN:VEVENT
         UID:dentist-1
-        SUMMARY:Tandarts afspraak
+        SUMMARY:Dentist appointment
         DTSTART;TZID=Europe/Amsterdam:20260609T140000
         DTEND;TZID=Europe/Amsterdam:20260609T143000
         END:VEVENT
@@ -38,7 +38,7 @@ class CalendarControllerTest extends TestCase
     {
         config([
             'calendar.feeds' => [
-                ['label' => 'Werk', 'color' => '#f2ad66', 'url' => self::FEED_URL],
+                ['label' => 'Work', 'color' => '#f2ad66', 'url' => self::FEED_URL],
             ],
             'calendar.window_days' => 30,
         ]);
@@ -51,7 +51,7 @@ class CalendarControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Next 30 days');
-        $response->assertSee('Tandarts afspraak');
+        $response->assertSee('Dentist appointment');
     }
 
     public function test_index_page_shows_empty_state_when_no_feed_is_configured(): void

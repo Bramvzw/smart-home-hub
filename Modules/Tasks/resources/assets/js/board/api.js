@@ -17,7 +17,7 @@ export function createTasksApi({ csrf, routes, store, render }) {
 
         if (! response.ok) {
             const payload = await response.json().catch(() => ({}));
-            throw new Error(payload.message || 'De wijziging kon niet worden opgeslagen.');
+            throw new Error(payload.message || 'The change could not be saved.');
         }
 
         const payload = await response.json();

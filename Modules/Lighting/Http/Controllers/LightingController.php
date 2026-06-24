@@ -25,7 +25,7 @@ class LightingController
         try {
             $result = $apply($preset);
         } catch (UnknownLightingPreset) {
-            return response()->json(['message' => 'Onbekende preset.'], 404);
+            return response()->json(['message' => 'Unknown preset.'], 404);
         } catch (LightingControlBusy $exception) {
             return response()->json(['message' => $exception->getMessage()], 409);
         }
@@ -41,7 +41,7 @@ class LightingController
             return response()->json(['message' => $exception->getMessage()], 409);
         } catch (RuntimeException) {
             // Per-device isolation: surface a clean failure, never provider internals.
-            return response()->json(['message' => 'De lamp kon niet worden bijgewerkt.'], 502);
+            return response()->json(['message' => 'The light could not be updated.'], 502);
         }
 
         return LightResource::make($light)->response();

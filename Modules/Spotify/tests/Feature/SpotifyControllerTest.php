@@ -37,7 +37,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewHas('isConnected', true);
         $response->assertSee('id="search-input"', false);
-        $response->assertDontSee('Geen muziek actief');
+        $response->assertDontSee('No active music');
     }
 
     public function test_index_shows_player_for_paused_track()
@@ -69,7 +69,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Paused Track');
         $response->assertSee('data-tab="panel-playing"', false);
-        $response->assertDontSee('Geen muziek actief');
+        $response->assertDontSee('No active music');
     }
 
     public function test_index_shows_connect_when_refresh_token_cannot_be_used()
