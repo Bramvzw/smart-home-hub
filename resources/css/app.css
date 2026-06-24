@@ -44,6 +44,7 @@ html.touch-device * {
     --hub-danger: #e0575c;
     --hub-danger-soft: rgba(224, 87, 92, 0.13);
     --hub-green: #34b8a0;
+    --hub-topbar-height: 66px;
 }
 
 html {
@@ -136,7 +137,8 @@ body[data-sidebar="hidden"] .hub-sidebar {
 
 .hub-header {
     display: flex;
-    min-height: 62px;
+    box-sizing: border-box;
+    height: var(--hub-topbar-height);
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
@@ -160,6 +162,8 @@ body[data-sidebar="hidden"] .hub-sidebar {
 
 .hub-brand {
     display: flex;
+    box-sizing: border-box;
+    height: var(--hub-topbar-height);
     align-items: center;
     gap: 10px;
     padding: 18px;
