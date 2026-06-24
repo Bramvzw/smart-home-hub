@@ -132,40 +132,6 @@
     height: 22px;
 }
 
-.weather-tabs {
-    display: flex;
-    gap: 4px;
-    padding: 5px;
-    margin-left: auto;
-    border: 1px solid var(--weather-line);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.weather-tab {
-    display: flex;
-    align-items: center;
-    height: 38px;
-    padding: 0 16px;
-    border-radius: 999px;
-    color: var(--weather-muted);
-    font-size: 13.5px;
-    font-weight: 500;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color .14s, background .14s;
-}
-
-.weather-tab:hover {
-    color: var(--weather-text);
-}
-
-.weather-tab.active {
-    background: var(--weather-accent);
-    color: oklch(0.15 0.025 235);
-    font-weight: 600;
-}
-
 .weather-hero {
     display: grid;
     min-height: 0;
