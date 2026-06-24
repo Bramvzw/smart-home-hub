@@ -71,11 +71,6 @@
                     <strong>{{ $locationLabel }}</strong>
                     <span>{{ number_format($latitude, 5, ',', '') }}, {{ number_format($longitude, 5, ',', '') }}</span>
                 </div>
-                <nav class="weather-tabs" aria-label="Page sections">
-                    <a href="#weather-now" class="weather-tab active">Now</a>
-                    <a href="#weather-hours" class="weather-tab">Coming hours</a>
-                    <a href="#weather-alerts" class="weather-tab">Notifications</a>
-                </nav>
             </header>
 
             <section id="weather-now" class="weather-hero" data-rain="{{ $rainExpected ? 'true' : 'false' }}" data-wind="{{ $windExpected ? 'true' : 'false' }}">
