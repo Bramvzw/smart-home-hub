@@ -1,14 +1,3 @@
-const initTabs = (root) => {
-    root.addEventListener('click', (e) => {
-        const tab = e.target.closest('.weather-tab[href^="#"]');
-        if (! tab) return;
-        e.preventDefault();
-        root.querySelectorAll('.weather-tab').forEach((t) => t.classList.remove('active'));
-        tab.classList.add('active');
-        root.querySelector(tab.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-};
-
 const refreshWeather = async (root) => {
     const target = root.querySelector('[data-weather-content]');
     if (! target || document.hidden) {
@@ -42,7 +31,6 @@ export const initWeather = () => {
     }
 
     root.dataset.weatherReady = 'true';
-    initTabs(root);
     const seconds = Number(root.dataset.weatherRefreshSeconds ?? 0);
     if (! Number.isFinite(seconds) || seconds <= 0) {
         return;
