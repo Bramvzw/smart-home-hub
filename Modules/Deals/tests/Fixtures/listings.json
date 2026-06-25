@@ -1,0 +1,11 @@
+{
+  "products": [
+    {
+      "id": "bol-ams",
+      "title": "Bambu Lab AMS",
+      "url": "https://example.com/bol-ams",
+      "price": 319.00,
+      "imageUrl": "https://example.com/ams.jpg"
+    }
+  ]
+}
