@@ -1,0 +1,11 @@
+{
+    "name": "Recipes",
+    "alias": "recipes",
+    "description": "Weekly recipe generation from supermarket offers.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Recipes\\Providers\\RecipesServiceProvider"
+    ],
+    "files": []
+}
