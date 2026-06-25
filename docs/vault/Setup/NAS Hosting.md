@@ -54,12 +54,35 @@ git push
 cd /volume1/docker/smart-home-hub
 git pull
 docker compose exec hub php artisan migrate --force   # alleen bij nieuwe migraties
-make cache                                             # caches opwarmen
+make deploy                                            # optimize + caches + restart
 ```
 
 De gebouwde assets in `public/build` worden meegecommit, dus de NAS hoeft niet
 te bouwen — `git pull` volstaat. Een hard-refresh op de Pi (`Ctrl+Shift+R`)
 laadt de nieuwe assets.
+
+> **Belangrijk — opcache staat "bevroren".** Voor snelheid draait de container
+> met `opcache.validate_timestamps=0` (zie `docker/php/zz-hub.ini`). PHP ziet
+> nieuwe code daardoor pas na een **container-restart**. Daarom eindigt elke
+> deploy met `make restart` (zit al in `make deploy`). Sla je dit over, dan
+> draait de NAS nog op de oude code.
+
+## Performance
+
+De app draait via een bind-mount (`.:/app`) vanaf het NAS-filesystem. Zonder
+opcache-tuning stat't PHP elk bestand per request over die trage mount → trage
+navigatie. De fix (al ingebouwd):
+
+- `docker/php/zz-hub.ini` zet `opcache.validate_timestamps=0` + ruimere
+  opcache- en realpath-cache. Gemount via `docker-compose.yml`.
+- `make cache` warmt config/route/view/event-caches; `make optimize` doet
+  `composer ... --optimize-autoloader` + `php artisan optimize`.
+
+Verifieer dat de tuning actief is:
+
+```bash
+docker compose exec hub php -i | grep -E "opcache.validate_timestamps|opcache.enable"
+```
 
 > Houd de NAS-checkout schoon: maak er geen lokale edits in, zodat `git pull`
 > nooit botst. De NAS is puur een deploy-target.
