@@ -22,9 +22,10 @@ class GenerateRecipes
     }
 
     /**
+     * @param  string|null  $resolvedWeekKey  Receives the week_key actually used for generation.
      * @return list<Recipe>
      */
-    public function __invoke(?string $weekKey = null, bool $push = true, bool $refetchOffers = false): array
+    public function __invoke(?string $weekKey = null, bool $push = true, bool $refetchOffers = false, ?string &$resolvedWeekKey = null): array
     {
         $weekKey ??= $this->offerAggregator->weekKey();
 
@@ -32,6 +33,8 @@ class GenerateRecipes
             $result = $this->offerAggregator->fetch();
             $weekKey = $result->weekKey;
         }
+
+        $resolvedWeekKey = $weekKey;
 
         $offers = GroceryOffer::query()
             ->where('week_key', $weekKey)

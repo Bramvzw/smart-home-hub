@@ -189,6 +189,70 @@ class RecipesControllerTest extends TestCase
         $this->assertCount(1, $notifier->sent);
     }
 
+    public function test_generate_returns_state_for_the_resolved_week_not_the_requested_one(): void
+    {
+        // Refetch resolves the week from "now" (2026-W26), ignoring the bogus
+        // requested week_key. The returned state must reflect the week that was
+        // actually generated, not the requested value.
+        Http::fake([
+            'https://example.com/ah-token' => Http::response(['access_token' => 'token']),
+            'https://example.com/ah-offers*' => Http::response($this->fixture('ah-offers.json')),
+            'https://example.com/lidl-offers' => Http::response($this->fixture('lidl-offers.json')),
+        ]);
+        $notifier = new FakeRecipesNotifier;
+        $this->app->instance(HubNotifier::class, $notifier);
+        $this->app->instance(RecipeTextGenerator::class, new FakeRecipeTextGenerator);
+
+        $this->postJson(route('recipes.generate'), ['week_key' => '2099-W01', 'refetch' => true])
+            ->assertOk()
+            ->assertJsonPath('week_key', '2026-W26')
+            ->assertJsonPath('recipes.0.title', 'Snelle kip-teriyaki');
+
+        $this->assertDatabaseHas('recipes', ['week_key' => '2026-W26']);
+        $this->assertDatabaseMissing('recipes', ['week_key' => '2099-W01']);
+    }
+
+    public function test_index_escapes_malicious_recipe_content(): void
+    {
+        $this->withoutVite();
+
+        RecipeRun::query()->create([
+            'week_key' => '2026-W26',
+            'stores_fetched' => ['ah', 'lidl'],
+            'stores_failed' => [],
+            'ai_unavailable' => false,
+            'generated_at' => CarbonImmutable::parse('2026-06-26 18:05:00', 'UTC'),
+        ]);
+        $this->offer('ah', 'Kipfilet');
+
+        Recipe::query()->create([
+            'week_key' => '2026-W26',
+            'title' => '<script>alert("xss")</script>',
+            'description' => '<img src=x onerror=alert(1)>',
+            'servings' => 2,
+            'time_minutes' => 25,
+            'estimated_cost' => 6.40,
+            'ingredients' => [
+                ['name' => '<b>Kip</b>', 'amount' => '300 g', 'on_offer' => true, 'store' => 'ah'],
+            ],
+            'steps' => ['<script>alert("step")</script>'],
+            'shopping_list' => [
+                ['name' => '<script>alert("shop")</script>', 'amount' => '1', 'on_offer' => false],
+            ],
+            'model' => 'fake-claude',
+        ]);
+
+        $html = $this->get(route('recipes.index'))
+            ->assertOk()
+            ->getContent();
+
+        // No raw executable markup from the recipe is emitted into the page.
+        $this->assertStringNotContainsString('<script>alert', $html);
+        $this->assertStringNotContainsString('<img src=x onerror', $html);
+        // Blade auto-escapes the card title to entities.
+        $this->assertStringContainsString('&lt;script&gt;alert', $html);
+    }
+
     private function offer(string $store, string $name): GroceryOffer
     {
         return GroceryOffer::query()->create([
