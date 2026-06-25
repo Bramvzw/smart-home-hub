@@ -12,9 +12,7 @@ use Modules\Entertainment\Actions\RefreshConcerts;
 use Modules\Entertainment\Actions\RefreshFilms;
 use Modules\Entertainment\Actions\RefreshMusicReleases;
 use Modules\Entertainment\Actions\UpdateTasteProfile;
-use Modules\Entertainment\Http\Resources\ConcertResource;
 use Modules\Entertainment\Http\Resources\TasteProfileResource;
-use Modules\Entertainment\Models\Concert;
 use Modules\Entertainment\Models\FilmRecommendation;
 use Modules\Entertainment\Models\TasteProfile;
 use Modules\Entertainment\View\ViewModels\EntertainmentViewModel;
@@ -36,7 +34,7 @@ class EntertainmentController
 
     public function concerts(): JsonResponse
     {
-        return response()->json(['concerts' => ConcertResource::collection(Concert::query()->orderBy('date')->get())->resolve()]);
+        return response()->json(['concerts' => $this->viewModel->concerts()]);
     }
 
     public function feedback(Request $request, FilmRecommendation $film, RecordFilmFeedback $record): JsonResponse
@@ -53,7 +51,10 @@ class EntertainmentController
 
     public function taste(): JsonResponse
     {
-        return response()->json(TasteProfileResource::make(TasteProfile::query()->firstOrCreate([], ['favorite_titles' => [], 'genres' => []]))->resolve());
+        $profile = TasteProfile::query()->first()
+            ?? new TasteProfile(['favorite_titles' => [], 'genres' => []]);
+
+        return response()->json(TasteProfileResource::make($profile)->resolve());
     }
 
     public function updateTaste(Request $request, UpdateTasteProfile $update): JsonResponse

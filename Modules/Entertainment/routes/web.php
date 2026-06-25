@@ -10,5 +10,5 @@ Route::prefix('entertainment')->name('entertainment.')->group(function (): void 
     Route::post('/films/{film}/dismiss', [EntertainmentController::class, 'dismiss'])->name('films.dismiss');
     Route::get('/taste', [EntertainmentController::class, 'taste'])->name('taste.show');
     Route::put('/taste', [EntertainmentController::class, 'updateTaste'])->name('taste.update');
-    Route::post('/refresh', [EntertainmentController::class, 'refresh'])->name('refresh');
+    Route::post('/refresh', [EntertainmentController::class, 'refresh'])->middleware('throttle:6,1')->name('refresh');
 });
