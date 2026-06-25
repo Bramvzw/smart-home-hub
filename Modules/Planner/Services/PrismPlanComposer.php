@@ -17,6 +17,10 @@ class PrismPlanComposer implements PlanComposer
             $summary .= " {$unplaced} intentie(s) pasten niet.";
         }
 
-        return new ComposedPlan($summary, $items, (string) config('ai.anthropic.api_key', '') === '');
+        // This composer does not yet perform a real Prism/AI arrangement: it keeps the deterministic
+        // placement and only writes a summary. `is_fallback` means "AI arrangement was not used", so it is
+        // honestly true here. When a real AI arrangement is wired up, set this to false only when the AI
+        // actually re-arranged the items.
+        return new ComposedPlan($summary, $items, true);
     }
 }
