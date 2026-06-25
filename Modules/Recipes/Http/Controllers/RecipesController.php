@@ -61,16 +61,18 @@ class RecipesController
             'refetch' => 'sometimes|boolean',
         ]);
 
+        $resolvedWeekKey = null;
         $generateRecipes(
             weekKey: $data['week_key'] ?? null,
             push: true,
             refetchOffers: (bool) ($data['refetch'] ?? false),
+            resolvedWeekKey: $resolvedWeekKey,
         );
 
         if (! $request->expectsJson()) {
-            return redirect()->route('recipes.index');
+            return redirect()->route('recipes.index', ['week' => $resolvedWeekKey]);
         }
 
-        return response()->json($this->viewModel->state($data['week_key'] ?? null));
+        return response()->json($this->viewModel->state($resolvedWeekKey));
     }
 }
