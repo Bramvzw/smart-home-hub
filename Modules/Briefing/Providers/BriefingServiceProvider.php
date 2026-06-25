@@ -45,7 +45,7 @@ class BriefingServiceProvider extends ModuleServiceProvider
         }
 
         $today = now((string) config('briefing.timezone', 'Europe/Amsterdam'))->toDateString();
-        $briefing = Briefing::query()->whereDate('date', $today)->first();
+        $briefing = Briefing::query()->where('date', $today)->first();
 
         if ($briefing === null) {
             return 'No briefing today';

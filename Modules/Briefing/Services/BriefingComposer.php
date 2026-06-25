@@ -43,13 +43,42 @@ class BriefingComposer
 
     private function systemPrompt(): string
     {
+        $language = $this->languageInstruction((string) config('briefing.language', 'nl'));
+        $tone = $this->toneInstruction((string) config('briefing.tone', 'informal'));
+        $length = $this->lengthInstruction((string) config('briefing.length', 'medium'));
+
         return implode(' ', [
-            'Je schrijft een dagelijkse ochtendbriefing in het Nederlands.',
-            'Gebruik je/jij, informeel en vriendelijk, maar blijf compact.',
-            'Schrijf een korte alinea per aangeleverde sectie.',
+            "Je schrijft een dagelijkse ochtendbriefing {$language}.",
+            $tone,
+            $length,
             'Gebruik alleen feiten uit de input en verzin geen ontbrekende data.',
             'Laat secties zonder data weg.',
         ]);
+    }
+
+    private function languageInstruction(string $language): string
+    {
+        return match ($language) {
+            'en' => 'in het Engels',
+            default => 'in het Nederlands',
+        };
+    }
+
+    private function toneInstruction(string $tone): string
+    {
+        return match ($tone) {
+            'formal' => 'Gebruik u, formeel en zakelijk, maar blijf compact.',
+            default => 'Gebruik je/jij, informeel en vriendelijk, maar blijf compact.',
+        };
+    }
+
+    private function lengthInstruction(string $length): string
+    {
+        return match ($length) {
+            'short' => 'Schrijf maximaal een korte zin per aangeleverde sectie.',
+            'long' => 'Schrijf een uitgebreide alinea per aangeleverde sectie.',
+            default => 'Schrijf een korte alinea per aangeleverde sectie.',
+        };
     }
 
     /**
@@ -62,6 +91,12 @@ class BriefingComposer
             JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR,
         );
 
-        return "Maak een medium-lange ochtendbriefing uit deze gestructureerde secties:\n\n{$payload}";
+        $length = match ((string) config('briefing.length', 'medium')) {
+            'short' => 'korte',
+            'long' => 'uitgebreide',
+            default => 'medium-lange',
+        };
+
+        return "Maak een {$length} ochtendbriefing uit deze gestructureerde secties:\n\n{$payload}";
     }
 }

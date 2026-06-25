@@ -16,7 +16,7 @@ class Briefing extends Model
     ];
 
     protected $casts = [
-        'date' => 'immutable_date',
+        'date' => 'immutable_date:Y-m-d',
         'sections' => 'array',
         'generated_at' => 'immutable_datetime',
         'is_fallback' => 'boolean',
