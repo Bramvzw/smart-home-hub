@@ -1,0 +1,20 @@
+{
+  "gridBoxes": [
+    {
+      "id": "lidl-paprika",
+      "title": "Paprika mix",
+      "category": "Groente",
+      "priceInfo": {
+        "oldPrice": 2.49,
+        "price": 1.79,
+        "discount": "28% korting"
+      },
+      "unit": "500 g",
+      "image": {
+        "url": "https://example.com/paprika.jpg"
+      },
+      "validFrom": "2026-06-23",
+      "validTo": "2026-06-29"
+    }
+  ]
+}
