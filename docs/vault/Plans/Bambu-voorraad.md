@@ -6,7 +6,7 @@ pure stock registration — **no live print status, no MQTT, no AI, no ntfy**.
 Front-end markup is out of scope (Claude Design later); this plan covers
 functional behaviour, UI states and the data/JSON contract.
 
-Status: spec ready. Build order: module 4. See [Roadmap](../Roadmap.md).
+Status: implemented 2026-06-25. Build order: module 4. See [Roadmap](../Roadmap.md).
 
 ---
 

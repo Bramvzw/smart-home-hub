@@ -45,6 +45,12 @@ Shared input behavior:
 - Enter submits the active field form for single-line inputs; textarea and contenteditable fields receive a newline.
 - Elements can opt out with `data-touch-keyboard="off"` on the field or an ancestor.
 
+Dashboard module cards:
+- Module cards may show a module-provided status string from `getDashboardWidget()` instead of the static fallback copy.
+- News uses this to show the total unread item count on the dashboard tile.
+- Briefing uses this to show whether today's briefing is ready or missing.
+- Recipes uses this to show this week's recipe count or AI-unavailable state.
+
 ### Spotify
 
 Controls playback, playlists, queue, devices and liked tracks through the Spotify module routes. Spotify UI behavior should be backed by the smaller Spotify services documented in `Architecture.md`.
@@ -122,6 +128,42 @@ Behavior:
 - The last sent message is shown on the dashboard for inspection.
 - The dashboard refreshes the Weather content region in-place every `WEATHER_REFRESH_SECONDS`, defaulting to 15 minutes, without a full page reload.
 
+### News
+
+Aggregates configured RSS/Atom feeds into topic groups and exposes the same state through `/news/items`.
+
+Layout:
+- The first implementation is a functional Blade shell, not the final designed news interface.
+- The page header shows the global unread count plus refresh and mark-all-read actions.
+- Topics render as grouped cards with latest configured items, per-topic unread counts and per-topic mark-read actions.
+- Each item shows source, relative published time, title, summary and a keyword badge when `matched_keywords` is non-empty.
+
+Behavior:
+- Initial page data comes from stored `news_items`; the page does not fetch external feeds during render.
+- The empty state appears when no stored items exist and exposes a refresh action.
+- Refresh calls `POST /news/refresh`, which runs the feed refresh synchronously, sends keyword ntfy alerts and reloads the page.
+- Clicking an item opens the original article in a new tab and posts to `POST /news/items/{item}/read`.
+- Global and per-topic mark-read actions call `POST /news/read-all`.
+- The JSON state contains `topics`, `total_unread` and `last_refreshed_at`; item output is shaped by `NewsItemResource`.
+- A failed feed is logged and skipped during refresh; stored items from other feeds remain available.
+
+### Briefing
+
+Shows the generated daily morning briefing and exposes the same payload as JSON from `/briefing`.
+
+Layout:
+- The first implementation is a functional Blade shell, not the final designed briefing interface.
+- The page action is `Generate now` before today's briefing exists and `Regenerate` after it exists.
+- A generated briefing shows the body, generation time, AI/fallback indicator and per-section summaries.
+- The dashboard tile shows whether today's briefing is ready, fallback, or missing.
+
+Behavior:
+- Scheduled generation runs at `BRIEFING_TIME`, default 08:00, stores one briefing per date and sends ntfy.
+- Manual regenerate posts to `POST /briefing/regenerate`, overwrites today's row and does not send ntfy.
+- `GET /briefing` with JSON returns the `BriefingResource` contract when today's briefing exists; before generation it returns a 404 with the date and message.
+- If the Anthropic/Prism path is unavailable, the briefing is built from deterministic Dutch section summaries and marked fallback.
+- Weather, Calendar, Tasks and News contribute through tagged `BriefingSource` services. Empty or failing sources are skipped.
+
 ### Tasks
 
 Task management is a local, dark, compact Kanban board rendered by `Modules/Tasks`.
@@ -140,8 +182,77 @@ Behavior:
 - Dragging a task into a column named `Done` marks it completed. Moving it elsewhere marks it incomplete.
 - Labels are scoped per board and can be attached from the detail panel.
 - Deadline notifications are not implemented; deadlines are only visible and filterable.
+- Habit and maintenance management is currently JSON-only; final Blade markup is deferred.
+- `GET /tasks/habits` returns active habits with cadence config, current-period `progress`, current streak, best streak and `completed_today`.
+- `POST /tasks/habits/{recurrence}/complete` checks off the current or supplied date idempotently.
+- `DELETE /tasks/habits/{recurrence}/complete` removes the current or supplied date completion and returns the updated habit state.
+- `GET /tasks/maintenance` returns maintenance recurrence definitions sorted by active state and next due date.
+- `POST/PATCH/DELETE /tasks/recurrences` manages both habit and maintenance recurrence definitions.
+- Due maintenance appears as a normal Kanban card. The board-state JSON exposes `recurrence_id` and `is_maintenance` so future UI can render a recurring/maintenance marker.
+- Completing a maintenance-linked card auto-reschedules the recurrence and allows the next cycle to materialize.
 
 Card fields:
 - Title is always visible.
 - Description preview, labels, deadline, checklist progress and archived state are visible when present.
 - Priority is shown as a subtle left accent bar.
+- Maintenance cards expose `recurrence_id` and `is_maintenance` in JSON.
+
+### Recipes
+
+Shows weekly recipes generated from AH and Lidl supermarket offers.
+
+Layout:
+- The first implementation is a functional Blade shell, not the final designed recipes interface.
+- The page action is `Generate recipes`.
+- The page header state shows the ISO week, generation time, AI-unavailable badge and failed store badges when relevant.
+- Recipes render as compact cards with servings, time, estimated cost, title, description and highlighted on-offer ingredients.
+- Offers render in a secondary list grouped visually by item with store code, product name and discount/price label.
+
+Behavior:
+- Scheduled generation runs weekly at `RECIPES_DAY`/`RECIPES_TIME`, default Friday 18:00, refetches offers and sends ntfy.
+- Manual generation posts to `POST /recipes/generate`, reuses stored offers unless `refetch` is supplied, and also sends ntfy.
+- `GET /recipes` with JSON returns `week_key`, `generated_at`, `is_fallback`, `stores_fetched`, `stores_failed`, `recipes` and `offers`.
+- `GET /recipes/{recipe}` returns full recipe details: ingredients, steps and per-recipe shopping list.
+- `GET /recipes/offers` returns this week's stored offers.
+- If one store fails, the other store's offers remain available and `stores_failed` names the missing source.
+- If AI is unavailable, recipes are empty, offers remain shown and `is_fallback` is true.
+
+### Deals
+
+Tracks product prices across reviewed retailer matches.
+
+Behavior:
+- `POST /deals/products` adds a watched product by name and stores proposed unconfirmed listings returned by configured retailers.
+- `POST /deals/listings/{listing}/confirm` starts tracking a candidate listing.
+- `DELETE /deals/listings/{listing}` removes a wrong match.
+- `POST /deals/check` manually runs the same price check as the scheduled `deals:check-prices` command.
+- `GET /deals` returns watched products with listing prices, lowest price, confirmation state and last checked timestamp.
+- `GET /deals/products/{product}/history` returns price points per listing for future charting.
+- A failed retailer is skipped and logged; other retailers remain usable.
+
+### Entertainment
+
+Shows film recommendations, broad concerts and followed-artist music releases.
+
+Behavior:
+- `GET /entertainment` returns `films`, `concerts` and `music`.
+- `GET /entertainment/concerts` returns the broad concert list, including `relevance: none`.
+- `POST /entertainment/films/{film}/feedback` stores thumbs up/down taste feedback.
+- `POST /entertainment/films/{film}/dismiss` hides a film recommendation.
+- `GET/PUT /entertainment/taste` reads and updates the taste profile.
+- `POST /entertainment/refresh` refreshes films, concerts and music and sends due notifications.
+- Relevant concerts use `followed`, `hedon` or `might_like` badges; `none` remains browse-only and does not notify.
+
+### Planner
+
+Generates and accepts a weekly agenda plan from Google Calendar free/busy data.
+
+Behavior:
+- When Google Calendar is not connected, the page shows a connect state linking to `/planner/google/connect`.
+- `POST /planner/generate` manually regenerates a plan without ntfy.
+- `POST /planner/items/{item}/accept` inserts one proposed item into Google Calendar and stores `google_event_id`.
+- `POST /planner/accept-all` accepts all currently proposed items on the latest plan.
+- `POST /planner/items/{item}/reject` marks a proposed item rejected.
+- `GET/POST/PATCH/DELETE /planner/intentions` manages active planning intentions.
+- `GET /planner` returns `connected`, the latest `plan` and `intentions`.
+- Unplaceable items have null `start_at`/`end_at`, status `unplaceable` and an explanatory reason.

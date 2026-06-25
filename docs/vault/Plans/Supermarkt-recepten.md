@@ -6,8 +6,9 @@ shopping list, pushed every Friday evening. Front-end markup is out of scope
 (Claude Design later); this plan covers functional behaviour, UI states and the
 data/JSON contract.
 
-Status: spec ready. Build order: module 5. Depends on the shared `HubNotifier`
-(News plan), the shared hub AI config and **Prism**. See [Roadmap](../Roadmap.md).
+Status: implemented 2026-06-25. Build order: module 5. Depends on the shared
+`HubNotifier` (News plan), the shared hub AI config and **Prism**. See
+[Roadmap](../Roadmap.md).
 
 ---
 
@@ -74,8 +75,22 @@ Module `Modules/Recipes` (route `/recipes`, label "Recepten") — confirm name (
 | `is_fallback` | boolean | default false |
 | `created_at`/`updated_at` | timestamps | |
 
+### `recipe_runs`
+Implementation status row per week for UI/API state.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | bigint PK | |
+| `week_key` | string unique | |
+| `stores_fetched` | json null | successful store codes |
+| `stores_failed` | json null | failed store codes |
+| `ai_unavailable` | boolean | true when offers exist but AI generation failed |
+| `generated_at` | timestamp null | last generation attempt |
+| `created_at`/`updated_at` | timestamps | |
+
 ### Eloquent
-- `Modules\Recipes\Models\GroceryOffer`, `Modules\Recipes\Models\Recipe`.
+- `Modules\Recipes\Models\GroceryOffer`, `Modules\Recipes\Models\Recipe`,
+  `Modules\Recipes\Models\RecipeRun`.
 
 ---
 
@@ -109,7 +124,7 @@ return [
     'stores'         => ['ah', 'lidl'],
     'request_timeout'=> env('RECIPES_TIMEOUT', 15),
     'ai' => [
-        'model'      => env('RECIPES_MODEL', 'claude-sonnet-4-x'),
+        'model'      => env('RECIPES_MODEL', 'claude-sonnet-4-6'),
         'max_tokens' => env('RECIPES_MAX_TOKENS', 2000),
     ],
 ];
@@ -151,9 +166,15 @@ Route prefix `recipes.`, `/recipes`.
       "servings": 2,
       "time_minutes": 25,
       "estimated_cost": 6.40,
-      "on_offer_ingredients": ["kipfilet (AH)", "paprika (Lidl)"]
+      "ingredients": [],
+      "steps": [],
+      "shopping_list": [],
+      "on_offer_ingredients": ["kipfilet (AH)", "paprika (Lidl)"],
+      "model": "claude-sonnet-4-6",
+      "is_fallback": false
     }
-  ]
+  ],
+  "offers": []
 }
 ```
 - `GET /recipes/{recipe}` — full detail: ingredients, steps, shopping_list.
@@ -181,11 +202,11 @@ JSON via `RecipeResource` / `OfferResource`.
 
 ## 9. Acceptance criteria
 
-- [ ] Every Friday 18:00, AH + Lidl offers are fetched and 4–5 quick recipes (1–2 servings) are generated with shopping lists, then pushed via ntfy.
-- [ ] A failing store degrades gracefully; recipes still generate from the available offers.
-- [ ] When AI is unavailable, offers are still stored and shown; the state is flagged.
-- [ ] JSON contracts match §7.
-- [ ] All new tests pass via `composer test`.
+- [x] Every Friday 18:00, AH + Lidl offers are fetched and 4–5 quick recipes (1–2 servings) are generated with shopping lists, then pushed via ntfy.
+- [x] A failing store degrades gracefully; recipes still generate from the available offers.
+- [x] When AI is unavailable, offers are still stored and shown; the state is flagged.
+- [x] JSON contracts match §7.
+- [x] All new tests pass via `composer test`.
 
 ---
 

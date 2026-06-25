@@ -5,8 +5,8 @@ maintenance tasks** to the existing `Modules/Tasks` module (not a new module).
 Front-end markup is out of scope (Claude Design later); this plan covers
 functional behaviour, UI states and the data/JSON contract.
 
-Status: spec ready. Build order: module 3. Depends on the shared `HubNotifier`
-(News plan). See [Roadmap](../Roadmap.md).
+Status: implemented 2026-06-25. Build order: module 3. Depends on the shared
+`HubNotifier` (News plan). See [Roadmap](../Roadmap.md).
 
 ---
 
@@ -147,8 +147,19 @@ Route prefix `tasks.`, under `/tasks`.
       "id": 7,
       "title": "Sporten",
       "cadence_type": "times_per_week",
-      "cadence_label": "3× per week",
-      "period_progress": { "done": 2, "target": 3, "period": "2026-W26" },
+      "description": "",
+      "cadence_config": { "times": 3 },
+      "notify": true,
+      "active": true,
+      "next_due_on": null,
+      "last_materialized_on": null,
+      "progress": {
+        "period_key": "2026-W26",
+        "completed": 2,
+        "target": 3,
+        "is_complete": false,
+        "percentage": 67
+      },
       "current_streak": 4,
       "best_streak": 9,
       "completed_today": true
@@ -157,7 +168,7 @@ Route prefix `tasks.`, under `/tasks`.
 }
 ```
 - `POST /tasks/habits/{recurrence}/complete` (body optional `{ "date": "2026-06-24" }`) → updated habit object.
-- `DELETE /tasks/habits/{recurrence}/complete` (today's, or `?date=`) → updated habit object.
+- `DELETE /tasks/habits/{recurrence}/complete` (today's, or optional `date`) → updated habit object.
 - `GET /tasks/maintenance` (JSON) — maintenance recurrences with `next_due_on`, cadence, last completed.
 - `POST /tasks/recurrences`, `PATCH /tasks/recurrences/{recurrence}`, `DELETE /tasks/recurrences/{recurrence}` — manage habits + maintenance (FE built later).
 - Maintenance cards appear via the existing board state endpoint; the `TaskBoardStateResource` is extended to expose `recurrence_id` / an `is_maintenance` flag on cards.
@@ -185,12 +196,12 @@ All JSON via Resources (extend/add `HabitResource`, `RecurrenceResource`).
 
 ## 10. Acceptance criteria
 
-- [ ] A "Gewoontes" section exposes habits with per-cadence progress + smart streaks via the §8 contract.
-- [ ] Habits can be created/updated/deleted and completed/undone per period.
-- [ ] Due maintenance materializes a board card + ntfy and auto-reschedules on completion.
-- [ ] `TasksBriefingSource` contributes top tasks + today's habits to the Daily Briefing.
-- [ ] New migrations are additive; existing Tasks behaviour and tests are unaffected.
-- [ ] All new + existing tests pass via `composer test`.
+- [x] A "Gewoontes" section exposes habits with per-cadence progress + smart streaks via the §8 contract.
+- [x] Habits can be created/updated/deleted and completed/undone per period.
+- [x] Due maintenance materializes a board card + ntfy and auto-reschedules on completion.
+- [x] `TasksBriefingSource` contributes top tasks + today's habits to the Daily Briefing.
+- [x] New migrations are additive; existing Tasks behaviour and tests are unaffected.
+- [x] All new + existing tests pass via `composer test`.
 
 ---
 

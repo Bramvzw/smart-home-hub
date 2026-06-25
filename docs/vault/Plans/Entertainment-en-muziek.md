@@ -6,7 +6,7 @@ relevance for pushes), and **new music** (releases from Spotify-followed artists
 Front-end markup is out of scope (Claude Design later); this plan covers
 functional behaviour, UI states and the data/JSON contract.
 
-Status: spec ready. Build order: module 7 (after Dealtracker per roadmap; this is
+Status: implemented 2026-06-25. Build order: module 7 (after Dealtracker per roadmap; this is
 the most integration-heavy module). Depends on the shared `HubNotifier`, the
 shared hub AI config, **Prism**, and the existing **Spotify module**. See
 [Roadmap](../Roadmap.md).
@@ -210,11 +210,11 @@ JSON via Resources.
 
 ## 10. Acceptance criteria
 
-- [ ] Films section shows AI-curated, taste-aware picks across cinema/Netflix/Prime with a Dutch "why" and thumbs feedback.
-- [ ] Concerts list is broad (Hedon + NL); only relevant concerts (followed/Hedon/might-like) trigger ntfy.
-- [ ] New followed-artist releases (albums + singles) trigger ntfy per the bundling rule.
-- [ ] Sources are resilient; one failing provider does not break the others.
-- [ ] JSON contracts match §8; all new tests pass via `composer test`.
+- [x] Films section shows AI-curated, taste-aware picks across cinema/Netflix/Prime with a Dutch "why" and thumbs feedback.
+- [x] Concerts list is broad (Hedon + NL); only relevant concerts (followed/Hedon/might-like) trigger ntfy.
+- [x] New followed-artist releases (albums + singles) trigger ntfy per the bundling rule.
+- [x] Sources are resilient; one failing provider does not break the others.
+- [x] JSON contracts match §8; all new tests pass via `composer test`.
 
 ---
 

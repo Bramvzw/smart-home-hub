@@ -4,7 +4,7 @@ Codex-ready implementation spec for the **News** module. Front-end markup is out
 of scope (built later with Claude Design); this plan defines functional
 behaviour, UI states and the data/JSON contract the front-end will consume.
 
-Status: spec ready. Build order: module 1. See [Roadmap](../Roadmap.md).
+Status: implemented 2026-06-25. Build order: module 1. See [Roadmap](../Roadmap.md).
 
 ---
 
@@ -106,12 +106,12 @@ return [
     // feed URLs to VERIFY at build time (feeds move)
     'feeds' => [
         ['key' => 'hackaday',     'topic' => '3d-printing', 'label' => 'Hackaday',       'url' => 'https://hackaday.com/blog/feed/'],
-        ['key' => 'all3dp',       'topic' => '3d-printing', 'label' => 'All3DP',         'url' => 'https://all3dp.com/feed/'],
-        ['key' => 'laravel-news', 'topic' => 'dev',         'label' => 'Laravel News',   'url' => 'https://laravel-news.com/feed'],
-        ['key' => 'php-watch',    'topic' => 'dev',         'label' => 'PHP.Watch',      'url' => 'https://php.watch/feed/changelog'],
+        ['key' => 'prusa-blog',   'topic' => '3d-printing', 'label' => 'Prusa Blog',     'url' => 'https://blog.prusa3d.com/feed/'],
+        ['key' => 'laravel-news', 'topic' => 'dev',         'label' => 'Laravel News',   'url' => 'https://feed.laravel-news.com/'],
+        ['key' => 'stitcher',     'topic' => 'dev',         'label' => 'Stitcher.io',    'url' => 'https://stitcher.io/rss'],
         ['key' => 'sbs',          'topic' => 'fitness',     'label' => 'Stronger by Science', 'url' => 'https://www.strongerbyscience.com/feed/'],
+        ['key' => 'gardeners-world-nl', 'topic' => 'gardening', 'label' => 'Gardeners World NL', 'url' => 'https://www.gardenersworldmagazine.nl/feed/'],
         ['key' => 'nintendolife', 'topic' => 'switch2',     'label' => 'Nintendo Life',  'url' => 'https://www.nintendolife.com/feeds/latest'],
-        // gardening (NL) feed to choose at build time
     ],
 
     'keywords' => ['Bambu', 'Bambu firmware', 'Laravel', 'PHP 8', 'Switch 2'],
@@ -217,6 +217,8 @@ JSON shapes go through a `Modules\News\Http\Resources\NewsItemResource` (per the
 - **A3** ✅ Default keywords: `Bambu`, `Bambu firmware`, `Laravel`, `PHP 8`, `Switch 2`.
 - **A4** ✅ Defaults: refresh 30 min, 6 items/topic, 7-day retention.
 - **A5** ✅ Introduce a shared `HubNotifier` now; migrating Weather to it is a separate follow-up task (not in this plan).
+
+Implementation note 2026-06-25: feed URLs were verified during build. All3DP returned Cloudflare `403`, `php.watch/feed/changelog` returned `404`, and the gardening feed was set to Gardeners World NL.
 
 ---
 

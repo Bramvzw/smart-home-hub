@@ -5,7 +5,7 @@ Dutch morning digest that aggregates the other modules. Front-end markup is out
 of scope (Claude Design later); this plan covers functional behaviour, UI states
 and the data/JSON contract.
 
-Status: spec ready. Build order: module 2. Depends on the shared `HubNotifier`
+Status: implemented 2026-06-25. Build order: module 2. Depends on the shared `HubNotifier`
 (introduced by the [News plan](Nieuws.md)) and on Prism. See [Roadmap](../Roadmap.md).
 
 ---
@@ -113,7 +113,7 @@ Module `Modules/Briefing`. Table `briefings`:
 ## 6. Prism integration
 
 - `BriefingComposer` uses **Prism** to call Claude. Config (`Modules/Briefing/config/config.php`):
-  - `model` (default a current capable Claude model, e.g. `claude-sonnet-4-x` — confirm exact id at build), `max_tokens`, `temperature`.
+  - `model` (default `claude-sonnet-4-6`, verified against Anthropic model docs on 2026-06-25), `max_tokens`, `temperature`.
   - System prompt: Dutch, informal, friendly, medium length; one short paragraph per provided section; never invent data not in the input.
   - The user/content message is the structured `sections` data (JSON) + instructions.
 - Prism is mockable; tests fake the LLM response. Anthropic key in env (shared hub AI config — see assumption B4).
@@ -130,7 +130,7 @@ return [
     'tone'            => 'informal',
     'length'          => 'medium',
     'ai' => [
-        'model'       => env('BRIEFING_MODEL', 'claude-sonnet-4-x'),
+        'model'       => env('BRIEFING_MODEL', 'claude-sonnet-4-6'),
         'max_tokens'  => env('BRIEFING_MAX_TOKENS', 700),
         'temperature' => env('BRIEFING_TEMPERATURE', 0.5),
     ],
@@ -214,6 +214,8 @@ Goes through a `BriefingResource`.
 - **B2** ✅ Manual regenerate **only refreshes the dashboard** — it does NOT re-send ntfy (avoids double pushes).
 - **B3** ✅ Keep the last **14** days of briefings; prune older on generate.
 - **B4** ✅ Anthropic API key lives in a **shared hub AI config** (env), reused by all AI modules (not per-module keys). This is the canonical AI-config decision for all future AI-module plans.
+
+Implementation note 2026-06-25: shared AI config was added as `config/ai.php` with `HUB_AI_ANTHROPIC_API_KEY`. Manual regenerate uses `push = false`; scheduled generation uses `push = true`.
 
 ## 14. Out of scope
 
