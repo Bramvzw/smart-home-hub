@@ -6,7 +6,7 @@ an ntfy on every price drop. Front-end markup is out of scope (Claude Design
 later); this plan covers functional behaviour, UI states and the data/JSON
 contract.
 
-Status: spec ready. Build order: module 6 (per roadmap). Depends on the shared
+Status: implemented 2026-06-25. Build order: module 6 (per roadmap). Depends on the shared
 `HubNotifier`. See [Roadmap](../Roadmap.md).
 
 ---
@@ -176,11 +176,11 @@ JSON via Resources.
 
 ## 9. Acceptance criteria
 
-- [ ] Add a product by name → review proposed matches per retailer → confirm → tracking starts.
-- [ ] Prices checked a few times/day with a stored history; lowest-ever maintained.
-- [ ] Every drop pushes an ntfy with old→new price, lowest-ever, retailer and buy link.
-- [ ] Retailers are resilient; bol.com is the reliable v1 source, others best-effort.
-- [ ] JSON contracts match §7; all new tests pass via `composer test`.
+- [x] Add a product by name → review proposed matches per retailer → confirm → tracking starts.
+- [x] Prices checked a few times/day with a stored history; lowest-ever maintained.
+- [x] Every drop pushes an ntfy with old→new price, lowest-ever, retailer and buy link.
+- [x] Retailers are resilient; bol.com is the reliable v1 source, others best-effort.
+- [x] JSON contracts match §7; all new tests pass via `composer test`.
 
 ---
 
