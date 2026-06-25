@@ -1,0 +1,22 @@
+{
+  "bonusPage": {
+    "bonusGroups": [
+      {
+        "products": [
+          {
+            "id": "ah-kipfilet",
+            "title": "Kipfilet",
+            "category": "Vlees",
+            "priceBeforeBonus": 5.99,
+            "priceAfterBonus": 3.99,
+            "bonusMechanism": "35% korting",
+            "salesUnitSize": "300 g",
+            "images": [{"url": "https://example.com/kip.jpg"}],
+            "validFrom": "2026-06-23",
+            "validTo": "2026-06-29"
+          }
+        ]
+      }
+    ]
+  }
+}
