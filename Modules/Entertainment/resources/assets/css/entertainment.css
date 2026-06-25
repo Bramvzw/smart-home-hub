@@ -1,0 +1,489 @@
+/* ============================================================
+   Smart Home Hub — Entertainment & muziek
+   Films (AI-gecureerd op smaak) · Concerten (Hedon Zwolle + NL) ·
+   Nieuwe muziek (releases van gevolgde Spotify-artiesten).
+   Dark, calm, functional. Amber accent. No glass/gradient slop.
+   Module page that lives RIGHT of a fixed sidebar (sidebar not drawn here).
+   Sits alongside the Kanban board / Recepten / Nieuws / 3D-printer modules.
+   ============================================================ */
+
+@import url("https://fonts.bunny.net/css?family=hanken-grotesk:400,500,600,700&family=space-grotesk:500,600,700");
+
+.ent {
+  /* ---- Surfaces ---- */
+  --bg:          #0d0e12;
+  --surface:     #0f1015;
+  --card:        #1a1c23;
+  --card-hover:  #20222b;
+  --skeleton:    #1c1e26;
+
+  /* ---- Lines ---- */
+  --line:        rgba(255, 255, 255, 0.07);
+  --line-2:      rgba(255, 255, 255, 0.11);
+  --line-strong: rgba(255, 255, 255, 0.15);
+
+  /* ---- Text ---- */
+  --tx-1: #e9eaef;
+  --tx-2: #a4a7b4;
+  --tx-3: #6b6e7c;
+  --tx-4: #565965;
+
+  /* ---- Accent: amber ---- */
+  --accent:      oklch(0.82 0.13 62);          /* ~#e0a44e */
+  --accent-h:    oklch(0.87 0.13 62);
+  --accent-soft: oklch(0.82 0.13 62 / 0.14);
+  --accent-line: oklch(0.82 0.13 62 / 0.42);
+  --accent-ink:  #2a1d09;                       /* dark text on accent */
+
+  /* ---- Status ---- */
+  --ok:     #54b896;
+  --ok-soft: rgba(84, 184, 150, 0.14);
+  --ok-line: rgba(84, 184, 150, 0.4);
+  --danger: #e0575c;
+  --danger-soft: rgba(224, 87, 92, 0.13);
+  --danger-line: rgba(224, 87, 92, 0.4);
+  --info:   #4eb0e6;
+  --info-soft: rgba(78, 176, 230, 0.14);
+  --info-line: rgba(78, 176, 230, 0.4);
+
+  /* ---- Platform / relevance hues (kept in the palette's chroma) ---- */
+  --bios:      oklch(0.82 0.13 62);            /* amber  — in de bios */
+  --bios-soft: oklch(0.82 0.13 62 / 0.14);
+  --bios-line: oklch(0.82 0.13 62 / 0.42);
+  --netflix:      oklch(0.66 0.15 22);         /* rood   — Netflix */
+  --netflix-soft: oklch(0.66 0.15 22 / 0.15);
+  --netflix-line: oklch(0.66 0.15 22 / 0.42);
+  --prime:      oklch(0.72 0.12 235);          /* blauw  — Prime Video */
+  --prime-soft: oklch(0.72 0.12 235 / 0.15);
+  --prime-line: oklch(0.72 0.12 235 / 0.42);
+  --spotify:      oklch(0.74 0.15 150);        /* groen  — Spotify */
+  --spotify-soft: oklch(0.74 0.15 150 / 0.15);
+  --spotify-line: oklch(0.74 0.15 150 / 0.42);
+
+  /* ---- Type / radii / motion ---- */
+  --disp: "Space Grotesk", system-ui, sans-serif;
+  --font: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --r-lg: 16px; --r-md: 11px; --r-sm: 8px; --r-pill: 999px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Layout ---- */
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--tx-1);
+  font-family: var(--font);
+  font-feature-settings: "tnum" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ent *, .ent *::before, .ent *::after { box-sizing: border-box; }
+.ent button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+.ent input { font-family: inherit; }
+.ent .tnum { font-variant-numeric: tabular-nums; }
+.ent .disp { font-family: var(--disp); letter-spacing: -0.02em; }
+
+.ent-wrap { max-width: 1240px; margin: 0 auto; padding: 30px 40px 46px; }
+
+/* ============================================================
+   Page header
+   ============================================================ */
+.ent-head { display: flex; align-items: flex-end; gap: 22px; padding-bottom: 20px; }
+.ent-head-l { min-width: 0; }
+.ent-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  font-size: 11.5px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--tx-3);
+}
+.ent-eyebrow .ic { color: var(--accent); }
+.ent-title { font-family: var(--disp); font-size: 34px; font-weight: 600; line-height: 1; margin: 12px 0 0; }
+.ent-sub { font-size: 14px; color: var(--tx-2); margin-top: 11px; }
+.ent-sub b { color: var(--tx-1); font-weight: 600; }
+.ent-sub .acc { color: var(--accent); font-weight: 600; }
+.ent-sub .warn { color: var(--danger); font-weight: 600; }
+.ent-sub .dot { color: var(--tx-4); margin: 0 3px; }
+
+.ent-head-r { margin-left: auto; display: flex; align-items: center; gap: 9px; flex: none; }
+
+/* spotify connection pill in the header */
+.ent-conn {
+  display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 13px;
+  border-radius: var(--r-pill); font-size: 12.5px; font-weight: 600;
+  border: 1px solid var(--line); background: var(--surface); color: var(--tx-2);
+}
+.ent-conn .dot-led { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.ent-conn.on  { color: var(--tx-1); }
+.ent-conn.on  .dot-led { background: var(--spotify); box-shadow: 0 0 0 3px var(--spotify-soft); }
+.ent-conn.off { color: var(--tx-3); }
+.ent-conn.off .dot-led { background: var(--tx-4); }
+
+.ent-btn {
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  height: 38px; padding: 0 15px; border-radius: var(--r-sm);
+  font-size: 13.5px; font-weight: 600; transition: all 130ms var(--ease);
+}
+.ent-btn-ghost { color: var(--tx-2); border: 1px solid var(--line); background: var(--surface); }
+.ent-btn-ghost:hover { border-color: var(--line-strong); color: var(--tx-1); background: var(--card); }
+.ent-btn-ghost:disabled { opacity: 0.4; cursor: default; }
+.ent-btn-primary { background: var(--accent); color: var(--accent-ink); }
+.ent-btn-primary:hover { background: var(--accent-h); }
+.ent-btn-primary:active { transform: translateY(1px); }
+.ent-btn-primary:disabled { opacity: 0.55; cursor: default; transform: none; }
+.ent-btn-spotify { background: var(--spotify); color: #08110c; }
+.ent-btn-spotify:hover { filter: brightness(1.08); }
+.ent-btn-spotify:active { transform: translateY(1px); }
+.ent-btn .ic.spin { animation: ent-spin 0.9s linear infinite; }
+@keyframes ent-spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Module tabs — Films · Concerten · Nieuwe muziek
+   ============================================================ */
+.ent-tabs {
+  display: flex; align-items: center; gap: 2px;
+  border-bottom: 1px solid var(--line); margin-bottom: 24px;
+}
+.ent-tab {
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  padding: 11px 14px 13px; margin-bottom: -1px;
+  font-size: 14px; font-weight: 600; color: var(--tx-3);
+  border-bottom: 2px solid transparent; transition: color 120ms var(--ease);
+}
+.ent-tab .ic { color: var(--tx-4); transition: color 120ms var(--ease); }
+.ent-tab:hover { color: var(--tx-2); }
+.ent-tab:hover .ic { color: var(--tx-3); }
+.ent-tab.on { color: var(--tx-1); border-bottom-color: var(--accent); }
+.ent-tab.on .ic { color: var(--accent); }
+.ent-tab-count {
+  font-size: 11.5px; font-weight: 700; color: var(--tx-3);
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--r-pill); padding: 1px 8px; min-width: 22px; text-align: center;
+}
+.ent-tab.on .ent-tab-count { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.ent-tab .lock { color: var(--tx-4); margin-left: 1px; }
+
+/* ============================================================
+   Shared: section sub-strip ("waarom je dit ziet")
+   ============================================================ */
+.ent-strip {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 13px 16px; margin-bottom: 22px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+  font-size: 13px; color: var(--tx-2);
+}
+.ent-strip .ic { color: var(--accent); flex: none; }
+.ent-strip b { color: var(--tx-1); font-weight: 600; }
+.ent-strip-time { margin-left: auto; font-size: 12px; color: var(--tx-3); white-space: nowrap; }
+.ent-strip-time b { color: var(--tx-2); font-weight: 600; }
+
+/* ============================================================
+   FILMS — grid + taste profile rail
+   ============================================================ */
+.ent-films { display: grid; grid-template-columns: 1fr 322px; gap: 22px; align-items: start; }
+@media (max-width: 1040px) { .ent-films { grid-template-columns: 1fr; } }
+
+.ent-film-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 720px) { .ent-film-grid { grid-template-columns: 1fr; } }
+
+.ent-film {
+  display: flex; gap: 0; text-align: left; width: 100%;
+  border-radius: var(--r-lg); overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line);
+  transition: border-color 130ms var(--ease), background 130ms var(--ease);
+}
+.ent-film:hover { border-color: var(--line-2); background: #101218; }
+
+/* poster — striped placeholder + dish/film glyph, drop real art later */
+.ent-poster {
+  position: relative; width: 116px; flex: none; align-self: stretch;
+  display: grid; place-items: center; overflow: hidden;
+  border-right: 1px solid var(--line);
+}
+.ent-poster::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 11px),
+    var(--card);
+}
+.ent-poster .ic { position: relative; z-index: 1; color: var(--tx-3); }
+.ent-poster-cap {
+  position: absolute; left: 0; right: 0; bottom: 9px; z-index: 1; text-align: center;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx-4);
+}
+.ent-match {
+  position: absolute; top: 9px; left: 9px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px;
+  border-radius: var(--r-pill); font-size: 11px; font-weight: 700;
+  background: rgba(13,14,18,0.78); color: var(--accent);
+  border: 1px solid var(--accent-line); backdrop-filter: blur(2px);
+}
+.ent-match .ic { color: var(--accent); }
+
+.ent-film-body { flex: 1; min-width: 0; padding: 15px 16px 14px; display: flex; flex-direction: column; gap: 9px; }
+.ent-film-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ent-film-name { font-family: var(--disp); font-size: 17px; font-weight: 600; color: var(--tx-1); line-height: 1.15; }
+.ent-film-year { font-size: 12.5px; color: var(--tx-3); font-weight: 600; }
+.ent-film-genre {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: var(--tx-3);
+}
+.ent-pitch { font-size: 13px; line-height: 1.5; color: var(--tx-2); }
+.ent-pitch .why { color: var(--accent); font-weight: 600; }
+
+.ent-avail { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1px; }
+.ent-plat {
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px;
+  border-radius: var(--r-pill); font-size: 11.5px; font-weight: 600; color: var(--tx-2);
+  background: var(--card); border: 1px solid var(--line);
+}
+.ent-plat .dot-led { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.ent-plat.bios    .dot-led { background: var(--bios); }
+.ent-plat.netflix .dot-led { background: var(--netflix); }
+.ent-plat.prime   .dot-led { background: var(--prime); }
+.ent-plat.bios    { color: var(--bios); border-color: var(--bios-line); background: var(--bios-soft); }
+
+.ent-film-foot {
+  display: flex; align-items: center; gap: 8px; margin-top: auto;
+  padding-top: 12px; border-top: 1px solid var(--line);
+}
+.ent-film-foot-lab { font-size: 12px; color: var(--tx-3); }
+.ent-rate { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.ent-thumb {
+  width: 32px; height: 32px; flex: none; border-radius: var(--r-sm);
+  display: grid; place-items: center; color: var(--tx-3);
+  border: 1px solid var(--line); background: var(--card); transition: all 120ms var(--ease);
+}
+.ent-thumb:hover { border-color: var(--line-strong); color: var(--tx-1); }
+.ent-thumb.up.on   { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.ent-thumb.down.on { color: #fff; background: var(--danger); border-color: var(--danger); }
+
+/* ----- taste profile panel ----- */
+.ent-taste {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 18px 19px 19px; position: sticky; top: 0;
+}
+.ent-taste-head { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+.ent-taste-head .ic { color: var(--accent); }
+.ent-taste-title { font-family: var(--disp); font-size: 16px; font-weight: 600; color: var(--tx-1); }
+.ent-taste-note { font-size: 12.5px; line-height: 1.5; color: var(--tx-3); margin: 0 0 16px; }
+.ent-taste-lab {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 11px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tx-4);
+}
+.ent-taste-lab .rule { flex: 1; height: 1px; background: var(--line); }
+.ent-genres { display: flex; flex-wrap: wrap; gap: 7px; }
+.ent-genre {
+  height: 30px; padding: 0 12px; border-radius: var(--r-pill);
+  font-size: 12.5px; font-weight: 600; color: var(--tx-2);
+  background: var(--card); border: 1px solid var(--line); transition: all 120ms var(--ease);
+}
+.ent-genre:hover { border-color: var(--line-strong); color: var(--tx-1); }
+.ent-genre.on { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
+.ent-genre.add { color: var(--tx-3); border-style: dashed; display: inline-flex; align-items: center; gap: 5px; }
+.ent-genre.add:hover { color: var(--tx-1); border-color: var(--tx-3); }
+
+.ent-fav-list { display: flex; flex-direction: column; margin-top: 2px; }
+.ent-fav {
+  display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line);
+}
+.ent-fav:first-child { border-top: none; padding-top: 2px; }
+.ent-fav .ic { color: var(--tx-4); flex: none; }
+.ent-fav-name { flex: 1; font-size: 13px; color: var(--tx-1); }
+.ent-fav-x { color: var(--tx-4); opacity: 0; transition: all 120ms var(--ease); }
+.ent-fav:hover .ent-fav-x { opacity: 1; }
+.ent-fav-x:hover { color: var(--danger); }
+.ent-fav-add {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  margin-top: 11px; height: 36px; padding: 0 12px; border-radius: var(--r-sm);
+  font-size: 13px; font-weight: 600; color: var(--tx-3);
+  border: 1px dashed var(--line-strong); background: transparent; transition: all 120ms var(--ease);
+}
+.ent-fav-add:hover { color: var(--tx-1); border-color: var(--tx-3); }
+
+/* ============================================================
+   CONCERTEN — broad list
+   ============================================================ */
+.ent-concerts {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); overflow: hidden;
+}
+.ent-clist { display: flex; flex-direction: column; }
+.ent-crow {
+  display: flex; align-items: center; gap: 16px; padding: 15px 18px;
+  border-top: 1px solid var(--line); transition: background 110ms var(--ease);
+}
+.ent-crow:first-child { border-top: none; }
+.ent-crow:hover { background: var(--card); }
+.ent-cdate {
+  flex: none; width: 56px; text-align: center; border-right: 1px solid var(--line); padding-right: 16px;
+}
+.ent-cdate .day { font-family: var(--disp); font-size: 22px; font-weight: 600; color: var(--tx-1); line-height: 1; }
+.ent-cdate .mon { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--tx-3); margin-top: 4px; }
+.ent-cdate .dow { font-size: 10.5px; color: var(--tx-4); margin-top: 2px; }
+.ent-cbody { flex: 1; min-width: 0; }
+.ent-cartist { font-family: var(--disp); font-size: 17px; font-weight: 600; color: var(--tx-1); line-height: 1.2; }
+.ent-cvenue {
+  display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--tx-2); margin-top: 4px; flex-wrap: wrap;
+}
+.ent-cvenue .ic { color: var(--tx-4); flex: none; }
+.ent-cvenue .city { color: var(--tx-3); }
+.ent-cvenue .sep { color: var(--tx-4); }
+.ent-cvenue .sold { color: var(--danger); font-weight: 600; }
+.ent-crow-r { flex: none; display: flex; align-items: center; gap: 14px; }
+
+/* relevance badge */
+.ent-rel {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 11px;
+  border-radius: var(--r-pill); font-size: 11.5px; font-weight: 700; letter-spacing: 0.01em;
+}
+.ent-rel .ic { flex: none; }
+.ent-rel.gevolgd   { color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent-line); }
+.ent-rel.hedon     { color: var(--info);   background: var(--info-soft);   border: 1px solid var(--info-line); }
+.ent-rel.misschien { color: var(--tx-3);   background: var(--card);        border: 1px solid var(--line); }
+.ent-cgo {
+  width: 32px; height: 32px; border-radius: var(--r-sm); display: grid; place-items: center;
+  color: var(--tx-4); border: 1px solid var(--line); background: var(--card); transition: all 120ms var(--ease);
+}
+.ent-crow:hover .ent-cgo { color: var(--tx-2); border-color: var(--line-strong); }
+.ent-cgo:hover { color: var(--accent) !important; border-color: var(--accent-line) !important; }
+
+/* filter chips above the list */
+.ent-filters { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.ent-filter {
+  display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 13px;
+  border-radius: var(--r-pill); font-size: 12.5px; font-weight: 600; color: var(--tx-3);
+  background: var(--surface); border: 1px solid var(--line); transition: all 120ms var(--ease);
+}
+.ent-filter .ic { color: var(--tx-4); }
+.ent-filter:hover { color: var(--tx-1); border-color: var(--line-strong); }
+.ent-filter.on { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
+.ent-filter.on .ic { color: var(--accent); }
+.ent-filter-count { font-size: 11px; font-weight: 700; color: var(--tx-4); }
+.ent-filter.on .ent-filter-count { color: var(--accent); }
+
+/* ============================================================
+   NIEUWE MUZIEK — release grid
+   ============================================================ */
+.ent-music { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 980px) { .ent-music { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 680px) { .ent-music { grid-template-columns: repeat(2, 1fr); } }
+
+.ent-release { display: flex; flex-direction: column; gap: 11px; text-align: left; width: 100%; }
+.ent-cover {
+  position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: var(--r-md); overflow: hidden;
+  border: 1px solid var(--line); display: grid; place-items: center;
+  transition: border-color 130ms var(--ease), transform 130ms var(--ease);
+}
+.ent-cover::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 11px),
+    var(--card);
+}
+.ent-cover .ic { position: relative; z-index: 1; color: var(--tx-3); transition: color 130ms var(--ease); }
+.ent-release:hover .ent-cover { border-color: var(--line-strong); }
+.ent-release:hover .ent-cover .ic { color: var(--tx-2); }
+.ent-cover-play {
+  position: absolute; right: 9px; bottom: 9px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink);
+  opacity: 0; transform: translateY(4px); transition: all 150ms var(--ease);
+}
+.ent-release:hover .ent-cover-play { opacity: 1; transform: translateY(0); }
+.ent-cover-play:hover { background: var(--accent-h); }
+.ent-cover-cap {
+  position: absolute; left: 0; right: 0; bottom: 9px; z-index: 1; text-align: center;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx-4);
+}
+.ent-rel-meta { display: flex; align-items: center; gap: 8px; }
+.ent-type {
+  display: inline-flex; align-items: center; height: 19px; padding: 0 8px; border-radius: var(--r-pill);
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--tx-3); background: var(--card); border: 1px solid var(--line);
+}
+.ent-type.album  { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
+.ent-date { font-size: 12px; color: var(--tx-3); }
+.ent-date.today { color: var(--spotify); font-weight: 600; }
+.ent-rel-title { font-family: var(--disp); font-size: 15px; font-weight: 600; color: var(--tx-1); line-height: 1.25; }
+.ent-rel-artist {
+  display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--tx-2); margin-top: 2px;
+}
+.ent-rel-artist .dot-led { width: 5px; height: 5px; border-radius: 50%; background: var(--spotify); flex: none; }
+
+/* ============================================================
+   Spotify-prompt (concerten / muziek niet gekoppeld)
+   ============================================================ */
+.ent-spotify {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: 60px 28px; border: 1px dashed var(--line-2); border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.ent-spotify-ico {
+  width: 60px; height: 60px; border-radius: 17px; display: grid; place-items: center;
+  background: var(--spotify-soft); border: 1px solid var(--spotify-line); color: var(--spotify);
+  margin-bottom: 20px;
+}
+.ent-spotify-title { font-family: var(--disp); font-size: 21px; font-weight: 600; color: var(--tx-1); }
+.ent-spotify-sub { font-size: 14px; line-height: 1.6; color: var(--tx-2); margin-top: 10px; max-width: 46ch; }
+.ent-spotify-sub b { color: var(--tx-1); font-weight: 600; }
+.ent-spotify-actions { margin-top: 24px; display: flex; gap: 10px; }
+.ent-spotify-note {
+  margin-top: 22px; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12.5px; color: var(--tx-3); padding: 7px 13px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--r-pill);
+}
+.ent-spotify-note .ic { color: var(--tx-4); }
+
+/* ============================================================
+   Big states: leeg / fout
+   ============================================================ */
+.ent-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: 66px 24px; border: 1px dashed var(--line-2); border-radius: var(--r-lg);
+  background: var(--surface);
+}
+.ent-state-ico {
+  width: 56px; height: 56px; border-radius: 15px; display: grid; place-items: center;
+  background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent); margin-bottom: 19px;
+}
+.ent-state.err .ent-state-ico { color: var(--danger); border-color: var(--danger-line); background: var(--danger-soft); }
+.ent-state-title { font-family: var(--disp); font-size: 21px; font-weight: 600; color: var(--tx-1); }
+.ent-state-sub { font-size: 14px; line-height: 1.55; color: var(--tx-2); margin-top: 9px; max-width: 48ch; }
+.ent-state-actions { margin-top: 24px; display: flex; gap: 10px; }
+
+/* ============================================================
+   Skeletons (laden)
+   ============================================================ */
+.ent-sk { border-radius: 6px; background: var(--skeleton); position: relative; overflow: hidden; display: block; }
+.ent-sk::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: translateX(-100%); animation: ent-shimmer 1.3s infinite;
+}
+@keyframes ent-shimmer { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .ent-sk::after { animation: none; } }
+
+.ent-load-banner {
+  display: flex; align-items: center; gap: 13px;
+  padding: 14px 16px; margin-bottom: 22px; border-radius: var(--r-md);
+  background: var(--accent-soft); border: 1px solid var(--accent-line);
+}
+.ent-load-banner .ic { color: var(--accent); animation: ent-spin 0.9s linear infinite; flex: none; }
+.ent-load-tx { font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.ent-load-sub { font-size: 12.5px; color: var(--tx-2); margin-top: 2px; }
+
+/* film skeleton */
+.ent-film-sk { display: flex; border-radius: var(--r-lg); overflow: hidden; background: var(--surface); border: 1px solid var(--line); }
+.ent-film-sk .pos { width: 116px; flex: none; background: var(--skeleton); position: relative; overflow: hidden; }
+.ent-film-sk .pos::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: translateX(-100%); animation: ent-shimmer 1.3s infinite;
+}
+.ent-film-sk .bod { flex: 1; padding: 15px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 150px; }
+
+/* concert / music row skeleton */
+.ent-crow-sk { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-top: 1px solid var(--line); }
+.ent-crow-sk:first-child { border-top: none; }
+.ent-release-sk { display: flex; flex-direction: column; gap: 11px; }
+.ent-release-sk .cov { width: 100%; aspect-ratio: 1/1; border-radius: var(--r-md); }
