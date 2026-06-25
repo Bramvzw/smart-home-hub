@@ -96,13 +96,30 @@ class PlannerController
 
     public function callback(Request $request, GoogleCalendarTokenService $tokens): RedirectResponse
     {
-        if ($request->query('state') !== $request->session()->get('google_calendar_oauth_state')) {
-            abort(403);
+        $expectedState = (string) $request->session()->pull('google_calendar_oauth_state', '');
+
+        if ($request->filled('error')) {
+            return redirect()->route('planner.index')
+                ->with('error', 'Google Calendar koppelen is afgebroken: '.$request->query('error'));
         }
 
-        $tokens->exchangeCode((string) $request->query('code'));
+        $state = (string) $request->query('state', '');
+        $code = (string) $request->query('code', '');
 
-        return redirect()->route('planner.index');
+        if ($expectedState === '' || ! hash_equals($expectedState, $state)) {
+            return redirect()->route('planner.index')
+                ->with('error', 'Google Calendar koppelen mislukt: ongeldige state.');
+        }
+
+        if ($code === '') {
+            return redirect()->route('planner.index')
+                ->with('error', 'Google Calendar koppelen mislukt: geen autorisatiecode ontvangen.');
+        }
+
+        $tokens->exchangeCode($code);
+
+        return redirect()->route('planner.index')
+            ->with('success', 'Google Calendar gekoppeld.');
     }
 
     private function validatedIntention(Request $request, bool $create = true): array
