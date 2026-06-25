@@ -9,7 +9,10 @@
             @if($modules->isNotEmpty())
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                     @foreach($modules as $module)
-                        @php $nav = $module->getNavigation()[0] ?? null; @endphp
+                        @php
+                            $nav = $module->getNavigation()[0] ?? null;
+                            $widget = $module->getDashboardWidget();
+                        @endphp
                         @if($nav)
                             <a href="{{ route($nav['route']) }}" class="hub-card group flex min-h-[118px] items-center gap-4 p-4">
                                 <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] bg-[var(--hub-accent-soft)] text-[var(--hub-accent)]">
@@ -20,7 +23,9 @@
                                 <div class="min-w-0 flex-1">
                                     <h3 class="truncate text-[15px] font-bold text-[var(--hub-text)]">{{ $module->getModuleName() }}</h3>
                                     <p class="mt-1 text-sm text-[var(--hub-dim)]">
-                                        @if($module->getModuleSlug() === 'spotify')
+                                        @if($widget !== null)
+                                            {{ $widget }}
+                                        @elseif($module->getModuleSlug() === 'spotify')
                                             Playback, queue and playlists.
                                         @elseif($module->getModuleSlug() === 'tasks')
                                             Boards, labels and todos.
