@@ -3,6 +3,7 @@
 namespace Modules\Weather\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use Modules\Weather\Briefing\WeatherBriefingSource;
 use Modules\Weather\Services\NtfyWeatherNotifier;
 
 class WeatherServiceProvider extends ModuleServiceProvider
@@ -20,6 +21,8 @@ class WeatherServiceProvider extends ModuleServiceProvider
             topic: (string) config('weather.ntfy.topic', ''),
             token: (string) config('weather.ntfy.token', ''),
         ));
+
+        $this->app->tag([WeatherBriefingSource::class], 'briefing.source');
     }
 
     public function getModuleName(): string
