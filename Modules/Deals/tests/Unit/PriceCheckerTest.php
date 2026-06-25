@@ -58,11 +58,34 @@ class PriceCheckerTest extends TestCase
         $this->assertFalse($result['dropped']);
         $this->assertSame('299.00', $listing->fresh()->lowest_price);
     }
+
+    public function test_garbage_price_resolving_to_null_never_registers_a_drop(): void
+    {
+        $product = WatchedProduct::query()->create(['name' => 'Bambu Lab AMS', 'query' => 'bambu lab ams']);
+        $listing = $product->listings()->create([
+            'retailer' => 'fake',
+            'external_id' => 'fake-1',
+            'title' => 'Bambu Lab AMS',
+            'url' => 'https://example.com',
+            'current_price' => 319,
+            'lowest_price' => 309,
+            'confirmed' => true,
+        ]);
+
+        // A garbage/missing retailer price is parsed to null upstream; the
+        // checker must skip it entirely rather than treat it as a 0 drop.
+        $result = (new PriceChecker([new FakeDealsRetailer(null)]))->check($listing);
+
+        $this->assertNull($result);
+        $this->assertSame('319.00', $listing->fresh()->current_price);
+        $this->assertSame('309.00', $listing->fresh()->lowest_price);
+        $this->assertDatabaseMissing('price_points', ['product_listing_id' => $listing->id]);
+    }
 }
 
 class FakeDealsRetailer implements RetailerAdapter
 {
-    public function __construct(private readonly float $price) {}
+    public function __construct(private readonly ?float $price) {}
 
     public function retailer(): string
     {

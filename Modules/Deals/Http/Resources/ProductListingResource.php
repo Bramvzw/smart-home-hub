@@ -4,6 +4,7 @@ namespace Modules\Deals\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Deals\Support\SafeUrl;
 
 class ProductListingResource extends JsonResource
 {
@@ -16,7 +17,7 @@ class ProductListingResource extends JsonResource
             'retailer' => $this->retailer,
             'external_id' => $this->external_id,
             'title' => $this->title,
-            'url' => $this->url,
+            'url' => SafeUrl::http($this->url),
             'current_price' => $this->current_price !== null ? (float) $this->current_price : null,
             'lowest_price' => $this->lowest_price !== null ? (float) $this->lowest_price : null,
             'confirmed' => $this->confirmed,

@@ -33,6 +33,21 @@ const esc = (s) =>
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 
+/* URL-scheme guard: retailer-supplied url/image_url is untrusted, so only
+   http(s) links may ever reach an href/src. Anything else (javascript:, data:,
+   relative/garbage) resolves to null and is dropped. */
+export const safeHttpUrl = (value) => {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (trimmed === '') return null;
+    try {
+        const parsed = new URL(trimmed);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? trimmed : null;
+    } catch {
+        return null;
+    }
+};
+
 const STORE_META = {
     bol: { label: 'bol.com', cls: 'bol' },
     amazon: { label: 'Amazon', cls: 'amazon' },
@@ -122,11 +137,21 @@ const loadSparklines = (root) => {
 };
 
 /* ---------------- review rendering (after add) ---------------- */
-const candidateCard = (listing) => `<div class="dt-cand" data-deals-cand="${esc(listing.id)}">
+const candidateCard = (listing) => {
+    const imageUrl = safeHttpUrl(listing.image_url);
+    const url = safeHttpUrl(listing.url);
+    const name = url
+        ? `<a class="dt-cand-name" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(listing.title)}</a>`
+        : `<div class="dt-cand-name">${esc(listing.title)}</div>`;
+    const thumb = imageUrl
+        ? `<img src="${esc(imageUrl)}" alt="${esc(listing.title)}" loading="lazy">`
+        : icon('Box', 20, 1.5, 'ic');
+
+    return `<div class="dt-cand" data-deals-cand="${esc(listing.id)}">
     <div class="dt-cand-top">
-        <div class="dt-cand-thumb">${icon('Box', 20, 1.5, 'ic')}</div>
+        <div class="dt-cand-thumb">${thumb}</div>
         <div class="dt-cand-main">
-            <div class="dt-cand-name">${esc(listing.title)}</div>
+            ${name}
             <div class="dt-cand-row">
                 ${listing.current_price != null ? `<span class="dt-cand-price tnum">${euro(listing.current_price)}</span>` : ''}
             </div>
@@ -137,8 +162,9 @@ const candidateCard = (listing) => `<div class="dt-cand" data-deals-cand="${esc(
         <button class="dt-cact remove" data-deals-remove>${icon('X', 14, 1.7)} Verwijderen</button>
     </div>
 </div>`;
+};
 
-const renderReview = (product) => {
+export const renderReview = (product) => {
     const listings = Array.isArray(product.listings) ? product.listings : [];
     const cols = ['bol', 'amazon', 'tweakers']
         .map((store) => {
@@ -200,7 +226,7 @@ const wireCandidate = (root, card) => {
     });
 };
 
-const initDeals = () => {
+export const initDeals = () => {
     const root = document.querySelector('[data-deals]');
     if (!root || root.dataset.dealsReady === 'true') {
         return;

@@ -9,6 +9,7 @@ use Modules\Deals\Actions\AddWatchedProduct;
 use Modules\Deals\Actions\CheckPrices;
 use Modules\Deals\Actions\ConfirmListing;
 use Modules\Deals\Actions\RemoveListing;
+use Modules\Deals\Http\Resources\ProductHistoryResource;
 use Modules\Deals\Http\Resources\WatchedProductResource;
 use Modules\Deals\Models\ProductListing;
 use Modules\Deals\Models\WatchedProduct;
@@ -53,22 +54,13 @@ class DealsController
         return response()->json(null, 204);
     }
 
-    public function history(WatchedProduct $product): JsonResponse
+    public function history(WatchedProduct $product, Request $request): JsonResponse
     {
         $product->load('listings.pricePoints');
 
-        return response()->json([
-            'product_id' => $product->id,
-            'listings' => $product->listings->map(fn (ProductListing $listing): array => [
-                'id' => $listing->id,
-                'retailer' => $listing->retailer,
-                'title' => $listing->title,
-                'price_points' => $listing->pricePoints->map(fn ($point): array => [
-                    'price' => (float) $point->price,
-                    'observed_at' => $point->observed_at->toIso8601String(),
-                ])->values()->all(),
-            ])->values()->all(),
-        ]);
+        return response()->json(
+            ProductHistoryResource::make($product)->resolve($request)
+        );
     }
 
     public function check(CheckPrices $checkPrices): JsonResponse
