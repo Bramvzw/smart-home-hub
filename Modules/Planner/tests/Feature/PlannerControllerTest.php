@@ -148,6 +148,84 @@ class PlannerControllerTest extends TestCase
         $this->deleteJson(route('planner.intentions.destroy', $intention))->assertNoContent();
     }
 
+    public function test_google_callback_rejects_when_provider_returns_error(): void
+    {
+        $this->withSession(['google_calendar_oauth_state' => 'expected-state']);
+
+        $this->get(route('planner.google.callback', ['error' => 'access_denied', 'state' => 'expected-state']))
+            ->assertRedirect(route('planner.index'))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseCount('google_calendar_tokens', 0);
+        $this->assertNull(session()->get('google_calendar_oauth_state'));
+    }
+
+    public function test_google_callback_rejects_empty_code(): void
+    {
+        $this->withSession(['google_calendar_oauth_state' => 'expected-state']);
+
+        $this->get(route('planner.google.callback', ['state' => 'expected-state']))
+            ->assertRedirect(route('planner.index'))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseCount('google_calendar_tokens', 0);
+        $this->assertNull(session()->get('google_calendar_oauth_state'));
+    }
+
+    public function test_google_callback_rejects_state_mismatch(): void
+    {
+        $this->withSession(['google_calendar_oauth_state' => 'expected-state']);
+
+        $this->get(route('planner.google.callback', ['state' => 'tampered', 'code' => 'auth-code']))
+            ->assertRedirect(route('planner.index'))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseCount('google_calendar_tokens', 0);
+        $this->assertNull(session()->get('google_calendar_oauth_state'));
+    }
+
+    public function test_google_callback_exchanges_code_on_valid_state(): void
+    {
+        config(['planner.google.client_id' => 'id', 'planner.google.client_secret' => 'secret', 'planner.google.redirect' => 'https://hub.test/planner/google/callback']);
+        Http::fake(['https://oauth2.googleapis.com/token' => Http::response(['access_token' => 'fresh', 'refresh_token' => 'refresh', 'expires_in' => 3600])]);
+
+        $this->withSession(['google_calendar_oauth_state' => 'expected-state']);
+
+        $this->get(route('planner.google.callback', ['state' => 'expected-state', 'code' => 'auth-code']))
+            ->assertRedirect(route('planner.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSame('fresh', GoogleCalendarToken::query()->firstOrFail()->access_token);
+        $this->assertNull(session()->get('google_calendar_oauth_state'));
+    }
+
+    public function test_token_columns_are_encrypted_at_rest(): void
+    {
+        GoogleCalendarToken::query()->create([
+            'access_token' => 'plain-access',
+            'refresh_token' => 'plain-refresh',
+            'expires_at' => CarbonImmutable::now()->addHour(),
+        ]);
+
+        $raw = \Illuminate\Support\Facades\DB::table('google_calendar_tokens')->first();
+
+        $this->assertNotSame('plain-access', $raw->access_token);
+        $this->assertNotSame('plain-refresh', $raw->refresh_token);
+        $this->assertSame('plain-access', GoogleCalendarToken::query()->firstOrFail()->access_token);
+    }
+
+    public function test_prism_composer_marks_deterministic_plan_as_fallback(): void
+    {
+        config(['ai.anthropic.api_key' => 'sk-present']);
+
+        $composed = app(\Modules\Planner\Services\PrismPlanComposer::class)->compose([
+            new PlanItemData(1, 'Sporten', 'sport', CarbonImmutable::parse('2026-06-29 18:00'), CarbonImmutable::parse('2026-06-29 19:30')),
+        ], []);
+
+        // The composer does no real AI arrangement, so is_fallback must be honest (true) even with an API key set.
+        $this->assertTrue($composed->isFallback);
+    }
+
     private function seedIntentions(): void
     {
         PlannerIntention::query()->create([

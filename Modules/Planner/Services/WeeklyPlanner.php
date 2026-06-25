@@ -27,20 +27,28 @@ class WeeklyPlanner
 
         foreach ($intentions as $intention) {
             $slots = $this->slotFinder->slots($intention, $weekStart, array_merge($busy, $placed));
-            $target = max(1, $intention->target_min);
+            $min = max(1, $intention->target_min);
+            $max = max($min, $intention->target_max);
+            $placedForIntention = 0;
 
-            for ($i = 0; $i < $target; $i++) {
+            // Aim for target_max when slots allow; fall back toward target_min when the week is tight.
+            for ($i = 0; $i < $max; $i++) {
                 $slot = array_shift($slots);
 
                 if (! $slot) {
-                    $items[] = new PlanItemData($intention->id, $intention->title, $intention->category, null, null, 'unplaceable', 'Geen passend vrij blok gevonden');
+                    // Below target_min we couldn't satisfy the intention at all; the rest are extras that
+                    // simply didn't fit this week. Both are reported as unplaceable rather than dropped.
+                    $reason = $placedForIntention < $min
+                        ? 'Geen passend vrij blok gevonden'
+                        : 'Geen ruimte meer voor extra blok deze week';
+                    $items[] = new PlanItemData($intention->id, $intention->title, $intention->category, null, null, 'unplaceable', $reason);
 
                     continue;
                 }
 
-                $item = new PlanItemData($intention->id, $intention->title, $intention->category, $slot['start'], $slot['end']);
-                $items[] = $item;
+                $items[] = new PlanItemData($intention->id, $intention->title, $intention->category, $slot['start'], $slot['end']);
                 $placed[] = new BusyTime($slot['start'], $slot['end']);
+                $placedForIntention++;
             }
         }
 
