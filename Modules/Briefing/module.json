@@ -1,0 +1,11 @@
+{
+    "name": "Briefing",
+    "alias": "briefing",
+    "description": "Daily Dutch morning briefing composed from hub module data.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Briefing\\Providers\\BriefingServiceProvider"
+    ],
+    "files": []
+}
