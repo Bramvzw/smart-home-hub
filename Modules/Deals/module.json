@@ -1,0 +1,11 @@
+{
+    "name": "Deals",
+    "alias": "deals",
+    "description": "Price watchlist with retailer matching and price-drop alerts.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Deals\\Providers\\DealsServiceProvider"
+    ],
+    "files": []
+}
