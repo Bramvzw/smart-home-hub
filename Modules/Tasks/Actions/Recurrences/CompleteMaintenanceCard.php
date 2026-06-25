@@ -4,6 +4,7 @@ namespace Modules\Tasks\Actions\Recurrences;
 
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
 use Modules\Tasks\Models\KanbanTask;
 use Modules\Tasks\Models\TaskRecurrence;
 use Modules\Tasks\Services\MaintenanceScheduler;
@@ -30,17 +31,19 @@ class CompleteMaintenanceCard
         $completedOn = $this->date($completedOn);
         $periodKey = $completedOn->toDateString();
 
-        $recurrence->completions()->firstOrCreate(
-            ['period_key' => $periodKey],
-            ['completed_on' => $completedOn->toDateString()]
-        );
+        return DB::transaction(function () use ($recurrence, $completedOn, $periodKey): ?TaskRecurrence {
+            $recurrence->completions()->firstOrCreate(
+                ['period_key' => $periodKey],
+                ['completed_on' => $completedOn->toDateString()]
+            );
 
-        $recurrence->forceFill([
-            'next_due_on' => $this->scheduler->nextDueOn($recurrence, $completedOn)->toDateString(),
-            'last_materialized_on' => null,
-        ])->save();
+            $recurrence->forceFill([
+                'next_due_on' => $this->scheduler->nextDueOn($recurrence, $completedOn)->toDateString(),
+                'last_materialized_on' => null,
+            ])->save();
 
-        return $recurrence->fresh();
+            return $recurrence->fresh();
+        });
     }
 
     private function date(?CarbonInterface $date = null): CarbonImmutable

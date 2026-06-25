@@ -20,7 +20,11 @@ class FeedClient
     public function fetch(string $url): array
     {
         try {
+            // Feed URLs are trusted, operator-configured values (news.feeds in config)
+            // and must NEVER originate from user input. As a lightweight SSRF guard we
+            // cap redirects so a compromised feed cannot bounce us across hosts unbounded.
             $response = Http::timeout((int) config('news.request_timeout', 10))
+                ->maxRedirects(3)
                 ->accept('application/rss+xml, application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.8')
                 ->get($url);
         } catch (Throwable $exception) {
