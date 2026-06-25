@@ -25,17 +25,16 @@ class GenerateBriefing
         $composed = $this->composer->compose($sections);
         $generatedAt = CarbonImmutable::now($timezone);
 
-        $briefing = Briefing::query()->whereDate('date', $date->toDateString())->first() ?? new Briefing([
-            'date' => $date->toDateString(),
-        ]);
-
-        $briefing->fill([
-            'body' => $composed->body,
-            'sections' => array_map(fn ($section): array => $section->toArray(), $sections),
-            'generated_at' => $generatedAt->utc(),
-            'model' => $composed->model,
-            'is_fallback' => $composed->isFallback,
-        ])->save();
+        $briefing = Briefing::query()->updateOrCreate(
+            ['date' => $date->toDateString()],
+            [
+                'body' => $composed->body,
+                'sections' => array_map(fn ($section): array => $section->toArray(), $sections),
+                'generated_at' => $generatedAt->utc(),
+                'model' => $composed->model,
+                'is_fallback' => $composed->isFallback,
+            ],
+        );
 
         $this->prune($date);
 
@@ -51,7 +50,7 @@ class GenerateBriefing
         $retentionDays = max(1, (int) config('briefing.retention_days', 14));
 
         Briefing::query()
-            ->whereDate('date', '<', $date->subDays($retentionDays)->toDateString())
+            ->where('date', '<', $date->subDays($retentionDays)->toDateString())
             ->delete();
     }
 

@@ -119,6 +119,37 @@ class BriefingControllerTest extends TestCase
             ->assertJsonPath('body', 'Nieuwe briefing');
     }
 
+    public function test_repeated_generation_for_same_date_upserts_one_row_without_unique_violation(): void
+    {
+        $this->fakeSource(new FixedBriefingSource('weather', 'Weer', 10, 'Droog'));
+        $this->app->instance(BriefingTextGenerator::class, new FakeBriefingTextGenerator('Body'));
+        $this->app->instance(HubNotifier::class, new FakeBriefingNotifier);
+
+        $date = CarbonImmutable::parse('2026-06-25 08:00:00', 'Europe/Amsterdam');
+
+        $ids = [];
+        for ($i = 0; $i < 5; $i++) {
+            $ids[] = app(GenerateBriefing::class)($date, push: false)->id;
+        }
+
+        $this->assertCount(1, array_unique($ids));
+        $this->assertDatabaseCount('briefings', 1);
+    }
+
+    public function test_regenerate_route_is_throttled(): void
+    {
+        $this->fakeSource(new FixedBriefingSource('weather', 'Weer', 10, 'Droog'));
+        $this->app->instance(BriefingTextGenerator::class, new FakeBriefingTextGenerator('Body'));
+        $this->app->instance(HubNotifier::class, new FakeBriefingNotifier);
+
+        for ($i = 0; $i < 6; $i++) {
+            $this->postJson(route('briefing.regenerate'))->assertOk();
+        }
+
+        $this->postJson(route('briefing.regenerate'))->assertStatus(429);
+        $this->assertDatabaseCount('briefings', 1);
+    }
+
     public function test_old_briefings_are_pruned_on_generate(): void
     {
         Briefing::query()->create([

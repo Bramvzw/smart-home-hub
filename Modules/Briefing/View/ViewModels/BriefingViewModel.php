@@ -11,7 +11,7 @@ class BriefingViewModel
     {
         $timezone = (string) config('briefing.timezone', 'Europe/Amsterdam');
         $date = ($date ?? CarbonImmutable::now($timezone))->setTimezone($timezone);
-        $briefing = Briefing::query()->whereDate('date', $date->toDateString())->first();
+        $briefing = Briefing::query()->where('date', $date->toDateString())->first();
 
         return [
             'date' => $date->toDateString(),
