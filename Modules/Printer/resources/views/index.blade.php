@@ -55,6 +55,9 @@
 
         $fmt = static fn ($n): string => number_format((float) $n, 0, ',', '.');
 
+        // ---- defensive: only emit a stored hex into a CSS background if it is a strict 6-digit hex ----
+        $safeHex = static fn (?string $hex): string => is_string($hex) && preg_match('/^#[0-9a-fA-F]{6}$/', $hex) ? $hex : '#333';
+
         // ---- options for the modal forms ----
         $materials = ['PLA', 'PETG', 'TPU', 'ABS', 'ASA', 'Nylon', 'Silk PLA', 'Anders'];
         $units = ['stuks', 'ml', 'm', 'tube', 'rol', 'set'];
@@ -146,7 +149,7 @@
                                  data-pr-delete-url="{{ route('printer.filament.destroy', $spool) }}"
                                  data-pr-adjust-url="{{ route('printer.filament.adjust', $spool) }}">
                                 <div class="pr-fhead">
-                                    <span class="pr-swatch" style="background: {{ $spool->color_hex ?: '#333' }}"></span>
+                                    <span class="pr-swatch" style="background: {{ $safeHex($spool->color_hex) }}"></span>
                                     <div class="pr-fnames">
                                         <div class="pr-fname">{{ $spool->material }} · {{ $spool->color_name }}</div>
                                         <div class="pr-fmeta">

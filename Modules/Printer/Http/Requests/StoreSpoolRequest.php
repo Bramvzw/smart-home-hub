@@ -16,7 +16,7 @@ class StoreSpoolRequest extends FormRequest
         return [
             'material' => 'required|string|max:255',
             'color_name' => 'required|string|max:255',
-            'color_hex' => 'nullable|string|max:255',
+            'color_hex' => ['nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'brand' => 'nullable|string|max:255',
             'diameter_mm' => 'nullable|numeric|min:0',
             'total_weight_g' => 'nullable|integer|min:1',

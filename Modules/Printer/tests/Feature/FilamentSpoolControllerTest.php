@@ -60,6 +60,62 @@ class FilamentSpoolControllerTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors(['material', 'total_weight_g']);
     }
 
+    public function test_create_rejects_invalid_color_hex(): void
+    {
+        $this->postJson(route('printer.filament.store'), [
+            'material' => 'PLA',
+            'color_name' => 'Black',
+            'color_hex' => '#fff; background:url(x)',
+            'total_weight_g' => 1000,
+            'remaining_g' => 1000,
+        ])->assertStatus(422)->assertJsonValidationErrors(['color_hex']);
+
+        $this->postJson(route('printer.filament.store'), [
+            'material' => 'PLA',
+            'color_name' => 'Black',
+            'color_hex' => 'red',
+            'total_weight_g' => 1000,
+            'remaining_g' => 1000,
+        ])->assertStatus(422)->assertJsonValidationErrors(['color_hex']);
+    }
+
+    public function test_create_accepts_valid_color_hex(): void
+    {
+        $this->postJson(route('printer.filament.store'), [
+            'material' => 'PLA',
+            'color_name' => 'Galaxy Black',
+            'color_hex' => '#1b1b22',
+            'total_weight_g' => 1000,
+            'remaining_g' => 1000,
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('filament_spools', ['color_hex' => '#1b1b22']);
+    }
+
+    public function test_update_rejects_invalid_color_hex(): void
+    {
+        $spool = $this->spool();
+
+        $this->patchJson(route('printer.filament.update', $spool), [
+            'color_hex' => '#fff; background:url(x)',
+        ])->assertStatus(422)->assertJsonValidationErrors(['color_hex']);
+
+        $this->patchJson(route('printer.filament.update', $spool), [
+            'color_hex' => 'red',
+        ])->assertStatus(422)->assertJsonValidationErrors(['color_hex']);
+    }
+
+    public function test_update_accepts_valid_color_hex(): void
+    {
+        $spool = $this->spool(['color_hex' => '#15171e']);
+
+        $this->patchJson(route('printer.filament.update', $spool), [
+            'color_hex' => '#1b1b22',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('filament_spools', ['id' => $spool->id, 'color_hex' => '#1b1b22']);
+    }
+
     public function test_can_update_a_spool(): void
     {
         $spool = $this->spool();
