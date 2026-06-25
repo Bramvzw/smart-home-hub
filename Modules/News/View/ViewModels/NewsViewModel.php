@@ -3,6 +3,7 @@
 namespace Modules\News\View\ViewModels;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 use Modules\News\Http\Resources\NewsItemResource;
 use Modules\News\Models\NewsItem;
 
@@ -11,14 +12,11 @@ class NewsViewModel
     public function state(): array
     {
         $limit = max(1, (int) config('news.items_per_topic', 6));
+        $itemsByTopic = NewsItem::query()->latestPerTopic($limit)->groupBy('topic');
         $topics = [];
 
         foreach ((array) config('news.topics', []) as $key => $label) {
-            $items = NewsItem::query()
-                ->forTopic((string) $key)
-                ->orderByDesc('published_at')
-                ->limit($limit)
-                ->get();
+            $items = $itemsByTopic->get((string) $key, new Collection)->values();
 
             $topics[] = [
                 'key' => (string) $key,

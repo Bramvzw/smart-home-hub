@@ -4,7 +4,6 @@ namespace Modules\Tasks\Actions\Tasks;
 
 use Modules\Tasks\Actions\Recurrences\CompleteMaintenanceCard;
 use Modules\Tasks\Models\KanbanTask;
-use Modules\Tasks\Models\TaskColumn;
 
 class MoveTask
 {
