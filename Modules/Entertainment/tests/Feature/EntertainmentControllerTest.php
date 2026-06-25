@@ -19,6 +19,7 @@ use Modules\Entertainment\Models\FilmRecommendation;
 use Modules\Entertainment\Models\MusicRelease;
 use Modules\Entertainment\Models\TasteProfile;
 use Modules\Entertainment\Services\Music\SpotifyReleasesService;
+use Modules\Entertainment\Services\PrismEntertainmentCurator;
 use Modules\Entertainment\Services\Tmdb\TmdbClient;
 use Tests\TestCase;
 
@@ -127,6 +128,61 @@ class EntertainmentControllerTest extends TestCase
         $this->assertTrue(Concert::query()->first()->notified);
     }
 
+    public function test_refresh_concerts_classifies_taste_match_as_might_like_and_surfaces_it(): void
+    {
+        TasteProfile::query()->create([
+            'favorite_titles' => [],
+            'genres' => ['indie rock'],
+            'notes' => null,
+        ]);
+
+        $action = new RefreshConcerts(
+            [new TasteMatchConcertProvider],
+            new FakeEntertainmentCurator,
+            new FakeSpotifyReleases,
+        );
+
+        $stored = $action();
+
+        $this->assertSame(1, $stored);
+        $this->assertDatabaseHas('concerts', [
+            'source' => 'ticketmaster',
+            'artist' => 'Some Unfollowed Band',
+            'relevance' => 'might_like',
+        ]);
+
+        $this->getJson(route('entertainment.concerts.index'))
+            ->assertOk()
+            ->assertJsonPath('concerts.0.artist', 'Some Unfollowed Band')
+            ->assertJsonPath('concerts.0.relevance', 'might_like');
+    }
+
+    public function test_taste_show_is_side_effect_free_and_does_not_create_a_row(): void
+    {
+        $this->assertDatabaseCount('taste_profiles', 0);
+
+        $this->getJson(route('entertainment.taste.show'))
+            ->assertOk()
+            ->assertJsonPath('favorite_titles', [])
+            ->assertJsonPath('genres', []);
+
+        $this->assertDatabaseCount('taste_profiles', 0);
+    }
+
+    public function test_refresh_route_is_throttled(): void
+    {
+        $this->app->instance(TmdbClient::class, new FakeTmdbClient);
+        $this->app->instance(EntertainmentCurator::class, new FakeEntertainmentCurator);
+        $this->app->instance(SpotifyReleasesService::class, new FakeSpotifyReleases);
+        $this->app->instance(HubNotifier::class, new FakeEntertainmentNotifier);
+
+        for ($i = 0; $i < 6; $i++) {
+            $this->postJson(route('entertainment.refresh'))->assertOk();
+        }
+
+        $this->postJson(route('entertainment.refresh'))->assertStatus(429);
+    }
+
     public function test_refresh_films_with_curator_stores_why_and_contract_endpoints(): void
     {
         $this->app->instance(TmdbClient::class, new FakeTmdbClient);
@@ -188,6 +244,19 @@ class FakeConcertProvider implements ConcertProvider
     }
 }
 
+class TasteMatchConcertProvider implements ConcertProvider
+{
+    public function source(): string
+    {
+        return 'ticketmaster';
+    }
+
+    public function fetch(): array
+    {
+        return [new ConcertData('ticketmaster', 'tm-1', 'Some Unfollowed Band', 'Indie Rock Night', 'Tivoli', 'Utrecht', CarbonImmutable::parse('2026-08-01 20:00:00'), 'https://example.com/tm-1')];
+    }
+}
+
 class FailingConcertProvider implements ConcertProvider
 {
     public function source(): string
@@ -210,7 +279,7 @@ class FakeEntertainmentCurator implements EntertainmentCurator
 
     public function concertRelevance(Concert $concert, array $followedArtists, TasteProfile $profile): string
     {
-        return in_array($concert->artist, $followedArtists, true) ? 'followed' : ($concert->source === 'hedon' ? 'hedon' : 'none');
+        return (new PrismEntertainmentCurator)->concertRelevance($concert, $followedArtists, $profile);
     }
 }
 

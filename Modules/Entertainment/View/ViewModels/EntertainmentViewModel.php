@@ -15,8 +15,13 @@ class EntertainmentViewModel
     {
         return [
             'films' => FilmRecommendationResource::collection(FilmRecommendation::query()->where('dismissed', false)->orderByDesc('score')->orderBy('title')->get())->resolve(),
-            'concerts' => ConcertResource::collection(Concert::query()->orderBy('date')->get())->resolve(),
+            'concerts' => $this->concerts(),
             'music' => MusicReleaseResource::collection(MusicRelease::query()->orderByDesc('release_date')->get())->resolve(),
         ];
+    }
+
+    public function concerts(): array
+    {
+        return ConcertResource::collection(Concert::query()->orderBy('date')->get())->resolve();
     }
 }
