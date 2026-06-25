@@ -1,0 +1,11 @@
+{
+    "name": "Planner",
+    "alias": "planner",
+    "description": "AI-assisted weekly agenda planner with Google Calendar acceptance.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Planner\\Providers\\PlannerServiceProvider"
+    ],
+    "files": []
+}
