@@ -5,7 +5,30 @@ module. This is a living document — update it as scope changes. Personal
 context that drives these choices (household, interests, hardware) is summarized
 at the bottom.
 
-Last updated: 2026-06-24.
+Last updated: 2026-06-25.
+
+---
+
+## Detailed per-module plans (Codex-ready)
+
+Each module below has a full functional + technical spec under `Plans/`, built
+to be executed by Codex. Front-end is intentionally excluded (built later with
+Claude Design); plans cover behaviour, data model and the JSON contract.
+
+| Plan | Module | Status |
+|---|---|---|
+| [Nieuws](Plans/Nieuws.md) | News (RSS) | spec signed off |
+| [Dagelijkse briefing](Plans/Dagelijkse-briefing.md) | Briefing (AI) | spec signed off |
+| [Tasks: gewoontes & onderhoud](Plans/Tasks-gewoontes-en-onderhoud.md) | Tasks (extension) | spec signed off |
+| [3D-printer voorraad](Plans/Bambu-voorraad.md) | Printer | spec signed off |
+| [Supermarkt → recepten](Plans/Supermarkt-recepten.md) | Recipes (AI) | spec signed off |
+| [Entertainment & muziek](Plans/Entertainment-en-muziek.md) | Entertainment (AI) | spec signed off |
+| [Dealtracker](Plans/Dealtracker.md) | Deals | spec signed off |
+| [AI agenda-planner](Plans/AI-agenda-planner.md) | Planner (AI) | spec signed off |
+
+**Cross-cutting decisions** (apply to all plans): one shared hub ntfy topic via an
+app-level `HubNotifier`; AI modules use **Prism** with one shared hub Anthropic
+key; plans define the data/JSON contract only (no Blade markup).
 
 ---
 
