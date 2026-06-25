@@ -7,6 +7,9 @@ services:
     env_file: .env
     volumes:
       - .:/app
+      # Production opcache/realpath tuning. Verify the conf.d path on the NAS with:
+      #   docker compose exec hub php -i | grep -E "validate_timestamps|Additional .ini"
+      - ./docker/php/zz-hub.ini:/usr/local/etc/php/conf.d/zz-hub.ini:ro
     environment:
       WEB_DOCUMENT_ROOT: /app/public
       APP_ENV: production
