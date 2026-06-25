@@ -39,6 +39,8 @@ class TaskBoardStateResource extends JsonResource
                     'name' => $column->name,
                     'tasks' => $column->tasks->map(fn (KanbanTask $task): array => [
                         'id' => $task->id,
+                        'recurrence_id' => $task->recurrence_id,
+                        'is_maintenance' => $task->recurrence_id !== null && ($task->recurrence?->type ?? 'maintenance') === 'maintenance',
                         'title' => $task->title,
                         'description' => $task->description ?? '',
                         'priority' => $task->priority,

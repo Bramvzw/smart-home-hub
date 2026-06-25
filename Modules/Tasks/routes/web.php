@@ -1,10 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Tasks\Http\Controllers\TaskRecurrenceController;
 use Modules\Tasks\Http\Controllers\TasksController;
 
 Route::prefix('tasks')->name('tasks.')->group(function (): void {
     Route::get('/', [TasksController::class, 'index'])->name('index');
+    Route::get('/habits', [TaskRecurrenceController::class, 'habits'])->name('habits.index');
+    Route::post('/habits/{recurrence}/complete', [TaskRecurrenceController::class, 'complete'])->name('habits.complete');
+    Route::delete('/habits/{recurrence}/complete', [TaskRecurrenceController::class, 'undoCompletion'])->name('habits.complete.destroy');
+    Route::get('/maintenance', [TaskRecurrenceController::class, 'maintenance'])->name('maintenance.index');
+    Route::post('/maintenance/{recurrence}/complete', [TaskRecurrenceController::class, 'completeMaintenance'])->name('maintenance.complete');
+    Route::post('/recurrences', [TaskRecurrenceController::class, 'store'])->name('recurrences.store');
+    Route::patch('/recurrences/{recurrence}', [TaskRecurrenceController::class, 'update'])->name('recurrences.update');
+    Route::delete('/recurrences/{recurrence}', [TaskRecurrenceController::class, 'destroy'])->name('recurrences.destroy');
 
     Route::post('/boards', [TasksController::class, 'storeBoard'])->name('boards.store');
     Route::put('/boards/{board}', [TasksController::class, 'updateBoard'])->name('boards.update');
