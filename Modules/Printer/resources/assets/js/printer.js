@@ -13,11 +13,23 @@ const request = (url, method, body = null) =>
             'X-Requested-With': 'XMLHttpRequest',
         },
         body: body !== null ? JSON.stringify(body) : null,
+    }).then((response) => {
+        if (!response.ok) {
+            throw new Error(`Request failed (${response.status})`);
+        }
+        return response;
     });
+
+/* Minimal, dependency-free error surface. */
+const notifyError = () => window.alert('Er ging iets mis. Probeer het opnieuw.');
 
 const fmt = (n) => new Intl.NumberFormat('nl-NL').format(n);
 
 const HEX_PRESETS = ['#15171e', '#f4f3ee', '#e0a44e', '#e0575c', '#4eb0e6', '#54b896', '#8b6cd6', '#c9613f'];
+
+const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+/* Only emit a hex into a CSS background if it is a strict 6-digit hex; else a safe default. */
+const safeHex = (hex) => (HEX_RE.test(hex || '') ? hex : '#333');
 
 const initPrinter = () => {
     const root = document.querySelector('[data-printer]');
@@ -119,7 +131,10 @@ const initPrinter = () => {
             const applied = next - current;
             if (applied === 0) return;
             render(next);
-            request(adjustUrl, 'POST', { delta_g: applied }).catch(() => render(current));
+            request(adjustUrl, 'POST', { delta_g: applied }).catch(() => {
+                render(current);
+                notifyError();
+            });
         };
 
         adj?.querySelectorAll('[data-pr-delta]').forEach((chip) =>
@@ -160,7 +175,10 @@ const initPrinter = () => {
             const applied = next - current;
             if (applied === 0) return;
             render(next);
-            request(adjustUrl, 'POST', { delta: applied }).catch(() => render(current));
+            request(adjustUrl, 'POST', { delta: applied }).catch(() => {
+                render(current);
+                notifyError();
+            });
         };
 
         row.querySelector('[data-pr-step-minus]')?.addEventListener('click', () => sendDelta(-step));
@@ -228,8 +246,8 @@ const initPrinter = () => {
         const total = parseInt(fField('total').value, 10) || 0;
         const remaining = parseInt(fField('remaining').value, 10) || 0;
         const pct = total > 0 ? Math.round((remaining / total) * 100) : 0;
-        if (prevSwatch) prevSwatch.style.background = hex;
-        if (hexPreview) hexPreview.style.background = hex;
+        if (prevSwatch) prevSwatch.style.background = safeHex(hex);
+        if (hexPreview) hexPreview.style.background = safeHex(hex);
         if (prevName) prevName.textContent = material + (color ? ' · ' + color : '');
         if (prevSub) prevSub.textContent = `${brand || 'Merk —'} · ${fmt(remaining)} / ${fmt(total)} g · ${pct}%`;
         if (prevBar) {
@@ -353,7 +371,7 @@ const initPrinter = () => {
             closeAllMenus();
             request(card.dataset.prDeleteUrl, 'DELETE')
                 .then(() => window.location.reload())
-                .catch(() => {});
+                .catch(() => notifyError());
         });
     });
 
@@ -377,11 +395,11 @@ const initPrinter = () => {
     /* ---- delete from modal ---- */
     filamentModal.querySelector('[data-pr-modal-delete]')?.addEventListener('click', () => {
         if (!editTarget) return;
-        request(editTarget.deleteUrl, 'DELETE').then(() => window.location.reload()).catch(() => {});
+        request(editTarget.deleteUrl, 'DELETE').then(() => window.location.reload()).catch(() => notifyError());
     });
     partModal.querySelector('[data-pr-modal-delete]')?.addEventListener('click', () => {
         if (!editTarget) return;
-        request(editTarget.deleteUrl, 'DELETE').then(() => window.location.reload()).catch(() => {});
+        request(editTarget.deleteUrl, 'DELETE').then(() => window.location.reload()).catch(() => notifyError());
     });
 
     /* ---- submit: filament ---- */
@@ -404,7 +422,7 @@ const initPrinter = () => {
         if (!editTarget) payload.diameter_mm = 1.75;
         const url = editTarget ? editTarget.url : root.dataset.filamentStoreUrl;
         const method = editTarget ? 'PATCH' : 'POST';
-        request(url, method, payload).then(() => window.location.reload()).catch(() => {});
+        request(url, method, payload).then(() => window.location.reload()).catch(() => notifyError());
     });
 
     /* ---- submit: part ---- */
@@ -421,7 +439,7 @@ const initPrinter = () => {
         };
         const url = editTarget ? editTarget.url : root.dataset.partsStoreUrl;
         const method = editTarget ? 'PATCH' : 'POST';
-        request(url, method, payload).then(() => window.location.reload()).catch(() => {});
+        request(url, method, payload).then(() => window.location.reload()).catch(() => notifyError());
     });
 };
 
