@@ -42,6 +42,7 @@ class SpotifyTokenService
             'user-read-recently-played',
             'playlist-read-private',
             'playlist-read-collaborative',
+            'user-follow-read',
         ];
 
         $state = bin2hex(random_bytes(16));
