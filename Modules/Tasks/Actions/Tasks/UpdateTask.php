@@ -2,13 +2,21 @@
 
 namespace Modules\Tasks\Actions\Tasks;
 
+use Modules\Tasks\Actions\Recurrences\CompleteMaintenanceCard;
 use Modules\Tasks\Models\KanbanTask;
 use Modules\Tasks\Models\TaskColumn;
 
 class UpdateTask
 {
+    public function __construct(
+        private readonly CompleteMaintenanceCard $completeMaintenanceCard,
+    ) {
+    }
+
     public function __invoke(KanbanTask $task, array $data): KanbanTask
     {
+        $completedExplicitly = array_key_exists('completed', $data) && (bool) $data['completed'];
+
         $task->fill(collect($data)->only(['title', 'description', 'priority', 'completed'])->all());
         $task->due_date = array_key_exists('due_date', $data) ? $data['due_date'] : $task->due_date;
 
@@ -24,6 +32,10 @@ class UpdateTask
 
         if (array_key_exists('checklist', $data)) {
             $this->syncChecklist($task, $data['checklist']);
+        }
+
+        if ($completedExplicitly) {
+            ($this->completeMaintenanceCard)($task);
         }
 
         return $task;

@@ -16,6 +16,7 @@ class TasksBoardViewModel
             'labels',
             'columns.tasks.labels',
             'columns.tasks.checklistItems',
+            'columns.tasks.recurrence',
         ]);
 
         return TaskBoardStateResource::make([

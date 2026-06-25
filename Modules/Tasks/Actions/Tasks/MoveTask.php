@@ -2,6 +2,7 @@
 
 namespace Modules\Tasks\Actions\Tasks;
 
+use Modules\Tasks\Actions\Recurrences\CompleteMaintenanceCard;
 use Modules\Tasks\Models\KanbanTask;
 use Modules\Tasks\Models\TaskColumn;
 
@@ -9,6 +10,7 @@ class MoveTask
 {
     public function __construct(
         private readonly ResequenceTasks $resequenceTasks,
+        private readonly CompleteMaintenanceCard $completeMaintenanceCard,
     ) {
     }
 
@@ -21,6 +23,7 @@ class MoveTask
         ]);
 
         ($this->resequenceTasks)($column, $orderedTaskIds);
+        ($this->completeMaintenanceCard)($task);
 
         return $task;
     }

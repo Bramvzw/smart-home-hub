@@ -15,6 +15,7 @@ class KanbanTask extends Model
     protected $fillable = [
         'board_id',
         'column_id',
+        'recurrence_id',
         'title',
         'description',
         'priority',
@@ -38,6 +39,11 @@ class KanbanTask extends Model
     public function column(): BelongsTo
     {
         return $this->belongsTo(TaskColumn::class, 'column_id');
+    }
+
+    public function recurrence(): BelongsTo
+    {
+        return $this->belongsTo(TaskRecurrence::class, 'recurrence_id');
     }
 
     public function labels(): BelongsToMany
