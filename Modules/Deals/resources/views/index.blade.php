@@ -1,3 +1,4 @@
+@use(\Modules\Deals\Support\SafeUrl)
 <x-dashboard.layout title="Dealtracker" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Deals/resources/assets/css/dealtracker.css'])
@@ -310,9 +311,10 @@
                                 @endphp
                                 <div class="dt-card" data-deals-product="{{ $product['id'] }}">
                                     <div class="dt-card-head">
+                                        @php $imageUrl = SafeUrl::http($product['image_url'] ?? null); @endphp
                                         <div class="dt-thumb">
-                                            @if(! empty($product['image_url']))
-                                                <img src="{{ $product['image_url'] }}" alt="{{ $product['name'] }}"
+                                            @if($imageUrl)
+                                                <img src="{{ $imageUrl }}" alt="{{ $product['name'] }}"
                                                      style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;">
                                             @else
                                                 {!! $dtIc('Box', 26, 1.5, 'ic') !!}

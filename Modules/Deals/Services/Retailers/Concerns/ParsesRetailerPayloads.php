@@ -79,27 +79,76 @@ trait ParsesRetailerPayloads
         return is_string($title) && trim($title) !== '' && is_string($url) && trim($url) !== '';
     }
 
+    /**
+     * Normalize an arbitrary retailer price payload into a positive float, or null.
+     *
+     * Garbage, missing or non-positive values resolve to null (never 0 or a
+     * wrong number) so they can never register as a false price drop downstream.
+     */
     private function price(mixed $value): ?float
     {
+        // Minor-unit integer amounts (cents) are explicitly keyed; convert those.
         if (is_array($value)) {
-            $value = $value['amount'] ?? $value['value'] ?? $value['price'] ?? $value['centAmount'] ?? null;
+            if (($cents = $value['centAmount'] ?? $value['amountInCents'] ?? null) !== null && is_numeric($cents)) {
+                return $this->positivePrice((float) $cents / 100);
+            }
+
+            $value = $value['amount'] ?? $value['value'] ?? $value['price'] ?? null;
         }
 
-        if ($value === null || $value === '') {
+        if (is_int($value) || is_float($value)) {
+            return $this->positivePrice((float) $value);
+        }
+
+        if (! is_string($value)) {
             return null;
         }
 
-        if (is_int($value) && $value > 100) {
-            return round($value / 100, 2);
+        return $this->positivePrice($this->parseLocalizedNumber($value));
+    }
+
+    /**
+     * Parse a human/locale-formatted price string ("€ 1.299,00", "1,299.00",
+     * "319", "EUR 49.99") into a float, or null if it has no usable number.
+     */
+    private function parseLocalizedNumber(string $value): ?float
+    {
+        // Strip everything except digits, separators and a leading sign.
+        $value = preg_replace('/[^0-9,.\-]/', '', $value) ?? '';
+
+        if ($value === '' || ! preg_match('/\d/', $value)) {
+            return null;
         }
 
-        if (is_string($value)) {
-            $value = str_replace(['€', ' '], '', $value);
+        $hasComma = str_contains($value, ',');
+        $hasDot = str_contains($value, '.');
+
+        if ($hasComma && $hasDot) {
+            // The right-most separator is the decimal mark; the other groups thousands.
+            $decimal = strrpos($value, ',') > strrpos($value, '.') ? ',' : '.';
+            $thousands = $decimal === ',' ? '.' : ',';
+            $value = str_replace($thousands, '', $value);
+            $value = str_replace($decimal, '.', $value);
+        } elseif ($hasComma) {
+            // Only a comma present: treat as decimal mark (European "49,99").
             $value = str_replace(',', '.', $value);
-            $value = preg_replace('/[^0-9.\-]/', '', $value);
         }
 
-        return is_numeric($value) ? round((float) $value, 2) : null;
+        // Reject anything left with more than one decimal point (garbage like "1.2.3").
+        if (substr_count($value, '.') > 1) {
+            return null;
+        }
+
+        return is_numeric($value) ? (float) $value : null;
+    }
+
+    private function positivePrice(?float $value): ?float
+    {
+        if ($value === null || ! is_finite($value) || $value <= 0.0) {
+            return null;
+        }
+
+        return round($value, 2);
     }
 
     private function stringValue(mixed $value): ?string
