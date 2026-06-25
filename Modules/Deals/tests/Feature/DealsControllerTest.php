@@ -88,7 +88,58 @@ class DealsControllerTest extends TestCase
 
         $this->getJson(route('deals.products.history', $listing->product))
             ->assertOk()
+            ->assertJsonStructure([
+                'product_id',
+                'listings' => [['id', 'retailer', 'title', 'price_points' => [['price', 'observed_at']]]],
+            ])
             ->assertJsonPath('listings.0.price_points.0.price', 319);
+    }
+
+    public function test_malicious_listing_url_and_image_url_are_not_emitted(): void
+    {
+        $product = WatchedProduct::query()->create([
+            'name' => 'Bambu Lab AMS',
+            'query' => 'bambu lab ams',
+            'image_url' => 'javascript:alert(1)',
+        ]);
+        $product->listings()->create([
+            'retailer' => 'bol',
+            'external_id' => 'bol-ams',
+            'title' => '<script>alert(1)</script>',
+            'url' => 'javascript:alert(document.cookie)',
+            'confirmed' => true,
+            'active' => true,
+            'current_price' => 319,
+        ]);
+
+        $this->getJson(route('deals.index'))
+            ->assertOk()
+            ->assertJsonPath('products.0.image_url', null)
+            ->assertJsonPath('products.0.listings.0.url', null)
+            ->assertJsonPath('products.0.listings.0.title', '<script>alert(1)</script>');
+    }
+
+    public function test_safe_http_listing_url_and_image_url_are_emitted(): void
+    {
+        $product = WatchedProduct::query()->create([
+            'name' => 'Bambu Lab AMS',
+            'query' => 'bambu lab ams',
+            'image_url' => 'https://cdn.example.com/ams.jpg',
+        ]);
+        $product->listings()->create([
+            'retailer' => 'bol',
+            'external_id' => 'bol-ams',
+            'title' => 'Bambu Lab AMS',
+            'url' => 'https://bol.com/ams',
+            'confirmed' => true,
+            'active' => true,
+            'current_price' => 319,
+        ]);
+
+        $this->getJson(route('deals.index'))
+            ->assertOk()
+            ->assertJsonPath('products.0.image_url', 'https://cdn.example.com/ams.jpg')
+            ->assertJsonPath('products.0.listings.0.url', 'https://bol.com/ams');
     }
 
     private function listing(array $overrides = []): ProductListing
