@@ -1,8 +1,35 @@
 {
+  "Modules/Briefing/resources/assets/css/briefing.css": {
+    "file": "assets/briefing-DI3N5zFX.css",
+    "src": "Modules/Briefing/resources/assets/css/briefing.css",
+    "isEntry": true
+  },
   "Modules/Calendar/resources/assets/js/calendar.js": {
     "file": "assets/calendar-4tWE63HI.js",
     "name": "calendar",
     "src": "Modules/Calendar/resources/assets/js/calendar.js",
+    "isEntry": true
+  },
+  "Modules/Deals/resources/assets/css/dealtracker.css": {
+    "file": "assets/dealtracker-B61VTleG.css",
+    "src": "Modules/Deals/resources/assets/css/dealtracker.css",
+    "isEntry": true
+  },
+  "Modules/Deals/resources/assets/js/dealtracker.js": {
+    "file": "assets/dealtracker-8kElVj7f.js",
+    "name": "dealtracker",
+    "src": "Modules/Deals/resources/assets/js/dealtracker.js",
+    "isEntry": true
+  },
+  "Modules/Entertainment/resources/assets/css/entertainment.css": {
+    "file": "assets/entertainment-BCJE38gU.css",
+    "src": "Modules/Entertainment/resources/assets/css/entertainment.css",
+    "isEntry": true
+  },
+  "Modules/Entertainment/resources/assets/js/entertainment.js": {
+    "file": "assets/entertainment-C0DtjkN6.js",
+    "name": "entertainment",
+    "src": "Modules/Entertainment/resources/assets/js/entertainment.js",
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/css/lighting.css": {
@@ -16,10 +43,54 @@
     "src": "Modules/Lighting/resources/assets/js/lighting.js",
     "isEntry": true
   },
+  "Modules/News/resources/assets/css/news.css": {
+    "file": "assets/news-CIinTcim.css",
+    "src": "Modules/News/resources/assets/css/news.css",
+    "isEntry": true
+  },
+  "Modules/News/resources/assets/js/news.js": {
+    "file": "assets/news-HM4Iok2H.js",
+    "name": "news",
+    "src": "Modules/News/resources/assets/js/news.js",
+    "isEntry": true
+  },
   "Modules/PhonePing/resources/assets/js/phone-ping.js": {
     "file": "assets/phone-ping-Cg4kU8DO.js",
     "name": "phone-ping",
     "src": "Modules/PhonePing/resources/assets/js/phone-ping.js",
+    "isEntry": true
+  },
+  "Modules/Planner/resources/assets/css/planner.css": {
+    "file": "assets/planner-B7suUuAM.css",
+    "src": "Modules/Planner/resources/assets/css/planner.css",
+    "isEntry": true
+  },
+  "Modules/Planner/resources/assets/js/planner.js": {
+    "file": "assets/planner-xunXxdvz.js",
+    "name": "planner",
+    "src": "Modules/Planner/resources/assets/js/planner.js",
+    "isEntry": true
+  },
+  "Modules/Printer/resources/assets/css/printer.css": {
+    "file": "assets/printer-BcQVYsKc.css",
+    "src": "Modules/Printer/resources/assets/css/printer.css",
+    "isEntry": true
+  },
+  "Modules/Printer/resources/assets/js/printer.js": {
+    "file": "assets/printer-CJey6lRR.js",
+    "name": "printer",
+    "src": "Modules/Printer/resources/assets/js/printer.js",
+    "isEntry": true
+  },
+  "Modules/Recipes/resources/assets/css/recepten.css": {
+    "file": "assets/recepten-CoDoJ0WY.css",
+    "src": "Modules/Recipes/resources/assets/css/recepten.css",
+    "isEntry": true
+  },
+  "Modules/Recipes/resources/assets/js/recepten.js": {
+    "file": "assets/recepten-CaoWd8oN.js",
+    "name": "recepten",
+    "src": "Modules/Recipes/resources/assets/js/recepten.js",
     "isEntry": true
   },
   "Modules/Spotify/resources/assets/css/player.css": {
@@ -33,9 +104,20 @@
     "src": "Modules/Spotify/resources/assets/js/core/player.js",
     "isEntry": true
   },
+  "Modules/Tasks/resources/assets/css/habits.css": {
+    "file": "assets/habits-CeFku1vU.css",
+    "src": "Modules/Tasks/resources/assets/css/habits.css",
+    "isEntry": true
+  },
   "Modules/Tasks/resources/assets/css/tasks.css": {
     "file": "assets/tasks-C-jZD9DR.css",
     "src": "Modules/Tasks/resources/assets/css/tasks.css",
+    "isEntry": true
+  },
+  "Modules/Tasks/resources/assets/js/habits.js": {
+    "file": "assets/habits-Ds9Kjku4.js",
+    "name": "habits",
+    "src": "Modules/Tasks/resources/assets/js/habits.js",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/js/tasks-board.js": {
@@ -56,7 +138,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-BwEjcuhq.css",
+    "file": "assets/app-BgmY05bh.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
