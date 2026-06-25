@@ -1,0 +1,11 @@
+{
+    "name": "News",
+    "alias": "news",
+    "description": "RSS/Atom news aggregation with read tracking and keyword alerts.",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\News\\Providers\\NewsServiceProvider"
+    ],
+    "files": []
+}

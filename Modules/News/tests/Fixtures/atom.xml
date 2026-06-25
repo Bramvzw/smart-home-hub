@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Test Atom</title>
+    <link href="https://example.com/atom-feed" />
+    <updated>2026-06-24T10:00:00Z</updated>
+    <id>tag:example.com,2026:feed</id>
+    <entry>
+        <title>Laravel Atom Entry</title>
+        <link href="https://example.com/atom-entry" />
+        <id>tag:example.com,2026:atom-entry</id>
+        <updated>2026-06-24T10:00:00Z</updated>
+        <summary type="html">&lt;p&gt;Atom &lt;em&gt;summary&lt;/em&gt; for PHP 8&lt;/p&gt;</summary>
+        <author>
+            <name>Dev Author</name>
+        </author>
+    </entry>
+</feed>

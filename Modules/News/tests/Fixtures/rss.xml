@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Test RSS</title>
+        <link>https://example.com</link>
+        <description>Fixture feed</description>
+        <item>
+            <title><![CDATA[Bambu <b>Firmware</b> Released]]></title>
+            <link>https://example.com/bambu</link>
+            <guid>rss-guid-1</guid>
+            <description><![CDATA[<p>Printer <strong>update</strong> &amp; notes.</p>]]></description>
+            <pubDate>Wed, 24 Jun 2026 12:10:00 +0200</pubDate>
+            <author>maker@example.com (Maker)</author>
+            <enclosure url="https://example.com/image.jpg" length="1234" type="image/jpeg" />
+        </item>
+        <item>
+            <title>No guid item</title>
+            <link>https://example.com/no-guid</link>
+            <description><![CDATA[<p>Uses the URL as the stable identifier.</p>]]></description>
+            <pubDate>Wed, 24 Jun 2026 13:00:00 +0200</pubDate>
+        </item>
+    </channel>
+</rss>
