@@ -59,12 +59,9 @@ const storeTag = (store) => {
     return `<span class="rc-ingr-store ${esc(key)}">${esc(storeShort(key))}</span>`;
 };
 
-/* steps may contain a small amount of inline markup (<b>) from the source;
-   allow only <b>/</b> and escape the rest. */
-const stepHtml = (step) =>
-    esc(step)
-        .replace(/&lt;b&gt;/g, '<b>')
-        .replace(/&lt;\/b&gt;/g, '</b>');
+/* steps come from AI/scraped data and are untrusted; escape every dynamic
+   value so no markup from the source is ever interpreted as HTML. */
+const stepHtml = (step) => esc(step);
 
 const renderDetail = (recipe) => {
     const ingredients = recipe.ingredients || [];
