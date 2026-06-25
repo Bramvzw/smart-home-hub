@@ -5,7 +5,7 @@ intentions into the week around fixed commitments and offers 1-click add to
 Google Calendar. Front-end markup is out of scope (Claude Design later); this
 plan covers functional behaviour, UI states and the data/JSON contract.
 
-Status: spec ready. Build order: module 8 (last). Depends on the shared
+Status: implemented 2026-06-25. Build order: module 8 (last). Depends on the shared
 `HubNotifier`, the shared hub AI config, **Prism**, and a new **Google Calendar
 OAuth** integration. See [Roadmap](../Roadmap.md).
 
@@ -182,11 +182,11 @@ JSON via Resources.
 
 ## 10. Acceptance criteria
 
-- [ ] Sunday evening a validated weekly plan is generated from Google Calendar busy times and the intentions, then pushed via ntfy + shown in the hub.
-- [ ] Proposed blocks never overlap work hours or existing events; sport/mother/date respect their windows and targets.
-- [ ] Tight weeks place as many as possible and clearly report what didn't fit.
-- [ ] 1-click add (and add-all) insert events into Google Calendar.
-- [ ] Intentions are managed via endpoints; JSON contract matches §8; all tests pass via `composer test`.
+- [x] Sunday evening a validated weekly plan is generated from Google Calendar busy times and the intentions, then pushed via ntfy + shown in the hub.
+- [x] Proposed blocks never overlap work hours or existing events; sport/mother/date respect their windows and targets.
+- [x] Tight weeks place as many as possible and clearly report what didn't fit.
+- [x] 1-click add (and add-all) insert events into Google Calendar.
+- [x] Intentions are managed via endpoints; JSON contract matches §8; all tests pass via `composer test`.
 
 ---
 
