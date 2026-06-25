@@ -2,7 +2,6 @@
 
 namespace Modules\News\Models\Builders;
 
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -16,11 +15,6 @@ class NewsItemBuilder extends Builder
     public function forTopic(string $topic): static
     {
         return $this->where('topic', $topic);
-    }
-
-    public function recent(CarbonInterface $since): static
-    {
-        return $this->where('published_at', '>=', $since);
     }
 
     public function latestPerTopic(int $limit): Collection

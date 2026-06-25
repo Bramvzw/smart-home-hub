@@ -2,7 +2,6 @@
 
 namespace Modules\News\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as BaseBuilder;
 use Modules\News\Models\Builders\NewsItemBuilder;
@@ -37,10 +36,5 @@ class NewsItem extends Model
     {
         /** @var BaseBuilder $query */
         return new NewsItemBuilder($query);
-    }
-
-    public function scopeUnread(Builder $query): Builder
-    {
-        return $query->where('is_read', false);
     }
 }
