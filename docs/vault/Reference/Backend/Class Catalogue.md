@@ -182,7 +182,10 @@ Status: active. This module owns price watchlists at `/deals`.
 | `Modules\Deals\Providers\DealsServiceProvider` | Registers Deals metadata, retailer adapters and service bindings. |
 | `Modules\Deals\Http\Controllers\DealsController` | Thin HTTP boundary for watchlist, matching review, history and manual checks. |
 | `Modules\Deals\Http\Resources\WatchedProductResource` | Stable JSON transformer for watched products. |
-| `Modules\Deals\Http\Resources\ProductListingResource` | Stable JSON transformer for retailer listings. |
+| `Modules\Deals\Http\Resources\ProductListingResource` | Stable JSON transformer for retailer listings; scheme-guards listing urls. |
+| `Modules\Deals\Http\Resources\ProductHistoryResource` | Stable price-history contract for a watched product (expects eager-loaded `listings.pricePoints`). |
+| `Modules\Deals\Http\Resources\PricePointResource` | Stable JSON transformer for a single observed price point. |
+| `Modules\Deals\Support\SafeUrl` | URL-scheme guard returning untrusted retailer links only when http(s). |
 | `Modules\Deals\Actions\AddWatchedProduct` | Creates a product and unconfirmed retailer candidate listings. |
 | `Modules\Deals\Actions\ConfirmListing` | Confirms a candidate listing for tracking. |
 | `Modules\Deals\Actions\RemoveListing` | Removes a wrong candidate listing. |
