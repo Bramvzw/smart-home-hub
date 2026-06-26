@@ -178,11 +178,11 @@ class TaskRecurrenceControllerTest extends TestCase
 
         $this->get(route('tasks.habits.index'))
             ->assertOk()
-            ->assertSee('Gewoontes')
+            ->assertSee('Habits')
             ->assertSee('Sporten')
             ->assertSee('3× per week')
             ->assertSee('Rookmelders testen')
-            ->assertSee('elke 6 maanden');
+            ->assertSee('every 6 months');
     }
 
     public function test_complete_maintenance_endpoint_reschedules_and_clears_board_card(): void

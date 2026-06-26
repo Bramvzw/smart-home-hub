@@ -15,8 +15,8 @@ const send = (url, method, body = null) =>
         body: body ? JSON.stringify(body) : null,
     });
 
-const TAB_TITLES = { gewoontes: 'Gewoontes', onderhoud: 'Onderhoud' };
-const CREATE_LABELS = { gewoontes: 'Nieuwe gewoonte', onderhoud: 'Nieuwe onderhoudstaak' };
+const TAB_TITLES = { gewoontes: 'Habits', onderhoud: 'Maintenance' };
+const CREATE_LABELS = { gewoontes: 'New habit', onderhoud: 'New maintenance task' };
 
 const initHabits = () => {
     const root = document.querySelector('[data-habits]');
@@ -60,7 +60,7 @@ const initHabits = () => {
         const check = card.querySelector('[data-hb-toggle]');
         if (check) {
             check.setAttribute('aria-pressed', nowDone ? 'true' : 'false');
-            check.title = nowDone ? 'Ongedaan maken' : 'Vandaag afvinken';
+            check.title = nowDone ? 'Undo' : 'Mark done for today';
         }
 
         const tagDone = card.querySelector('[data-hb-tag-done]');
@@ -138,11 +138,11 @@ const initHabits = () => {
             row.classList.remove('overdue', 'soon');
             btn.classList.add('is-done');
             const label = btn.querySelector('[data-hb-maction-label]');
-            if (label) label.textContent = 'Gedaan';
+            if (label) label.textContent = 'Done';
             const rel = row.querySelector('[data-hb-due-rel]');
-            if (rel) rel.textContent = 'Opnieuw gepland';
+            if (rel) rel.textContent = 'Rescheduled';
             const abs = row.querySelector('[data-hb-due-abs]');
-            if (abs) abs.textContent = '+ 1 periode';
+            if (abs) abs.textContent = '+ 1 period';
             row.querySelector('[data-hb-onboard]')?.remove();
 
             send(btn.dataset.hbCompleteUrl, 'POST', {})
@@ -236,7 +236,7 @@ const initHabits = () => {
     const buildPayload = () => {
         const type = form.querySelector('[data-hb-form-type]').value;
         const title = form.querySelector('[data-hb-form-title]').value.trim();
-        if (!title) return { error: 'Geef een titel op.' };
+        if (!title) return { error: 'Enter a title.' };
 
         if (type === 'maintenance') {
             const interval = Math.max(1, parseInt(root.querySelector('[data-hb-interval]').value, 10) || 1);
@@ -262,7 +262,7 @@ const initHabits = () => {
             return { payload: { type: 'habit', title, cadence_type: 'weekdays', cadence_config: { weekdays: [1, 2, 3, 4, 5, 6, 7] } } };
         }
         const weekdays = Array.from(root.querySelectorAll('[data-hb-wd].on')).map((wd) => Number(wd.dataset.hbWd));
-        if (weekdays.length === 0) return { error: 'Kies minstens één weekdag.' };
+        if (weekdays.length === 0) return { error: 'Choose at least one weekday.' };
         return { payload: { type: 'habit', title, cadence_type: 'weekdays', cadence_config: { weekdays } } };
     };
 
@@ -286,7 +286,7 @@ const initHabits = () => {
             })
             .catch(() => {
                 if (submit) submit.disabled = false;
-                showError('Aanmaken mislukt. Probeer het opnieuw.');
+                showError('Creating failed. Please try again.');
             });
     });
 };

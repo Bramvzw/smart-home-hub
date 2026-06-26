@@ -14,7 +14,7 @@ use Modules\Tasks\Services\StreakCalculator;
  */
 class HabitsPageViewModel
 {
-    private const WEEKDAY_LABELS = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
+    private const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
@@ -52,7 +52,7 @@ class HabitsPageViewModel
 
         return [
             'date' => $today->toDateString(),
-            'today_label' => $today->locale('nl')->isoFormat('dddd D MMMM'),
+            'today_label' => $today->locale('en')->isoFormat('dddd D MMMM'),
             'habits' => $habits,
             'maintenance' => $maintenance,
             'habit_count' => count($habits),
@@ -191,7 +191,7 @@ class HabitsPageViewModel
     private function dueRelative(?CarbonImmutable $due, CarbonImmutable $today): string
     {
         if (! $due) {
-            return 'geen datum';
+            return 'no date';
         }
 
         $days = (int) $today->diffInDays($due, false);
@@ -199,27 +199,27 @@ class HabitsPageViewModel
         if ($days < 0) {
             $n = abs($days);
 
-            return $n.' '.($n === 1 ? 'dag' : 'dagen').' te laat';
+            return $n.' '.($n === 1 ? 'day' : 'days').' overdue';
         }
 
         if ($days === 0) {
-            return 'vandaag';
+            return 'today';
         }
 
         if ($days > 45) {
             $months = (int) round($days / 30);
 
-            return 'over ~'.$months.' '.($months === 1 ? 'maand' : 'maanden');
+            return 'in ~'.$months.' '.($months === 1 ? 'month' : 'months');
         }
 
-        return 'over '.$days.' '.($days === 1 ? 'dag' : 'dagen');
+        return 'in '.$days.' '.($days === 1 ? 'day' : 'days');
     }
 
     private function formatDate(CarbonImmutable $date, CarbonImmutable $today): string
     {
         $format = $date->year === $today->year ? 'D MMM' : 'MMM YYYY';
 
-        return $date->locale('nl')->isoFormat($format);
+        return $date->locale('en')->isoFormat($format);
     }
 
     private function habitCadenceLabel(TaskRecurrence $recurrence): string
@@ -228,10 +228,10 @@ class HabitsPageViewModel
 
         return match ($recurrence->cadence_type) {
             'times_per_week' => max(1, (int) ($config['times'] ?? $config['target'] ?? $config['count'] ?? 1)).'× per week',
-            'weekly' => 'wekelijks',
-            'monthly' => 'maandelijks',
+            'weekly' => 'weekly',
+            'monthly' => 'monthly',
             'weekdays' => $this->weekdaysLabel($recurrence),
-            default => 'dagelijks',
+            default => 'daily',
         };
     }
 
@@ -240,7 +240,7 @@ class HabitsPageViewModel
         $days = $this->scheduledWeekdays($recurrence);
 
         if (count($days) === 7) {
-            return 'dagelijks';
+            return 'daily';
         }
 
         return collect($days)
@@ -257,30 +257,30 @@ class HabitsPageViewModel
                 max(1, (int) ($config['interval'] ?? $config['every'] ?? 1)),
                 (string) ($config['unit'] ?? 'days'),
             ),
-            'weekly' => 'wekelijks',
-            'monthly' => 'maandelijks',
-            'annual' => 'jaarlijks',
-            default => 'terugkerend',
+            'weekly' => 'weekly',
+            'monthly' => 'monthly',
+            'annual' => 'annually',
+            default => 'recurring',
         };
     }
 
     private function intervalLabel(int $interval, string $unit): string
     {
         $labels = [
-            'day' => ['dag', 'dagen'],
-            'days' => ['dag', 'dagen'],
-            'week' => ['week', 'weken'],
-            'weeks' => ['week', 'weken'],
-            'month' => ['maand', 'maanden'],
-            'months' => ['maand', 'maanden'],
-            'year' => ['jaar', 'jaar'],
-            'years' => ['jaar', 'jaar'],
+            'day' => ['day', 'days'],
+            'days' => ['day', 'days'],
+            'week' => ['week', 'weeks'],
+            'weeks' => ['week', 'weeks'],
+            'month' => ['month', 'months'],
+            'months' => ['month', 'months'],
+            'year' => ['year', 'years'],
+            'years' => ['year', 'years'],
         ];
-        [$singular, $plural] = $labels[$unit] ?? ['periode', 'periodes'];
+        [$singular, $plural] = $labels[$unit] ?? ['period', 'periods'];
 
         return $interval === 1
-            ? 'elke '.$singular
-            : 'elke '.$interval.' '.$plural;
+            ? 'every '.$singular
+            : 'every '.$interval.' '.$plural;
     }
 
     /**
@@ -329,10 +329,12 @@ class HabitsPageViewModel
         $t = mb_strtolower($title);
 
         return match (true) {
-            str_contains($t, 'sport') || str_contains($t, 'hardlop') || str_contains($t, 'gym') || str_contains($t, 'fitness') || str_contains($t, 'kracht') || str_contains($t, 'wandel') => 'Activity',
-            str_contains($t, 'lees') || str_contains($t, 'lezen') || str_contains($t, 'boek') => 'Book',
-            str_contains($t, 'medit') || str_contains($t, 'mindful') || str_contains($t, 'ademhal') => 'Spark',
-            str_contains($t, 'spaans') || str_contains($t, 'taal') || str_contains($t, 'leren') || str_contains($t, 'engels') || str_contains($t, 'frans') || str_contains($t, 'duits') => 'Target',
+            str_contains($t, 'sport') || str_contains($t, 'hardlop') || str_contains($t, 'gym') || str_contains($t, 'fitness') || str_contains($t, 'kracht') || str_contains($t, 'wandel')
+                || str_contains($t, 'exercise') || str_contains($t, 'run') || str_contains($t, 'workout') || str_contains($t, 'walk') || str_contains($t, 'strength') => 'Activity',
+            str_contains($t, 'lees') || str_contains($t, 'lezen') || str_contains($t, 'boek') || str_contains($t, 'read') || str_contains($t, 'book') => 'Book',
+            str_contains($t, 'medit') || str_contains($t, 'mindful') || str_contains($t, 'ademhal') || str_contains($t, 'breath') => 'Spark',
+            str_contains($t, 'spaans') || str_contains($t, 'taal') || str_contains($t, 'leren') || str_contains($t, 'engels') || str_contains($t, 'frans') || str_contains($t, 'duits')
+                || str_contains($t, 'language') || str_contains($t, 'learn') || str_contains($t, 'spanish') || str_contains($t, 'french') || str_contains($t, 'study') => 'Target',
             str_contains($t, 'water') || str_contains($t, 'drink') || str_contains($t, 'hydrat') => 'Drop',
             default => 'Flame',
         };
@@ -343,9 +345,12 @@ class HabitsPageViewModel
         $t = mb_strtolower($title);
 
         return match (true) {
-            str_contains($t, 'rook') || str_contains($t, 'melder') || str_contains($t, 'alarm') || str_contains($t, 'batterij') => 'Bell',
-            str_contains($t, 'moestuin') || str_contains($t, 'tuin') || str_contains($t, 'zaai') || str_contains($t, 'plant') || str_contains($t, 'snoei') => 'Leaf',
-            str_contains($t, 'filter') || str_contains($t, 'cv') || str_contains($t, 'dakgoot') || str_contains($t, 'lek') || str_contains($t, 'water') => 'Drop',
+            str_contains($t, 'rook') || str_contains($t, 'melder') || str_contains($t, 'alarm') || str_contains($t, 'batterij')
+                || str_contains($t, 'smoke') || str_contains($t, 'detector') || str_contains($t, 'battery') => 'Bell',
+            str_contains($t, 'moestuin') || str_contains($t, 'tuin') || str_contains($t, 'zaai') || str_contains($t, 'plant') || str_contains($t, 'snoei')
+                || str_contains($t, 'garden') || str_contains($t, 'sow') || str_contains($t, 'prune') => 'Leaf',
+            str_contains($t, 'filter') || str_contains($t, 'cv') || str_contains($t, 'dakgoot') || str_contains($t, 'lek') || str_contains($t, 'water')
+                || str_contains($t, 'gutter') || str_contains($t, 'leak') || str_contains($t, 'boiler') => 'Drop',
             default => 'Wrench',
         };
     }

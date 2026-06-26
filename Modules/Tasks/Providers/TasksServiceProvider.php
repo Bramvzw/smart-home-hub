@@ -31,7 +31,7 @@ class TasksServiceProvider extends ModuleServiceProvider
     {
         return [
             ['label' => 'Tasks', 'route' => 'tasks.index', 'icon' => 'clipboard-list'],
-            ['label' => 'Gewoontes', 'route' => 'tasks.habits.index', 'icon' => 'habits'],
+            ['label' => 'Habits', 'route' => 'tasks.habits.index', 'icon' => 'habits'],
         ];
     }
 

@@ -1,4 +1,4 @@
-<x-dashboard.layout title="Gewoontes" :hideHeader="true">
+<x-dashboard.layout title="Habits" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Tasks/resources/assets/css/habits.css'])
     </x-slot:head>
@@ -50,42 +50,42 @@
             {{-- ============ header ============ --}}
             <div class="hb-head">
                 <div class="hb-head-l">
-                    <span class="hb-eyebrow">{!! $hbIcon('Flame', 13, 1.7, 'ic') !!} Taken · Routines</span>
-                    <h1 class="hb-title disp" data-hb-page-title>Gewoontes</h1>
+                    <span class="hb-eyebrow">{!! $hbIcon('Flame', 13, 1.7, 'ic') !!} Tasks · Routines</span>
+                    <h1 class="hb-title disp" data-hb-page-title>Habits</h1>
                     <div class="hb-sub">
                         <span data-hb-sub="gewoontes">
-                            <b style="text-transform: capitalize">{{ $today_label }}</b> ·
-                            <b class="tnum">{{ $done_today }}/{{ $actionable_today }}</b> vandaag afgerond
+                            <b>{{ $today_label }}</b> ·
+                            <b class="tnum">{{ $done_today }}/{{ $actionable_today }}</b> done today
                         </span>
                         <span data-hb-sub="onderhoud" hidden>
-                            <b style="text-transform: capitalize">{{ $today_label }}</b>
+                            <b>{{ $today_label }}</b>
                             @if($overdue_count > 0)
-                                · <span class="acc">{{ $overdue_count }} {{ $overdue_count === 1 ? 'taak' : 'taken' }} te laat</span>
+                                · <span class="acc">{{ $overdue_count }} {{ $overdue_count === 1 ? 'task' : 'tasks' }} overdue</span>
                             @endif
                             @if($soon_count > 0)
-                                , {{ $soon_count }} binnenkort
+                                , {{ $soon_count }} soon
                             @endif
                         </span>
                     </div>
                 </div>
                 <div class="hb-head-r">
                     <button class="hb-btn hb-btn-primary" data-hb-create>
-                        {!! $hbIcon('Plus', 15, 2.2) !!} <span data-hb-create-label>Nieuwe gewoonte</span>
+                        {!! $hbIcon('Plus', 15, 2.2) !!} <span data-hb-create-label>New habit</span>
                     </button>
                 </div>
             </div>
 
             {{-- ============ tabs ============ --}}
             <div class="hb-tabs">
-                <a class="hb-tab" href="{{ route('tasks.index') }}" wire:navigate title="Het bestaande kanban-bord">
-                    {!! $hbIcon('Grid', 15, 1.7, 'ic') !!} Bord
+                <a class="hb-tab" href="{{ route('tasks.index') }}" wire:navigate title="The existing kanban board">
+                    {!! $hbIcon('Grid', 15, 1.7, 'ic') !!} Board
                 </a>
                 <button class="hb-tab on" data-hb-tab="gewoontes">
-                    {!! $hbIcon('Flame', 15, 1.7, 'ic') !!} Gewoontes
+                    {!! $hbIcon('Flame', 15, 1.7, 'ic') !!} Habits
                     <span class="hb-tab-count tnum">{{ $habit_count }}</span>
                 </button>
                 <button class="hb-tab" data-hb-tab="onderhoud">
-                    {!! $hbIcon('Wrench', 15, 1.7, 'ic') !!} Onderhoud
+                    {!! $hbIcon('Wrench', 15, 1.7, 'ic') !!} Maintenance
                     <span class="hb-tab-count tnum">{{ $maintenance_count }}</span>
                 </button>
                 <span class="hb-tabs-spacer"></span>
@@ -96,19 +96,19 @@
                 @if($habit_count === 0)
                     <div class="hb-state">
                         <span class="hb-state-ico">{!! $hbIcon('Flame', 26) !!}</span>
-                        <div class="hb-state-title">Nog geen gewoontes</div>
+                        <div class="hb-state-title">No habits yet</div>
                         <div class="hb-state-sub">
-                            Houd routines bij naast je taken — sporten, lezen, een taal leren. De hub telt je
-                            reeks en laat zien wat er vandaag nog open staat.
+                            Track routines alongside your tasks — exercise, reading, learning a language. The hub
+                            counts your streak and shows what's still open today.
                         </div>
                         <div class="hb-state-actions">
-                            <button class="hb-btn hb-btn-primary" data-hb-create>{!! $hbIcon('Plus', 15, 2.2) !!} Nieuwe gewoonte</button>
+                            <button class="hb-btn hb-btn-primary" data-hb-create>{!! $hbIcon('Plus', 15, 2.2) !!} New habit</button>
                         </div>
                         <div class="hb-suggest">
-                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Sporten","cadence_type":"times_per_week","times":3}'>{!! $hbIcon('Activity', 14, 1.7, 'ic') !!} Sporten · 3× per week</button>
-                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Lezen","cadence_type":"weekdays","weekdays":[1,3,5]}'>{!! $hbIcon('Book', 14, 1.7, 'ic') !!} Lezen · ma/wo/vr</button>
-                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Mediteren","cadence_type":"daily"}'>{!! $hbIcon('Spark', 14, 1.7, 'ic') !!} Mediteren · dagelijks</button>
-                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Water drinken","cadence_type":"daily"}'>{!! $hbIcon('Drop', 14, 1.7, 'ic') !!} Water · dagelijks</button>
+                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Exercise","cadence_type":"times_per_week","times":3}'>{!! $hbIcon('Activity', 14, 1.7, 'ic') !!} Exercise · 3× per week</button>
+                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Reading","cadence_type":"weekdays","weekdays":[1,3,5]}'>{!! $hbIcon('Book', 14, 1.7, 'ic') !!} Reading · Mon/Wed/Fri</button>
+                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Meditate","cadence_type":"daily"}'>{!! $hbIcon('Spark', 14, 1.7, 'ic') !!} Meditate · daily</button>
+                            <button class="hb-suggest-chip" data-hb-suggest='{"title":"Drink water","cadence_type":"daily"}'>{!! $hbIcon('Drop', 14, 1.7, 'ic') !!} Water · daily</button>
                         </div>
                     </div>
                 @else
@@ -124,7 +124,7 @@
                                         data-hb-toggle
                                         data-hb-complete-url="{{ $habit['complete_url'] }}"
                                         aria-pressed="{{ $habit['completed_today'] ? 'true' : 'false' }}"
-                                        title="{{ $habit['rest_today'] && ! $habit['completed_today'] ? 'Geen geplande dag' : ($habit['completed_today'] ? 'Ongedaan maken' : 'Vandaag afvinken') }}">
+                                        title="{{ $habit['rest_today'] && ! $habit['completed_today'] ? 'Not a scheduled day' : ($habit['completed_today'] ? 'Undo' : 'Mark done for today') }}">
                                     <span class="hb-check-rest" data-hb-icon-rest>{!! $hbIcon($habit['icon'], 24, 1.8) !!}</span>
                                     <span class="hb-check-done" data-hb-icon-done>{!! $hbIcon('Check', 26, 2.6) !!}</span>
                                 </button>
@@ -133,9 +133,9 @@
                                     <div class="hb-hrow1">
                                         <span class="hb-htitle">{{ $habit['title'] }}</span>
                                         <span class="hb-cadence">{!! $hbIcon('Repeat', 12, 1.7, 'ic') !!} {{ $habit['cadence_label'] }}</span>
-                                        <span class="hb-tag ok" data-hb-tag-done @if(! $habit['completed_today']) hidden @endif>{!! $hbIcon('CheckSm', 12, 2.4) !!} Vandaag gedaan</span>
+                                        <span class="hb-tag ok" data-hb-tag-done @if(! $habit['completed_today']) hidden @endif>{!! $hbIcon('CheckSm', 12, 2.4) !!} Done today</span>
                                         @if($habit['rest_today'] && ! $habit['completed_today'])
-                                            <span class="hb-tag rest">Rustdag vandaag</span>
+                                            <span class="hb-tag rest">Rest day today</span>
                                         @endif
                                     </div>
                                     <div class="hb-prog">
@@ -146,8 +146,8 @@
                                                 @endfor
                                             </div>
                                             <span class="hb-prog-tx">
-                                                <b class="tnum"><span data-hb-prog-done>{{ $habit['done'] }}</span>/{{ $habit['target'] }}</b> deze week
-                                                <span class="ok" data-hb-prog-reached @if(! $habit['reached']) hidden @endif> · doel gehaald</span>
+                                                <b class="tnum"><span data-hb-prog-done>{{ $habit['done'] }}</span>/{{ $habit['target'] }}</b> this week
+                                                <span class="ok" data-hb-prog-reached @if(! $habit['reached']) hidden @endif> · goal reached</span>
                                             </span>
                                         @else
                                             <div class="hb-week">
@@ -158,11 +158,11 @@
                                                     </div>
                                                 @endforeach
                                             </div>
-                                            <span class="hb-prog-tx"><b class="tnum"><span data-hb-prog-done>{{ $habit['week_done'] }}</span>/{{ $habit['week_total'] }}</b> deze week</span>
+                                            <span class="hb-prog-tx"><b class="tnum"><span data-hb-prog-done>{{ $habit['week_done'] }}</span>/{{ $habit['week_total'] }}</b> this week</span>
                                         @endif
                                     </div>
                                     <button class="hb-undo" data-hb-undo @if(! $habit['completed_today']) hidden @endif>
-                                        {!! $hbIcon('Undo', 13) !!} Ongedaan maken
+                                        {!! $hbIcon('Undo', 13) !!} Undo
                                     </button>
                                 </div>
 
@@ -171,7 +171,7 @@
                                         {!! $hbIcon('Flame', 16, 1.7, 'ic') !!}
                                         <span class="n tnum" data-hb-streak-n>{{ $habit['streak'] }}</span>
                                     </span>
-                                    <span class="hb-best">beste <b class="tnum">{{ $habit['best'] }}</b></span>
+                                    <span class="hb-best">best <b class="tnum">{{ $habit['best'] }}</b></span>
                                 </div>
                             </div>
                         @endforeach
@@ -185,8 +185,8 @@
                     <div class="hb-note">
                         {!! $hbIcon('Alert', 17, 1.7, 'ic') !!}
                         <div class="hb-note-tx">
-                            <b>{{ $overdue_count }} {{ $overdue_count === 1 ? 'onderhoudstaak staat' : 'onderhoudstaken staan' }} te laat</b>
-                            en {{ $overdue_count === 1 ? 'verschijnt' : 'verschijnen' }} nu ook als kaart op je kanban-bord, met een terugkerend-markering.
+                            <b>{{ $overdue_count }} {{ $overdue_count === 1 ? 'maintenance task is' : 'maintenance tasks are' }} overdue</b>
+                            and now also {{ $overdue_count === 1 ? 'appears' : 'appear' }} as a card on your kanban board, with a recurring marker.
                         </div>
                     </div>
                 @endif
@@ -194,17 +194,17 @@
                 @if($maintenance_count === 0)
                     <div class="hb-state">
                         <span class="hb-state-ico">{!! $hbIcon('Wrench', 26) !!}</span>
-                        <div class="hb-state-title">Nog geen onderhoudstaken</div>
+                        <div class="hb-state-title">No maintenance tasks yet</div>
                         <div class="hb-state-sub">
-                            Plan terugkerend onderhoud — rookmelders, filters, de moestuin. Due taken
-                            verschijnen automatisch op je bord met een terugkerend-markering.
+                            Schedule recurring maintenance — smoke detectors, filters, the garden. Due tasks
+                            appear automatically on your board with a recurring marker.
                         </div>
                         <div class="hb-state-actions">
-                            <button class="hb-btn hb-btn-primary" data-hb-create data-hb-create-type="maintenance">{!! $hbIcon('Plus', 15, 2.2) !!} Nieuwe onderhoudstaak</button>
+                            <button class="hb-btn hb-btn-primary" data-hb-create data-hb-create-type="maintenance">{!! $hbIcon('Plus', 15, 2.2) !!} New maintenance task</button>
                         </div>
                     </div>
                 @else
-                    <span class="hb-section-label">Terugkerende onderhoudstaken</span>
+                    <span class="hb-section-label">Recurring maintenance tasks</span>
                     <div class="hb-mlist">
                         @foreach($maintenance as $item)
                             <div class="hb-mrow {{ $item['status'] }}" data-hb-mrow data-hb-id="{{ $item['id'] }}">
@@ -214,20 +214,20 @@
                                     <div class="hb-mmeta">
                                         <span class="hb-mcad">{!! $hbIcon('Repeat', 13, 1.7, 'ic') !!} {{ $item['cadence_label'] }}</span>
                                         @if($item['last_label'])
-                                            <span class="hb-mlast">laatst: {{ $item['last_label'] }}</span>
+                                            <span class="hb-mlast">last: {{ $item['last_label'] }}</span>
                                         @endif
                                     </div>
                                 </div>
                                 <div class="hb-mright">
                                     @if($item['on_board'])
-                                        <span class="hb-onboard" data-hb-onboard>{!! $hbIcon('Grid', 11) !!} Op het bord</span>
+                                        <span class="hb-onboard" data-hb-onboard>{!! $hbIcon('Grid', 11) !!} On the board</span>
                                     @endif
                                     <span class="hb-due">
                                         <span class="hb-due-rel" data-hb-due-rel>{{ $item['due_rel'] }}</span>
                                         <span class="hb-due-abs" data-hb-due-abs>{{ $item['due_abs'] }}</span>
                                     </span>
                                     <button class="hb-maction" data-hb-maction data-hb-complete-url="{{ $item['complete_url'] }}">
-                                        {!! $hbIcon('CheckSm', 14, 2.2) !!} <span data-hb-maction-label>Afvinken</span>
+                                        {!! $hbIcon('CheckSm', 14, 2.2) !!} <span data-hb-maction-label>Mark done</span>
                                     </button>
                                 </div>
                             </div>
@@ -242,36 +242,36 @@
             <div class="hb-modal" role="dialog" aria-modal="true">
                 <div class="hb-modal-head">
                     <span class="hb-modal-ico">{!! $hbIcon('Plus', 18, 2.2) !!}</span>
-                    <span class="hb-modal-title" data-hb-modal-title>Nieuwe gewoonte</span>
-                    <button class="hb-modal-close" data-hb-modal-close aria-label="Sluiten">{!! $hbIcon('X', 18, 2) !!}</button>
+                    <span class="hb-modal-title" data-hb-modal-title>New habit</span>
+                    <button class="hb-modal-close" data-hb-modal-close aria-label="Close">{!! $hbIcon('X', 18, 2) !!}</button>
                 </div>
 
                 <form data-hb-form>
                     <input type="hidden" name="type" value="habit" data-hb-form-type>
 
                     <div class="hb-field">
-                        <label class="hb-label" for="hb-title">Titel</label>
-                        <input class="hb-input" id="hb-title" name="title" required maxlength="160" placeholder="Bijv. Sporten" data-hb-form-title>
+                        <label class="hb-label" for="hb-title">Title</label>
+                        <input class="hb-input" id="hb-title" name="title" required maxlength="160" placeholder="e.g. Exercise" data-hb-form-title>
                     </div>
 
                     {{-- habit cadence --}}
                     <div data-hb-mfield="habit">
                         <div class="hb-field">
-                            <label class="hb-label" for="hb-cadence">Ritme</label>
+                            <label class="hb-label" for="hb-cadence">Cadence</label>
                             <select class="hb-select" id="hb-cadence" data-hb-cadence>
-                                <option value="times_per_week">Aantal keer per week</option>
-                                <option value="weekdays">Bepaalde weekdagen</option>
-                                <option value="daily">Dagelijks</option>
+                                <option value="times_per_week">Times per week</option>
+                                <option value="weekdays">Specific weekdays</option>
+                                <option value="daily">Daily</option>
                             </select>
                         </div>
                         <div class="hb-field" data-hb-cfield="times_per_week">
-                            <label class="hb-label" for="hb-times">Keer per week</label>
+                            <label class="hb-label" for="hb-times">Times per week</label>
                             <input class="hb-input" id="hb-times" type="number" min="1" max="7" value="3" data-hb-times>
                         </div>
                         <div class="hb-field" data-hb-cfield="weekdays" hidden>
-                            <label class="hb-label">Weekdagen</label>
+                            <label class="hb-label">Weekdays</label>
                             <div class="hb-weekdays" data-hb-weekdays>
-                                @foreach(['ma' => 1, 'di' => 2, 'wo' => 3, 'do' => 4, 'vr' => 5, 'za' => 6, 'zo' => 7] as $label => $iso)
+                                @foreach(['Mon' => 1, 'Tue' => 2, 'Wed' => 3, 'Thu' => 4, 'Fri' => 5, 'Sat' => 6, 'Sun' => 7] as $label => $iso)
                                     <button type="button" class="hb-wd" data-hb-wd="{{ $iso }}">{{ $label }}</button>
                                 @endforeach
                             </div>
@@ -282,21 +282,21 @@
                     <div data-hb-mfield="maintenance" hidden>
                         <div class="hb-cadence-row">
                             <div class="hb-field">
-                                <label class="hb-label" for="hb-interval">Elke</label>
+                                <label class="hb-label" for="hb-interval">Every</label>
                                 <input class="hb-input" id="hb-interval" type="number" min="1" value="3" data-hb-interval>
                             </div>
                             <div class="hb-field">
-                                <label class="hb-label" for="hb-unit">Eenheid</label>
+                                <label class="hb-label" for="hb-unit">Unit</label>
                                 <select class="hb-select" id="hb-unit" data-hb-unit>
-                                    <option value="days">dagen</option>
-                                    <option value="weeks">weken</option>
-                                    <option value="months" selected>maanden</option>
-                                    <option value="years">jaar</option>
+                                    <option value="days">days</option>
+                                    <option value="weeks">weeks</option>
+                                    <option value="months" selected>months</option>
+                                    <option value="years">years</option>
                                 </select>
                             </div>
                         </div>
                         <div class="hb-field">
-                            <label class="hb-label" for="hb-due">Eerstvolgende keer</label>
+                            <label class="hb-label" for="hb-due">Next due</label>
                             <input class="hb-input" id="hb-due" type="date" data-hb-due>
                         </div>
                     </div>
@@ -306,8 +306,8 @@
                     </div>
 
                     <div class="hb-modal-actions">
-                        <button type="button" class="hb-btn hb-btn-ghost" data-hb-modal-close>Annuleren</button>
-                        <button type="submit" class="hb-btn hb-btn-primary" data-hb-submit>{!! $hbIcon('Plus', 15, 2.2) !!} Aanmaken</button>
+                        <button type="button" class="hb-btn hb-btn-ghost" data-hb-modal-close>Cancel</button>
+                        <button type="submit" class="hb-btn hb-btn-primary" data-hb-submit>{!! $hbIcon('Plus', 15, 2.2) !!} Create</button>
                     </div>
                 </form>
             </div>
