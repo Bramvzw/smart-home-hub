@@ -1,4 +1,4 @@
-.PHONY: help cache optimize migrate deploy logs restart shell
+.PHONY: help release cache optimize migrate deploy logs restart shell
 
 # Use Compose v2 ("docker compose") when available, else fall back to the v1
 # binary ("docker-compose"). The NAS (Synology Container Manager) only ships v1.
@@ -6,6 +6,9 @@ COMPOSE := $(shell docker compose version >/dev/null 2>&1 && echo "docker compos
 
 help: ## Toon beschikbare commando's
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
+
+release: ## One-button release vanaf de Mac. Gebruik: make release m="wat je veranderde"
+	@bin/release.sh "$(m)"
 
 cache: ## Warm alle Laravel caches op (config, route, view, event)
 	$(COMPOSE) exec hub php artisan config:cache
