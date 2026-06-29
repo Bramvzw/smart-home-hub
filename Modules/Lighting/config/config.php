@@ -61,7 +61,7 @@ return [
     ],
 
     // Light-state cache lifetime in seconds (polling + cache, no realtime push).
-    'cache_ttl' => (int) env('LIGHTING_CACHE_TTL', 30),
+    'cache_ttl' => (int) env('LIGHTING_CACHE_TTL', 120),
 
     // Network timeout per provider request, in seconds.
     'request_timeout' => (int) env('LIGHTING_REQUEST_TIMEOUT', 10),
