@@ -77,7 +77,7 @@
 .dt .tnum { font-variant-numeric: tabular-nums; }
 .dt .disp { font-family: var(--disp); letter-spacing: -0.02em; }
 
-.dt-wrap { max-width: 1280px; margin: 0 auto; padding: 30px 40px 46px; }
+.dt-wrap { max-width: var(--hub-page-max); margin: 0 auto; padding: 30px var(--hub-page-pad-x) 46px; }
 
 /* ============================================================
    Page header

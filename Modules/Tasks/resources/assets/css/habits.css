@@ -67,7 +67,7 @@
 .hb .disp { font-family: var(--disp); letter-spacing: -0.02em; }
 
 /* inner content wrapper — centered, capped width */
-.hb-wrap { max-width: 1180px; margin: 0 auto; padding: 30px 40px 46px; }
+.hb-wrap { max-width: var(--hub-page-max); margin: 0 auto; padding: 30px var(--hub-page-pad-x) 46px; }
 
 /* ============================================================
    Page header

@@ -45,6 +45,9 @@ html.touch-device * {
     --hub-danger-soft: rgba(224, 87, 92, 0.13);
     --hub-green: #34b8a0;
     --hub-topbar-height: 66px;
+    /* Shared content-page width + horizontal inset for centered module pages. */
+    --hub-page-max: 1280px;
+    --hub-page-pad-x: 40px;
 }
 
 html {

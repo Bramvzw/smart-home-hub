@@ -69,7 +69,7 @@
 .pr .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, "SFMono-Regular", "Roboto Mono", Menlo, monospace; }
 .pr .disp { font-family: var(--disp); letter-spacing: -0.02em; }
 
-.pr-wrap { max-width: 1180px; margin: 0 auto; padding: 30px 40px 46px; }
+.pr-wrap { max-width: var(--hub-page-max); margin: 0 auto; padding: 30px var(--hub-page-pad-x) 46px; }
 
 /* ============================================================
    Page header
