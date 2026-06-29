@@ -3,6 +3,7 @@
 namespace Modules\Recipes\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Schema;
 use Modules\Recipes\Contracts\RecipeTextGenerator;
 use Modules\Recipes\Models\Recipe;
@@ -42,6 +43,13 @@ class RecipesServiceProvider extends ModuleServiceProvider
         return [
             ['label' => 'Recepten', 'route' => 'recipes.index', 'icon' => 'recipes'],
         ];
+    }
+
+    public function health(): ModuleHealth
+    {
+        return ModuleHealth::require([
+            'HUB_AI_ANTHROPIC_API_KEY' => config('ai.anthropic.api_key'),
+        ]);
     }
 
     public function getDashboardWidget(): ?string
