@@ -1,6 +1,6 @@
 {
   "Modules/Briefing/resources/assets/css/briefing.css": {
-    "file": "assets/briefing-DI3N5zFX.css",
+    "file": "assets/briefing-uIFv6xt3.css",
     "src": "Modules/Briefing/resources/assets/css/briefing.css",
     "isEntry": true
   },
@@ -11,7 +11,7 @@
     "isEntry": true
   },
   "Modules/Deals/resources/assets/css/dealtracker.css": {
-    "file": "assets/dealtracker-B61VTleG.css",
+    "file": "assets/dealtracker-n6-6GW4q.css",
     "src": "Modules/Deals/resources/assets/css/dealtracker.css",
     "isEntry": true
   },
@@ -22,7 +22,7 @@
     "isEntry": true
   },
   "Modules/Entertainment/resources/assets/css/entertainment.css": {
-    "file": "assets/entertainment-BCJE38gU.css",
+    "file": "assets/entertainment-BZpGBBy7.css",
     "src": "Modules/Entertainment/resources/assets/css/entertainment.css",
     "isEntry": true
   },
@@ -44,7 +44,7 @@
     "isEntry": true
   },
   "Modules/News/resources/assets/css/news.css": {
-    "file": "assets/news-CIinTcim.css",
+    "file": "assets/news-u14zUqSE.css",
     "src": "Modules/News/resources/assets/css/news.css",
     "isEntry": true
   },
@@ -61,7 +61,7 @@
     "isEntry": true
   },
   "Modules/Planner/resources/assets/css/planner.css": {
-    "file": "assets/planner-B7suUuAM.css",
+    "file": "assets/planner-DSNufr8Y.css",
     "src": "Modules/Planner/resources/assets/css/planner.css",
     "isEntry": true
   },
@@ -72,7 +72,7 @@
     "isEntry": true
   },
   "Modules/Printer/resources/assets/css/printer.css": {
-    "file": "assets/printer-BcQVYsKc.css",
+    "file": "assets/printer-ChxpJFLq.css",
     "src": "Modules/Printer/resources/assets/css/printer.css",
     "isEntry": true
   },
@@ -83,7 +83,7 @@
     "isEntry": true
   },
   "Modules/Recipes/resources/assets/css/recepten.css": {
-    "file": "assets/recepten-CoDoJ0WY.css",
+    "file": "assets/recepten-CJH_C--M.css",
     "src": "Modules/Recipes/resources/assets/css/recepten.css",
     "isEntry": true
   },
@@ -105,7 +105,7 @@
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/habits.css": {
-    "file": "assets/habits-CeFku1vU.css",
+    "file": "assets/habits-4cRjcNQj.css",
     "src": "Modules/Tasks/resources/assets/css/habits.css",
     "isEntry": true
   },
@@ -138,7 +138,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-C5xQg0yl.css",
+    "file": "assets/app-DzIy-d3S.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
