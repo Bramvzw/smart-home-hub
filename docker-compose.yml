@@ -4,7 +4,10 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
-    env_file: .env
+    # No env_file here on purpose: Laravel reads its own .env via the bind-mount
+    # below. Injecting .env as container env as well would shadow the file
+    # (Dotenv never overrides a real env var), forcing a container recreate for
+    # every config change. Image-level vars live in the environment block below.
     volumes:
       - .:/app
       # Production opcache/realpath tuning. Verify the conf.d path on the NAS with:
