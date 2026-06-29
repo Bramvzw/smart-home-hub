@@ -3,6 +3,7 @@
 namespace Modules\Entertainment\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Schema;
 use Modules\Entertainment\Contracts\EntertainmentCurator;
 use Modules\Entertainment\Models\Concert;
@@ -41,6 +42,26 @@ class EntertainmentServiceProvider extends ModuleServiceProvider
     public function getNavigation(): array
     {
         return [['label' => 'Entertainment', 'route' => 'entertainment.index', 'icon' => 'entertainment']];
+    }
+
+    public function health(): ModuleHealth
+    {
+        $setup = ModuleHealth::require([
+            'TMDB_API_KEY' => config('entertainment.tmdb.api_key'),
+            'HUB_AI_ANTHROPIC_API_KEY' => config('ai.anthropic.api_key'),
+        ]);
+
+        if (! $setup->isOk()) {
+            return $setup;
+        }
+
+        if (config('entertainment.concerts.ticketmaster_key') === '' && config('entertainment.concerts.bandsintown_key') === '') {
+            return ModuleHealth::degraded([
+                'Concertaanbevelingen uit — TICKETMASTER_KEY of BANDSINTOWN_KEY ontbreekt',
+            ]);
+        }
+
+        return ModuleHealth::ok();
     }
 
     public function getDashboardWidget(): ?string

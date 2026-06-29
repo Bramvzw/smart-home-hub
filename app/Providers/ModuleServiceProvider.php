@@ -3,14 +3,16 @@
 namespace App\Providers;
 
 use App\Contracts\ModuleContract;
+use App\Contracts\ReportsHealth;
 use App\Services\ModuleRegistry;
+use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 
-abstract class ModuleServiceProvider extends ServiceProvider implements ModuleContract
+abstract class ModuleServiceProvider extends ServiceProvider implements ModuleContract, ReportsHealth
 {
     protected string $name = '';
     protected string $nameLower = '';
@@ -95,6 +97,15 @@ abstract class ModuleServiceProvider extends ServiceProvider implements ModuleCo
                 Livewire::component("{$this->nameLower}::{$componentName}", $fullClass);
             }
         }
+    }
+
+    /**
+     * Modules override this to report missing config or couplings.
+     * Default: ready. Must stay free of network calls (config + DB only).
+     */
+    public function health(): ModuleHealth
+    {
+        return ModuleHealth::ok();
     }
 
     protected function registerWithDashboard(): void

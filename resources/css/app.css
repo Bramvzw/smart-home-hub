@@ -543,3 +543,47 @@ body:has(.touch-keyboard[data-mode="symbols"].is-open) .hub-main > main {
         padding-bottom: 222px;
     }
 }
+
+/* Per-module readiness banner — shown only when a module needs setup. */
+.hub-health-banner {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    background: var(--hub-accent-soft);
+    border: 1px solid var(--hub-accent-line);
+    color: var(--hub-text);
+}
+
+.hub-health-banner[data-status="degraded"] {
+    background: color-mix(in oklab, var(--hub-card-hover) 80%, transparent);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.hub-health-banner__icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--hub-accent);
+}
+
+.hub-health-banner[data-status="degraded"] .hub-health-banner__icon {
+    color: var(--hub-muted);
+}
+
+.hub-health-banner__title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.hub-health-banner__list {
+    margin: 0.25rem 0 0;
+    padding-left: 1.1rem;
+    list-style: disc;
+    color: var(--hub-muted);
+    font-size: 0.825rem;
+    line-height: 1.5;
+}

@@ -3,6 +3,7 @@
 namespace Modules\Briefing\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Schema;
 use Modules\Briefing\Contracts\BriefingTextGenerator;
 use Modules\Briefing\Models\Briefing;
@@ -36,6 +37,13 @@ class BriefingServiceProvider extends ModuleServiceProvider
         return [
             ['label' => 'Briefing', 'route' => 'briefing.index', 'icon' => 'briefing'],
         ];
+    }
+
+    public function health(): ModuleHealth
+    {
+        return ModuleHealth::require([
+            'HUB_AI_ANTHROPIC_API_KEY' => config('ai.anthropic.api_key'),
+        ]);
     }
 
     public function getDashboardWidget(): ?string

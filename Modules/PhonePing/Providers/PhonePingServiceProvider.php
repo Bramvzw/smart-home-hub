@@ -3,6 +3,7 @@
 namespace Modules\PhonePing\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Support\Health\ModuleHealth;
 use Modules\PhonePing\Services\NtfyClient;
 
 class PhonePingServiceProvider extends ModuleServiceProvider
@@ -36,6 +37,13 @@ class PhonePingServiceProvider extends ModuleServiceProvider
         return [
             ['label' => 'Phone', 'route' => 'phoneping.index', 'icon' => 'phone'],
         ];
+    }
+
+    public function health(): ModuleHealth
+    {
+        return ModuleHealth::require([
+            'PHONE_PING_NTFY_TOPIC' => config('phoneping.ntfy.topic'),
+        ]);
     }
 
     public function getDashboardWidget(): ?string

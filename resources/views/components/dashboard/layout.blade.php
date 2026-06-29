@@ -85,6 +85,12 @@
         @endif
 
         <main class="flex-1 overflow-auto">
+            @php
+                $healthModule = \Illuminate\Support\Str::before((string) optional(request()->route())->getName(), '.') ?: null;
+            @endphp
+            @if ($healthModule)
+                <x-dashboard.health-banner :module="$healthModule" />
+            @endif
             {{ $slot }}
         </main>
     </div>

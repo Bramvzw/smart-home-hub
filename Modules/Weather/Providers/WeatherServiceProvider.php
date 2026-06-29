@@ -3,6 +3,7 @@
 namespace Modules\Weather\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Support\Health\ModuleHealth;
 use Modules\Weather\Briefing\WeatherBriefingSource;
 use Modules\Weather\Services\NtfyWeatherNotifier;
 
@@ -40,6 +41,17 @@ class WeatherServiceProvider extends ModuleServiceProvider
         return [
             ['label' => 'Weather', 'route' => 'weather.index', 'icon' => 'weather'],
         ];
+    }
+
+    public function health(): ModuleHealth
+    {
+        if ((string) config('weather.ntfy.topic', '') === '') {
+            return ModuleHealth::degraded([
+                'Weeralerts uit — geen ntfy-topic ingesteld (WEATHER_NTFY_TOPIC of PHONE_PING_NTFY_TOPIC)',
+            ]);
+        }
+
+        return ModuleHealth::ok();
     }
 
     public function getDashboardWidget(): ?string
