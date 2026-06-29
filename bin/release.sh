@@ -48,7 +48,7 @@ step "4/6  NAS: pull + migrate + optimize (in container)"
 # Synology sprinkles @eaDir metadata dirs across the volume, incl. .git/refs,
 # which makes git choke on "bad object refs/heads/@eaDir/...". Strip them first.
 ssh -i "$NAS_KEY" "$NAS_SSH" \
-  "sudo $DC exec -T hub sh -c 'cd /app && (git config --global --get-all safe.directory 2>/dev/null | grep -qx /app || git config --global --add safe.directory /app) && find .git -name @eaDir -prune -exec rm -rf {} + 2>/dev/null; git pull --ff-only origin main && php artisan migrate --force && php artisan optimize'"
+  "sudo $DC exec -T hub sh -c 'cd /app && (git config --global --get-all safe.directory 2>/dev/null | grep -qx /app || git config --global --add safe.directory /app) && find .git -name @eaDir -prune -exec rm -rf {} + 2>/dev/null; git checkout -- docker-compose.yml 2>/dev/null; git pull --ff-only origin main && php artisan migrate --force && php artisan optimize'"
 
 step "5/6  NAS: restart container (reset opcache)"
 ssh -i "$NAS_KEY" "$NAS_SSH" "sudo $DC restart hub"
