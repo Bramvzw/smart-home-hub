@@ -83,7 +83,7 @@
 .ent .tnum { font-variant-numeric: tabular-nums; }
 .ent .disp { font-family: var(--disp); letter-spacing: -0.02em; }
 
-.ent-wrap { max-width: 1240px; margin: 0 auto; padding: 30px 40px 46px; }
+.ent-wrap { max-width: var(--hub-page-max); margin: 0 auto; padding: 30px var(--hub-page-pad-x) 46px; }
 
 /* ============================================================
    Page header
