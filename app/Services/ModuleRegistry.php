@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Contracts\ModuleContract;
+use App\Contracts\ReportsHealth;
+use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Collection;
 
 class ModuleRegistry
@@ -28,5 +30,16 @@ class ModuleRegistry
             }
         }
         return $nav;
+    }
+
+    /**
+     * Readiness of a single module by slug, or null when the module is unknown
+     * or does not report health.
+     */
+    public function health(string $slug): ?ModuleHealth
+    {
+        $module = $this->modules[$slug] ?? null;
+
+        return $module instanceof ReportsHealth ? $module->health() : null;
     }
 }

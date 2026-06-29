@@ -3,6 +3,7 @@
 namespace Modules\Deals\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Schema;
 use Modules\Deals\Models\ProductListing;
 use Modules\Deals\Services\PriceChecker;
@@ -40,6 +41,17 @@ class DealsServiceProvider extends ModuleServiceProvider
         return [
             ['label' => 'Dealtracker', 'route' => 'deals.index', 'icon' => 'deals'],
         ];
+    }
+
+    public function health(): ModuleHealth
+    {
+        if (config('deals.bol.enabled') && (config('deals.bol.client_id') === '' || config('deals.bol.client_secret') === '')) {
+            return ModuleHealth::degraded([
+                'bol.com prijscheck uit — BOL_API_KEY en BOL_API_SECRET ontbreken',
+            ]);
+        }
+
+        return ModuleHealth::ok();
     }
 
     public function getDashboardWidget(): ?string
