@@ -113,9 +113,9 @@
                     </div>
                 </div>
                 <div class="ent-head-r">
-                    <span class="ent-conn {{ $hasMusic ? 'on' : 'off' }}">
+                    <span class="ent-conn {{ ($spotifyConnected ?? false) ? 'on' : 'off' }}">
                         <span class="dot-led"></span>
-                        {{ $hasMusic ? 'Spotify gekoppeld' : 'Spotify niet gekoppeld' }}
+                        {{ ($spotifyConnected ?? false) ? 'Spotify gekoppeld' : 'Spotify niet gekoppeld' }}
                     </span>
                     <button class="ent-btn ent-btn-primary" data-ent-refresh>
                         {!! $eIc('Refresh', 15, 1.7, 'ic') !!} Vernieuwen

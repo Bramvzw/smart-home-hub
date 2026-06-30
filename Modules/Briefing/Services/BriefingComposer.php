@@ -53,6 +53,7 @@ class BriefingComposer
             $length,
             'Gebruik alleen feiten uit de input en verzin geen ontbrekende data.',
             'Laat secties zonder data weg.',
+            'Schrijf vloeiende, platte tekst zonder enige markdown-opmaak: geen kopjes (#), geen vetgedrukt (**), geen scheidingslijnen (---) en geen opsommingstekens.',
         ]);
     }
 
