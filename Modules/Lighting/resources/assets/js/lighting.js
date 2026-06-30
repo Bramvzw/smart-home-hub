@@ -133,6 +133,17 @@ const syncLight = (root, sourceCard, patch = {}) => {
             }
         });
 
+        // Cards without those inputs (e.g. the sidebar row has no colour wheel or
+        // brightness slider) read their state from data-* attributes. Keep those
+        // in sync too, otherwise their preview only catches up after a reload.
+        card.dataset.on = String(source.power);
+        if (source.brightness !== null && source.brightness !== undefined) {
+            card.dataset.brightness = String(source.brightness);
+        }
+        if (source.color) {
+            card.dataset.color = source.color;
+        }
+
         updateCardVisual(card);
     });
 
