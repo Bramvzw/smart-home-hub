@@ -27,7 +27,7 @@ const cardsForKey = (root, key) => [...root.querySelectorAll('[data-light]')]
     .filter((card) => card.dataset.lightKey === key);
 
 const lightStateFromCard = (card) => ({
-    power: card.querySelector('[data-action="power"]')?.getAttribute('aria-checked') === 'true',
+    power: (card.querySelector('[data-action="power"]')?.getAttribute('aria-checked') ?? card.dataset.on) === 'true',
     brightness: Number(card.querySelector('[data-action="brightness"]')?.value ?? card.dataset.brightness ?? 0),
     color: card.querySelector('[data-action="color"]')?.value ?? card.dataset.color ?? '#ffc26b',
     reachable: card.dataset.reachable === 'true',

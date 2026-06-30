@@ -262,21 +262,6 @@
                             </div>
 
                             <div class="lighting-console__controls">
-                                <div class="lighting-console__detail-head">
-                                    <span class="lighting-console__status"></span>
-                                    <span class="lighting-console__detail-name">{{ $light->name }}</span>
-                                    <button
-                                        type="button"
-                                        role="switch"
-                                        aria-checked="{{ $light->on ? 'true' : 'false' }}"
-                                        data-action="power"
-                                        @disabled(! $light->reachable)
-                                        class="lighting-console__switch"
-                                    >
-                                        <span class="lighting-console__switch-dot"></span>
-                                    </button>
-                                </div>
-
                                 <div class="lighting-console__control-block">
                                     <div class="lighting-console__label">
                                         Brightness
@@ -291,28 +276,6 @@
                                         @disabled(! $light->reachable)
                                         class="lighting-console__range"
                                     >
-                                </div>
-
-                                <div class="lighting-console__control-block">
-                                    <div class="lighting-console__label">
-                                        Light mode
-                                        <span class="lighting-console__value">{{ $light->supportsColor ? 'color' : 'white' }}</span>
-                                    </div>
-                                    <div class="lighting-console__color-inline">
-                                        @if($light->supportsColor)
-                                            <input
-                                                type="color"
-                                                value="{{ $light->color ?? '#ffffff' }}"
-                                                data-action="color"
-                                                @disabled(! $light->reachable)
-                                                class="lighting-console__native-color"
-                                                aria-label="Color for {{ $light->name }}"
-                                            >
-                                            <span class="lighting-console__meta">Use the ring or swatch to change the color.</span>
-                                        @else
-                                            <span class="lighting-console__meta">This light does not support RGB color via the provider.</span>
-                                        @endif
-                                    </div>
                                 </div>
                             </div>
                         </section>
