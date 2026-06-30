@@ -37,7 +37,7 @@
     display: flex;
     min-width: 0;
     flex-direction: column;
-    padding: 30px 26px 24px;
+    padding: 22px 24px 20px;
     border-right: 1px solid var(--lighting-line);
     background: linear-gradient(180deg, oklch(0.2 0.02 60 / 0.4), transparent 40%);
 }
@@ -76,8 +76,8 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 22px;
-    padding: 13px 14px 13px 16px;
+    margin-top: 16px;
+    padding: 11px 14px 11px 16px;
     border: 1px solid var(--lighting-glass-line);
     border-radius: 14px;
     background: var(--lighting-glass);
@@ -104,14 +104,14 @@
     flex: 1;
     min-height: 0;
     flex-direction: column;
-    gap: 5px;
-    margin-top: 18px;
+    gap: 4px;
+    margin-top: 14px;
     overflow-y: auto;
     padding-right: 2px;
 }
 
 .lighting-console__group {
-    padding: 12px 6px 4px;
+    padding: 7px 6px 3px;
     color: var(--lighting-muted-2);
     font-size: 11px;
     font-weight: 700;
@@ -147,7 +147,7 @@
     min-width: 0;
     align-items: center;
     gap: 13px;
-    padding: 11px 0 11px 13px;
+    padding: 8px 0 8px 12px;
     border: 0;
     background: transparent;
     text-align: left;
@@ -168,8 +168,8 @@
 .lighting-console__swatch {
     position: relative;
     display: grid;
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     place-items: center;
     flex: none;
     border-radius: 10px;
@@ -261,6 +261,7 @@
 .lighting-console__scenes {
     display: flex;
     flex-direction: row;
+    flex: none;
     gap: 12px;
     margin-top: 26px;
     overflow-x: auto;
@@ -380,19 +381,18 @@
 
 .lighting-console__stage {
     position: relative;
-    display: grid;
+    /* Flex column that fills the height the main panel leaves after the title and
+       presets: the wheel takes the free space and the brightness sits beneath it.
+       The wheel scales to its own slot (see ring-wrap) so the card always fits —
+       no inner scrollbar, and the presets above are never squeezed. */
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-height: 0;
-    /* Size container so the colour wheel can scale to the stage's real height
-       (cqh) instead of guessing from the viewport. Safe here because the stage
-       gets its size from flex, not from its content. */
-    container-type: size;
-    grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
-    align-items: center;
-    gap: 38px;
+    gap: 18px;
     margin-top: 24px;
     overflow: hidden;
-    padding: 30px 36px;
+    padding: 26px 30px;
     border: 1px solid var(--lighting-glass-line);
     border-radius: 24px;
     background: var(--lighting-glass);
@@ -426,13 +426,18 @@
     z-index: 1;
     display: grid;
     place-items: center;
+    flex: 1;
+    min-height: 0;
+    /* Size container for the wheel: the ring fills the smaller of this slot's
+       width/height so it always fits whatever space the flex column leaves. */
+    container-type: size;
 }
 
 .lighting-console__ring {
-    /* Scale to the stage's real height (cqh) so the wheel never outgrows the
-       stage on short screens; 272px caps it on tall screens and the 160px floor
-       keeps it visible if the container reports very little height. */
-    --ring-size: max(160px, min(272px, 86cqh, 70vw));
+    /* Fill the smaller of the ring-wrap's width/height (leaving 4% for the
+       handle), capped at 272px on large screens. The wrap is sized by the flex
+       column, so the wheel always fits the space left after the brightness. */
+    --ring-size: min(96cqw, 96cqh, 272px);
     --ring-width: 20px;
     position: relative;
     display: grid;
@@ -528,6 +533,7 @@
     position: relative;
     z-index: 1;
     display: flex;
+    flex: none;
     min-width: 0;
     flex-direction: column;
     gap: 24px;
@@ -664,19 +670,6 @@
     .lighting-console__rail {
         flex: 0 0 300px;
     }
-
-    /* Stacked single column: the wheel sits above the controls, so let the stage
-       scroll and shrink the wheel — otherwise the bottom control block (colour)
-       is clipped off-screen. */
-    .lighting-console__stage {
-        grid-template-columns: 1fr;
-        align-items: start;
-        overflow-y: auto;
-    }
-
-    .lighting-console__ring {
-        --ring-size: max(150px, min(220px, 42cqh, 58vw));
-    }
 }
 
 @media (max-width: 980px) {
@@ -693,8 +686,12 @@
         border-bottom: 1px solid var(--lighting-line);
     }
 
+    /* Column layout has no fixed panel height, so let the whole console scroll
+       (not the panel) and size the wheel from the viewport width instead of the
+       now-indefinite slot height. The card takes its natural height. */
     .lighting-console__main {
-        min-height: 620px;
+        min-height: 0;
+        overflow: visible;
     }
 
     .lighting-console__top {
@@ -707,8 +704,17 @@
     }
 
     .lighting-console__stage {
-        grid-template-columns: 1fr;
-        align-items: start;
+        flex: none;
+    }
+
+    .lighting-console__ring-wrap {
+        container-type: normal;
+        min-height: 0;
+        height: auto;
+    }
+
+    .lighting-console__ring {
+        --ring-size: min(260px, 72vw);
     }
 }
 
