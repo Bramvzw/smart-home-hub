@@ -170,24 +170,26 @@ class LightingService
 
     private function applyPresetToLight(LightProvider $provider, Light $light, LightPreset $preset): void
     {
+        // Always apply the preset's values rather than skipping when the (possibly
+        // stale, cached) current value already matches — selecting a preset should
+        // deterministically overwrite the lamp's state.
         if (! $preset->power) {
-            if ($light->on) {
-                $provider->setPower($light->id, false);
-            }
+            $provider->setPower($light->id, false);
 
             return;
         }
 
-        if (! $light->on) {
-            $provider->setPower($light->id, true);
-        }
+        $provider->setPower($light->id, true);
 
-        if ($preset->brightness !== null && $light->brightness !== $preset->brightness) {
-            $provider->setBrightness($light->id, $preset->brightness);
-        }
-
-        if ($preset->color !== null && $light->supportsColor && $this->normaliseHex($light->color) !== $this->normaliseHex($preset->color)) {
+        // Colour before brightness: setColor switches the lamp into colour mode,
+        // then setBrightness writes the V channel within that mode. The reverse
+        // order would let a white->colour switch reset brightness to full.
+        if ($preset->color !== null && $light->supportsColor) {
             $provider->setColor($light->id, $preset->color);
+        }
+
+        if ($preset->brightness !== null) {
+            $provider->setBrightness($light->id, $preset->brightness);
         }
     }
 
@@ -254,17 +256,6 @@ class LightingService
             ),
             static fn (string $target): bool => $target !== '',
         ));
-    }
-
-    private function normaliseHex(?string $hex): ?string
-    {
-        if ($hex === null || trim($hex) === '') {
-            return null;
-        }
-
-        $hex = strtolower(trim($hex));
-
-        return str_starts_with($hex, '#') ? $hex : '#'.$hex;
     }
 
     private function providerByKey(string $key): LightProvider

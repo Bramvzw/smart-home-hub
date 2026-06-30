@@ -422,6 +422,10 @@ const applyPresetToCard = (card, preset) => {
     const colorControls = card.querySelectorAll('[data-action="color"]');
 
     powerControls.forEach((power) => power.setAttribute('aria-checked', String(preset.power)));
+    // Mirror onto the data-* attributes so cards without those inputs (the
+    // sidebar row, and the detail card now that the colour input is gone) reflect
+    // the preset in their preview immediately.
+    card.dataset.on = String(preset.power);
 
     if (! preset.power) {
         updateCardVisual(card);
@@ -432,12 +436,14 @@ const applyPresetToCard = (card, preset) => {
         brightnessControls.forEach((brightness) => {
             brightness.value = String(preset.brightness);
         });
+        card.dataset.brightness = String(preset.brightness);
     }
 
     if (preset.color && card.dataset.supportsColor === 'true') {
         colorControls.forEach((color) => {
             color.value = preset.color;
         });
+        card.dataset.color = preset.color;
     }
 
     updateCardVisual(card);
