@@ -100,9 +100,11 @@ class LightingControllerTest extends TestCase
         $response->assertJsonPath('data.applied', 1);
         $response->assertJsonPath('data.skipped', 0);
 
-        Http::assertSentCount(4);
+        Http::assertSentCount(5);
 
-        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        // A preset deterministically overwrites the lamp's state, so the power
+        // command is sent even when the lamp is already on.
+        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
             && $request['device'] === 'DEV1'
             && $request['cmd']['name'] === 'turn'
             && $request['cmd']['value'] === 'on');
