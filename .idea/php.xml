@@ -135,6 +135,14 @@
       <path value="$PROJECT_DIR$/vendor/psr/event-dispatcher" />
       <path value="$PROJECT_DIR$/vendor/wikimedia/composer-merge-plugin" />
       <path value="$PROJECT_DIR$/vendor/nwidart/laravel-modules" />
+      <path value="$PROJECT_DIR$/vendor/livewire/livewire" />
+      <path value="$PROJECT_DIR$/vendor/sabre/xml" />
+      <path value="$PROJECT_DIR$/vendor/sabre/uri" />
+      <path value="$PROJECT_DIR$/vendor/sabre/vobject" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-escaper" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-stdlib" />
+      <path value="$PROJECT_DIR$/vendor/laminas/laminas-feed" />
+      <path value="$PROJECT_DIR$/vendor/prism-php/prism" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
