@@ -35,6 +35,8 @@ class CalendarBriefingSource implements BriefingSource
             return null;
         }
 
+        $tz = (string) config('briefing.timezone', 'Europe/Amsterdam');
+
         $feed = $this->service->feed(1, $date->startOfDay());
         $events = array_values(array_filter(
             $feed->events,
@@ -45,7 +47,7 @@ class CalendarBriefingSource implements BriefingSource
             return null;
         }
 
-        $eventSummaries = array_map(fn (CalendarEvent $event): string => $this->eventLabel($event), $events);
+        $eventSummaries = array_map(fn (CalendarEvent $event): string => $this->eventLabel($event, $tz), $events);
 
         return new BriefingSection(
             key: $this->key(),
@@ -55,8 +57,8 @@ class CalendarBriefingSource implements BriefingSource
             data: [
                 'events' => array_map(fn (CalendarEvent $event): array => [
                     'title' => $event->summary,
-                    'starts_at' => $event->start->toIso8601String(),
-                    'ends_at' => $event->end->toIso8601String(),
+                    'starts_at' => $event->start->setTimezone($tz)->toIso8601String(),
+                    'ends_at' => $event->end->setTimezone($tz)->toIso8601String(),
                     'all_day' => $event->allDay,
                     'calendar' => $event->calendarLabel,
                     'location' => $event->location,
@@ -72,12 +74,12 @@ class CalendarBriefingSource implements BriefingSource
         return count(array_filter((array) config('calendar.feeds', []), static fn ($feed) => ! empty($feed['url'])));
     }
 
-    private function eventLabel(CalendarEvent $event): string
+    private function eventLabel(CalendarEvent $event, string $tz): string
     {
         if ($event->allDay) {
             return 'hele dag '.$event->summary;
         }
 
-        return $event->start->format('H:i').' '.$event->summary;
+        return $event->start->setTimezone($tz)->format('H:i').' '.$event->summary;
     }
 }
