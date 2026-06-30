@@ -15,19 +15,35 @@ use Modules\Spotify\Providers\SpotifyServiceProvider;
 use Modules\Tasks\Providers\TasksServiceProvider;
 use Modules\Weather\Providers\WeatherServiceProvider;
 
+// The registration order below is the sidebar menu order (ModuleRegistry builds
+// the navigation by iterating modules as they register). DashboardServiceProvider
+// stays first; the rest follow a daily-use flow: morning overview → planning →
+// home → media → household/hobby → utility.
 return [
     DashboardServiceProvider::class,
-    SpotifyServiceProvider::class,
-    TasksServiceProvider::class,
+
+    // Day start & overview
+    BriefingServiceProvider::class,
+    WeatherServiceProvider::class,
+
+    // Planning & productivity
     CalendarServiceProvider::class,
+    PlannerServiceProvider::class,
+    TasksServiceProvider::class,
+
+    // Home
     LightingServiceProvider::class,
-    DealsServiceProvider::class,
+
+    // Media & leisure
+    SpotifyServiceProvider::class,
     EntertainmentServiceProvider::class,
     NewsServiceProvider::class,
-    BriefingServiceProvider::class,
+
+    // Household & hobby
     RecipesServiceProvider::class,
-    PlannerServiceProvider::class,
-    PhonePingServiceProvider::class,
+    DealsServiceProvider::class,
     PrinterServiceProvider::class,
-    WeatherServiceProvider::class,
+
+    // Utility
+    PhonePingServiceProvider::class,
 ];
