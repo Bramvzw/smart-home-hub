@@ -489,7 +489,9 @@ const setupColorWheel = (root, card) => {
         // atan2(dx, -dy): 0deg points up, increasing clockwise — matches the
         // conic-gradient and the handle positioning in updateCardVisual.
         const hue = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360;
-        const hex = hslToHex(hue, 85, 58);
+        // Full saturation: RGBCCT lamps mix in their white channels at lower
+        // saturation, washing the hue, so a picked colour renders truer at 100%.
+        const hex = hslToHex(hue, 100, 50);
 
         if (native) {
             native.value = hex;
