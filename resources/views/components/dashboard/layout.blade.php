@@ -59,6 +59,13 @@
                     <span class="nav-label">{{ $item['label'] }}</span>
                 </a>
             @endforeach
+
+            <a href="{{ route('settings.index') }}"
+               wire:navigate
+               class="hub-nav-link {{ request()->routeIs('settings.*') ? 'is-active' : '' }}">
+                <x-dashboard.icons.settings class="nav-icon h-5 w-5 shrink-0" />
+                <span class="nav-label">Settings</span>
+            </a>
         </nav>
 
         <div class="hub-sidebar-footer">
