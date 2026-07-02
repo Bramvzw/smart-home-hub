@@ -11,6 +11,7 @@ use Modules\Lighting\Data\Light;
 use Modules\Lighting\Data\LightingPresetResult;
 use Modules\Lighting\Data\LightingSnapshot;
 use Modules\Lighting\Data\LightPreset;
+use Modules\Lighting\Data\WeatherPresetTrigger;
 use Modules\Lighting\Exceptions\LightingControlBusy;
 use Modules\Lighting\Exceptions\UnknownLightingPreset;
 use Modules\Lighting\Services\Providers\GoveeProvider;
@@ -241,6 +242,25 @@ class LightingService
             brightness: isset($preset['brightness']) ? max(0, min(100, (int) $preset['brightness'])) : null,
             color: $color,
             targetNameContains: $this->targetNameContains($preset),
+            weatherTrigger: $this->weatherTrigger($preset),
+        );
+    }
+
+    private function weatherTrigger(array $preset): ?WeatherPresetTrigger
+    {
+        $config = $preset['weather_trigger'] ?? null;
+
+        if (! is_array($config)) {
+            return null;
+        }
+
+        return new WeatherPresetTrigger(
+            enabled: (bool) ($config['enabled'] ?? false),
+            rainProbabilityMin: isset($config['rain_probability_min']) ? max(0, min(100, (int) $config['rain_probability_min'])) : null,
+            precipitationMinMm: isset($config['precipitation_min_mm']) ? max(0.0, (float) $config['precipitation_min_mm']) : null,
+            temperatureMax: isset($config['temperature_max']) ? (float) $config['temperature_max'] : null,
+            startTime: (string) ($config['start_time'] ?? '00:00'),
+            endTime: (string) ($config['end_time'] ?? '23:59'),
         );
     }
 
