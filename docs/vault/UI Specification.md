@@ -206,12 +206,13 @@ Layout:
 - The page action is `Generate recipes`.
 - The page header state shows the ISO week, generation time, AI-unavailable badge and failed store badges when relevant.
 - Recipes render as compact cards with servings, time, estimated cost, title, description and highlighted on-offer ingredients.
+- A recipe card shows a compact savings callout (e.g. "€2,00 korting op ingrediënten deze week") when its ingredients word-match this week's grocery offers with a price advantage; cards without a match show no callout.
 - Offers render in a secondary list grouped visually by item with store code, product name and discount/price label.
 
 Behavior:
 - Scheduled generation runs weekly at `RECIPES_DAY`/`RECIPES_TIME`, default Friday 18:00, refetches offers and sends ntfy.
 - Manual generation posts to `POST /recipes/generate`, reuses stored offers unless `refetch` is supplied, and also sends ntfy.
-- `GET /recipes` with JSON returns `week_key`, `generated_at`, `is_fallback`, `stores_fetched`, `stores_failed`, `recipes` and `offers`.
+- `GET /recipes` with JSON returns `week_key`, `generated_at`, `is_fallback`, `stores_fetched`, `stores_failed`, `recipes`, `offers` and `recipe_deals` (matched offers and indicative savings per recipe id, `Modules\Recipes\Services\RecipeDealsMatcher`, cached briefly per week).
 - `GET /recipes/{recipe}` returns full recipe details: ingredients, steps and per-recipe shopping list.
 - `GET /recipes/offers` returns this week's stored offers.
 - If one store fails, the other store's offers remain available and `stores_failed` names the missing source.
@@ -234,8 +235,12 @@ Behavior:
 
 Shows film recommendations, broad concerts and followed-artist music releases.
 
+Layout:
+- A music release shows an "In library" badge on its cover art when `saved_on_spotify` is `true`.
+
 Behavior:
-- `GET /entertainment` returns `films`, `concerts` and `music`.
+- `GET /entertainment` returns `films`, `concerts` and `music`; each release includes `saved_on_spotify` (nullable boolean).
+- Refreshing music releases best-effort checks each release's Spotify library status (`SpotifyLibraryService::checkSavedAlbums`); when Spotify is not linked or unreachable, `saved_on_spotify` stays `null` and the refresh does not fail.
 - `GET /entertainment/concerts` returns the broad concert list, including `relevance: none`.
 - `POST /entertainment/films/{film}/feedback` stores thumbs up/down taste feedback.
 - `POST /entertainment/films/{film}/dismiss` hides a film recommendation.
