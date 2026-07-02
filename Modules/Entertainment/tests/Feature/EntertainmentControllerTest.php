@@ -63,7 +63,7 @@ class EntertainmentControllerTest extends TestCase
         $this->get(route('entertainment.index'))
             ->assertOk()
             ->assertSee('Films')
-            ->assertSee('Concerten')
+            ->assertSee('Concerts')
             ->assertSee('Dune: Part Three')
             ->assertSee('Sigrid')
             ->assertSee('Fred again..');
@@ -78,6 +78,25 @@ class EntertainmentControllerTest extends TestCase
 
         $this->assertDatabaseCount('music_releases', 1);
         $this->assertDatabaseHas('music_releases', ['spotify_id' => 'release-1', 'artist' => 'The National']);
+    }
+
+    public function test_refresh_music_releases_marks_saved_on_spotify_when_library_confirms_it(): void
+    {
+        $this->app->instance(SpotifyReleasesService::class, new FakeSpotifyReleases);
+
+        app(RefreshMusicReleases::class)(CarbonImmutable::parse('2026-06-01'));
+
+        $this->assertDatabaseHas('music_releases', ['spotify_id' => 'release-1', 'saved_on_spotify' => true]);
+    }
+
+    public function test_refresh_music_releases_leaves_saved_on_spotify_null_when_spotify_is_unreachable(): void
+    {
+        $this->app->instance(SpotifyReleasesService::class, new FailingSavedCheckSpotifyReleases);
+
+        app(RefreshMusicReleases::class)(CarbonImmutable::parse('2026-06-01'));
+
+        $this->assertDatabaseCount('music_releases', 1);
+        $this->assertDatabaseHas('music_releases', ['spotify_id' => 'release-1', 'saved_on_spotify' => null]);
     }
 
     public function test_refresh_concerts_is_resilient_and_sets_relevance(): void
@@ -228,6 +247,39 @@ class FakeSpotifyReleases extends SpotifyReleasesService
             'url' => 'https://spotify.example/release',
             'image_url' => null,
         ]];
+    }
+
+    public function checkSaved(array $spotifyIds): array
+    {
+        return array_fill_keys($spotifyIds, true);
+    }
+}
+
+class FailingSavedCheckSpotifyReleases extends SpotifyReleasesService
+{
+    public function __construct() {}
+
+    public function followedArtists(): array
+    {
+        return [['id' => 'artist-1', 'name' => 'The National']];
+    }
+
+    public function recentReleasesFor(array $artists, CarbonImmutable $since): array
+    {
+        return [[
+            'spotify_id' => 'release-1',
+            'artist' => 'The National',
+            'title' => 'New Song',
+            'type' => 'single',
+            'release_date' => '2026-06-25',
+            'url' => 'https://spotify.example/release',
+            'image_url' => null,
+        ]];
+    }
+
+    public function checkSaved(array $spotifyIds): array
+    {
+        throw new \RuntimeException('Spotify unreachable');
     }
 }
 

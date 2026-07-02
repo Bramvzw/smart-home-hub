@@ -21,6 +21,7 @@ class MusicReleaseResource extends JsonResource
             'url' => $this->url,
             'image_url' => $this->image_url,
             'notified' => $this->notified,
+            'saved_on_spotify' => $this->saved_on_spotify,
         ];
     }
 }

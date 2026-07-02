@@ -1,7 +1,7 @@
-/* Entertainment & muziek — vanilla interactions for the module. Server-rendered
-   Blade; this layer switches sections (Films · Concerten · Nieuwe muziek),
+/* Entertainment & music — vanilla interactions for the module. Server-rendered
+   Blade; this layer switches sections (Films · Concerts · New music),
    sends film thumb-feedback and dismiss to their endpoints, hydrates and saves
-   the smaakprofiel via the taste endpoint, and wires "Vernieuwen" to refresh. */
+   the taste profile via the taste endpoint, and wires "Refresh" to refresh. */
 
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
@@ -76,7 +76,7 @@ const initEntertainment = () => {
         });
     });
 
-    /* ---------------- smaakprofiel ---------------- */
+    /* ---------------- taste profile ---------------- */
     const taste = root.querySelector('[data-ent-taste]');
     if (taste) {
         const showUrl = taste.dataset.entTasteShowUrl;
@@ -114,7 +114,7 @@ const initEntertainment = () => {
                     (f) => `<div class="ent-fav" data-ent-fav="${esc(f)}">
                         ${star}
                         <span class="ent-fav-name">${esc(f)}</span>
-                        <button class="ent-fav-x" data-ent-fav-x aria-label="Verwijderen">${cross}</button>
+                        <button class="ent-fav-x" data-ent-fav-x aria-label="Remove">${cross}</button>
                     </div>`
                 )
                 .join('');
