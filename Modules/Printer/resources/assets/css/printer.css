@@ -366,6 +366,9 @@
 
 .pr-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 .pr-row3 { display: grid; grid-template-columns: 1.1fr 1.4fr 1.2fr; gap: 13px; }
+@media (max-width: 480px) {
+  .pr-row2, .pr-row3 { grid-template-columns: 1fr; }
+}
 
 /* segmented control */
 .pr-seg { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-sm); padding: 4px; flex-wrap: wrap; }

@@ -1,4 +1,4 @@
-<x-dashboard.layout title="Nieuws" :hideHeader="true">
+<x-dashboard.layout title="News" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/News/resources/assets/css/news.css'])
     </x-slot:head>
@@ -54,13 +54,13 @@
         <div class="nw-wrap">
             <div class="nw-head">
                 <div class="nw-head-l">
-                    <span class="nw-eyebrow">{!! $nwIcon('rss', 14, 1.7, 'ic') !!} Feeds · {{ count($topics) }} onderwerpen</span>
-                    <h1 class="nw-title disp">Nieuws</h1>
+                    <span class="nw-eyebrow">{!! $nwIcon('rss', 14, 1.7, 'ic') !!} Feeds · {{ count($topics) }} topics</span>
+                    <h1 class="nw-title disp">News</h1>
                     <div class="nw-sub">
                         @if($total_unread > 0)
-                            <span class="acc tnum">{{ $total_unread }} ongelezen</span> verspreid over je onderwerpen
+                            <span class="acc tnum">{{ $total_unread }} unread</span> spread across your topics
                         @else
-                            Helemaal bij — <b>geen ongelezen items</b>
+                            All caught up — <b>no unread items</b>
                         @endif
                     </div>
                 </div>
@@ -68,17 +68,17 @@
                     <span class="nw-stamp" data-news-stamp>
                         {!! $nwIcon('clock', 14, 1.7, 'ic') !!}
                         @if($lastRefreshLabel)
-                            Laatst ververst om <span class="tnum">{{ $lastRefreshLabel }}</span>
+                            Last refreshed at <span class="tnum">{{ $lastRefreshLabel }}</span>
                         @else
-                            Nog niet ververst
+                            Not refreshed yet
                         @endif
                     </span>
                     <div class="nw-actions">
                         <button class="nw-btn nw-btn-ghost" data-news-read-all @disabled($total_unread === 0)>
-                            {!! $nwIcon('check-all', 15) !!} Markeer alles gelezen
+                            {!! $nwIcon('check-all', 15) !!} Mark all read
                         </button>
                         <button class="nw-btn nw-btn-primary" data-news-refresh>
-                            {!! $nwIcon('refresh', 15, 1.7, 'ic') !!} Nu verversen
+                            {!! $nwIcon('refresh', 15, 1.7, 'ic') !!} Refresh now
                         </button>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                                 <span class="nw-unread-pill tnum {{ $topic['unread'] === 0 ? 'zero' : '' }}" data-news-topic-pill>{{ $topic['unread'] }}</span>
                                 <span class="nw-topic-spacer"></span>
                                 <button class="nw-topic-clear" data-news-read-topic="{{ $topic['key'] }}" @disabled($topic['unread'] === 0)>
-                                    Markeer gelezen
+                                    Mark read
                                 </button>
                             </div>
                             <div class="nw-list">
@@ -116,9 +116,9 @@
                                         <div class="nw-item-meta">
                                             <span class="nw-src"><span class="fav"></span> {{ $item['source'] }}</span>
                                             <span class="nw-sep"></span>
-                                            <span class="nw-time tnum">{{ \Carbon\CarbonImmutable::parse($item['published_at'])->locale('nl')->diffForHumans() }}</span>
+                                            <span class="nw-time tnum">{{ \Carbon\CarbonImmutable::parse($item['published_at'])->locale('en')->diffForHumans() }}</span>
                                             @if($keyword)
-                                                <span class="nw-kw" title="Trefwoord-alert: &quot;{{ $keyword }}&quot;">
+                                                <span class="nw-kw" title="Keyword alert: &quot;{{ $keyword }}&quot;">
                                                     {!! $nwIcon('target', 12) !!} {{ $keyword }}
                                                 </span>
                                             @endif
@@ -132,14 +132,14 @@
             @else
                 <div class="nw-state">
                     <span class="nw-state-ico">{!! $nwIcon('inbox', 26) !!}</span>
-                    <div class="nw-state-title">Nog niets opgehaald</div>
+                    <div class="nw-state-title">Nothing fetched yet</div>
                     <div class="nw-state-sub">
-                        Je feeds zijn ingesteld, maar er is nog geen inhoud opgehaald. Ververs om de
-                        nieuwste items per onderwerp binnen te halen.
+                        Your feeds are set up, but no content has been fetched yet. Refresh to bring in the
+                        latest items per topic.
                     </div>
                     <div class="nw-state-actions">
                         <button class="nw-btn nw-btn-primary" data-news-refresh>
-                            {!! $nwIcon('refresh', 15, 1.7, 'ic') !!} Nu verversen
+                            {!! $nwIcon('refresh', 15, 1.7, 'ic') !!} Refresh now
                         </button>
                     </div>
                 </div>
