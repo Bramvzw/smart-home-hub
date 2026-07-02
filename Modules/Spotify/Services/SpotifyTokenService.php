@@ -2,16 +2,18 @@
 
 namespace Modules\Spotify\Services;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class SpotifyTokenService
 {
-    protected ClientInterface $client;
+    // Legacy plaintext tokens have no stored expiry, so this TTL is a guess used only on re-encryption.
+    private const LEGACY_ACCESS_TOKEN_TTL_MINUTES = 55;
 
     protected string $clientId;
 
@@ -21,9 +23,8 @@ class SpotifyTokenService
 
     protected string $authUrl = 'https://accounts.spotify.com/api/token';
 
-    public function __construct(?ClientInterface $client = null)
+    public function __construct(protected ClientInterface $client)
     {
-        $this->client = $client ?? new Client();
         $this->clientId = (string) config('services.spotify.client_id');
         $this->clientSecret = (string) config('services.spotify.client_secret');
         $this->redirectUri = (string) config('services.spotify.redirect_uri');
@@ -56,7 +57,7 @@ class SpotifyTokenService
             'state' => $state,
         ]);
 
-        return 'https://accounts.spotify.com/authorize?' . $query;
+        return 'https://accounts.spotify.com/authorize?'.$query;
     }
 
     public function hasAccessToken(): bool
@@ -83,6 +84,15 @@ class SpotifyTokenService
         return $this->refreshAccessToken();
     }
 
+    /**
+     * Current access token, transparently decrypting it and migrating any
+     * legacy plaintext value in place.
+     */
+    public function accessToken(): ?string
+    {
+        return $this->readToken('spotify_access_token', forever: false);
+    }
+
     public function getAccessToken(string $code): array
     {
         try {
@@ -100,7 +110,7 @@ class SpotifyTokenService
 
             return $data;
         } catch (GuzzleException $e) {
-            Log::error('Spotify token error: ' . $e->getMessage());
+            Log::error('Spotify token error: '.$e->getMessage());
 
             return ['error' => 'Failed to obtain Spotify access token'];
         }
@@ -108,9 +118,9 @@ class SpotifyTokenService
 
     public function refreshAccessToken(): array
     {
-        $refreshToken = Cache::get('spotify_refresh_token');
+        $refreshToken = $this->readToken('spotify_refresh_token', forever: true);
 
-        if (!$refreshToken) {
+        if (! $refreshToken) {
             return ['error' => 'No refresh token available'];
         }
 
@@ -129,7 +139,7 @@ class SpotifyTokenService
 
             return $data;
         } catch (GuzzleException $e) {
-            Log::error('Spotify token refresh error: ' . $e->getMessage());
+            Log::error('Spotify token refresh error: '.$e->getMessage());
 
             return ['error' => 'Failed to refresh Spotify access token'];
         }
@@ -138,18 +148,53 @@ class SpotifyTokenService
     protected function storeTokens(array $data): void
     {
         if (isset($data['access_token'])) {
-            Cache::put('spotify_access_token', $data['access_token'], now()->addSeconds($data['expires_in'] - 60));
+            Cache::put(
+                'spotify_access_token',
+                Crypt::encryptString($data['access_token']),
+                now()->addSeconds($data['expires_in'] - 60)
+            );
         }
 
         if (isset($data['refresh_token'])) {
-            Cache::forever('spotify_refresh_token', $data['refresh_token']);
+            Cache::forever('spotify_refresh_token', Crypt::encryptString($data['refresh_token']));
         }
+    }
+
+    /** Read a cached token; if decryption fails, treat it as legacy plaintext and re-encrypt it in place. */
+    protected function readToken(string $key, bool $forever): ?string
+    {
+        $value = Cache::get($key);
+
+        if ($value === null) {
+            return null;
+        }
+
+        try {
+            return Crypt::decryptString($value);
+        } catch (DecryptException) {
+            $this->reencryptLegacyToken($key, $value, $forever);
+
+            return $value;
+        }
+    }
+
+    protected function reencryptLegacyToken(string $key, string $plainValue, bool $forever): void
+    {
+        $encrypted = Crypt::encryptString($plainValue);
+
+        if ($forever) {
+            Cache::forever($key, $encrypted);
+
+            return;
+        }
+
+        Cache::put($key, $encrypted, now()->addMinutes(self::LEGACY_ACCESS_TOKEN_TTL_MINUTES));
     }
 
     protected function authHeaders(): array
     {
         return [
-            'Authorization' => 'Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret),
+            'Authorization' => 'Basic '.base64_encode($this->clientId.':'.$this->clientSecret),
             'Content-Type' => 'application/x-www-form-urlencoded',
         ];
     }

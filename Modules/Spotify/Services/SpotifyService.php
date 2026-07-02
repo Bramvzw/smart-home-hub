@@ -2,23 +2,13 @@
 
 namespace Modules\Spotify\Services;
 
-use GuzzleHttp\ClientInterface;
-
 class SpotifyService
 {
-    protected SpotifyTokenService $tokens;
-
-    protected SpotifyPlaybackService $playback;
-
-    protected SpotifyLibraryService $library;
-
-    public function __construct(?ClientInterface $client = null)
-    {
-        $this->tokens = new SpotifyTokenService($client);
-        $api = new SpotifyApiClient($client, $this->tokens);
-        $this->playback = new SpotifyPlaybackService($api);
-        $this->library = new SpotifyLibraryService($api, $this->playback);
-    }
+    public function __construct(
+        protected SpotifyTokenService $tokens,
+        protected SpotifyPlaybackService $playback,
+        protected SpotifyLibraryService $library,
+    ) {}
 
     public function getAuthorizationUrl(): string
     {
