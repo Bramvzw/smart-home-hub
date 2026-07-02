@@ -31,7 +31,7 @@ class CalendarBriefingSource implements BriefingSource
 
     public function contribute(CarbonImmutable $date): ?BriefingSection
     {
-        if ($this->configuredFeeds() === 0) {
+        if (! $this->service->connected()) {
             return null;
         }
 
@@ -67,11 +67,6 @@ class CalendarBriefingSource implements BriefingSource
                 'stale_feeds' => $feed->staleFeeds,
             ],
         );
-    }
-
-    private function configuredFeeds(): int
-    {
-        return count(array_filter((array) config('calendar.feeds', []), static fn ($feed) => ! empty($feed['url'])));
     }
 
     private function eventLabel(CalendarEvent $event, string $tz): string

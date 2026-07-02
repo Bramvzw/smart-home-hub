@@ -19,6 +19,8 @@ class TaskRecurrence extends Model
         'cadence_config',
         'notify',
         'active',
+        'plannable',
+        'duration_minutes',
         'next_due_on',
         'last_materialized_on',
     ];
@@ -27,6 +29,8 @@ class TaskRecurrence extends Model
         'cadence_config' => 'array',
         'notify' => 'boolean',
         'active' => 'boolean',
+        'plannable' => 'boolean',
+        'duration_minutes' => 'integer',
         'next_due_on' => 'immutable_date',
         'last_materialized_on' => 'immutable_date',
     ];

@@ -4,7 +4,7 @@
 @endphp
 
 {{-- List view: events grouped per day, each event a distinct card --}}
-<div data-calendar-list class="h-full overflow-y-auto px-6 py-5">
+<div data-calendar-list class="h-full overflow-y-auto px-4 py-5 md:px-6">
     <div class="mx-auto max-w-3xl space-y-7">
         @foreach($days as $bucket)
             @php($dayEvents = $eventsByDay[$bucket['date']] ?? [])

@@ -37,8 +37,8 @@ OAuth** integration. See [Roadmap](../Roadmap.md).
 ## 2. Google Calendar integration (new)
 
 - **OAuth read+write** (scope `https://www.googleapis.com/auth/calendar.events` + readonly for busy). Model the flow on the existing Spotify OAuth/token pattern (`SpotifyTokenService`).
-- `Modules\Planner\Services\Google\GoogleCalendarTokenService` — auth URL, code exchange, token storage + refresh.
-- `Modules\Planner\Services\Google\GoogleCalendarClient` — `busyTimes(CarbonPeriod)` (primary calendar; assumption PL5), `insertEvent(PlanItem): string` (returns Google event id).
+- `Modules\Calendar\Services\Google\GoogleCalendarTokenService` — auth URL, code exchange, token storage + refresh.
+- `Modules\Calendar\Services\Google\GoogleCalendarClient` — `busyTimes(CarbonPeriod)` (primary calendar; assumption PL5), `insertEvent(PlanItem): string` (returns Google event id).
 - Tokens in `google_calendar_tokens` (access/refresh/expires).
 - The existing ICS Calendar module is unchanged (it stays for display); the planner uses the Google API as the source of truth for busy/free + writing. See assumption PL5.
 
@@ -101,7 +101,7 @@ Route `/planner`, label "Agenda-planner" — confirm name (assumption PL1).
   - `AcceptPlanItem` (`__invoke(PlannerPlanItem $i): PlannerPlanItem` — insert into Google Calendar, store `google_event_id`, mark accepted).
   - `AcceptAllPlanItems`, `RejectPlanItem`.
   - Intention CRUD: `CreateIntention`, `UpdateIntention`, `DeleteIntention`.
-- `Modules\Planner\View\ViewModels\PlannerViewModel`.
+- `Modules\Calendar\View\ViewModels\CalendarViewModel` (the planner state was merged into the Calendar page read model).
 
 ---
 
