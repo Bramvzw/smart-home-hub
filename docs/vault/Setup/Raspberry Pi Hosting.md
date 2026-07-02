@@ -18,7 +18,7 @@ https://smart-home-hub.test
 Reserve a fixed IP for the Pi in the router, then point local clients to it:
 
 ```text
-192.168.68.112 smart-home-hub.test
+<nas-ip> smart-home-hub.test
 ```
 
 Add that line to `/etc/hosts` on devices that need to open the dashboard, or
@@ -28,7 +28,7 @@ The Laravel private-network guard is controlled by:
 
 ```env
 PRIVATE_NETWORK_GUARD_ENABLED=true
-PRIVATE_NETWORK_ALLOWED_CIDRS=127.0.0.1/32,::1/128,192.168.68.0/24
+PRIVATE_NETWORK_ALLOWED_CIDRS=127.0.0.1/32,::1/128,<your-lan-cidr>
 ```
 
 Update the CIDR if the home subnet changes.
