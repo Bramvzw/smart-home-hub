@@ -170,6 +170,9 @@ Status: active. This module owns weekly supermarket-offer recipes at `/recipes`.
 | `Modules\Recipes\Services\LidlOfferProvider` | Best-effort Lidl offer source using the configured offers JSON endpoint. |
 | `Modules\Recipes\Services\OfferAggregator` | Runs offer providers, isolates store failures and upserts weekly offers. |
 | `Modules\Recipes\Services\RecipeGenerator` | Validates generated recipe payloads and persists recipes. |
+| `Modules\Recipes\Services\RecipeDealsMatcher` | Word-level, case-insensitive match of recipe ingredients against this week's grocery offers with indicative savings. |
+| `Modules\Recipes\Data\MatchedOffer` | DTO for one ingredient-to-offer match with prices and savings. |
+| `Modules\Recipes\Data\RecipeDealsMatch` | DTO for a recipe's matched offers and total indicative savings. |
 | `Modules\Recipes\Services\PrismRecipeTextGenerator` | Prism/Anthropic JSON recipe-generation adapter. |
 | `Modules\Recipes\View\ViewModels\RecipesViewModel` | Read-side weekly recipe and offer state assembly. |
 
@@ -231,38 +234,36 @@ Status: active. This module owns film, concert and music discovery at `/entertai
 | `Modules\Entertainment\Models\MusicRelease` | Stored followed-artist release. |
 | `Modules\Entertainment\Services\Tmdb\TmdbClient` | TMDB transport for films and watch providers. |
 | `Modules\Entertainment\Services\Concerts\*Provider` | Ticketmaster, Bandsintown and Hedon concert providers. |
-| `Modules\Entertainment\Services\Music\SpotifyReleasesService` | Spotify followed-artist release reader. |
+| `Modules\Entertainment\Services\Music\SpotifyReleasesService` | Spotify followed-artist release reader; also resolves saved-in-library status for releases. |
 | `Modules\Entertainment\Services\PrismEntertainmentCurator` | Prism-backed film/concert curation with fallback behavior. |
 | `Modules\Entertainment\View\ViewModels\EntertainmentViewModel` | Read-side entertainment state assembly. |
 
-## Planner Module
+## Calendar planning (weekly planner)
 
-Status: active. This module owns weekly agenda planning at `/planner`.
+Status: active. The former Planner module was merged into `Modules\Calendar`; Google Calendar is the single agenda source that powers both the agenda view and the weekly planner. Habits (plannable goals + streaks) are supplied through the `App\Contracts\SchedulableGoals` seam (backed by `Modules\Tasks`).
 
 | Class | Responsibility |
 |---|---|
-| `Modules\Planner\Providers\PlannerServiceProvider` | Registers Planner metadata and composer binding. |
-| `Modules\Planner\Http\Controllers\PlannerController` | Thin HTTP boundary for plans, Google OAuth, item acceptance and intentions. |
-| `Modules\Planner\Http\Resources\*` | Stable JSON transformers for plans, items and intentions. |
-| `Modules\Planner\Actions\GenerateWeeklyPlan` | Reads busy times, generates a validated plan and optionally sends ntfy. |
-| `Modules\Planner\Actions\AcceptPlanItem` | Inserts one proposed item into Google Calendar and marks it accepted. |
-| `Modules\Planner\Actions\AcceptAllPlanItems` | Accepts every proposed item in the latest plan. |
-| `Modules\Planner\Actions\RejectPlanItem` | Marks a plan item rejected. |
-| `Modules\Planner\Actions\Intentions\*` | Creates, updates and deletes planning intentions. |
-| `Modules\Planner\Contracts\PlanComposer` | Testable AI summary/arrangement contract. |
-| `Modules\Planner\Data\BusyTime` | Google/free-busy time block DTO. |
-| `Modules\Planner\Data\PlanItemData` | Proposed or unplaceable plan item DTO. |
-| `Modules\Planner\Data\ComposedPlan` | Composer result DTO. |
-| `Modules\Planner\Models\GoogleCalendarToken` | Stored Google Calendar OAuth token. |
-| `Modules\Planner\Models\PlannerIntention` | Flexible recurring intention model. |
-| `Modules\Planner\Models\PlannerPlan` | Weekly plan model. |
-| `Modules\Planner\Models\PlannerPlanItem` | Proposed/accepted/rejected/unplaceable plan block. |
-| `Modules\Planner\Services\Google\GoogleCalendarTokenService` | Google OAuth URL, code exchange and refresh behavior. |
-| `Modules\Planner\Services\Google\GoogleCalendarClient` | Google Calendar free-busy and event insert transport. |
-| `Modules\Planner\Services\SlotFinder` | Deterministic feasible-slot finder. |
-| `Modules\Planner\Services\WeeklyPlanner` | Intentions placement and composed plan validation. |
-| `Modules\Planner\Services\PrismPlanComposer` | Default plan summary composer. |
-| `Modules\Planner\View\ViewModels\PlannerViewModel` | Read-side planner state assembly. |
+| `Modules\Calendar\Actions\GenerateWeeklyPlan` | Reads busy times, generates a validated plan and optionally sends ntfy. |
+| `Modules\Calendar\Actions\AcceptPlanItem` | Inserts one proposed item into Google Calendar and marks it accepted. |
+| `Modules\Calendar\Actions\AcceptAllPlanItems` | Accepts every proposed item in the latest plan. |
+| `Modules\Calendar\Actions\RejectPlanItem` | Marks a plan item rejected. |
+| `Modules\Calendar\Http\Resources\CalendarPlanResource` | Stable JSON transformer for a weekly plan. |
+| `Modules\Calendar\Http\Resources\CalendarPlanItemResource` | Stable JSON transformer for a plan item. |
+| `Modules\Calendar\Http\Resources\GoalResource` | Stable JSON transformer for a schedulable goal (`App\Data\SchedulableGoal`). |
+| `Modules\Calendar\Http\Resources\HabitResource` | Stable JSON transformer for a habit card (`App\Data\HabitCard`). |
+| `Modules\Calendar\Contracts\PlanComposer` | Testable AI summary/arrangement contract. |
+| `Modules\Calendar\Data\BusyTime` | Google/free-busy time block DTO. |
+| `Modules\Calendar\Data\PlanItemData` | Proposed or unplaceable plan item DTO. |
+| `Modules\Calendar\Data\ComposedPlan` | Composer result DTO. |
+| `Modules\Calendar\Models\GoogleCalendarToken` | Stored Google Calendar OAuth token. |
+| `Modules\Calendar\Models\CalendarPlan` | Weekly plan model (table `planner_plans`). |
+| `Modules\Calendar\Models\CalendarPlanItem` | Proposed/accepted/rejected/unplaceable plan block (table `planner_plan_items`). |
+| `Modules\Calendar\Services\Google\GoogleCalendarTokenService` | Google OAuth URL, code exchange and refresh behavior. |
+| `Modules\Calendar\Services\Google\GoogleCalendarClient` | Google Calendar events, free-busy and event insert transport. |
+| `Modules\Calendar\Services\SlotFinder` | Deterministic feasible-slot finder. |
+| `Modules\Calendar\Services\WeeklyPlanner` | Goal placement and composed plan validation. |
+| `Modules\Calendar\Services\DeterministicPlanComposer` | Default (non-AI) plan summary composer; keeps deterministic placement and marks `is_fallback`. |
 
 ## Tasks Module
 
