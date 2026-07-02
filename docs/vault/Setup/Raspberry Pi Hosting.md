@@ -28,7 +28,7 @@ The Laravel private-network guard is controlled by:
 
 ```env
 PRIVATE_NETWORK_GUARD_ENABLED=true
-PRIVATE_NETWORK_ALLOWED_CIDRS=127.0.0.1/32,::1/128,192.168.1.0/24
+PRIVATE_NETWORK_ALLOWED_CIDRS=127.0.0.1/32,::1/128,<your-lan-cidr>
 ```
 
 Update the CIDR if the home subnet changes.

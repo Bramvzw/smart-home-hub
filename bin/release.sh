@@ -16,9 +16,14 @@
 set -euo pipefail
 
 # ---- config (single-NAS setup) -------------------------------------------
-NAS_SSH="${NAS_SSH:-user@nas-host}"
+# Machine-specific values live in an untracked .release.env at the repo root:
+#   NAS_SSH=user@nas-host
+#   HEALTH_URL=http://nas-host:8080/
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+[ -f "$REPO_ROOT/.release.env" ] && . "$REPO_ROOT/.release.env"
+NAS_SSH="${NAS_SSH:?Set NAS_SSH (user@host) in .release.env or the environment}"
 NAS_KEY="${NAS_KEY:-$HOME/.ssh/id_ed25519}"
-HEALTH_URL="${HEALTH_URL:-http://nas-host:8080/}"
+HEALTH_URL="${HEALTH_URL:?Set HEALTH_URL in .release.env or the environment}"
 PROJECT="/volume1/docker/smart-home-hub"
 COMPOSE="/var/packages/ContainerManager/target/usr/bin/docker-compose"
 DC="$COMPOSE -f $PROJECT/docker-compose.yml --project-directory $PROJECT"

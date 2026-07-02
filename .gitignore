@@ -32,3 +32,4 @@ Homestead.json
 .claude/
 .codesight/
 .guarddog/cache/
+.release.env

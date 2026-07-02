@@ -119,7 +119,7 @@ DB_CONNECTION=sqlite
 DB_DATABASE=/app/database/database.sqlite
 
 PRIVATE_NETWORK_GUARD_ENABLED=true
-PRIVATE_NETWORK_ALLOWED_CIDRS=127.0.0.1/32,::1/128,192.168.1.0/24
+PRIVATE_NETWORK_ALLOWED_CIDRS=127.0.0.1/32,::1/128,<your-lan-cidr>
 ```
 
 Pas de CIDR aan als het thuisnetwerk een ander subnet gebruikt.
