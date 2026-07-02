@@ -18,7 +18,7 @@ class SpotifyLibraryService
             'query' => ['limit' => $limit],
         ]);
 
-        if (!isset($response['items']) || empty($response['items'])) {
+        if (! isset($response['items']) || empty($response['items'])) {
             return [];
         }
 
@@ -27,9 +27,9 @@ class SpotifyLibraryService
 
     public function getUserPlaylists(int $limit = 20, bool $includeLikedSongs = true): array
     {
-        $cacheKey = 'spotify_playlists_' . md5($limit . '_' . ($includeLikedSongs ? '1' : '0'));
+        $cacheKey = 'spotify_playlists_'.md5($limit.'_'.($includeLikedSongs ? '1' : '0'));
 
-        return Cache::remember($cacheKey, 300, function () use ($limit, $includeLikedSongs) {
+        return Cache::remember($cacheKey, config('spotify.cache_ttl', 300), function () use ($limit, $includeLikedSongs) {
             $response = $this->api->request('GET', '/me/playlists', [
                 'query' => ['limit' => $limit],
             ]);
@@ -39,7 +39,7 @@ class SpotifyLibraryService
             if ($includeLikedSongs) {
                 $savedTracks = $this->getSavedTracks(5);
 
-                if (!empty($savedTracks)) {
+                if (! empty($savedTracks)) {
                     array_unshift($playlists, [
                         'id' => 'liked-songs',
                         'name' => 'Liked Songs',
@@ -66,7 +66,7 @@ class SpotifyLibraryService
 
     public function shufflePlayPlaylist(string $uri): array
     {
-        if ($uri && !$this->playback->validateSpotifyUri($uri)) {
+        if ($uri && ! $this->playback->validateSpotifyUri($uri)) {
             return ['error' => 'Invalid Spotify URI format'];
         }
 
@@ -84,8 +84,8 @@ class SpotifyLibraryService
 
     public function clearPlaylistCache(): void
     {
-        Cache::forget('spotify_playlists_' . md5('20_1'));
-        Cache::forget('spotify_playlists_' . md5('20_0'));
+        Cache::forget('spotify_playlists_'.md5('20_1'));
+        Cache::forget('spotify_playlists_'.md5('20_0'));
     }
 
     public function search(string $query, string $type = 'track', int $limit = 20): array
@@ -102,6 +102,13 @@ class SpotifyLibraryService
     public function checkSavedTracks(array $ids): array
     {
         return $this->api->request('GET', '/me/tracks/contains', [
+            'query' => ['ids' => implode(',', $ids)],
+        ]);
+    }
+
+    public function checkSavedAlbums(array $ids): array
+    {
+        return $this->api->request('GET', '/me/albums/contains', [
             'query' => ['ids' => implode(',', $ids)],
         ]);
     }
