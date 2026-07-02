@@ -366,6 +366,7 @@
 .ent-music { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 980px) { .ent-music { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 680px) { .ent-music { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px) { .ent-music { grid-template-columns: 1fr; } }
 
 .ent-release { display: flex; flex-direction: column; gap: 11px; text-align: left; width: 100%; }
 .ent-cover {
@@ -380,6 +381,14 @@
     var(--card);
 }
 .ent-cover .ic { position: relative; z-index: 1; color: var(--tx-3); transition: color 130ms var(--ease); }
+.ent-saved {
+  position: absolute; top: 9px; left: 9px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px;
+  border-radius: var(--r-pill); font-size: 11px; font-weight: 700;
+  background: rgba(13,14,18,0.78); color: var(--spotify);
+  border: 1px solid var(--spotify-line); backdrop-filter: blur(2px);
+}
+.ent-saved .ic { color: var(--spotify); }
 .ent-release:hover .ent-cover { border-color: var(--line-strong); }
 .ent-release:hover .ent-cover .ic { color: var(--tx-2); }
 .ent-cover-play {
