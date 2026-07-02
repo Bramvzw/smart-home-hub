@@ -2,6 +2,7 @@
 
 namespace Modules\Printer\Models;
 
+use App\Services\Settings\SettingsStore;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
@@ -47,7 +48,8 @@ class FilamentSpool extends Model
     protected function isLow(): Attribute
     {
         return Attribute::get(function (): bool {
-            $threshold = (int) config('printer.low_filament_pct', 15);
+            $threshold = (int) app(SettingsStore::class)
+                ->get('printer.low_filament_pct', config('printer.low_filament_pct', 15));
 
             return $this->remaining_pct <= $threshold;
         });
