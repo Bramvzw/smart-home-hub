@@ -30,61 +30,6 @@ class TaskRecurrenceControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_complete_habit_is_idempotent_and_can_be_undone(): void
-    {
-        $habit = $this->recurrence('habit', 'times_per_week', ['times' => 3]);
-
-        $this->postJson(route('tasks.habits.complete', $habit), ['date' => '2026-06-25'])
-            ->assertOk()
-            ->assertJsonPath('habit.completed_today', true)
-            ->assertJsonPath('habit.progress.completed', 1);
-        $this->postJson(route('tasks.habits.complete', $habit), ['date' => '2026-06-25'])
-            ->assertOk()
-            ->assertJsonPath('habit.progress.completed', 1);
-
-        $this->assertDatabaseCount('task_recurrence_completions', 1);
-
-        $this->deleteJson(route('tasks.habits.complete.destroy', $habit), ['date' => '2026-06-25'])
-            ->assertOk()
-            ->assertJsonPath('removed', true)
-            ->assertJsonPath('habit.completed_today', false)
-            ->assertJsonPath('habit.progress.completed', 0);
-
-        $this->assertDatabaseCount('task_recurrence_completions', 0);
-    }
-
-    public function test_habits_endpoint_returns_contract_with_progress_and_streaks(): void
-    {
-        $habit = $this->recurrence('habit', 'weekly', title: 'Plan week');
-        $habit->completions()->create([
-            'completed_on' => '2026-06-25',
-            'period_key' => '2026-W26',
-        ]);
-
-        $this->getJson(route('tasks.habits.index', ['date' => '2026-06-25']))
-            ->assertOk()
-            ->assertJsonPath('date', '2026-06-25')
-            ->assertJsonPath('habits.0.id', $habit->id)
-            ->assertJsonPath('habits.0.title', 'Plan week')
-            ->assertJsonPath('habits.0.completed_today', true)
-            ->assertJsonPath('habits.0.progress.period_key', '2026-W26')
-            ->assertJsonStructure([
-                'habits' => [
-                    [
-                        'id',
-                        'type',
-                        'title',
-                        'cadence_type',
-                        'cadence_config',
-                        'progress' => ['period_key', 'completed', 'target', 'is_complete', 'percentage'],
-                        'current_streak',
-                        'best_streak',
-                        'completed_today',
-                    ],
-                ],
-            ]);
-    }
-
     public function test_due_maintenance_is_materialized_once_and_notifies(): void
     {
         $notifier = new FakeTaskRecurrenceNotifier;
@@ -169,18 +114,16 @@ class TaskRecurrenceControllerTest extends TestCase
         $this->assertTrue($section->data['habits'][0]['completed_today']);
     }
 
-    public function test_habits_page_renders_html_with_habits_and_maintenance(): void
+    public function test_maintenance_page_renders_html(): void
     {
-        $this->recurrence('habit', 'times_per_week', ['times' => 3], 'Sporten');
+        $this->withoutVite();
         $this->recurrence('maintenance', 'interval', ['interval' => 6, 'unit' => 'months'], 'Rookmelders testen', [
             'next_due_on' => '2026-09-25',
         ]);
 
-        $this->get(route('tasks.habits.index'))
+        $this->get(route('tasks.maintenance.index'))
             ->assertOk()
-            ->assertSee('Habits')
-            ->assertSee('Sporten')
-            ->assertSee('3× per week')
+            ->assertSee('Maintenance')
             ->assertSee('Rookmelders testen')
             ->assertSee('every 6 months');
     }

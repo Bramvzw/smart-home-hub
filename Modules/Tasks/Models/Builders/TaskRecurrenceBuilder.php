@@ -22,6 +22,11 @@ class TaskRecurrenceBuilder extends Builder
         return $this->where('active', true);
     }
 
+    public function plannable(): static
+    {
+        return $this->where('plannable', true);
+    }
+
     public function dueOn(CarbonInterface $date): static
     {
         return $this->whereNotNull('next_due_on')

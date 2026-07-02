@@ -8,7 +8,6 @@ use Modules\Entertainment\Providers\EntertainmentServiceProvider;
 use Modules\Lighting\Providers\LightingServiceProvider;
 use Modules\News\Providers\NewsServiceProvider;
 use Modules\PhonePing\Providers\PhonePingServiceProvider;
-use Modules\Planner\Providers\PlannerServiceProvider;
 use Modules\Printer\Providers\PrinterServiceProvider;
 use Modules\Recipes\Providers\RecipesServiceProvider;
 use Modules\Spotify\Providers\SpotifyServiceProvider;
@@ -28,7 +27,6 @@ return [
 
     // Planning & productivity
     CalendarServiceProvider::class,
-    PlannerServiceProvider::class,
     TasksServiceProvider::class,
 
     // Home

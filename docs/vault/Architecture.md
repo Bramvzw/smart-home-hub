@@ -150,18 +150,18 @@ Entertainment is a film/concert/music discovery module at `/entertainment`.
 
 Spotify authorization now requests `user-follow-read`. Concert source failures are isolated. New music notifications are bundled; relevant concerts (`followed`, `hedon`, `might_like`) are pushed once.
 
-### Planner
+### Calendar planning (weekly planner)
 
-Planner is a weekly Google Calendar agenda-planning module at `/planner`.
+The weekly agenda planner lives inside the Calendar module at `/calendar`; Google Calendar is the single agenda source for both the view and the planner.
 
 - `GoogleCalendarTokenService`: OAuth URL, code exchange and refresh-token behavior.
-- `GoogleCalendarClient`: Google Calendar free-busy and event insert transport.
+- `GoogleCalendarClient`: Google Calendar events, free-busy and event insert transport.
 - `SlotFinder`: deterministic feasible-slot generator that excludes work hours and busy events.
-- `WeeklyPlanner`: places active intentions and validates any composed plan before persistence.
-- `PlanComposer`: AI/testable summary/arrangement contract; invalid composed slots fall back to deterministic placement.
-- `GenerateWeeklyPlan`, `AcceptPlanItem`, `AcceptAllPlanItems`, `RejectPlanItem` and intention CRUD actions own writes.
+- `WeeklyPlanner`: places active plannable goals (habits) and validates any composed plan before persistence.
+- `PlanComposer`: AI/testable summary/arrangement contract; the default `DeterministicPlanComposer` keeps deterministic placement and marks `is_fallback`.
+- `GenerateWeeklyPlan`, `AcceptPlanItem`, `AcceptAllPlanItems`, `RejectPlanItem` own writes; habits/goals are supplied via the `App\Contracts\SchedulableGoals` seam.
 
-The scheduled `planner:generate` command runs weekly on the configured day/time, default Sunday 19:00. Manual generation does not push; scheduled generation sends one shared-hub ntfy summary. Accepted plan items are inserted into the configured Google Calendar and store the returned event id.
+The scheduled `calendar:generate` command runs weekly on the configured day/time, default Sunday 19:00. Manual generation does not push; scheduled generation sends one shared-hub ntfy summary. Accepted plan items are inserted into the configured Google Calendar and store the returned event id.
 
 ### Tasks
 

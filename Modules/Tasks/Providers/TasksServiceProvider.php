@@ -2,12 +2,15 @@
 
 namespace Modules\Tasks\Providers;
 
+use App\Contracts\SchedulableGoals;
 use App\Providers\ModuleServiceProvider;
 use Modules\Tasks\Briefing\TasksBriefingSource;
+use Modules\Tasks\Services\RecurrenceGoals;
 
 class TasksServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'Tasks';
+
     protected string $nameLower = 'tasks';
 
     public function register(): void
@@ -15,6 +18,7 @@ class TasksServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->tag([TasksBriefingSource::class], 'briefing.source');
+        $this->app->bind(SchedulableGoals::class, RecurrenceGoals::class);
     }
 
     public function getModuleName(): string
@@ -31,7 +35,7 @@ class TasksServiceProvider extends ModuleServiceProvider
     {
         return [
             ['label' => 'Tasks', 'route' => 'tasks.index', 'icon' => 'clipboard-list'],
-            ['label' => 'Habits', 'route' => 'tasks.habits.index', 'icon' => 'habits'],
+            ['label' => 'Maintenance', 'route' => 'tasks.maintenance.index', 'icon' => 'habits'],
         ];
     }
 

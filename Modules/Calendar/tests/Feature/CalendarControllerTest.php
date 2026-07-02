@@ -3,46 +3,53 @@
 namespace Modules\Calendar\Tests\Feature;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Modules\Calendar\Models\GoogleCalendarToken;
 use Tests\TestCase;
 
 class CalendarControllerTest extends TestCase
 {
-    private const FEED_URL = 'https://example.test/secret/basic.ics';
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withoutVite();
-        config(['app.timezone' => 'Europe/Amsterdam']);
+        config(['app.timezone' => 'Europe/Amsterdam', 'calendar.google.calendar_id' => 'primary']);
     }
 
-    private function ics(): string
+    private function connect(): void
     {
-        return <<<'ICS'
-        BEGIN:VCALENDAR
-        VERSION:2.0
-        PRODID:-//Test//Calendar//EN
-        BEGIN:VEVENT
-        UID:dentist-1
-        SUMMARY:Dentist appointment
-        DTSTART;TZID=Europe/Amsterdam:20260609T140000
-        DTEND;TZID=Europe/Amsterdam:20260609T143000
-        END:VEVENT
-        END:VCALENDAR
-        ICS;
-    }
-
-    public function test_index_page_lists_events_from_the_feed(): void
-    {
-        config([
-            'calendar.feeds' => [
-                ['label' => 'Work', 'color' => '#f2ad66', 'url' => self::FEED_URL],
-            ],
-            'calendar.window_days' => 30,
+        GoogleCalendarToken::query()->create([
+            'access_token' => 'token',
+            'refresh_token' => 'refresh',
+            'expires_at' => CarbonImmutable::now()->addHour(),
         ]);
-        Http::fake([self::FEED_URL => Http::response($this->ics(), 200)]);
+    }
+
+    public function test_index_shows_connect_prompt_when_google_is_not_connected(): void
+    {
+        $response = $this->get(route('calendar.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Connect your Google Calendar');
+    }
+
+    public function test_index_lists_events_from_google_calendar(): void
+    {
+        $this->connect();
+        Http::fake([
+            'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response(['items' => [
+                [
+                    'id' => 'dentist-1',
+                    'summary' => 'Dentist appointment',
+                    'start' => ['dateTime' => '2026-06-09T14:00:00+02:00'],
+                    'end' => ['dateTime' => '2026-06-09T14:30:00+02:00'],
+                ],
+            ]], 200),
+        ]);
 
         // Pin "now" before the fixture appointment so it falls inside the window.
         $this->travelTo(CarbonImmutable::parse('2026-06-08 08:00:00', 'Europe/Amsterdam'));
@@ -50,17 +57,6 @@ class CalendarControllerTest extends TestCase
         $response = $this->get(route('calendar.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Next 30 days');
         $response->assertSee('Dentist appointment');
-    }
-
-    public function test_index_page_shows_empty_state_when_no_feed_is_configured(): void
-    {
-        config(['calendar.feeds' => []]);
-
-        $response = $this->get(route('calendar.index'));
-
-        $response->assertStatus(200);
-        $response->assertSee('No calendar connected');
     }
 }
