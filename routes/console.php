@@ -4,14 +4,15 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use Modules\Briefing\Actions\GenerateBriefing;
+use Modules\Calendar\Actions\GenerateWeeklyPlan;
 use Modules\Deals\Actions\CheckPrices;
 use Modules\Entertainment\Actions\NotifyEntertainment;
 use Modules\Entertainment\Actions\RefreshConcerts;
 use Modules\Entertainment\Actions\RefreshFilms;
 use Modules\Entertainment\Actions\RefreshMusicReleases;
+use Modules\Lighting\Actions\ApplyWeatherTriggeredPresets;
 use Modules\News\Actions\CheckNewsKeywords;
 use Modules\News\Actions\RefreshFeeds;
-use Modules\Planner\Actions\GenerateWeeklyPlan;
 use Modules\Recipes\Actions\GenerateRecipes;
 use Modules\Tasks\Actions\Recurrences\MaterializeDueMaintenance;
 use Modules\Weather\Actions\CheckRainForecast;
@@ -194,20 +195,47 @@ Artisan::command('entertainment:notify', function () {
     return 0;
 })->purpose('Send entertainment notifications');
 
-Artisan::command('planner:generate', function () {
+Artisan::command('calendar:generate', function () {
     try {
         $plan = app(GenerateWeeklyPlan::class)(push: true);
     } catch (\Throwable $exception) {
         report($exception);
-        $this->error('Planner generation: failed');
+        $this->error('Calendar plan generation: failed');
 
         return 1;
     }
 
-    $this->info("Planner generated for {$plan->week_key}");
+    $this->info("Calendar plan generated for {$plan->week_key}");
 
     return 0;
 })->purpose('Generate the weekly agenda plan');
+
+// Only registered when explicitly enabled, so nothing changes on the NAS until the user opts in.
+if ((bool) config('lighting.weather_presets.enabled', false)) {
+    Artisan::command('lighting:apply-weather-presets', function () {
+        try {
+            $applied = app(ApplyWeatherTriggeredPresets::class)();
+        } catch (\Throwable $exception) {
+            report($exception);
+            $this->error('Lighting weather presets: failed');
+
+            return 1;
+        }
+
+        $this->info(sprintf(
+            'Lighting weather presets: applied %d preset%s%s',
+            count($applied),
+            count($applied) === 1 ? '' : 's',
+            $applied === [] ? '' : ' ('.implode(', ', $applied).')',
+        ));
+
+        return 0;
+    })->purpose('Apply lighting presets whose weather triggers currently match');
+
+    Schedule::command('lighting:apply-weather-presets')
+        ->everyFifteenMinutes()
+        ->withoutOverlapping();
+}
 
 Schedule::command('weather:check-rain')
     ->everyThirtyMinutes()
@@ -267,7 +295,7 @@ Schedule::command('entertainment:notify')
     ->dailyAt('09:15')
     ->withoutOverlapping();
 
-Schedule::command('planner:generate')
+Schedule::command('calendar:generate')
     ->weeklyOn([
         'sunday' => 0,
         'monday' => 1,
@@ -276,5 +304,5 @@ Schedule::command('planner:generate')
         'thursday' => 4,
         'friday' => 5,
         'saturday' => 6,
-    ][mb_strtolower((string) config('planner.generate.day', 'sunday'))] ?? 0, (string) config('planner.generate.time', '19:00'))
+    ][mb_strtolower((string) config('calendar.generate.day', 'sunday'))] ?? 0, (string) config('calendar.generate.time', '19:00'))
     ->withoutOverlapping();

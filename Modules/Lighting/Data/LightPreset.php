@@ -14,6 +14,7 @@ final readonly class LightPreset
         public ?int $brightness = null,
         public ?string $color = null,
         public array $targetNameContains = [],
+        public ?WeatherPresetTrigger $weatherTrigger = null,
     ) {}
 
     public function targetsLight(Light $light): bool
@@ -36,7 +37,7 @@ final readonly class LightPreset
     }
 
     /**
-     * @return array{key: string, label: string, power: bool, brightness: int|null, color: string|null, target_name_contains: list<string>}
+     * @return array{key: string, label: string, power: bool, brightness: int|null, color: string|null, target_name_contains: list<string>, weather_trigger: array<string, mixed>|null}
      */
     public function toArray(): array
     {
@@ -47,6 +48,7 @@ final readonly class LightPreset
             'brightness' => $this->brightness,
             'color' => $this->color,
             'target_name_contains' => $this->targetNameContains,
+            'weather_trigger' => $this->weatherTrigger?->toArray(),
         ];
     }
 }
