@@ -1,4 +1,4 @@
-<x-dashboard.layout title="Entertainment & muziek" :hideHeader="true">
+<x-dashboard.layout title="Entertainment & music" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Entertainment/resources/assets/css/entertainment.css'])
     </x-slot:head>
@@ -45,21 +45,21 @@
             return '<svg class="'.e($class).'" width="'.$size.'" height="'.$size.'" viewBox="0 0 24 24" fill="'.($fill ? 'currentColor' : 'none').'" stroke="'.($fill ? 'none' : 'currentColor').'" stroke-width="'.($fill ? 0 : $stroke).'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'.$inner.'</svg>';
         };
 
-        // ---- availability platform meta (beschikbaarheid) ----
+        // ---- availability platform meta ----
         $platMeta = [
-            'cinema' => ['label' => 'Bios', 'cls' => 'bios'],
+            'cinema' => ['label' => 'Cinema', 'cls' => 'bios'],
             'netflix' => ['label' => 'Netflix', 'cls' => 'netflix'],
             'prime' => ['label' => 'Prime', 'cls' => 'prime'],
         ];
 
-        // ---- relevance meta (concerten) ----
+        // ---- relevance meta (concerts) ----
         $relMeta = [
-            'followed' => ['label' => 'Gevolgd', 'cls' => 'gevolgd', 'icon' => 'Spotify'],
+            'followed' => ['label' => 'Followed', 'cls' => 'gevolgd', 'icon' => 'Spotify'],
             'hedon' => ['label' => 'Hedon', 'cls' => 'hedon', 'icon' => 'Home'],
-            'might_like' => ['label' => 'Misschien leuk', 'cls' => 'misschien', 'icon' => 'Sparkle'],
+            'might_like' => ['label' => 'Might like', 'cls' => 'misschien', 'icon' => 'Sparkle'],
         ];
 
-        // ---- release type meta (muziek) ----
+        // ---- release type meta (music) ----
         $typeMeta = ['album' => 'Album', 'single' => 'Single', 'ep' => 'EP'];
 
         // ---- derive a poster glyph from the film title ----
@@ -85,9 +85,6 @@
         $hasConcerts = $concertCount > 0;
         $hasMusic = $musicCount > 0;
 
-        $monthsNl = [1 => 'jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
-        $daysNl = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
-
         $initialTab = 'films';
     @endphp
 
@@ -100,25 +97,25 @@
             {{-- ============ HEADER ============ --}}
             <div class="ent-head">
                 <div class="ent-head-l">
-                    <span class="ent-eyebrow">{!! $eIc('Note', 14, 1.7, 'ic') !!} Aanbevolen voor jou</span>
-                    <h1 class="ent-title disp">Entertainment &amp; muziek</h1>
+                    <span class="ent-eyebrow">{!! $eIc('Note', 14, 1.7, 'ic') !!} Recommended for you</span>
+                    <h1 class="ent-title disp">Entertainment &amp; music</h1>
                     <div class="ent-sub" data-ent-sub="films">
-                        <b class="tnum">{{ $filmCount }}</b> films voor jou<span class="dot">·</span>gecureerd op je <b>smaakprofiel</b>
+                        <b class="tnum">{{ $filmCount }}</b> films for you<span class="dot">·</span>curated to your <b>taste profile</b>
                     </div>
                     <div class="ent-sub" data-ent-sub="concerten" hidden>
-                        <b class="tnum">{{ $concertCount }}</b> concerten<span class="dot">·</span><b>heel NL</b> + Hedon Zwolle
+                        <b class="tnum">{{ $concertCount }}</b> concerts<span class="dot">·</span><b>all of NL</b> + Hedon Zwolle
                     </div>
                     <div class="ent-sub" data-ent-sub="muziek" hidden>
-                        <b class="tnum">{{ $musicCount }}</b> nieuwe releases<span class="dot">·</span>van je <b>gevolgde artiesten</b>
+                        <b class="tnum">{{ $musicCount }}</b> new releases<span class="dot">·</span>from your <b>followed artists</b>
                     </div>
                 </div>
                 <div class="ent-head-r">
                     <span class="ent-conn {{ ($spotifyConnected ?? false) ? 'on' : 'off' }}">
                         <span class="dot-led"></span>
-                        {{ ($spotifyConnected ?? false) ? 'Spotify gekoppeld' : 'Spotify niet gekoppeld' }}
+                        {{ ($spotifyConnected ?? false) ? 'Spotify connected' : 'Spotify not connected' }}
                     </span>
                     <button class="ent-btn ent-btn-primary" data-ent-refresh>
-                        {!! $eIc('Refresh', 15, 1.7, 'ic') !!} Vernieuwen
+                        {!! $eIc('Refresh', 15, 1.7, 'ic') !!} Refresh
                     </button>
                 </div>
             </div>
@@ -130,11 +127,11 @@
                     <span class="ent-tab-count tnum">{{ $filmCount }}</span>
                 </button>
                 <button class="ent-tab" data-ent-tab="concerten">
-                    {!! $eIc('Ticket', 15, 1.7, 'ic') !!} Concerten
+                    {!! $eIc('Ticket', 15, 1.7, 'ic') !!} Concerts
                     <span class="ent-tab-count tnum">{{ $concertCount }}</span>
                 </button>
                 <button class="ent-tab" data-ent-tab="muziek">
-                    {!! $eIc('Disc', 15, 1.7, 'ic') !!} Nieuwe muziek
+                    {!! $eIc('Disc', 15, 1.7, 'ic') !!} New music
                     <span class="ent-tab-count tnum">{{ $musicCount }}</span>
                 </button>
             </div>
@@ -144,7 +141,7 @@
                 @if($hasFilms)
                     <div class="ent-strip">
                         {!! $eIc('Sparkle', 15, 1.7, 'ic') !!}
-                        <span>Aanbevolen op basis van je <b>smaakprofiel</b> — gesorteerd op match.</span>
+                        <span>Recommended based on your <b>taste profile</b> — sorted by match.</span>
                     </div>
 
                     <div class="ent-films">
@@ -175,7 +172,7 @@
 
                                         @if(! empty($film['why']))
                                             <div class="ent-pitch">
-                                                <span class="why">Waarom jij dit leuk vindt:</span> {{ $film['why'] }}
+                                                <span class="why">Why you'll like this:</span> {{ $film['why'] }}
                                             </div>
                                         @elseif(! empty($film['overview']))
                                             <div class="ent-pitch">{{ $film['overview'] }}</div>
@@ -195,15 +192,15 @@
                                         @endif
 
                                         <div class="ent-film-foot">
-                                            <span class="ent-film-foot-lab">Past dit?</span>
+                                            <span class="ent-film-foot-lab">Does this fit?</span>
                                             <div class="ent-rate">
-                                                <button class="ent-thumb up" data-ent-thumb="up" aria-label="Duim omhoog" aria-pressed="false">
+                                                <button class="ent-thumb up" data-ent-thumb="up" aria-label="Thumbs up" aria-pressed="false">
                                                     {!! $eIc('ThumbUp', 16, 1.7) !!}
                                                 </button>
-                                                <button class="ent-thumb down" data-ent-thumb="down" aria-label="Duim omlaag" aria-pressed="false">
+                                                <button class="ent-thumb down" data-ent-thumb="down" aria-label="Thumbs down" aria-pressed="false">
                                                     {!! $eIc('ThumbDown', 16, 1.7) !!}
                                                 </button>
-                                                <button class="ent-thumb" data-ent-dismiss aria-label="Verbergen">
+                                                <button class="ent-thumb" data-ent-dismiss aria-label="Hide">
                                                     {!! $eIc('X', 16, 1.7) !!}
                                                 </button>
                                             </div>
@@ -218,14 +215,14 @@
                 @else
                     <div class="ent-state">
                         <span class="ent-state-ico">{!! $eIc('Star', 26, 1.7) !!}</span>
-                        <div class="ent-state-title">Nog geen aanbevelingen</div>
+                        <div class="ent-state-title">No recommendations yet</div>
                         <div class="ent-state-sub">
-                            Je smaakprofiel is nog leeg. Kies een paar favoriete genres en films die je goed vond,
-                            dan stelt de hub elke ochtend een lijst met passende films samen.
+                            Your taste profile is still empty. Pick a few favorite genres and films you liked,
+                            and the hub will put together a list of matching films every morning.
                         </div>
                         <div class="ent-state-actions">
                             <button class="ent-btn ent-btn-primary" data-ent-refresh>
-                                {!! $eIc('Refresh', 15, 1.7, 'ic') !!} Aanbevelingen ophalen
+                                {!! $eIc('Refresh', 15, 1.7, 'ic') !!} Get recommendations
                             </button>
                         </div>
                     </div>
@@ -237,7 +234,7 @@
                 @if($hasConcerts)
                     <div class="ent-strip">
                         {!! $eIc('Pin', 15, 1.7, 'ic') !!}
-                        <span>Gescand in <b>heel NL + Hedon Zwolle</b> — gesorteerd op datum.</span>
+                        <span>Scanned across <b>all of NL + Hedon Zwolle</b> — sorted by date.</span>
                     </div>
 
                     <div class="ent-concerts">
@@ -250,8 +247,8 @@
                                 <div class="ent-crow">
                                     <div class="ent-cdate">
                                         <div class="day tnum">{{ $date ? $date->day : '—' }}</div>
-                                        <div class="mon">{{ $date ? ($monthsNl[$date->month] ?? '') : '' }}</div>
-                                        <div class="dow">{{ $date ? ($daysNl[$date->dayOfWeekIso - 1] ?? '') : '' }}</div>
+                                        <div class="mon">{{ $date ? $date->locale('en')->isoFormat('MMM') : '' }}</div>
+                                        <div class="dow">{{ $date ? $date->locale('en')->isoFormat('ddd') : '' }}</div>
                                     </div>
                                     <div class="ent-cbody">
                                         <div class="ent-cartist">{{ $concert['artist'] }}</div>
@@ -267,7 +264,7 @@
                                             </span>
                                         @endif
                                         @if(! empty($concert['url']))
-                                            <a class="ent-cgo" href="{{ $concert['url'] }}" target="_blank" rel="noopener" aria-label="Naar tickets">
+                                            <a class="ent-cgo" href="{{ $concert['url'] }}" target="_blank" rel="noopener" aria-label="To tickets">
                                                 {!! $eIc('ArrowR', 16, 1.7) !!}
                                             </a>
                                         @endif
@@ -286,7 +283,7 @@
                 @if($hasMusic)
                     <div class="ent-strip">
                         {!! $eIc('Spotify', 15, 1.7, 'ic') !!}
-                        <span>Releases van de artiesten die je op <b>Spotify</b> volgt.</span>
+                        <span>Releases from the artists you follow on <b>Spotify</b>.</span>
                     </div>
 
                     <div class="ent-music">
@@ -299,6 +296,9 @@
                             @endphp
                             <div class="ent-release">
                                 <div class="ent-cover">
+                                    @if(($release['saved_on_spotify'] ?? null) === true)
+                                        <span class="ent-saved">{!! $eIc('CheckSm', 11, 1.7, 'ic') !!} In library</span>
+                                    @endif
                                     @if(! empty($release['image_url']))
                                         <img src="{{ $release['image_url'] }}" alt="{{ $release['title'] }}"
                                              style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;">
@@ -307,7 +307,7 @@
                                         <span class="ent-cover-cap">cover</span>
                                     @endif
                                     @if(! empty($release['url']))
-                                        <a class="ent-cover-play" href="{{ $release['url'] }}" target="_blank" rel="noopener" aria-label="Afspelen">
+                                        <a class="ent-cover-play" href="{{ $release['url'] }}" target="_blank" rel="noopener" aria-label="Play">
                                             {!! $eIc('Play', 14, 1.7) !!}
                                         </a>
                                     @endif
@@ -316,7 +316,7 @@
                                     <div class="ent-rel-meta">
                                         <span class="ent-type {{ $type }}">{{ $typeLabel }}</span>
                                         <span class="ent-date {{ $isToday ? 'today' : '' }}">
-                                            {{ $relDate ? ($isToday ? 'vandaag' : $relDate->locale('nl')->isoFormat('D MMM')) : '' }}
+                                            {{ $relDate ? ($isToday ? 'today' : $relDate->locale('en')->isoFormat('D MMM')) : '' }}
                                         </span>
                                     </div>
                                     <div class="ent-rel-title" style="margin-top:8px;">{{ $release['title'] }}</div>

@@ -4,10 +4,14 @@ namespace Modules\Entertainment\Services\Music;
 
 use Carbon\CarbonImmutable;
 use Modules\Spotify\Services\SpotifyApiClient;
+use Modules\Spotify\Services\SpotifyLibraryService;
 
 class SpotifyReleasesService
 {
-    public function __construct(private readonly SpotifyApiClient $spotify) {}
+    public function __construct(
+        private readonly SpotifyApiClient $spotify,
+        private readonly SpotifyLibraryService $library,
+    ) {}
 
     public function followedArtists(): array
     {
@@ -48,5 +52,27 @@ class SpotifyReleasesService
         }
 
         return $releases;
+    }
+
+    /** Saved status per spotify_id; ids missing from the map could not be resolved and should be left untouched. */
+    public function checkSaved(array $spotifyIds): array
+    {
+        $status = [];
+
+        foreach (array_chunk($spotifyIds, 20) as $chunk) {
+            $response = $this->library->checkSavedAlbums($chunk);
+
+            if (isset($response['error'])) {
+                continue;
+            }
+
+            foreach ($chunk as $index => $spotifyId) {
+                if (array_key_exists($index, $response)) {
+                    $status[$spotifyId] = (bool) $response[$index];
+                }
+            }
+        }
+
+        return $status;
     }
 }
