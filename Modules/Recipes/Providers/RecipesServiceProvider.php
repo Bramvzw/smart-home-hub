@@ -5,6 +5,7 @@ namespace Modules\Recipes\Providers;
 use App\Providers\ModuleServiceProvider;
 use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Schema;
+use Modules\Recipes\Briefing\RecipesBriefingSource;
 use Modules\Recipes\Contracts\RecipeTextGenerator;
 use Modules\Recipes\Models\Recipe;
 use Modules\Recipes\Models\RecipeRun;
@@ -26,6 +27,7 @@ class RecipesServiceProvider extends ModuleServiceProvider
         $this->app->bind(RecipeTextGenerator::class, PrismRecipeTextGenerator::class);
         $this->app->tag([AlbertHeijnOfferProvider::class, LidlOfferProvider::class], 'recipes.offer_provider');
         $this->app->bind(OfferAggregator::class, fn ($app) => new OfferAggregator($app->tagged('recipes.offer_provider')));
+        $this->app->tag([RecipesBriefingSource::class], 'briefing.source');
     }
 
     public function getModuleName(): string

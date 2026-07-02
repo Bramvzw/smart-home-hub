@@ -6,8 +6,20 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Modules\Calendar\Briefing\CalendarBriefingSource;
+use Modules\Deals\Briefing\DealsBriefingSource;
+use Modules\Deals\Models\ProductListing;
+use Modules\Deals\Models\WatchedProduct;
+use Modules\Entertainment\Briefing\EntertainmentBriefingSource;
+use Modules\Entertainment\Models\Concert;
+use Modules\Entertainment\Models\MusicRelease;
 use Modules\News\Briefing\NewsBriefingSource;
 use Modules\News\Models\NewsItem;
+use Modules\Printer\Briefing\PrinterBriefingSource;
+use Modules\Printer\Models\FilamentSpool;
+use Modules\Printer\Models\PrinterPart;
+use Modules\Recipes\Briefing\RecipesBriefingSource;
+use Modules\Recipes\Models\Recipe;
+use Modules\Recipes\Services\OfferAggregator;
 use Modules\Tasks\Briefing\TasksBriefingSource;
 use Modules\Tasks\Models\TaskBoard;
 use Modules\Weather\Briefing\WeatherBriefingSource;
@@ -59,17 +71,24 @@ class BriefingSourcesTest extends TestCase
         $this->assertSame('Amsterdam', $section->data['location']);
     }
 
-    public function test_calendar_source_returns_todays_events_and_null_without_feeds(): void
+    public function test_calendar_source_returns_todays_events_and_null_without_connection(): void
     {
         $this->assertNull(app(CalendarBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam')));
 
-        config([
-            'calendar.feeds' => [
-                ['label' => 'Privé', 'url' => 'https://example.com/calendar.ics', 'color' => '#fff'],
-            ],
+        \Modules\Calendar\Models\GoogleCalendarToken::query()->create([
+            'access_token' => 'token',
+            'refresh_token' => 'refresh',
+            'expires_at' => CarbonImmutable::now()->addDay(),
         ]);
         Http::fake([
-            'https://example.com/calendar.ics' => Http::response($this->icsFixture()),
+            'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response(['items' => [
+                [
+                    'id' => 'standup',
+                    'summary' => 'Standup',
+                    'start' => ['dateTime' => '2026-06-25T10:00:00+02:00'],
+                    'end' => ['dateTime' => '2026-06-25T10:30:00+02:00'],
+                ],
+            ]], 200),
         ]);
 
         $section = app(CalendarBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
@@ -129,6 +148,152 @@ class BriefingSourcesTest extends TestCase
         $this->assertSame('Laravel News', $section->data['groups'][0]['items'][0]['source']);
     }
 
+    public function test_printer_source_returns_low_stock_and_null_when_sufficient(): void
+    {
+        FilamentSpool::query()->create([
+            'material' => 'PLA',
+            'color_name' => 'Wit',
+            'total_weight_g' => 1000,
+            'remaining_g' => 900,
+        ]);
+        PrinterPart::query()->create([
+            'category' => 'spare',
+            'name' => 'M4 bout',
+            'quantity' => 50,
+            'unit' => 'stuks',
+            'low_threshold' => 5,
+        ]);
+
+        $this->assertNull(app(PrinterBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam')));
+
+        FilamentSpool::query()->create([
+            'material' => 'PLA',
+            'color_name' => 'Zwart',
+            'total_weight_g' => 1000,
+            'remaining_g' => 120,
+        ]);
+        PrinterPart::query()->create([
+            'category' => 'spare',
+            'name' => 'M3 moer',
+            'quantity' => 2,
+            'unit' => 'stuks',
+            'low_threshold' => 5,
+        ]);
+
+        $section = app(PrinterBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
+
+        $this->assertSame('printer', $section->key);
+        $this->assertStringContainsString('PLA Zwart (12%)', $section->summary);
+        $this->assertStringContainsString('M3 moer (2 stuks)', $section->summary);
+        $this->assertSame('PLA', $section->data['low_spools'][0]['material']);
+        $this->assertSame('M3 moer', $section->data['low_parts'][0]['name']);
+    }
+
+    public function test_deals_source_returns_price_drops_and_null_when_none(): void
+    {
+        $product = WatchedProduct::query()->create(['name' => 'Koffiezetapparaat', 'query' => 'koffiezetapparaat']);
+        $listing = ProductListing::query()->create([
+            'watched_product_id' => $product->id,
+            'retailer' => 'bol',
+            'title' => 'Koffiezetapparaat X',
+            'url' => 'https://example.com/product',
+            'current_price' => 89.00,
+            'lowest_price' => 89.00,
+            'confirmed' => true,
+            'active' => true,
+            'last_checked_at' => CarbonImmutable::now('Europe/Amsterdam'),
+        ]);
+        $listing->pricePoints()->create(['price' => 99.00, 'observed_at' => CarbonImmutable::now()->subDay()]);
+        $listing->pricePoints()->create(['price' => 89.00, 'observed_at' => CarbonImmutable::now()]);
+
+        $this->assertSame('deals', app(DealsBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'))->key);
+
+        $listing->pricePoints()->delete();
+        $listing->pricePoints()->create(['price' => 89.00, 'observed_at' => CarbonImmutable::now()]);
+
+        $this->assertNull(app(DealsBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam')));
+
+        $listing->pricePoints()->create(['price' => 99.00, 'observed_at' => CarbonImmutable::now()->subDay()]);
+
+        $section = app(DealsBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
+
+        $this->assertSame('deals', $section->key);
+        $this->assertStringContainsString('1 prijsdaling vandaag', $section->summary);
+        $this->assertStringContainsString('Koffiezetapparaat', $section->summary);
+        $this->assertSame(89.0, $section->data['drops'][0]['current_price']);
+        $this->assertSame(99.0, $section->data['drops'][0]['previous_price']);
+    }
+
+    public function test_recipes_source_returns_current_week_menu_and_null_when_absent(): void
+    {
+        $this->assertNull(app(RecipesBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam')));
+
+        $weekKey = app(OfferAggregator::class)->weekKey(CarbonImmutable::now('Europe/Amsterdam'));
+        Recipe::query()->create([
+            'week_key' => $weekKey,
+            'title' => 'Pasta pesto',
+            'servings' => 2,
+            'time_minutes' => 25,
+            'estimated_cost' => 8.5,
+            'ingredients' => [],
+            'steps' => [],
+            'shopping_list' => [],
+        ]);
+
+        $section = app(RecipesBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
+
+        $this->assertSame('recipes', $section->key);
+        $this->assertStringContainsString('Weekmenu klaar: 1 recept', $section->summary);
+        $this->assertStringContainsString('Pasta pesto', $section->summary);
+        $this->assertSame($weekKey, $section->data['week_key']);
+    }
+
+    public function test_entertainment_source_returns_upcoming_items_and_null_when_none(): void
+    {
+        $this->assertNull(app(EntertainmentBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam')));
+
+        Concert::query()->create([
+            'source' => 'ticketmaster',
+            'external_id' => 'evt-1',
+            'artist' => 'Coldplay',
+            'title' => 'World Tour',
+            'venue' => 'Ziggo Dome',
+            'city' => 'Amsterdam',
+            'date' => CarbonImmutable::now('Europe/Amsterdam')->addDays(3),
+            'url' => 'https://example.com/tickets',
+            'relevance' => 'followed',
+        ]);
+        Concert::query()->create([
+            'source' => 'ticketmaster',
+            'external_id' => 'evt-2',
+            'artist' => 'Onbekend',
+            'title' => 'Show',
+            'venue' => 'Cafe',
+            'city' => 'Zwolle',
+            'date' => CarbonImmutable::now('Europe/Amsterdam')->addDays(3),
+            'url' => 'https://example.com/other',
+            'relevance' => 'none',
+        ]);
+        MusicRelease::query()->create([
+            'spotify_id' => 'abc123',
+            'artist' => 'Coldplay',
+            'title' => 'New Album',
+            'type' => 'album',
+            'release_date' => CarbonImmutable::now('Europe/Amsterdam')->subDay(),
+            'url' => 'https://example.com/album',
+            'notified' => false,
+        ]);
+
+        $section = app(EntertainmentBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
+
+        $this->assertSame('entertainment', $section->key);
+        $this->assertStringContainsString('1 concert deze/volgende week', $section->summary);
+        $this->assertStringContainsString('Coldplay @ Ziggo Dome', $section->summary);
+        $this->assertStringContainsString('1 nieuwe release', $section->summary);
+        $this->assertCount(1, $section->data['concerts']);
+        $this->assertSame('New Album', $section->data['releases'][0]['title']);
+    }
+
     private function forecastPayload(): array
     {
         return [
@@ -159,21 +324,5 @@ class BriefingSourcesTest extends TestCase
                 'wind_gusts_10m_max' => [31, 26],
             ],
         ];
-    }
-
-    private function icsFixture(): string
-    {
-        return implode("\r\n", [
-            'BEGIN:VCALENDAR',
-            'VERSION:2.0',
-            'BEGIN:VEVENT',
-            'UID:standup',
-            'DTSTART;TZID=Europe/Amsterdam:20260625T100000',
-            'DTEND;TZID=Europe/Amsterdam:20260625T103000',
-            'SUMMARY:Standup',
-            'END:VEVENT',
-            'END:VCALENDAR',
-            '',
-        ]);
     }
 }
