@@ -43,7 +43,7 @@ class RecipesServiceProvider extends ModuleServiceProvider
     public function getNavigation(): array
     {
         return [
-            ['label' => 'Recepten', 'route' => 'recipes.index', 'icon' => 'recipes'],
+            ['label' => 'Recipes', 'route' => 'recipes.index', 'icon' => 'recipes'],
         ];
     }
 
