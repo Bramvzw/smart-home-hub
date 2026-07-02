@@ -1,5 +1,5 @@
 <x-dashboard.layout title="Dashboard">
-    <div class="h-full p-5">
+    <div class="h-full p-4 md:p-5">
         <section class="mx-auto w-full max-w-[2000px]">
             <div class="mb-5">
                 <h2 class="text-[22px] font-bold text-[var(--hub-text)] leading-tight">Modules</h2>
