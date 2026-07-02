@@ -4,7 +4,7 @@
              $generatedLabel (?string), $RIc, $storeShort, $storeLabel closures.
 --}}
 <div class="rc-source">
-    <span class="rc-source-lab">{!! $RIc('Store', 14, 1.7, 'ic') !!} Aanbiedingen opgehaald</span>
+    <span class="rc-source-lab">{!! $RIc('Store', 14, 1.7, 'ic') !!} Deals fetched</span>
     <div class="rc-source-stores">
         @foreach($stores as $store)
             @php $ok = ! $storesFailed->contains($store); @endphp
@@ -13,15 +13,15 @@
                 {{ $storeLabel($store) }}
                 <span class="st">
                     @if($ok)
-                        {!! $RIc('CheckSm', 13, 2.2) !!} opgehaald
+                        {!! $RIc('CheckSm', 13, 2.2) !!} fetched
                     @else
-                        {!! $RIc('X', 13, 2.2) !!} mislukt
+                        {!! $RIc('X', 13, 2.2) !!} failed
                     @endif
                 </span>
             </span>
         @endforeach
     </div>
     @if($generatedLabel)
-        <span class="rc-source-time">Gegenereerd <b>{{ $generatedLabel }}</b></span>
+        <span class="rc-source-time">Generated <b>{{ $generatedLabel }}</b></span>
     @endif
 </div>
