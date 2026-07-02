@@ -5,6 +5,7 @@ namespace Modules\Entertainment\Providers;
 use App\Providers\ModuleServiceProvider;
 use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Schema;
+use Modules\Entertainment\Briefing\EntertainmentBriefingSource;
 use Modules\Entertainment\Contracts\EntertainmentCurator;
 use Modules\Entertainment\Models\Concert;
 use Modules\Entertainment\Models\MusicRelease;
@@ -16,6 +17,7 @@ use Modules\Entertainment\Services\PrismEntertainmentCurator;
 class EntertainmentServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'Entertainment';
+
     protected string $nameLower = 'entertainment';
 
     public function register(): void
@@ -27,6 +29,7 @@ class EntertainmentServiceProvider extends ModuleServiceProvider
         $this->app->when(\Modules\Entertainment\Actions\RefreshConcerts::class)
             ->needs('$providers')
             ->giveTagged('entertainment.concert_provider');
+        $this->app->tag([EntertainmentBriefingSource::class], 'briefing.source');
     }
 
     public function getModuleName(): string
