@@ -2,25 +2,33 @@
 
 namespace Modules\Calendar\View\ViewModels;
 
+use App\Contracts\SchedulableGoals;
 use Carbon\CarbonImmutable;
+use Modules\Calendar\Http\Resources\CalendarPlanResource;
+use Modules\Calendar\Models\CalendarPlan;
 use Modules\Calendar\Services\CalendarService;
 
 class CalendarViewModel
 {
     public function __construct(
         private readonly CalendarService $service,
+        private readonly SchedulableGoals $goals,
     ) {}
 
     /**
-     * Read model for the Calendar module page.
+     * Combined read model for the Calendar page: the agenda view (Google events)
+     * plus the weekly planner state (plan + intentions).
      */
     public function page(): array
     {
+        $connected = $this->service->connected();
         $days = (int) config('calendar.window_days', 7);
         $feed = $this->service->feed($days);
-        $sources = $this->sources();
+        $plan = CalendarPlan::latestGenerated()->first();
+        $today = CarbonImmutable::now((string) config('app.timezone', 'UTC'))->startOfDay();
 
         return [
+            'connected' => $connected,
             'events' => $feed->events,
             'eventsByDay' => $this->groupByDay($feed->events),
             'days' => $this->dayBuckets($days),
@@ -28,25 +36,10 @@ class CalendarViewModel
             'stale' => $feed->stale,
             'failed' => $feed->failed,
             'staleFeeds' => $feed->staleFeeds,
-            'sources' => $sources,
-            'configured' => $sources !== [],
+            'plan' => $plan ? CalendarPlanResource::make($plan)->resolve() : null,
+            'habits' => array_map(fn ($card) => $card->toArray(), $this->goals->cards($today)),
+            'today' => $today->toDateString(),
         ];
-    }
-
-    /**
-     * Feed identities (label + colour) for the legend — never the secret URL.
-     *
-     * @return list<array{label: string, color: string}>
-     */
-    private function sources(): array
-    {
-        return array_values(array_map(
-            static fn ($feed) => [
-                'label' => (string) ($feed['label'] ?? 'Agenda'),
-                'color' => (string) ($feed['color'] ?? '#f2ad66'),
-            ],
-            array_filter((array) config('calendar.feeds', []), static fn ($feed) => ! empty($feed['url'])),
-        ));
     }
 
     /**

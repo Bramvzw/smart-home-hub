@@ -22,6 +22,8 @@ class UpdateRecurrenceRequest extends FormRequest
             'cadence_config' => 'sometimes|array',
             'notify' => 'sometimes|boolean',
             'active' => 'sometimes|boolean',
+            'plannable' => 'sometimes|boolean',
+            'duration_minutes' => 'nullable|integer|min:15|max:480',
             'next_due_on' => 'nullable|date',
             'last_materialized_on' => 'nullable|date',
         ];

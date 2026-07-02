@@ -22,6 +22,8 @@ class CreateRecurrence
             'cadence_config' => $data['cadence_config'] ?? [],
             'notify' => $data['notify'] ?? (bool) config('tasks.recurrence.notify', true),
             'active' => $data['active'] ?? true,
+            'plannable' => $data['plannable'] ?? false,
+            'duration_minutes' => $data['duration_minutes'] ?? null,
             'next_due_on' => $data['next_due_on'] ?? null,
             'last_materialized_on' => null,
         ];

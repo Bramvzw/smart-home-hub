@@ -17,6 +17,8 @@ class UpdateRecurrence
             'cadence_config',
             'notify',
             'active',
+            'plannable',
+            'duration_minutes',
             'next_due_on',
             'last_materialized_on',
         ])->all());
