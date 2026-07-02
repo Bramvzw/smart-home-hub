@@ -3,23 +3,26 @@
 namespace Modules\PhonePing\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Services\Ntfy\HubNotifier;
 use App\Support\Health\ModuleHealth;
 use Modules\PhonePing\Services\NtfyClient;
 
 class PhonePingServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'PhonePing';
+
     protected string $nameLower = 'phoneping';
 
     public function register(): void
     {
         parent::register();
 
-        $this->app->singleton(NtfyClient::class, fn () => new NtfyClient(
+        $this->app->singleton(NtfyClient::class, fn () => new NtfyClient(new HubNotifier(
             url: rtrim((string) config('phoneping.ntfy.url', 'https://ntfy.sh'), '/'),
             topic: (string) config('phoneping.ntfy.topic', ''),
             token: (string) config('phoneping.ntfy.token', ''),
-        ));
+            timeout: (int) config('ntfy.timeout', 10),
+        )));
     }
 
     public function getModuleName(): string

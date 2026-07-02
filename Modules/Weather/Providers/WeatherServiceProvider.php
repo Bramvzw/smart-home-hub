@@ -3,6 +3,7 @@
 namespace Modules\Weather\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use App\Services\Ntfy\HubNotifier;
 use App\Support\Health\ModuleHealth;
 use Modules\Weather\Briefing\WeatherBriefingSource;
 use Modules\Weather\Services\NtfyWeatherNotifier;
@@ -17,11 +18,12 @@ class WeatherServiceProvider extends ModuleServiceProvider
     {
         parent::register();
 
-        $this->app->singleton(NtfyWeatherNotifier::class, fn () => new NtfyWeatherNotifier(
+        $this->app->singleton(NtfyWeatherNotifier::class, fn () => new NtfyWeatherNotifier(new HubNotifier(
             url: rtrim((string) config('weather.ntfy.url', 'https://ntfy.sh'), '/'),
             topic: (string) config('weather.ntfy.topic', ''),
             token: (string) config('weather.ntfy.token', ''),
-        ));
+            timeout: (int) config('ntfy.timeout', 10),
+        )));
 
         $this->app->tag([WeatherBriefingSource::class], 'briefing.source');
     }
