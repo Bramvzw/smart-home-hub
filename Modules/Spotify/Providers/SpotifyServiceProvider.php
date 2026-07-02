@@ -4,17 +4,30 @@ namespace Modules\Spotify\Providers;
 
 use App\Providers\ModuleServiceProvider;
 use App\Support\Health\ModuleHealth;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Modules\Spotify\Services\SpotifyService;
 use Modules\Spotify\Services\SpotifyTokenService;
 
 class SpotifyServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'Spotify';
+
     protected string $nameLower = 'spotify';
 
     public function register(): void
     {
         parent::register();
+
+        $this->app->bind(ClientInterface::class, function () {
+            $timeout = (float) config('spotify.request_timeout', 10);
+
+            return new Client([
+                'timeout' => $timeout,
+                'connect_timeout' => $timeout,
+            ]);
+        });
+
         $this->app->singleton(SpotifyService::class);
     }
 

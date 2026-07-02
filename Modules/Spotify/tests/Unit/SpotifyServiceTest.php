@@ -3,10 +3,12 @@
 namespace Modules\Spotify\Tests\Unit;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Modules\Spotify\Services\SpotifyService;
 use Tests\TestCase;
@@ -25,12 +27,14 @@ class SpotifyServiceTest extends TestCase
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
 
-        return new SpotifyService($client);
+        $this->app->instance(ClientInterface::class, $client);
+
+        return $this->app->make(SpotifyService::class);
     }
 
     public function test_get_authorization_url_returns_valid_url()
     {
-        $service = new SpotifyService();
+        $service = $this->app->make(SpotifyService::class);
         $url = $service->getAuthorizationUrl();
 
         $this->assertStringStartsWith('https://accounts.spotify.com/authorize?', $url);
@@ -39,7 +43,7 @@ class SpotifyServiceTest extends TestCase
 
     public function test_get_authorization_url_stores_state_in_session()
     {
-        $service = new SpotifyService();
+        $service = $this->app->make(SpotifyService::class);
         $service->getAuthorizationUrl();
 
         $this->assertTrue(Session::has('spotify_oauth_state'));
@@ -47,18 +51,18 @@ class SpotifyServiceTest extends TestCase
 
     public function test_has_stored_authorization_uses_refresh_token()
     {
-        Cache::put('spotify_refresh_token', 'test_refresh_token', 3600);
+        Cache::put('spotify_refresh_token', Crypt::encryptString('test_refresh_token'), 3600);
 
-        $service = new SpotifyService();
+        $service = $this->app->make(SpotifyService::class);
 
         $this->assertTrue($service->hasStoredAuthorization());
     }
 
     public function test_ensure_access_token_succeeds_when_access_token_exists()
     {
-        Cache::put('spotify_access_token', 'test_access_token', 3600);
+        Cache::put('spotify_access_token', Crypt::encryptString('test_access_token'), 3600);
 
-        $service = new SpotifyService();
+        $service = $this->app->make(SpotifyService::class);
 
         $this->assertEquals(['success' => true], $service->ensureAccessToken());
     }
@@ -77,8 +81,8 @@ class SpotifyServiceTest extends TestCase
         $result = $service->getAccessToken('test_code');
 
         $this->assertEquals('test_access_token', $result['access_token']);
-        $this->assertEquals('test_access_token', Cache::get('spotify_access_token'));
-        $this->assertEquals('test_refresh_token', Cache::get('spotify_refresh_token'));
+        $this->assertEquals('test_access_token', Crypt::decryptString(Cache::get('spotify_access_token')));
+        $this->assertEquals('test_refresh_token', Crypt::decryptString(Cache::get('spotify_refresh_token')));
     }
 
     public function test_get_current_playback_returns_data()
@@ -173,7 +177,7 @@ class SpotifyServiceTest extends TestCase
     {
         Cache::forget('spotify_refresh_token');
 
-        $service = new SpotifyService();
+        $service = $this->app->make(SpotifyService::class);
         $result = $service->refreshAccessToken();
 
         $this->assertArrayHasKey('error', $result);
@@ -584,7 +588,7 @@ class SpotifyServiceTest extends TestCase
         $result = $service->refreshAccessToken();
 
         $this->assertEquals('new_access_token', $result['access_token']);
-        $this->assertEquals('new_access_token', Cache::get('spotify_access_token'));
+        $this->assertEquals('new_access_token', Crypt::decryptString(Cache::get('spotify_access_token')));
     }
 
     public function test_get_profile()
@@ -684,7 +688,7 @@ class SpotifyServiceTest extends TestCase
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
-        $service = new SpotifyService();
+        $service = $this->app->make(SpotifyService::class);
         $result = $service->play('not-a-valid-uri');
         $this->assertArrayHasKey('error', $result);
         $this->assertEquals('Invalid Spotify URI format', $result['error']);
