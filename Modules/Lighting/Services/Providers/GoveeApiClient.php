@@ -3,6 +3,7 @@
 namespace Modules\Lighting\Services\Providers;
 
 use Illuminate\Support\Facades\Http;
+use Modules\Lighting\Services\Providers\Concerns\HandlesProviderResponse;
 use RuntimeException;
 use Throwable;
 
@@ -12,6 +13,8 @@ use Throwable;
  */
 class GoveeApiClient
 {
+    use HandlesProviderResponse;
+
     private const BASE = 'https://developer-api.govee.com';
 
     private float $lastControlAt = 0.0;
@@ -71,15 +74,12 @@ class GoveeApiClient
 
     private function result($response): array
     {
-        $data = $response->json();
-        $code = is_array($data) ? ($data['code'] ?? $response->status()) : $response->status();
-
-        if ((int) $code !== 200) {
-            // Only the provider's own code — never the API key.
-            throw new RuntimeException("Govee API request failed (code {$code}).");
-        }
-
-        return $data['data'] ?? [];
+        return $this->extractProviderResult(
+            $response,
+            'Govee',
+            static fn (mixed $data, mixed $code): bool => (int) $code === 200,
+            static fn (mixed $data): array => $data['data'] ?? [],
+        );
     }
 
     private function waitForControlWindow(): void

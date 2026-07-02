@@ -22,15 +22,30 @@ class HubNotifier
     /** @throws RequestException */
     public function send(string $title, string $message): void
     {
+        $this->sendWithOptions($title, $message, 'newspaper', '4');
+    }
+
+    /**
+     * Same as send(), but with explicit tags/priority instead of the newspaper/4 default.
+     *
+     * @throws RequestException
+     */
+    public function sendWithOptions(string $title, string $message, ?string $tags, string $priority): void
+    {
         if (! $this->isConfigured()) {
             return;
         }
 
-        Http::withHeaders(array_merge($this->headers(), [
-                'X-Title' => $title,
-                'X-Priority' => '4',
-                'X-Tags' => 'newspaper',
-            ]))
+        $headers = array_merge($this->headers(), [
+            'X-Title' => $title,
+            'X-Priority' => $priority,
+        ]);
+
+        if ($tags !== null) {
+            $headers['X-Tags'] = $tags;
+        }
+
+        Http::withHeaders($headers)
             ->timeout($this->timeout)
             ->withBody($message, 'text/plain')
             ->post("{$this->url}/{$this->topic}")

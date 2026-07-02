@@ -3,7 +3,7 @@
 namespace Modules\Lighting\Services\Providers;
 
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
+use Modules\Lighting\Services\Providers\Concerns\HandlesProviderResponse;
 
 /**
  * Low-level signed transport for the Tuya Cloud OpenAPI. Handles request
@@ -13,6 +13,8 @@ use RuntimeException;
  */
 class TuyaApiClient
 {
+    use HandlesProviderResponse;
+
     public function getToken(): array
     {
         $path = '/v1.0/token?grant_type=1';
@@ -93,17 +95,16 @@ class TuyaApiClient
 
     private function result($response): array
     {
-        $data = $response->json();
+        return $this->extractProviderResult(
+            $response,
+            'Tuya',
+            static fn (mixed $data, mixed $code): bool => is_array($data) && ($data['success'] ?? false),
+            static function (mixed $data): array {
+                // Command endpoints return `result: true`; normalise to an array.
+                $result = $data['result'] ?? [];
 
-        if (! is_array($data) || ! ($data['success'] ?? false)) {
-            // Only the provider's own code/msg — never our credentials or token.
-            $code = is_array($data) ? ($data['code'] ?? $response->status()) : $response->status();
-            throw new RuntimeException("Tuya API request failed (code {$code}).");
-        }
-
-        // Command endpoints return `result: true`; normalise to an array.
-        $result = $data['result'] ?? [];
-
-        return is_array($result) ? $result : [];
+                return is_array($result) ? $result : [];
+            },
+        );
     }
 }
