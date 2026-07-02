@@ -3,12 +3,20 @@
 namespace Modules\Printer\Providers;
 
 use App\Providers\ModuleServiceProvider;
+use Modules\Printer\Briefing\PrinterBriefingSource;
 
 class PrinterServiceProvider extends ModuleServiceProvider
 {
     protected string $name = 'Printer';
 
     protected string $nameLower = 'printer';
+
+    public function register(): void
+    {
+        parent::register();
+
+        $this->app->tag([PrinterBriefingSource::class], 'briefing.source');
+    }
 
     public function getModuleName(): string
     {
