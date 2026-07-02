@@ -4,6 +4,22 @@
     "src": "Modules/Briefing/resources/assets/css/briefing.css",
     "isEntry": true
   },
+  "Modules/Calendar/resources/assets/css/calendar-plan.css": {
+    "file": "assets/calendar-plan-9wqCTTiL.css",
+    "src": "Modules/Calendar/resources/assets/css/calendar-plan.css",
+    "isEntry": true
+  },
+  "Modules/Calendar/resources/assets/css/habits.css": {
+    "file": "assets/maintenance-4cRjcNQj.css",
+    "src": "Modules/Tasks/resources/assets/css/maintenance.css",
+    "isEntry": true
+  },
+  "Modules/Calendar/resources/assets/js/calendar-plan.js": {
+    "file": "assets/calendar-plan-CfjFUVLX.js",
+    "name": "calendar-plan",
+    "src": "Modules/Calendar/resources/assets/js/calendar-plan.js",
+    "isEntry": true
+  },
   "Modules/Calendar/resources/assets/js/calendar.js": {
     "file": "assets/calendar-4tWE63HI.js",
     "name": "calendar",
@@ -11,23 +27,23 @@
     "isEntry": true
   },
   "Modules/Deals/resources/assets/css/dealtracker.css": {
-    "file": "assets/dealtracker-n6-6GW4q.css",
+    "file": "assets/dealtracker-Dc6HuqOp.css",
     "src": "Modules/Deals/resources/assets/css/dealtracker.css",
     "isEntry": true
   },
   "Modules/Deals/resources/assets/js/dealtracker.js": {
-    "file": "assets/dealtracker-BprQA6aP.js",
+    "file": "assets/dealtracker-BRJjnsDL.js",
     "name": "dealtracker",
     "src": "Modules/Deals/resources/assets/js/dealtracker.js",
     "isEntry": true
   },
   "Modules/Entertainment/resources/assets/css/entertainment.css": {
-    "file": "assets/entertainment-BZpGBBy7.css",
+    "file": "assets/entertainment-C26hqjJ8.css",
     "src": "Modules/Entertainment/resources/assets/css/entertainment.css",
     "isEntry": true
   },
   "Modules/Entertainment/resources/assets/js/entertainment.js": {
-    "file": "assets/entertainment-C0DtjkN6.js",
+    "file": "assets/entertainment-aYhLVd1r.js",
     "name": "entertainment",
     "src": "Modules/Entertainment/resources/assets/js/entertainment.js",
     "isEntry": true
@@ -60,35 +76,24 @@
     "src": "Modules/PhonePing/resources/assets/js/phone-ping.js",
     "isEntry": true
   },
-  "Modules/Planner/resources/assets/css/planner.css": {
-    "file": "assets/planner-DSNufr8Y.css",
-    "src": "Modules/Planner/resources/assets/css/planner.css",
-    "isEntry": true
-  },
-  "Modules/Planner/resources/assets/js/planner.js": {
-    "file": "assets/planner-xunXxdvz.js",
-    "name": "planner",
-    "src": "Modules/Planner/resources/assets/js/planner.js",
-    "isEntry": true
-  },
   "Modules/Printer/resources/assets/css/printer.css": {
-    "file": "assets/printer-ChxpJFLq.css",
+    "file": "assets/printer-BavYa-0t.css",
     "src": "Modules/Printer/resources/assets/css/printer.css",
     "isEntry": true
   },
   "Modules/Printer/resources/assets/js/printer.js": {
-    "file": "assets/printer-D5z7OrwB.js",
+    "file": "assets/printer-Dqm8mYDs.js",
     "name": "printer",
     "src": "Modules/Printer/resources/assets/js/printer.js",
     "isEntry": true
   },
   "Modules/Recipes/resources/assets/css/recepten.css": {
-    "file": "assets/recepten-CJH_C--M.css",
+    "file": "assets/recepten-DG4uiyDu.css",
     "src": "Modules/Recipes/resources/assets/css/recepten.css",
     "isEntry": true
   },
   "Modules/Recipes/resources/assets/js/recepten.js": {
-    "file": "assets/recepten-CxOof0xS.js",
+    "file": "assets/recepten-Ck_79msP.js",
     "name": "recepten",
     "src": "Modules/Recipes/resources/assets/js/recepten.js",
     "isEntry": true
@@ -104,9 +109,9 @@
     "src": "Modules/Spotify/resources/assets/js/core/player.js",
     "isEntry": true
   },
-  "Modules/Tasks/resources/assets/css/habits.css": {
-    "file": "assets/habits-4cRjcNQj.css",
-    "src": "Modules/Tasks/resources/assets/css/habits.css",
+  "Modules/Tasks/resources/assets/css/maintenance.css": {
+    "file": "assets/maintenance-4cRjcNQj.css",
+    "src": "Modules/Tasks/resources/assets/css/maintenance.css",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/tasks.css": {
@@ -114,10 +119,10 @@
     "src": "Modules/Tasks/resources/assets/css/tasks.css",
     "isEntry": true
   },
-  "Modules/Tasks/resources/assets/js/habits.js": {
-    "file": "assets/habits-CBu7UY2-.js",
-    "name": "habits",
-    "src": "Modules/Tasks/resources/assets/js/habits.js",
+  "Modules/Tasks/resources/assets/js/maintenance.js": {
+    "file": "assets/maintenance-S7iGUuw_.js",
+    "name": "maintenance",
+    "src": "Modules/Tasks/resources/assets/js/maintenance.js",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/js/tasks-board.js": {
@@ -138,7 +143,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-81t1IbcT.css",
+    "file": "assets/app-CTRrAp17.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
