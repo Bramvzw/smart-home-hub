@@ -38,6 +38,15 @@ return [
             'power' => true,
             'brightness' => 72,
             'color' => '#ffc26b',
+            // Weather trigger is opt-in: disabled by default, applied automatically when enabled and all conditions match.
+            'weather_trigger' => [
+                'enabled' => false,
+                'rain_probability_min' => 60,
+                'precipitation_min_mm' => 0.2,
+                'temperature_max' => null,
+                'start_time' => '07:00',
+                'end_time' => '23:00',
+            ],
         ],
         'movie' => [
             'label' => 'Movie',
@@ -69,4 +78,9 @@ return [
     // Serialise writes so quick UI actions cannot interleave provider commands.
     'control_lock_ttl' => (int) env('LIGHTING_CONTROL_LOCK_TTL', 20),
     'control_lock_wait' => (int) env('LIGHTING_CONTROL_LOCK_WAIT', 8),
+
+    // Weather-triggered presets (e.g. rain -> Cozy) are off by default; per-preset triggers are opt-in too.
+    'weather_presets' => [
+        'enabled' => filter_var(env('LIGHTING_WEATHER_PRESETS_ENABLED', false), FILTER_VALIDATE_BOOL),
+    ],
 ];
