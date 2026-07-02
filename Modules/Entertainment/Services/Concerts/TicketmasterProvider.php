@@ -25,7 +25,7 @@ class TicketmasterProvider implements ConcertProvider
             return [];
         }
 
-        $response = Http::timeout(15)->acceptJson()->get('https://app.ticketmaster.com/discovery/v2/events.json', [
+        $response = Http::timeout((int) config('entertainment.request_timeout', 15))->acceptJson()->get('https://app.ticketmaster.com/discovery/v2/events.json', [
             'apikey' => $key,
             'countryCode' => 'NL',
             'classificationName' => 'music',
