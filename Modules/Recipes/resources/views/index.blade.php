@@ -1,4 +1,4 @@
-<x-dashboard.layout title="Recepten" :hideHeader="true">
+<x-dashboard.layout title="Recipes" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Recipes/resources/assets/css/recepten.css'])
     </x-slot:head>
@@ -70,6 +70,7 @@
         // ---- normalize state ----
         $recipes = collect($recipes);
         $offers = collect($offers);
+        $recipeDeals = collect($recipe_deals ?? []);
         $storesFetched = collect($stores_fetched)->map(fn ($s) => mb_strtolower((string) $s));
         $storesFailed = collect($stores_failed)->map(fn ($s) => mb_strtolower((string) $s));
 
@@ -92,7 +93,7 @@
         $allStores = $allStores->sort()->values();
 
         $generatedLabel = $generated_at
-            ? \Carbon\CarbonImmutable::parse($generated_at)->setTimezone(config('app.timezone', 'UTC'))->locale('nl')->isoFormat('dd D MMM · HH:mm')
+            ? \Carbon\CarbonImmutable::parse($generated_at)->setTimezone(config('app.timezone', 'UTC'))->locale('en')->isoFormat('dd D MMM · HH:mm')
             : null;
 
         // ---- offers grouped per store, with "used in menu" flag ----
@@ -128,23 +129,23 @@
             {{-- ============ HEADER ============ --}}
             <div class="rc-head">
                 <div class="rc-head-l">
-                    <span class="rc-eyebrow">{!! $RIc('Sparkle', 14, 1.7, 'ic') !!} Weekmenu · {{ $week_key }}</span>
-                    <h1 class="rc-title disp">Recepten</h1>
+                    <span class="rc-eyebrow">{!! $RIc('Sparkle', 14, 1.7, 'ic') !!} Week menu · {{ $week_key }}</span>
+                    <h1 class="rc-title disp">Recipes</h1>
                     <div class="rc-sub">
                         @if($isFallback)
-                            <span class="warn">AI niet beschikbaar</span><span class="dot">·</span>ruwe aanbiedingen van <b>{{ $storesFetched->map($storeShort)->join(' + ') ?: 'AH + Lidl' }}</b>
+                            <span class="warn">AI unavailable</span><span class="dot">·</span>raw deals from <b>{{ $storesFetched->map($storeShort)->join(' + ') ?: 'AH + Lidl' }}</b>
                         @elseif($hasFailed && $hasRecipes)
-                            <b class="tnum">{{ $recipeCount }}</b> recepten<span class="dot">·</span>alleen <b>{{ $storesFetched->map($storeLabel)->join(' + ') }}</b><span class="dot">·</span><span class="warn">{{ $storesFailed->map($storeLabel)->join(', ') }} mislukt</span>
+                            <b class="tnum">{{ $recipeCount }}</b> recipes<span class="dot">·</span>only <b>{{ $storesFetched->map($storeLabel)->join(' + ') }}</b><span class="dot">·</span><span class="warn">{{ $storesFailed->map($storeLabel)->join(', ') }} failed</span>
                         @elseif($hasRecipes)
-                            <b class="tnum">{{ $recipeCount }}</b> recepten<span class="dot">·</span><b>{{ $storesFetched->map($storeShort)->join(' + ') ?: 'AH + Lidl' }}</b> opgehaald<span class="dot">·</span>gem. <b class="tnum">{{ $avgMinutes }} min</b>
+                            <b class="tnum">{{ $recipeCount }}</b> recipes<span class="dot">·</span><b>{{ $storesFetched->map($storeShort)->join(' + ') ?: 'AH + Lidl' }}</b> fetched<span class="dot">·</span>avg. <b class="tnum">{{ $avgMinutes }} min</b>
                         @else
-                            Het weekmenu wordt elke vrijdagavond samengesteld
+                            The week menu is compiled every Friday evening
                         @endif
                     </div>
                 </div>
                 <div class="rc-head-r">
                     <button class="rc-btn rc-btn-primary" data-rc-generate>
-                        {!! $RIc('Refresh', 15, 1.7, 'ic') !!} Opnieuw genereren
+                        {!! $RIc('Refresh', 15, 1.7, 'ic') !!} Regenerate
                     </button>
                 </div>
             </div>
@@ -152,11 +153,11 @@
             {{-- ============ TABS ============ --}}
             <div class="rc-tabs">
                 <button class="rc-tab {{ $initialTab === 'recepten' ? 'on' : '' }}" data-rc-tab="recepten">
-                    {!! $RIc('Pot', 15, 1.7, 'ic') !!} Recepten
+                    {!! $RIc('Pot', 15, 1.7, 'ic') !!} Recipes
                     <span class="rc-tab-count tnum">{{ $recipeCount }}</span>
                 </button>
                 <button class="rc-tab {{ $initialTab === 'aanbiedingen' ? 'on' : '' }}" data-rc-tab="aanbiedingen">
-                    {!! $RIc('Tag', 15, 1.7, 'ic') !!} Aanbiedingen
+                    {!! $RIc('Tag', 15, 1.7, 'ic') !!} Deals
                     <span class="rc-tab-count tnum">{{ $dealCount }}</span>
                 </button>
             </div>
@@ -165,8 +166,8 @@
             <div class="rc-gen" data-rc-gen hidden>
                 {!! $RIc('Sparkle', 18, 1.7, 'ic') !!}
                 <div>
-                    <div class="rc-gen-tx">Recepten genereren…</div>
-                    <div class="rc-gen-sub">Aanbiedingen van Albert Heijn &amp; Lidl ophalen en combineren tot een weekmenu.</div>
+                    <div class="rc-gen-tx">Generating recipes…</div>
+                    <div class="rc-gen-sub">Fetching and combining deals from Albert Heijn &amp; Lidl into a week menu.</div>
                 </div>
             </div>
 
@@ -178,14 +179,14 @@
                         <div class="rc-banner info">
                             <span class="rc-banner-ico">{!! $RIc('Sparkle', 18) !!}</span>
                             <div class="rc-banner-b">
-                                <div class="rc-banner-title">AI-receptgeneratie niet beschikbaar</div>
+                                <div class="rc-banner-title">AI recipe generation unavailable</div>
                                 <div class="rc-banner-sub">
-                                    Het taalmodel kon niet worden bereikt, dus er zijn <b>geen recepten</b> gegenereerd.
-                                    Onder het tabblad <b>Aanbiedingen</b> staan de ruwe aanbiedingen van beide winkels zodat je zelf kunt kiezen.
+                                    The language model could not be reached, so <b>no recipes</b> were generated.
+                                    Under the <b>Deals</b> tab are the raw deals from both stores so you can pick your own.
                                 </div>
                             </div>
                             <button class="rc-banner-act" data-rc-generate>
-                                {!! $RIc('Refresh', 13, 1.7, 'ic') !!} Opnieuw
+                                {!! $RIc('Refresh', 13, 1.7, 'ic') !!} Retry
                             </button>
                         </div>
 
@@ -197,14 +198,14 @@
                             <div class="rc-banner warn">
                                 <span class="rc-banner-ico">{!! $RIc('Alert', 18) !!}</span>
                                 <div class="rc-banner-b">
-                                    <div class="rc-banner-title">Eén winkel niet opgehaald — {{ $storesFailed->map($storeLabel)->join(', ') }}</div>
+                                    <div class="rc-banner-title">One store not fetched — {{ $storesFailed->map($storeLabel)->join(', ') }}</div>
                                     <div class="rc-banner-sub">
-                                        De aanbiedingen van <b>{{ $storesFailed->map($storeLabel)->join(', ') }}</b> konden niet worden opgehaald.
-                                        Het weekmenu is samengesteld met alleen de aanbiedingen van <b>{{ $storesFetched->map($storeLabel)->join(' + ') }}</b> — daardoor staan er mogelijk minder recepten klaar.
+                                        The deals from <b>{{ $storesFailed->map($storeLabel)->join(', ') }}</b> could not be fetched.
+                                        The week menu was compiled using only the deals from <b>{{ $storesFetched->map($storeLabel)->join(' + ') }}</b> — so there may be fewer recipes than usual.
                                     </div>
                                 </div>
                                 <button class="rc-banner-act" data-rc-generate>
-                                    {!! $RIc('Refresh', 13, 1.7, 'ic') !!} Opnieuw
+                                    {!! $RIc('Refresh', 13, 1.7, 'ic') !!} Retry
                                 </button>
                             </div>
                         @endif
@@ -217,6 +218,7 @@
                                     $ingredients = collect($recipe['ingredients'] ?? []);
                                     $offerIngredients = $ingredients->filter(fn ($i) => (bool) ($i['on_offer'] ?? false));
                                     $icon = $dishIcon($recipe['title']);
+                                    $dealsMatch = $recipeDeals->get($recipe['id']);
                                 @endphp
                                 <button class="rc-card" data-rc-recipe="{{ $recipe['id'] }}">
                                     <div class="rc-thumb">
@@ -235,7 +237,7 @@
                                         </div>
 
                                         @if($offerIngredients->isNotEmpty())
-                                            <div class="rc-offer-lab">In de aanbieding <span class="rule"></span></div>
+                                            <div class="rc-offer-lab">On offer <span class="rule"></span></div>
                                             <div class="rc-offers">
                                                 @foreach($offerIngredients as $ing)
                                                     <span class="rc-offer">
@@ -248,9 +250,16 @@
                                             </div>
                                         @endif
 
+                                        @if($dealsMatch && ($dealsMatch['total_savings'] ?? 0) > 0)
+                                            <div class="rc-savings">
+                                                {!! $RIc('Euro', 13, 1.7, 'ic') !!}
+                                                <span>{{ $euro($dealsMatch['total_savings']) }} off ingredients this week</span>
+                                            </div>
+                                        @endif
+
                                         <div class="rc-card-foot">
-                                            <span class="rc-card-ingr"><b class="tnum">{{ $ingredients->count() }}</b> ingrediënten · {{ (int) ($recipe['servings'] ?? 0) }} pers.</span>
-                                            <span class="rc-card-go">Bekijk recept {!! $RIc('ArrowR', 15) !!}</span>
+                                            <span class="rc-card-ingr"><b class="tnum">{{ $ingredients->count() }}</b> ingredients · {{ (int) ($recipe['servings'] ?? 0) }} servings</span>
+                                            <span class="rc-card-go">View recipe {!! $RIc('ArrowR', 15) !!}</span>
                                         </div>
                                     </div>
 
@@ -271,17 +280,17 @@
                             @endforeach
                         </div>
                     @else
-                        {{-- LEEG --}}
+                        {{-- EMPTY --}}
                         <div class="rc-state">
                             <span class="rc-state-ico">{!! $RIc('Calendar', 26) !!}</span>
-                            <div class="rc-state-title">Nog geen weekmenu</div>
+                            <div class="rc-state-title">No week menu yet</div>
                             <div class="rc-state-sub">
-                                Het nieuwe weekmenu wordt elke <b>vrijdagavond</b> automatisch samengesteld op basis van de
-                                aanbiedingen bij Albert Heijn en Lidl. Je kunt het ook nu al handmatig genereren.
+                                The new week menu is compiled automatically every <b>Friday evening</b> based on the
+                                deals at Albert Heijn and Lidl. You can also generate it manually right now.
                             </div>
                             <div class="rc-state-actions">
                                 <button class="rc-btn rc-btn-primary" data-rc-generate>
-                                    {!! $RIc('Sparkle', 15) !!} Nu genereren
+                                    {!! $RIc('Sparkle', 15) !!} Generate now
                                 </button>
                             </div>
                         </div>
@@ -301,14 +310,14 @@
                 @else
                     <div class="rc-state">
                         <span class="rc-state-ico">{!! $RIc('Tag', 26) !!}</span>
-                        <div class="rc-state-title">Nog geen aanbiedingen</div>
+                        <div class="rc-state-title">No deals yet</div>
                         <div class="rc-state-sub">
-                            Er zijn deze week nog geen aanbiedingen opgehaald. Genereer het weekmenu om de
-                            nieuwste aanbiedingen van Albert Heijn en Lidl binnen te halen.
+                            No deals have been fetched this week yet. Generate the week menu to bring in the
+                            latest deals from Albert Heijn and Lidl.
                         </div>
                         <div class="rc-state-actions">
                             <button class="rc-btn rc-btn-primary" data-rc-generate>
-                                {!! $RIc('Refresh', 15, 1.7, 'ic') !!} Nu genereren
+                                {!! $RIc('Refresh', 15, 1.7, 'ic') !!} Generate now
                             </button>
                         </div>
                     </div>

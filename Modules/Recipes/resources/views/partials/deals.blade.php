@@ -1,5 +1,5 @@
 {{--
-    Aanbiedingen (raw deals) view — one column per store.
+    Deals (raw offers) view — one column per store.
     Expects: $offersByStore (Collection grouped by lowercase store), $allStores,
              $storesFailed, $RIc, $storeShort, $storeLabel, $euro, $isUsed closures.
 --}}
@@ -15,14 +15,14 @@
                     <span class="rc-deal-mono">{{ $storeShort($store) }}</span>
                     <div>
                         <div class="rc-deal-name">{{ $storeLabel($store) }}</div>
-                        <div class="rc-deal-meta">Niet opgehaald</div>
+                        <div class="rc-deal-meta">Not fetched</div>
                     </div>
                 </div>
                 <div class="rc-deal-fail">
                     <span class="rc-deal-fail-ico">{!! $RIc('Alert', 30) !!}</span>
                     <div class="rc-deal-fail-tx">
-                        De aanbiedingen van <b>{{ $storeLabel($store) }}</b> konden niet worden opgehaald.
-                        Het weekmenu is samengesteld met alleen de andere winkel.
+                        The deals from <b>{{ $storeLabel($store) }}</b> could not be fetched.
+                        The week menu was compiled using only the other store.
                     </div>
                 </div>
             </div>
@@ -33,9 +33,9 @@
                     <span class="rc-deal-mono">{{ $storeShort($store) }}</span>
                     <div>
                         <div class="rc-deal-name">{{ $storeLabel($store) }}</div>
-                        <div class="rc-deal-meta">{{ $items->count() }} aanbiedingen</div>
+                        <div class="rc-deal-meta">{{ $items->count() }} deals</div>
                     </div>
-                    <span class="rc-deal-count tnum">{{ $usedCount }}/{{ $items->count() }} gebruikt</span>
+                    <span class="rc-deal-count tnum">{{ $usedCount }}/{{ $items->count() }} used</span>
                 </div>
                 <div class="rc-deal-list">
                     @forelse($items as $offer)
@@ -49,7 +49,7 @@
                                     @endif
                                 </div>
                                 <div class="rc-deal-note">
-                                    {{ $offer['discount_label'] ?: $offer['category'] ?: 'Aanbieding' }}
+                                    {{ $offer['discount_label'] ?: $offer['category'] ?: 'Deal' }}
                                     @if($offer['unit'])· {{ $offer['unit'] }}@endif
                                 </div>
                             </div>
@@ -67,7 +67,7 @@
                     @empty
                         <div class="rc-deal-row err-col">
                             <div class="rc-deal-b">
-                                <div class="rc-deal-note">Geen aanbiedingen opgehaald voor deze winkel.</div>
+                                <div class="rc-deal-note">No deals fetched for this store.</div>
                             </div>
                         </div>
                     @endforelse

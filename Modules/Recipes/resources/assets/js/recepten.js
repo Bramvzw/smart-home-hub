@@ -1,7 +1,7 @@
-/* Recepten — vanilla interactions for the weekmenu module. Server-rendered
+/* Recipes — vanilla interactions for the week menu module. Server-rendered
    Blade; this layer switches tabs, renders a recipe detail panel from the
    embedded recipe payload, handles the shopping-list checkboxes, and wires
-   "opnieuw genereren" to the generate endpoint. */
+   "regenerate" to the generate endpoint. */
 
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
@@ -110,7 +110,7 @@ const renderDetail = (recipe) => {
         )
         .join('');
 
-    return `<button class="rc-back" type="button" data-rc-back>${icon('ArrowL', 15)} Terug naar weekmenu</button>
+    return `<button class="rc-back" type="button" data-rc-back>${icon('ArrowL', 15)} Back to week menu</button>
 
     <div class="rc-detail-head">
         <div class="rc-detail-thumb">${icon(recipe.icon || 'Bowl', 48, 1.5, 'ic')}</div>
@@ -119,7 +119,7 @@ const renderDetail = (recipe) => {
             ${recipe.description ? `<div class="rc-detail-desc">${esc(recipe.description)}</div>` : ''}
             <div class="rc-detail-meta">
                 <span class="rc-meta-pill">${icon('Clock', 14, 1.7, 'ic')} ${Number(recipe.time_minutes) || 0} min</span>
-                <span class="rc-meta-pill">${icon('Users', 14, 1.7, 'ic')} ${Number(recipe.servings) || 0} personen</span>
+                <span class="rc-meta-pill">${icon('Users', 14, 1.7, 'ic')} ${Number(recipe.servings) || 0} servings</span>
                 ${costPill}
             </div>
         </div>
@@ -130,7 +130,7 @@ const renderDetail = (recipe) => {
             <div class="rc-panel">
                 <div class="rc-panel-head">
                     ${icon('List', 17, 1.7, 'ic')}
-                    <span class="rc-panel-title">Ingrediënten</span>
+                    <span class="rc-panel-title">Ingredients</span>
                     <span class="rc-panel-count tnum">${ingredients.length}</span>
                 </div>
                 <div class="rc-ingr-list">${ingredientRows}</div>
@@ -139,8 +139,8 @@ const renderDetail = (recipe) => {
             <div class="rc-panel">
                 <div class="rc-panel-head">
                     ${icon('Flame', 17, 1.7, 'ic')}
-                    <span class="rc-panel-title">Bereiding</span>
-                    <span class="rc-panel-count tnum">${steps.length} stappen</span>
+                    <span class="rc-panel-title">Preparation</span>
+                    <span class="rc-panel-count tnum">${steps.length} steps</span>
                 </div>
                 <div class="rc-steps">${stepRows}</div>
             </div>
@@ -150,13 +150,13 @@ const renderDetail = (recipe) => {
             <div class="rc-panel">
                 <div class="rc-panel-head">
                     ${icon('Cart', 17, 1.7, 'ic')}
-                    <span class="rc-panel-title">Boodschappenlijst</span>
+                    <span class="rc-panel-title">Shopping list</span>
                     <span class="rc-panel-count tnum" data-rc-shop-count>0/${shopItems.length}</span>
                 </div>
                 <div class="rc-shop" data-rc-shop-list>${shopRows}</div>
                 <div class="rc-shop-foot">
-                    <span class="rc-shop-prog"><b class="tnum" data-rc-shop-done>0</b> van <b class="tnum">${shopItems.length}</b> afgevinkt</span>
-                    <button class="rc-shop-clear" type="button" data-rc-shop-clear disabled>Lijst wissen</button>
+                    <span class="rc-shop-prog"><b class="tnum" data-rc-shop-done>0</b> of <b class="tnum">${shopItems.length}</b> checked off</span>
+                    <button class="rc-shop-clear" type="button" data-rc-shop-clear disabled>Clear list</button>
                 </div>
             </div>
         </div>
@@ -247,7 +247,7 @@ const initRecipes = () => {
 
     tabs.forEach((t) => t.addEventListener('click', () => setTab(t.dataset.rcTab)));
 
-    /* ---------------- opnieuw genereren ---------------- */
+    /* ---------------- regenerate ---------------- */
     root.querySelectorAll('[data-rc-generate]').forEach((btn) => {
         btn.addEventListener('click', async () => {
             root.querySelectorAll('[data-rc-generate]').forEach((b) => (b.disabled = true));

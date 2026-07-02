@@ -167,7 +167,7 @@ class RecipesControllerTest extends TestCase
 
         $this->get(route('recipes.index'))
             ->assertOk()
-            ->assertSee('Recepten')
+            ->assertSee('Recipes')
             ->assertSee('Snelle kip-teriyaki')
             ->assertSee('Albert Heijn');
     }
@@ -251,6 +251,45 @@ class RecipesControllerTest extends TestCase
         $this->assertStringNotContainsString('<img src=x onerror', $html);
         // Blade auto-escapes the card title to entities.
         $this->assertStringContainsString('&lt;script&gt;alert', $html);
+    }
+
+    public function test_index_shows_indicative_savings_when_recipe_ingredients_match_offers(): void
+    {
+        $this->withoutVite();
+
+        $this->offer('ah', 'Kipfilet');
+        $this->recipe();
+
+        $this->get(route('recipes.index'))
+            ->assertOk()
+            ->assertSee('off ingredients this week');
+    }
+
+    public function test_index_hides_savings_callout_when_no_offer_matches(): void
+    {
+        $this->withoutVite();
+
+        $this->offer('ah', 'Kipfilet');
+        Recipe::query()->create([
+            'week_key' => '2026-W26',
+            'title' => 'Rijst met groenten',
+            'description' => 'Simpel en snel.',
+            'servings' => 2,
+            'time_minutes' => 20,
+            'estimated_cost' => 4,
+            'ingredients' => [
+                ['name' => 'Rijst', 'amount' => '250 g', 'on_offer' => false, 'store' => null],
+            ],
+            'steps' => ['Kook de rijst.'],
+            'shopping_list' => [
+                ['name' => 'Rijst', 'amount' => '250 g', 'on_offer' => false, 'store' => null],
+            ],
+            'model' => 'fake-claude',
+        ]);
+
+        $this->get(route('recipes.index'))
+            ->assertOk()
+            ->assertDontSee('off ingredients this week');
     }
 
     private function offer(string $store, string $name): GroceryOffer
