@@ -1,4 +1,4 @@
-<x-dashboard.layout title="3D-printer voorraad" :hideHeader="true">
+<x-dashboard.layout title="3D printer inventory" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Printer/resources/assets/css/printer.css'])
     </x-slot:head>
@@ -59,8 +59,8 @@
         $safeHex = static fn (?string $hex): string => is_string($hex) && preg_match('/^#[0-9a-fA-F]{6}$/', $hex) ? $hex : '#333';
 
         // ---- options for the modal forms ----
-        $materials = ['PLA', 'PETG', 'TPU', 'ABS', 'ASA', 'Nylon', 'Silk PLA', 'Anders'];
-        $units = ['stuks', 'ml', 'm', 'tube', 'rol', 'set'];
+        $materials = ['PLA', 'PETG', 'TPU', 'ABS', 'ASA', 'Nylon', 'Silk PLA', 'Other'];
+        $units = ['pcs', 'ml', 'm', 'tube', 'roll', 'set'];
         $hexPresets = ['#15171e', '#f4f3ee', '#e0a44e', '#e0575c', '#4eb0e6', '#54b896', '#8b6cd6', '#c9613f'];
 
         // ---- filament stats ----
@@ -78,34 +78,34 @@
 
     <div class="pr"
          data-printer
-         data-low-pct="{{ (int) config('printer.low_filament_pct', 20) }}"
+         data-low-pct="{{ (int) app(\App\Services\Settings\SettingsStore::class)->get('printer.low_filament_pct', config('printer.low_filament_pct', 20)) }}"
          data-filament-store-url="{{ route('printer.filament.store') }}"
          data-parts-store-url="{{ route('printer.parts.store') }}">
         <div class="pr-wrap">
             {{-- ============ HEADER ============ --}}
             <div class="pr-head">
                 <div class="pr-head-l">
-                    <span class="pr-eyebrow">{!! $PIc('Spool', 14, 1.7, 'ic') !!} Voorraad · 3D-printer voorraad</span>
+                    <span class="pr-eyebrow">{!! $PIc('Spool', 14, 1.7, 'ic') !!} Inventory · 3D printer inventory</span>
                     <h1 class="pr-title disp" data-pr-title>Filament</h1>
 
                     <div class="pr-sub" data-pr-sub-filament>
-                        <b class="tnum">{{ $spoolCount }}</b> spoelen<span class="dot">·</span>
-                        <b class="tnum">{{ $totalKg }}</b> kg op voorraad
+                        <b class="tnum">{{ $spoolCount }}</b> spools<span class="dot">·</span>
+                        <b class="tnum">{{ $totalKg }}</b> kg in stock
                         @if($lowSpools > 0)
-                            <span class="dot">·</span><span class="warn"><b>{{ $lowSpools }}</b> bijna op</span>
+                            <span class="dot">·</span><span class="warn"><b>{{ $lowSpools }}</b> running low</span>
                         @endif
                     </div>
                     <div class="pr-sub" data-pr-sub-onderdelen hidden>
-                        <b class="tnum">{{ $partsCount }}</b> onderdelen<span class="dot">·</span>
-                        <b class="tnum">{{ $reserveParts->count() }}</b> reserve, <b class="tnum">{{ $verbruikParts->count() }}</b> verbruik
+                        <b class="tnum">{{ $partsCount }}</b> parts<span class="dot">·</span>
+                        <b class="tnum">{{ $reserveParts->count() }}</b> spare, <b class="tnum">{{ $verbruikParts->count() }}</b> consumable
                         @if($lowParts > 0)
-                            <span class="dot">·</span><span class="warn"><b>{{ $lowParts }}</b> laag</span>
+                            <span class="dot">·</span><span class="warn"><b>{{ $lowParts }}</b> low</span>
                         @endif
                     </div>
                 </div>
                 <div class="pr-head-r">
                     <button class="pr-btn pr-btn-primary" data-pr-add data-pr-add-filament>
-                        {!! $PIc('Plus', 15, 2.2) !!} <span data-pr-add-label>Nieuwe spoel</span>
+                        {!! $PIc('Plus', 15, 2.2) !!} <span data-pr-add-label>New spool</span>
                     </button>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                     <span class="pr-tab-count tnum">{{ $spoolCount }}</span>
                 </button>
                 <button class="pr-tab" data-pr-tab="onderdelen">
-                    {!! $PIc('Cube', 15, 1.7, 'ic') !!} Onderdelen
+                    {!! $PIc('Cube', 15, 1.7, 'ic') !!} Parts
                     <span class="pr-tab-count tnum">{{ $partsCount }}</span>
                 </button>
             </div>
@@ -162,12 +162,12 @@
                                         </div>
                                     </div>
                                     <div class="pr-menuwrap" data-pr-menuwrap>
-                                        <button class="pr-kebab" data-pr-kebab aria-label="Acties">{!! $PIc('Dots', 18) !!}</button>
+                                        <button class="pr-kebab" data-pr-kebab aria-label="Actions">{!! $PIc('Dots', 18) !!}</button>
                                         <div class="pr-menu" data-pr-menu hidden>
-                                            <button data-pr-edit-spool>{!! $PIc('Pencil', 15, 1.7, 'ic') !!} Spoel bewerken</button>
-                                            <button data-pr-adjust-open>{!! $PIc('Adjust', 15, 1.7, 'ic') !!} Verbruik / aanvullen</button>
+                                            <button data-pr-edit-spool>{!! $PIc('Pencil', 15, 1.7, 'ic') !!} Edit spool</button>
+                                            <button data-pr-adjust-open>{!! $PIc('Adjust', 15, 1.7, 'ic') !!} Use / refill</button>
                                             <hr />
-                                            <button class="danger" data-pr-delete-spool>{!! $PIc('Trash', 15, 1.7, 'ic') !!} Verwijderen</button>
+                                            <button class="danger" data-pr-delete-spool>{!! $PIc('Trash', 15, 1.7, 'ic') !!} Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -178,7 +178,7 @@
                                         <span class="pr-stock tnum"><b data-pr-remaining-text>{{ $fmt($remaining) }}</b> / <span data-pr-total-text>{{ $fmt($total) }}</span> g</span>
                                         <span data-pr-stockmeta>
                                             @if($low)
-                                                <span class="pr-lowpill">{!! $PIc('Alert', 12) !!} Bijna op · {{ $pct }}%</span>
+                                                <span class="pr-lowpill">{!! $PIc('Alert', 12) !!} Running low · {{ $pct }}%</span>
                                             @else
                                                 <span class="pr-pct tnum">{{ $pct }}%</span>
                                             @endif
@@ -188,14 +188,14 @@
 
                                 <div class="pr-ffoot" data-pr-ffoot>
                                     <button class="pr-adjbtn" data-pr-adjust-open>
-                                        {!! $PIc('Adjust', 15, 1.7, 'ic') !!} Verbruik / aanvullen
+                                        {!! $PIc('Adjust', 15, 1.7, 'ic') !!} Use / refill
                                     </button>
                                 </div>
 
                                 {{-- inline grams adjuster (hidden until opened) --}}
                                 <div class="pr-adj" data-pr-adj hidden>
                                     <div class="pr-adj-top">
-                                        <span class="pr-adj-lab">Restgewicht</span>
+                                        <span class="pr-adj-lab">Remaining weight</span>
                                         <span class="pr-adj-num tnum"><span data-pr-adj-remaining>{{ $fmt($remaining) }}</span><span class="u">/ <span data-pr-adj-total>{{ $fmt($total) }}</span> g</span></span>
                                     </div>
                                     <div class="pr-adj-grid">
@@ -211,8 +211,8 @@
                                         </div>
                                         <span class="pr-adj-sep"></span>
                                         <div class="pr-adj-actions">
-                                            <button class="pr-mini" data-pr-fill>Tot vol</button>
-                                            <button class="pr-mini done" data-pr-adjust-close>{!! $PIc('Check', 14, 2.4) !!} Klaar</button>
+                                            <button class="pr-mini" data-pr-fill>Fill up</button>
+                                            <button class="pr-mini done" data-pr-adjust-close>{!! $PIc('Check', 14, 2.4) !!} Done</button>
                                         </div>
                                     </div>
                                 </div>
@@ -222,13 +222,13 @@
                 @else
                     <div class="pr-state">
                         <span class="pr-state-ico">{!! $PIc('Spool', 28) !!}</span>
-                        <div class="pr-state-title">Nog geen filament</div>
+                        <div class="pr-state-title">No filament yet</div>
                         <div class="pr-state-sub">
-                            Houd je spoelen bij — materiaal, kleur en restgewicht. De hub waarschuwt zodra een spoel
-                            onder de drempel zakt, zodat je op tijd bijbestelt.
+                            Keep track of your spools — material, color and remaining weight. The hub warns you as soon as a spool
+                            drops below the threshold, so you can reorder in time.
                         </div>
                         <div class="pr-state-actions">
-                            <button class="pr-btn pr-btn-primary" data-pr-add data-pr-add-filament>{!! $PIc('Plus', 15, 2.2) !!} Spoel toevoegen</button>
+                            <button class="pr-btn pr-btn-primary" data-pr-add data-pr-add-filament>{!! $PIc('Plus', 15, 2.2) !!} Add spool</button>
                         </div>
                     </div>
                 @endif
@@ -239,8 +239,8 @@
                 @if($partsCount > 0)
                     @php
                         $groups = [
-                            ['key' => 'reserve', 'label' => 'Reserveonderdelen', 'items' => $reserveParts],
-                            ['key' => 'verbruik', 'label' => 'Verbruiksartikelen', 'items' => $verbruikParts],
+                            ['key' => 'reserve', 'label' => 'Spare parts', 'items' => $reserveParts],
+                            ['key' => 'verbruik', 'label' => 'Consumables', 'items' => $verbruikParts],
                         ];
                     @endphp
                     @foreach($groups as $group)
@@ -281,15 +281,15 @@
                                             <div class="pr-pright">
                                                 <span data-pr-lowtag>
                                                     @if($low)
-                                                        <span class="pr-lowtag">{!! $PIc('Alert', 11) !!} Laag</span>
+                                                        <span class="pr-lowtag">{!! $PIc('Alert', 11) !!} Low</span>
                                                     @endif
                                                 </span>
                                                 <div class="pr-stepper">
-                                                    <button class="pr-step" data-pr-step-minus aria-label="Minder" @disabled($countDisplay <= 0)>{!! $PIc('Minus', 15, 2.2) !!}</button>
+                                                    <button class="pr-step" data-pr-step-minus aria-label="Less" @disabled($countDisplay <= 0)>{!! $PIc('Minus', 15, 2.2) !!}</button>
                                                     <span class="pr-count tnum"><span data-pr-count-text>{{ $fmt($countDisplay) }}</span><span class="u">{{ $part->unit }}</span></span>
-                                                    <button class="pr-step" data-pr-step-plus aria-label="Meer">{!! $PIc('Plus', 15, 2.2) !!}</button>
+                                                    <button class="pr-step" data-pr-step-plus aria-label="More">{!! $PIc('Plus', 15, 2.2) !!}</button>
                                                 </div>
-                                                <button class="pr-pedit" data-pr-edit-part aria-label="Bewerken">{!! $PIc('Pencil', 16) !!}</button>
+                                                <button class="pr-pedit" data-pr-edit-part aria-label="Edit">{!! $PIc('Pencil', 16) !!}</button>
                                             </div>
                                         </div>
                                     @endforeach
@@ -300,13 +300,13 @@
                 @else
                     <div class="pr-state">
                         <span class="pr-state-ico">{!! $PIc('Cube', 28) !!}</span>
-                        <div class="pr-state-title">Nog geen onderdelen</div>
+                        <div class="pr-state-title">No parts yet</div>
                         <div class="pr-state-sub">
-                            Leg je reserveonderdelen en verbruiksartikelen vast — nozzles, bouwplaten, isopropanol.
-                            Zo zie je in één oogopslag wat er bijna op is.
+                            Track your spare parts and consumables — nozzles, build plates, isopropyl alcohol.
+                            See at a glance what's running low.
                         </div>
                         <div class="pr-state-actions">
-                            <button class="pr-btn pr-btn-primary" data-pr-add data-pr-add-part>{!! $PIc('Plus', 15, 2.2) !!} Onderdeel toevoegen</button>
+                            <button class="pr-btn pr-btn-primary" data-pr-add data-pr-add-part>{!! $PIc('Plus', 15, 2.2) !!} Add part</button>
                         </div>
                     </div>
                 @endif
@@ -315,28 +315,28 @@
 
         {{-- ============ FILAMENT MODAL ============ --}}
         <div class="pr-modal-backdrop" data-pr-modal="filament" hidden>
-            <div class="pr-modal" role="dialog" aria-label="Spoel">
+            <div class="pr-modal" role="dialog" aria-label="Spool">
                 <form data-pr-filament-form>
                     <div class="pr-modal-head">
                         <span class="pr-mh-ico">{!! $PIc('Spool', 20) !!}</span>
                         <div class="pr-mh-l">
-                            <div class="pr-modal-title" data-pr-modal-title>Nieuwe spoel</div>
-                            <div class="pr-modal-desc" data-pr-modal-desc>Voeg een filamentspoel toe aan je voorraad</div>
+                            <div class="pr-modal-title" data-pr-modal-title>New spool</div>
+                            <div class="pr-modal-desc" data-pr-modal-desc>Add a filament spool to your inventory</div>
                         </div>
-                        <button type="button" class="pr-modal-close" data-pr-modal-close aria-label="Sluiten">{!! $PIc('X', 17) !!}</button>
+                        <button type="button" class="pr-modal-close" data-pr-modal-close aria-label="Close">{!! $PIc('X', 17) !!}</button>
                     </div>
                     <div class="pr-modal-body">
                         <div class="pr-preview">
                             <span class="pr-swatch" data-pr-prev-swatch style="background: #15171e"></span>
                             <div class="pr-preview-b">
                                 <div class="pr-preview-name" data-pr-prev-name>PLA</div>
-                                <div class="pr-preview-sub" data-pr-prev-sub>Merk — · 1.000 / 1.000 g · 100%</div>
+                                <div class="pr-preview-sub" data-pr-prev-sub>Brand — · 1.000 / 1.000 g · 100%</div>
                                 <div class="pr-bar"><div class="pr-bar-fill" data-pr-prev-bar style="width: 100%"></div></div>
                             </div>
                         </div>
 
                         <div class="pr-field">
-                            <label class="pr-label">Materiaal</label>
+                            <label class="pr-label">Material</label>
                             <div class="pr-seg" data-pr-seg="material">
                                 @foreach($materials as $m)
                                     <button type="button" class="pr-seg-btn {{ $loop->first ? 'on' : '' }}" data-pr-seg-val="{{ $m }}">{{ $m }}</button>
@@ -347,17 +347,17 @@
 
                         <div class="pr-row2">
                             <div class="pr-field">
-                                <label class="pr-label">Kleurnaam</label>
-                                <input class="pr-input" name="color_name" data-pr-field="color" placeholder="bijv. Galaxy Black" />
+                                <label class="pr-label">Color name</label>
+                                <input class="pr-input" name="color_name" data-pr-field="color" placeholder="e.g. Galaxy Black" />
                             </div>
                             <div class="pr-field">
-                                <label class="pr-label">Merk</label>
-                                <input class="pr-input" name="brand" data-pr-field="brand" placeholder="bijv. Polymaker" />
+                                <label class="pr-label">Brand</label>
+                                <input class="pr-input" name="brand" data-pr-field="brand" placeholder="e.g. Polymaker" />
                             </div>
                         </div>
 
                         <div class="pr-field">
-                            <label class="pr-label">Kleur (hex)</label>
+                            <label class="pr-label">Color (hex)</label>
                             <div class="pr-hexrow">
                                 <span class="pr-hex-preview" data-pr-hex-preview style="background: #15171e"></span>
                                 <input class="pr-input pr-hex-input mono" name="color_hex" data-pr-field="hex" value="#15171e" placeholder="#15171e" />
@@ -371,14 +371,14 @@
 
                         <div class="pr-row2">
                             <div class="pr-field">
-                                <label class="pr-label">Totaalgewicht</label>
+                                <label class="pr-label">Total weight</label>
                                 <div class="pr-input-wrap">
                                     <input class="pr-input suffix tnum" type="number" name="total_weight_g" data-pr-field="total" value="1000" />
                                     <span class="pr-input-suffix">g</span>
                                 </div>
                             </div>
                             <div class="pr-field">
-                                <label class="pr-label">Restgewicht</label>
+                                <label class="pr-label">Remaining weight</label>
                                 <div class="pr-input-wrap">
                                     <input class="pr-input suffix tnum" type="number" name="remaining_g" data-pr-field="remaining" value="1000" />
                                     <span class="pr-input-suffix">g</span>
@@ -386,31 +386,31 @@
                             </div>
                         </div>
 
-                        <div class="pr-divider"><span>Optioneel</span><span class="rule"></span></div>
+                        <div class="pr-divider"><span>Optional</span><span class="rule"></span></div>
 
                         <div class="pr-row3">
                             <div class="pr-field">
-                                <label class="pr-label">Aankoopprijs</label>
+                                <label class="pr-label">Purchase price</label>
                                 <div class="pr-input-prefix-wrap">
                                     <span class="pr-input-prefix">€</span>
-                                    <input class="pr-input prefix tnum" type="number" step="0.01" name="purchase_price" data-pr-field="price" placeholder="0,00" />
+                                    <input class="pr-input prefix tnum" type="number" step="0.01" name="purchase_price" data-pr-field="price" placeholder="0.00" />
                                 </div>
                             </div>
                             <div class="pr-field">
-                                <label class="pr-label">Winkel</label>
-                                <input class="pr-input" name="purchase_store" data-pr-field="store" placeholder="bijv. 123-3D" />
+                                <label class="pr-label">Store</label>
+                                <input class="pr-input" name="purchase_store" data-pr-field="store" placeholder="e.g. 123-3D" />
                             </div>
                             <div class="pr-field">
-                                <label class="pr-label">Datum</label>
+                                <label class="pr-label">Date</label>
                                 <input class="pr-input" type="date" name="purchased_at" data-pr-field="bought" />
                             </div>
                         </div>
                     </div>
                     <div class="pr-modal-foot">
-                        <button type="button" class="pr-del" data-pr-modal-delete hidden>{!! $PIc('Trash', 15) !!} Verwijderen</button>
+                        <button type="button" class="pr-del" data-pr-modal-delete hidden>{!! $PIc('Trash', 15) !!} Delete</button>
                         <span class="grow"></span>
-                        <button type="button" class="pr-btn pr-btn-ghost" data-pr-modal-close>Annuleren</button>
-                        <button type="submit" class="pr-btn pr-btn-primary">{!! $PIc('Check', 15, 2.2) !!} <span data-pr-submit-label>Spoel toevoegen</span></button>
+                        <button type="button" class="pr-btn pr-btn-ghost" data-pr-modal-close>Cancel</button>
+                        <button type="submit" class="pr-btn pr-btn-primary">{!! $PIc('Check', 15, 2.2) !!} <span data-pr-submit-label>Add spool</span></button>
                     </div>
                 </form>
             </div>
@@ -418,43 +418,43 @@
 
         {{-- ============ PART MODAL ============ --}}
         <div class="pr-modal-backdrop" data-pr-modal="part" hidden>
-            <div class="pr-modal" role="dialog" aria-label="Onderdeel">
+            <div class="pr-modal" role="dialog" aria-label="Part">
                 <form data-pr-part-form>
                     <div class="pr-modal-head">
                         <span class="pr-mh-ico">{!! $PIc('Cube', 20) !!}</span>
                         <div class="pr-mh-l">
-                            <div class="pr-modal-title" data-pr-modal-title>Nieuw onderdeel</div>
-                            <div class="pr-modal-desc" data-pr-modal-desc>Voeg een reserveonderdeel of verbruiksartikel toe</div>
+                            <div class="pr-modal-title" data-pr-modal-title>New part</div>
+                            <div class="pr-modal-desc" data-pr-modal-desc>Add a spare part or consumable</div>
                         </div>
-                        <button type="button" class="pr-modal-close" data-pr-modal-close aria-label="Sluiten">{!! $PIc('X', 17) !!}</button>
+                        <button type="button" class="pr-modal-close" data-pr-modal-close aria-label="Close">{!! $PIc('X', 17) !!}</button>
                     </div>
                     <div class="pr-modal-body">
                         <div class="pr-field">
-                            <label class="pr-label">Naam</label>
-                            <input class="pr-input" name="name" data-pr-field="name" placeholder="bijv. 0.4 mm nozzle" />
+                            <label class="pr-label">Name</label>
+                            <input class="pr-input" name="name" data-pr-field="name" placeholder="e.g. 0.4 mm nozzle" />
                         </div>
 
                         <div class="pr-field">
-                            <label class="pr-label">Omschrijving <span class="opt">optioneel</span></label>
-                            <input class="pr-input" name="notes" data-pr-field="note" placeholder="bijv. Messing · standaard" />
+                            <label class="pr-label">Description <span class="opt">optional</span></label>
+                            <input class="pr-input" name="notes" data-pr-field="note" placeholder="e.g. Brass · standard" />
                         </div>
 
                         <div class="pr-field">
-                            <label class="pr-label">Groep</label>
+                            <label class="pr-label">Group</label>
                             <div class="pr-seg" data-pr-seg="group">
-                                <button type="button" class="pr-seg-btn on" data-pr-seg-val="reserve">Reserveonderdeel</button>
-                                <button type="button" class="pr-seg-btn" data-pr-seg-val="verbruik">Verbruiksartikel</button>
+                                <button type="button" class="pr-seg-btn on" data-pr-seg-val="reserve">Spare part</button>
+                                <button type="button" class="pr-seg-btn" data-pr-seg-val="verbruik">Consumable</button>
                             </div>
                             <input type="hidden" name="group" value="reserve" data-pr-field="group" />
                         </div>
 
                         <div class="pr-row2">
                             <div class="pr-field">
-                                <label class="pr-label">Aantal</label>
+                                <label class="pr-label">Quantity</label>
                                 <input class="pr-input tnum" type="number" name="quantity" data-pr-field="count" value="1" />
                             </div>
                             <div class="pr-field">
-                                <label class="pr-label">Eenheid</label>
+                                <label class="pr-label">Unit</label>
                                 <select class="pr-select" name="unit" data-pr-field="unit">
                                     @foreach($units as $u)
                                         <option value="{{ $u }}">{{ $u }}</option>
@@ -464,18 +464,18 @@
                         </div>
 
                         <div class="pr-field">
-                            <label class="pr-label">Waarschuw onder <span class="opt">drempel voor "laag"</span></label>
+                            <label class="pr-label">Warn below <span class="opt">threshold for "low"</span></label>
                             <div class="pr-input-wrap">
                                 <input class="pr-input suffix tnum" type="number" name="low_threshold" data-pr-field="min" value="1" />
-                                <span class="pr-input-suffix" data-pr-min-suffix>stuks</span>
+                                <span class="pr-input-suffix" data-pr-min-suffix>pcs</span>
                             </div>
                         </div>
                     </div>
                     <div class="pr-modal-foot">
-                        <button type="button" class="pr-del" data-pr-modal-delete hidden>{!! $PIc('Trash', 15) !!} Verwijderen</button>
+                        <button type="button" class="pr-del" data-pr-modal-delete hidden>{!! $PIc('Trash', 15) !!} Delete</button>
                         <span class="grow"></span>
-                        <button type="button" class="pr-btn pr-btn-ghost" data-pr-modal-close>Annuleren</button>
-                        <button type="submit" class="pr-btn pr-btn-primary">{!! $PIc('Check', 15, 2.2) !!} <span data-pr-submit-label>Onderdeel toevoegen</span></button>
+                        <button type="button" class="pr-btn pr-btn-ghost" data-pr-modal-close>Cancel</button>
+                        <button type="submit" class="pr-btn pr-btn-primary">{!! $PIc('Check', 15, 2.2) !!} <span data-pr-submit-label>Add part</span></button>
                     </div>
                 </form>
             </div>

@@ -71,7 +71,7 @@ class DealsControllerTest extends TestCase
 
         $this->get(route('deals.index'))
             ->assertOk()
-            ->assertSee('Dealtracker')
+            ->assertSee('Deal tracker')
             ->assertSee('Bambu Lab AMS');
     }
 

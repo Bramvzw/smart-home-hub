@@ -1,4 +1,4 @@
-/* 3D-printer voorraad — vanilla interactions for the Filament + Onderdelen
+/* 3D printer inventory — vanilla interactions for the Filament + Parts
    inventories. Server-rendered Blade; this layer wires the real endpoints. */
 
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -120,7 +120,7 @@ const initPrinter = () => {
             card.classList.toggle('low', low);
             if (stockMeta) {
                 stockMeta.innerHTML = low
-                    ? `<span class="pr-lowpill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.8 20a1 1 0 0 0 .9 1.5h16.6a1 1 0 0 0 .9-1.5z"/><path d="M12 10v4.5M12 18h.01"/></svg> Bijna op · ${pct}%</span>`
+                    ? `<span class="pr-lowpill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 2.8 20a1 1 0 0 0 .9 1.5h16.6a1 1 0 0 0 .9-1.5z"/><path d="M12 10v4.5M12 18h.01"/></svg> Running low · ${pct}%</span>`
                     : `<span class="pr-pct tnum">${pct}%</span>`;
             }
         };
@@ -300,26 +300,26 @@ const initPrinter = () => {
         pField('group').value = 'reserve';
         setSegment(partModal, 'group', 'reserve');
         pField('count').value = 1;
-        pField('unit').value = 'stuks';
+        pField('unit').value = 'pcs';
         pField('min').value = 1;
-        if (minSuffix) minSuffix.textContent = 'stuks';
+        if (minSuffix) minSuffix.textContent = 'pcs';
     };
 
     const setFilamentMode = (editing) => {
-        filamentModal.querySelector('[data-pr-modal-title]').textContent = editing ? 'Spoel bewerken' : 'Nieuwe spoel';
+        filamentModal.querySelector('[data-pr-modal-title]').textContent = editing ? 'Edit spool' : 'New spool';
         filamentModal.querySelector('[data-pr-modal-desc]').textContent = editing
-            ? 'Pas materiaal, kleur of voorraad aan'
-            : 'Voeg een filamentspoel toe aan je voorraad';
-        filamentModal.querySelector('[data-pr-submit-label]').textContent = editing ? 'Opslaan' : 'Spoel toevoegen';
+            ? 'Adjust material, color or stock'
+            : 'Add a filament spool to your inventory';
+        filamentModal.querySelector('[data-pr-submit-label]').textContent = editing ? 'Save' : 'Add spool';
         filamentModal.querySelector('[data-pr-modal-delete]').hidden = !editing;
     };
 
     const setPartMode = (editing) => {
-        partModal.querySelector('[data-pr-modal-title]').textContent = editing ? 'Onderdeel bewerken' : 'Nieuw onderdeel';
+        partModal.querySelector('[data-pr-modal-title]').textContent = editing ? 'Edit part' : 'New part';
         partModal.querySelector('[data-pr-modal-desc]').textContent = editing
-            ? 'Pas naam, groep of aantal aan'
-            : 'Voeg een reserveonderdeel of verbruiksartikel toe';
-        partModal.querySelector('[data-pr-submit-label]').textContent = editing ? 'Opslaan' : 'Onderdeel toevoegen';
+            ? 'Adjust name, group or quantity'
+            : 'Add a spare part or consumable';
+        partModal.querySelector('[data-pr-submit-label]').textContent = editing ? 'Save' : 'Add part';
         partModal.querySelector('[data-pr-modal-delete]').hidden = !editing;
     };
 
@@ -384,9 +384,9 @@ const initPrinter = () => {
             pField('group').value = row.dataset.prGroup || 'reserve';
             setSegment(partModal, 'group', row.dataset.prGroup || 'reserve');
             pField('count').value = row.dataset.prCount || 0;
-            pField('unit').value = row.dataset.prUnit || 'stuks';
+            pField('unit').value = row.dataset.prUnit || 'pcs';
             pField('min').value = row.dataset.prMin || '';
-            if (minSuffix) minSuffix.textContent = row.dataset.prUnit || 'stuks';
+            if (minSuffix) minSuffix.textContent = row.dataset.prUnit || 'pcs';
             setPartMode(true);
             openModal(partModal);
         });

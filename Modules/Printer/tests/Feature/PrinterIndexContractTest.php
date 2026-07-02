@@ -39,7 +39,7 @@ class PrinterIndexContractTest extends TestCase
         $this->get(route('printer.index'))
             ->assertOk()
             ->assertSee('Filament')
-            ->assertSee('3D-printer voorraad')
+            ->assertSee('3D printer inventory')
             ->assertSee('Galaxy Black')
             ->assertSee('0.4mm nozzle');
     }

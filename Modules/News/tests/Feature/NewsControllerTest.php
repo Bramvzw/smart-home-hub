@@ -192,9 +192,9 @@ class NewsControllerTest extends TestCase
 
         $this->get(route('news.index'))
             ->assertOk()
-            ->assertSee('Nieuws')
+            ->assertSee('News')
             ->assertSee('Bambu Firmware Released')
-            ->assertSee('Markeer alles gelezen');
+            ->assertSee('Mark all read');
     }
 
     private function item(array $overrides = []): NewsItem

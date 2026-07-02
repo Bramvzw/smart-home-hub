@@ -1,8 +1,8 @@
-/* Dealtracker — vanilla interactions for the prijs-watchlist module.
+/* Deal tracker — vanilla interactions for the price-watchlist module.
    Server-rendered Blade; this layer opens the add-product flow (POST products
    → render returned candidate listings per retailer for review), confirms a
    candidate (POST listings/{id}/confirm), removes a candidate/listing
-   (DELETE listings/{id}), runs "nu checken" (POST check then reload), and
+   (DELETE listings/{id}), runs "check now" (POST check then reload), and
    draws price-history sparklines from the history endpoint. */
 
 const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -158,8 +158,8 @@ const candidateCard = (listing) => {
         </div>
     </div>
     <div class="dt-cand-actions">
-        <button class="dt-cact confirm" data-deals-confirm>${icon('Check', 14, 1.7)} Bevestigen</button>
-        <button class="dt-cact remove" data-deals-remove>${icon('X', 14, 1.7)} Verwijderen</button>
+        <button class="dt-cact confirm" data-deals-confirm>${icon('Check', 14, 1.7)} Confirm</button>
+        <button class="dt-cact remove" data-deals-remove>${icon('X', 14, 1.7)} Remove</button>
     </div>
 </div>`;
 };
@@ -171,9 +171,9 @@ export const renderReview = (product) => {
             const cands = listings.filter((l) => String(l.retailer).toLowerCase() === store);
             const body =
                 cands.length === 0
-                    ? `<div class="dt-cand-none">${icon('X', 20, 1.7, 'ic')}<div>Geen match — hier wordt niets gevolgd.</div></div>`
+                    ? `<div class="dt-cand-none">${icon('X', 20, 1.7, 'ic')}<div>No match — nothing will be tracked here.</div></div>`
                     : cands.map(candidateCard).join('');
-            const countLabel = cands.length === 1 ? 'kandidaat' : 'kandidaten';
+            const countLabel = cands.length === 1 ? 'candidate' : 'candidates';
             return `<div class="dt-storecol">
                 <div class="dt-storecol-head ${store}">
                     <span class="led"></span>
@@ -188,16 +188,16 @@ export const renderReview = (product) => {
     return `<div class="dt-add" data-deals-review="${esc(product.id)}">
         <div class="dt-review-head">
             <div class="dt-review-q">
-                <span>Resultaten voor</span>
+                <span>Results for</span>
                 <span class="term">${icon('Search', 13, 1.7, 'ic')} ${esc(product.name)}</span>
             </div>
         </div>
         <div class="dt-guard">
             ${icon('Shield', 17, 1.7, 'ic')}
             <div class="dt-guard-tx">
-                Bevestig per winkel de <b>juiste</b> match en verwijder verkeerde resultaten — zoals een andere
-                generatie of los accessoire. <b>Alleen bevestigde producten worden gevolgd</b>, zodat je geen
-                verkeerde prijs binnenhaalt.
+                Confirm the <b>right</b> match per store and remove wrong results — such as a different
+                generation or a loose accessory. <b>Only confirmed products are tracked</b>, so you don't
+                end up with the wrong price.
             </div>
         </div>
         <div class="dt-review-grid">${cols}</div>
