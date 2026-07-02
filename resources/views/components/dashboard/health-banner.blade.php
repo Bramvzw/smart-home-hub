@@ -12,7 +12,7 @@
         </svg>
         <div class="hub-health-banner__body">
             <p class="hub-health-banner__title">
-                {{ $needsSetup ? 'Deze module heeft nog configuratie nodig' : 'Deze module draait beperkt' }}
+                {{ $needsSetup ? 'This module still needs configuration' : 'This module is running in limited mode' }}
             </p>
             <ul class="hub-health-banner__list">
                 @foreach ($health->issues as $issue)

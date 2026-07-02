@@ -323,6 +323,9 @@
 /* review grid — kolom per winkel */
 .dt-review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 900px) { .dt-review-grid { grid-template-columns: 1fr; } }
+@media (max-width: 620px) {
+  .dt-listing, .dt-row-sk { grid-template-columns: 1fr; gap: 10px; }
+}
 
 .dt-storecol {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden;

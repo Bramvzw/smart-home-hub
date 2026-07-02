@@ -1,5 +1,5 @@
 @use(\Modules\Deals\Support\SafeUrl)
-<x-dashboard.layout title="Dealtracker" :hideHeader="true">
+<x-dashboard.layout title="Deal tracker" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Deals/resources/assets/css/dealtracker.css'])
     </x-slot:head>
@@ -86,10 +86,10 @@
             ->sort()
             ->last();
         $lastCheckedHuman = $lastChecked
-            ? $lastChecked->locale('nl')->diffForHumans(\Carbon\CarbonImmutable::now())
+            ? $lastChecked->locale('en')->diffForHumans(\Carbon\CarbonImmutable::now())
             : null;
         $lastCheckedFull = $lastChecked
-            ? $lastChecked->setTimezone(config('app.timezone', 'UTC'))->locale('nl')->isoFormat('dd D MMM · HH:mm')
+            ? $lastChecked->setTimezone(config('app.timezone', 'UTC'))->locale('en')->isoFormat('dd D MMM · HH:mm')
             : null;
 
         // Helper: best (lowest) confirmed listing for a product.
@@ -112,34 +112,34 @@
             {{-- ============ HEADER ============ --}}
             <div class="dt-head">
                 <div class="dt-head-l">
-                    <span class="dt-eyebrow">{!! $dtIc('Tag', 14, 1.7, 'ic') !!} Prijsbewaking</span>
-                    <h1 class="dt-title disp">Dealtracker</h1>
+                    <span class="dt-eyebrow">{!! $dtIc('Tag', 14, 1.7, 'ic') !!} Price tracking</span>
+                    <h1 class="dt-title disp">Deal tracker</h1>
                     <div class="dt-sub">
                         @if($hasProducts)
-                            <b class="tnum">{{ $trackedCount }}</b> producten gevolgd
+                            <b class="tnum">{{ $trackedCount }}</b> products tracked
                             <span class="dot">·</span>
                             @if($dropCount > 0)
-                                <span class="ok">{{ $dropCount }} {{ $dropCount === 1 ? 'prijsdaling' : 'prijsdalingen' }}</span>
+                                <span class="ok">{{ $dropCount }} {{ $dropCount === 1 ? 'price drop' : 'price drops' }}</span>
                             @else
-                                geen prijsdalingen
+                                no price drops
                             @endif
                             @if($reviewCount > 0)
-                                <span class="dot">·</span><span class="acc">{{ $reviewCount }} te beoordelen</span>
+                                <span class="dot">·</span><span class="acc">{{ $reviewCount }} to review</span>
                             @endif
                         @else
-                            Nog geen producten gevolgd <span class="dot">·</span> volgt prijzen bij <b>bol.com</b>, <b>Amazon</b> &amp; <b>Tweakers</b>
+                            No products tracked yet <span class="dot">·</span> tracks prices at <b>bol.com</b>, <b>Amazon</b> &amp; <b>Tweakers</b>
                         @endif
                     </div>
                 </div>
                 <div class="dt-head-r">
                     @if($lastCheckedHuman)
-                        <span class="dt-checked">{!! $dtIc('Clock', 14, 1.7, 'ic') !!} Gecheckt <b>{{ $lastCheckedHuman }}</b></span>
+                        <span class="dt-checked">{!! $dtIc('Clock', 14, 1.7, 'ic') !!} Checked <b>{{ $lastCheckedHuman }}</b></span>
                     @endif
                     <button class="dt-btn dt-btn-ghost" data-deals-check>
-                        {!! $dtIc('Refresh', 15, 1.7, 'ic') !!} Nu checken
+                        {!! $dtIc('Refresh', 15, 1.7, 'ic') !!} Check now
                     </button>
                     <button class="dt-btn dt-btn-primary" data-deals-add-open>
-                        {!! $dtIc('Plus', 15, 1.7) !!} Product toevoegen
+                        {!! $dtIc('Plus', 15, 1.7) !!} Add product
                     </button>
                 </div>
             </div>
@@ -148,9 +148,9 @@
             @if($hasProducts)
                 <div class="dt-strip">
                     {!! $dtIc('Bell', 15, 1.7, 'ic') !!}
-                    <span>Je krijgt een <b>melding</b> zodra een gevolgde prijs zakt.</span>
+                    <span>You get a <b>notification</b> as soon as a tracked price drops.</span>
                     @if($lastCheckedFull)
-                        <span class="dt-strip-time">Laatst gecheckt <b>{{ $lastCheckedFull }}</b></span>
+                        <span class="dt-strip-time">Last checked <b>{{ $lastCheckedFull }}</b></span>
                     @endif
                 </div>
             @endif
@@ -160,20 +160,20 @@
                 <div class="dt-guard" style="background: var(--surface); border-color: var(--line);">
                     {!! $dtIc('Info', 17, 1.7, 'ic') !!}
                     <div class="dt-guard-tx">
-                        Typ de naam van een product. De hub zoekt het bij <b>bol.com</b>, <b>Amazon</b> en <b>Tweakers</b>
-                        en laat je per winkel de juiste match bevestigen voordat het volgen begint.
+                        Type the name of a product. The hub searches for it at <b>bol.com</b>, <b>Amazon</b> and <b>Tweakers</b>
+                        and lets you confirm the right match per store before tracking begins.
                     </div>
                 </div>
                 <form class="dt-search" data-deals-search-form>
                     {!! $dtIc('Search', 18, 1.7, 'ic') !!}
                     <input type="text" data-deals-search-input
-                           placeholder="bv. Bambu Lab AMS, Sony WH-1000XM5, Philips Hue starterkit…" autocomplete="off">
+                           placeholder="e.g. Bambu Lab AMS, Sony WH-1000XM5, Philips Hue starter kit…" autocomplete="off">
                     <button type="submit" class="dt-btn dt-btn-primary" data-deals-search-submit disabled>
-                        {!! $dtIc('Search', 15, 1.7) !!} Zoeken
+                        {!! $dtIc('Search', 15, 1.7) !!} Search
                     </button>
                 </form>
                 <div style="margin-top: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <button type="button" class="dt-foot-link" data-deals-add-cancel>Annuleren</button>
+                    <button type="button" class="dt-foot-link" data-deals-add-cancel>Cancel</button>
                 </div>
             </div>
 
@@ -182,8 +182,8 @@
                 <div class="dt-load-banner">
                     {!! $dtIc('Refresh', 18, 1.7, 'ic') !!}
                     <div>
-                        <div class="dt-load-tx">Zoeken naar “<span data-deals-search-term></span>”…</div>
-                        <div class="dt-load-sub">bol.com, Amazon en Tweakers doorzoeken op overeenkomende producten.</div>
+                        <div class="dt-load-tx">Searching for “<span data-deals-search-term></span>”…</div>
+                        <div class="dt-load-sub">Searching bol.com, Amazon and Tweakers for matching products.</div>
                     </div>
                 </div>
                 <div class="dt-review-grid">
@@ -219,29 +219,29 @@
             {{-- ============ WATCHLIST + REVIEW (default view) ============ --}}
             <div data-deals-main>
                 @if(! $hasProducts)
-                    {{-- LEEG --}}
+                    {{-- EMPTY --}}
                     <div class="dt-state">
                         <span class="dt-state-ico">{!! $dtIc('Tag', 26, 1.7) !!}</span>
-                        <div class="dt-state-title">Je volgt nog geen producten</div>
+                        <div class="dt-state-title">You're not tracking any products yet</div>
                         <div class="dt-state-sub">
-                            Voeg een product toe en de hub controleert de prijs bij bol.com, Amazon en Tweakers.
-                            Je krijgt een melding zodra de prijs zakt.
+                            Add a product and the hub checks the price at bol.com, Amazon and Tweakers.
+                            You get a notification as soon as the price drops.
                         </div>
                         <div class="dt-state-actions">
                             <button class="dt-btn dt-btn-primary" data-deals-add-open>
-                                {!! $dtIc('Plus', 15, 1.7) !!} Product toevoegen
+                                {!! $dtIc('Plus', 15, 1.7) !!} Add product
                             </button>
                         </div>
                     </div>
                 @else
-                    {{-- ===== REVIEW: producten met alleen onbevestigde kandidaten ===== --}}
+                    {{-- ===== REVIEW: products with only unconfirmed candidates ===== --}}
                     @foreach($inReview as $product)
                         @php $listings = collect($product['listings'] ?? []); @endphp
                         <div class="dt-add" style="margin-bottom: 22px;"
                              data-deals-review="{{ $product['id'] }}">
                             <div class="dt-review-head">
                                 <div class="dt-review-q">
-                                    <span>Resultaten voor</span>
+                                    <span>Results for</span>
                                     <span class="term">{!! $dtIc('Search', 13, 1.7, 'ic') !!} {{ $product['name'] }}</span>
                                 </div>
                             </div>
@@ -249,9 +249,9 @@
                             <div class="dt-guard">
                                 {!! $dtIc('Shield', 17, 1.7, 'ic') !!}
                                 <div class="dt-guard-tx">
-                                    Bevestig per winkel de <b>juiste</b> match en verwijder verkeerde resultaten — zoals een andere
-                                    generatie of los accessoire. <b>Alleen bevestigde producten worden gevolgd</b>, zodat je geen
-                                    verkeerde prijs binnenhaalt.
+                                    Confirm the <b>right</b> match per store and remove wrong results — such as a different
+                                    generation or a loose accessory. <b>Only confirmed products are tracked</b>, so you don't
+                                    end up with the wrong price.
                                 </div>
                             </div>
 
@@ -262,13 +262,13 @@
                                         <div class="dt-storecol-head {{ $store }}">
                                             <span class="led"></span>
                                             <span class="dt-storecol-name">{{ $storeLabel($store) }}</span>
-                                            <span class="dt-storecol-count">{{ $cands->count() }} {{ $cands->count() === 1 ? 'kandidaat' : 'kandidaten' }}</span>
+                                            <span class="dt-storecol-count">{{ $cands->count() }} {{ $cands->count() === 1 ? 'candidate' : 'candidates' }}</span>
                                         </div>
                                         <div class="dt-storecol-body">
                                             @if($cands->isEmpty())
                                                 <div class="dt-cand-none">
                                                     {!! $dtIc('X', 20, 1.7, 'ic') !!}
-                                                    <div>Geen match — hier wordt niets gevolgd.</div>
+                                                    <div>No match — nothing will be tracked here.</div>
                                                 </div>
                                             @else
                                                 @foreach($cands as $listing)
@@ -285,8 +285,8 @@
                                                             </div>
                                                         </div>
                                                         <div class="dt-cand-actions">
-                                                            <button class="dt-cact confirm" data-deals-confirm>{!! $dtIc('Check', 14, 1.7) !!} Bevestigen</button>
-                                                            <button class="dt-cact remove" data-deals-remove>{!! $dtIc('X', 14, 1.7) !!} Verwijderen</button>
+                                                            <button class="dt-cact confirm" data-deals-confirm>{!! $dtIc('Check', 14, 1.7) !!} Confirm</button>
+                                                            <button class="dt-cact remove" data-deals-remove>{!! $dtIc('X', 14, 1.7) !!} Remove</button>
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -298,7 +298,7 @@
                         </div>
                     @endforeach
 
-                    {{-- ===== WATCHLIST: producten met bevestigde listings ===== --}}
+                    {{-- ===== WATCHLIST: products with confirmed listings ===== --}}
                     @if($withConfirmed->isNotEmpty())
                         <div class="dt-list">
                             @foreach($withConfirmed as $product)
@@ -307,7 +307,7 @@
                                     $best = $bestListing($product);
                                     $checkedAt = collect($confirmed)->pluck('last_checked_at')->filter()
                                         ->map(fn ($t) => \Carbon\CarbonImmutable::parse($t))->sort()->last();
-                                    $checkedHuman = $checkedAt ? $checkedAt->locale('nl')->diffForHumans(\Carbon\CarbonImmutable::now()) : null;
+                                    $checkedHuman = $checkedAt ? $checkedAt->locale('en')->diffForHumans(\Carbon\CarbonImmutable::now()) : null;
                                 @endphp
                                 <div class="dt-card" data-deals-product="{{ $product['id'] }}">
                                     <div class="dt-card-head">
@@ -318,7 +318,7 @@
                                                      style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;">
                                             @else
                                                 {!! $dtIc('Box', 26, 1.5, 'ic') !!}
-                                                <span class="dt-thumb-cap">foto</span>
+                                                <span class="dt-thumb-cap">photo</span>
                                             @endif
                                         </div>
                                         <div class="dt-head-main">
@@ -327,17 +327,17 @@
                                             @endif
                                             <div class="dt-prod-name">{{ $product['name'] }}</div>
                                             <div class="dt-prod-meta">
-                                                <span>{{ $confirmed->count() }} {{ $confirmed->count() === 1 ? 'winkel' : 'winkels' }} gevolgd</span>
+                                                <span>{{ $confirmed->count() }} {{ $confirmed->count() === 1 ? 'store' : 'stores' }} tracked</span>
                                             </div>
                                         </div>
                                         @if($best)
                                             <div class="dt-best">
-                                                <span class="dt-best-lab">{!! $dtIc('Tag', 11, 1.7, 'ic') !!} Beste prijs</span>
+                                                <span class="dt-best-lab">{!! $dtIc('Tag', 11, 1.7, 'ic') !!} Best price</span>
                                                 <div class="dt-best-price tnum">{{ $euro($best['current_price']) }}</div>
-                                                <div class="dt-best-store">bij <b>{{ $storeLabel($best['retailer']) }}</b></div>
+                                                <div class="dt-best-store">at <b>{{ $storeLabel($best['retailer']) }}</b></div>
                                             </div>
                                         @endif
-                                        <button class="dt-card-menu" aria-label="Opties">{!! $dtIc('Dots', 18, 1.7) !!}</button>
+                                        <button class="dt-card-menu" aria-label="Options">{!! $dtIc('Dots', 18, 1.7) !!}</button>
                                     </div>
 
                                     <div class="dt-listings">
@@ -356,11 +356,11 @@
                                                     </span>
                                                     <div class="dt-store-low {{ $isAth ? 'ath' : '' }}">
                                                         @if($isAth)
-                                                            {!! $dtIc('TrendDown', 13, 1.7, 'ic') !!} laagste ooit
+                                                            {!! $dtIc('TrendDown', 13, 1.7, 'ic') !!} lowest ever
                                                         @elseif($low !== null)
-                                                            laagste <b class="tnum">{{ $euro($low) }}</b>
+                                                            lowest <b class="tnum">{{ $euro($low) }}</b>
                                                         @else
-                                                            nog geen geschiedenis
+                                                            no history yet
                                                         @endif
                                                     </div>
                                                 </div>
@@ -368,22 +368,22 @@
                                                     <svg class="dt-spark" width="88" height="30" viewBox="0 0 88 30"
                                                          data-deals-spark aria-hidden="true"></svg>
                                                     @if($isAth)
-                                                        <span class="dt-drop">{!! $dtIc('ArrowDown', 13, 1.7, 'ic') !!} op laagste prijs</span>
+                                                        <span class="dt-drop">{!! $dtIc('ArrowDown', 13, 1.7, 'ic') !!} at lowest price</span>
                                                     @else
-                                                        <span class="dt-flat">stabiel</span>
+                                                        <span class="dt-flat">stable</span>
                                                     @endif
                                                 </div>
                                                 <div class="dt-price-col">
                                                     @if($cur !== null)
                                                         <div class="dt-price tnum {{ $isBest ? 'best' : '' }}">{{ $euro($cur) }}</div>
                                                         @if($isBest)
-                                                            <div class="dt-price-tag">{!! $dtIc('Tag', 12, 1.7, 'ic') !!} BESTE PRIJS</div>
+                                                            <div class="dt-price-tag">{!! $dtIc('Tag', 12, 1.7, 'ic') !!} BEST PRICE</div>
                                                         @else
-                                                            <div class="dt-price-sub">huidige prijs</div>
+                                                            <div class="dt-price-sub">current price</div>
                                                         @endif
                                                     @else
                                                         <div class="dt-price tnum">—</div>
-                                                        <div class="dt-price-sub">nog geen prijs</div>
+                                                        <div class="dt-price-sub">no price yet</div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -393,9 +393,9 @@
                                     <div class="dt-card-foot">
                                         {!! $dtIc('Clock', 14, 1.7, 'ic') !!}
                                         @if($checkedHuman)
-                                            <span>Laatst gecheckt <b>{{ $checkedHuman }}</b></span>
+                                            <span>Last checked <b>{{ $checkedHuman }}</b></span>
                                         @else
-                                            <span>Nog niet gecheckt</span>
+                                            <span>Not checked yet</span>
                                         @endif
                                     </div>
                                 </div>

@@ -1,4 +1,4 @@
-<x-dashboard.layout title="Dagelijkse briefing" :hideHeader="true">
+<x-dashboard.layout title="Daily briefing" :hideHeader="true">
     <x-slot:head>
         @vite(['Modules/Briefing/resources/assets/css/briefing.css'])
     </x-slot:head>
@@ -33,7 +33,7 @@
         };
 
         $timezone = (string) config('briefing.timezone', 'Europe/Amsterdam');
-        $dateLabel = \Carbon\CarbonImmutable::parse($date)->locale('nl')->isoFormat('dddd D MMMM YYYY');
+        $dateLabel = \Carbon\CarbonImmutable::parse($date)->locale('en')->isoFormat('dddd D MMMM YYYY');
         $generatedAt = $hasBriefing
             ? $briefing->generated_at->setTimezone($timezone)->format('H:i')
             : null;
@@ -44,26 +44,26 @@
         <div class="br-wrap">
             <div class="br-head">
                 <div class="br-head-l">
-                    <span class="br-eyebrow">{!! $brIcon('coffee', 14, 1.7, 'ic') !!} Smart Home Hub · Ochtend</span>
-                    <h1 class="br-title disp">Dagelijkse briefing</h1>
+                    <span class="br-eyebrow">{!! $brIcon('coffee', 14, 1.7, 'ic') !!} Smart Home Hub · Morning</span>
+                    <h1 class="br-title disp">Daily briefing</h1>
                     <div class="br-date">{{ $dateLabel }}</div>
                 </div>
                 <div class="br-head-r">
                     <span class="br-stamp">
                         {!! $brIcon('clock', 14, 1.7, 'ic') !!}
                         @if($hasBriefing)
-                            Gegenereerd om <span class="tnum">{{ $generatedAt }}</span>
+                            Generated at <span class="tnum">{{ $generatedAt }}</span>
                         @else
-                            Nog niet gegenereerd vandaag
+                            Not generated yet today
                         @endif
                     </span>
                     <div class="br-actions">
                         @if($hasBriefing)
                             <span class="br-mode {{ $isFallback ? 'fallback' : 'ai' }}">
                                 @if($isFallback)
-                                    {!! $brIcon('info', 13) !!} Fallback · zonder AI
+                                    {!! $brIcon('info', 13) !!} Fallback · without AI
                                 @else
-                                    {!! $brIcon('sparkle', 13) !!} Gemaakt met AI
+                                    {!! $brIcon('sparkle', 13) !!} Made with AI
                                 @endif
                             </span>
                         @endif
@@ -71,7 +71,7 @@
                             @csrf
                             <button type="submit" class="br-btn br-btn-primary">
                                 {!! $brIcon('refresh', 15, 1.7, 'ic') !!}
-                                {{ $hasBriefing ? 'Opnieuw genereren' : 'Genereer nu' }}
+                                {{ $hasBriefing ? 'Regenerate' : 'Generate now' }}
                             </button>
                         </form>
                     </div>
@@ -84,9 +84,9 @@
                     <div class="br-note">
                         {!! $brIcon('info', 17, 1.7, 'ic') !!}
                         <div class="br-note-tx">
-                            <b>De AI-dienst was niet bereikbaar</b> bij het genereren. Dit is een fallback-briefing,
-                            automatisch samengesteld uit je modulegegevens — feitelijk correct, maar zonder de
-                            vrije samenvattingstekst.
+                            <b>The AI service was unreachable</b> while generating. This is a fallback briefing,
+                            automatically compiled from your module data — factually correct, but without the
+                            free-form summary text.
                         </div>
                     </div>
                 @endif
@@ -96,7 +96,7 @@
                 </div>
 
                 @if(! empty($briefing->sections))
-                    <span class="br-sections-label">Per onderdeel</span>
+                    <span class="br-sections-label">By section</span>
                     <div class="br-sections">
                         @foreach($briefing->sections as $section)
                             <section class="br-sec">
@@ -117,16 +117,16 @@
             @else
                 <div class="br-state">
                     <span class="br-state-ico">{!! $brIcon('sparkle', 26) !!}</span>
-                    <div class="br-state-title">Briefing van vandaag staat klaar</div>
+                    <div class="br-state-title">Today's briefing is ready to generate</div>
                     <div class="br-state-sub">
-                        Je ochtendsamenvatting is nog niet gemaakt. Genereer hem nu en de hub stelt in een paar
-                        tellen een overzicht samen uit je weer, agenda, taken en nieuws.
+                        Your morning summary hasn't been made yet. Generate it now and the hub puts together
+                        an overview from your weather, calendar, tasks and news in a few seconds.
                     </div>
                     <div class="br-state-actions">
                         <form method="POST" action="{{ route('briefing.regenerate') }}">
                             @csrf
                             <button type="submit" class="br-btn br-btn-primary">
-                                {!! $brIcon('sparkle', 15) !!} Genereer nu
+                                {!! $brIcon('sparkle', 15) !!} Generate now
                             </button>
                         </form>
                     </div>
