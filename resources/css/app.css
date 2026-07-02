@@ -590,3 +590,108 @@ body:has(.touch-keyboard[data-mode="symbols"].is-open) .hub-main > main {
     font-size: 0.825rem;
     line-height: 1.5;
 }
+
+/* ---------------------------------------------------------------------
+   Mobile responsiveness. The Pi kiosk and desktop stay pixel-identical —
+   everything below only takes effect once the viewport drops under the
+   kiosk/desktop width, via mobile-first max-width media queries.
+   ------------------------------------------------------------------- */
+@media (max-width: 780px) {
+    :root {
+        --hub-page-pad-x: 16px;
+    }
+
+    /* Collapse the sidebar to an icon-only rail so content keeps most of
+       the narrow viewport. The existing hide button and floating menu
+       button still work on top of this to fully collapse or restore it. */
+    .hub-sidebar {
+        width: 72px;
+    }
+
+    .nav-label,
+    .hub-brand-text,
+    .brand-link {
+        display: none;
+    }
+
+    .hub-brand {
+        justify-content: center;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .hub-nav,
+    .hub-sidebar-footer {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .hub-nav-link {
+        justify-content: center;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .nav-icon {
+        margin-right: 0;
+    }
+
+    .hub-header {
+        padding: 12px 16px;
+    }
+
+    /* Shared module page wrappers all use the same top/bottom padding —
+       tighten it once here instead of repeating it per module. */
+    .ag-wrap,
+    .pr-wrap,
+    .ent-wrap,
+    .dt-wrap,
+    .br-wrap,
+    .nw-wrap,
+    .rc-wrap,
+    .hb-wrap {
+        padding-top: 20px;
+        padding-bottom: 32px;
+    }
+}
+
+@media (max-width: 720px) {
+    /* Every module page header shares the same flex row (title left,
+       actions pushed right with margin-left: auto). Let it wrap instead
+       of squeezing or overflowing on narrow screens. */
+    .pr-head,
+    .rc-head,
+    .ent-head,
+    .br-head,
+    .nw-head,
+    .ag-head,
+    .hb-head,
+    .dt-head {
+        flex-wrap: wrap;
+        row-gap: 14px;
+    }
+
+    .pr-head-r,
+    .rc-head-r,
+    .ent-head-r,
+    .ag-head-r,
+    .hb-head-r,
+    .dt-head-r {
+        margin-left: 0;
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .br-head-r,
+    .nw-head-r {
+        margin-left: 0;
+        width: 100%;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --hub-page-pad-x: 12px;
+    }
+}
