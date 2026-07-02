@@ -2,6 +2,7 @@
 
 return [
     'region' => env('ENTERTAINMENT_REGION', 'NL'),
+    'request_timeout' => env('ENTERTAINMENT_REQUEST_TIMEOUT', 15),
     'tmdb' => ['api_key' => env('TMDB_API_KEY', ''), 'timeout' => env('TMDB_TIMEOUT', 10)],
     'concerts' => [
         'sources' => ['ticketmaster', 'bandsintown', 'hedon'],

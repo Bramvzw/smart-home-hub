@@ -24,7 +24,7 @@ class BandsintownProvider implements ConcertProvider
             return [];
         }
 
-        $response = Http::timeout(15)->acceptJson()->get('https://rest.bandsintown.com/events/search', [
+        $response = Http::timeout((int) config('entertainment.request_timeout', 15))->acceptJson()->get('https://rest.bandsintown.com/events/search', [
             'app_id' => $key,
             'location' => 'Netherlands',
         ]);

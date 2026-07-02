@@ -24,7 +24,7 @@ class HedonProvider implements ConcertProvider
             return [];
         }
 
-        $response = Http::timeout(15)->acceptJson()->get($url);
+        $response = Http::timeout((int) config('entertainment.request_timeout', 15))->acceptJson()->get($url);
 
         if (! $response->successful()) {
             throw new EntertainmentSourceUnavailable('Hedon agenda returned HTTP '.$response->status().'.');
