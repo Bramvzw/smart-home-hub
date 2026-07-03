@@ -7,7 +7,7 @@
 
 A modular, self-hosted smart-home dashboard built with Laravel — running on a Synology NAS, displayed on a Raspberry Pi kiosk. It controls the lights, plans the week, watches prices, curates the news, and starts every day with an AI-composed briefing.
 
-<!-- screenshots:hero -->
+![Dashboard](docs/screenshots/dashboard.png)
 
 ## Modules
 
@@ -27,7 +27,13 @@ A modular, self-hosted smart-home dashboard built with Laravel — running on a 
 | **PhonePing** | Ring your phone through ntfy when it's lost in the house |
 | **Settings** | Central settings page — modules expose their own configuration schema |
 
-<!-- screenshots:modules -->
+| | |
+|---|---|
+| ![Daily briefing](docs/screenshots/briefing.png) | ![Calendar](docs/screenshots/calendar.png) |
+| ![Tasks](docs/screenshots/tasks.png) | ![Recipes](docs/screenshots/recipes.png) |
+| ![Deals](docs/screenshots/deals.png) | ![News](docs/screenshots/news.png) |
+| ![Entertainment](docs/screenshots/entertainment.png) | ![3D printer](docs/screenshots/printer.png) |
+| ![Settings](docs/screenshots/settings.png) | ![Mobile](docs/screenshots/dashboard-mobile.png) |
 
 ## Architecture
 
