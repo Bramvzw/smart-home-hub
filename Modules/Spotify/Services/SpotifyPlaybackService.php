@@ -20,7 +20,7 @@ class SpotifyPlaybackService
 
     public function play(?string $uri = null): array
     {
-        if ($uri && !$this->validateSpotifyUri($uri)) {
+        if ($uri && ! $this->validateSpotifyUri($uri)) {
             return ['error' => 'Invalid Spotify URI format'];
         }
 
@@ -85,7 +85,7 @@ class SpotifyPlaybackService
     {
         $queue = $this->getQueue();
 
-        if (isset($queue['queue']) && !empty($queue['queue'])) {
+        if (isset($queue['queue']) && ! empty($queue['queue'])) {
             return ['next_track' => $queue['queue'][0]];
         }
 
@@ -108,7 +108,7 @@ class SpotifyPlaybackService
 
     public function addToQueue(string $uri): array
     {
-        if ($uri && !$this->validateSpotifyUri($uri)) {
+        if ($uri && ! $this->validateSpotifyUri($uri)) {
             return ['error' => 'Invalid Spotify URI format'];
         }
 
@@ -143,7 +143,7 @@ class SpotifyPlaybackService
 
     protected function dispatchPlaybackChanged(array $result): void
     {
-        if (!isset($result['error'])) {
+        if (! isset($result['error'])) {
             event(new PlaybackChanged([]));
         }
     }

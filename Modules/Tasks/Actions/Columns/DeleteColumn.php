@@ -9,8 +9,7 @@ class DeleteColumn
 {
     public function __construct(
         private readonly ResequenceColumns $resequenceColumns,
-    ) {
-    }
+    ) {}
 
     public function __invoke(TaskColumn $column): TaskBoard
     {

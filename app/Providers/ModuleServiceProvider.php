@@ -15,11 +15,12 @@ use Livewire\Livewire;
 abstract class ModuleServiceProvider extends ServiceProvider implements ModuleContract, ReportsHealth
 {
     protected string $name = '';
+
     protected string $nameLower = '';
 
     protected function modulePath(string $path = ''): string
     {
-        return base_path("Modules/{$this->name}" . ($path ? "/{$path}" : ''));
+        return base_path("Modules/{$this->name}".($path ? "/{$path}" : ''));
     }
 
     public function register(): void
@@ -55,7 +56,7 @@ abstract class ModuleServiceProvider extends ServiceProvider implements ModuleCo
     protected function registerViews(): void
     {
         $sourcePath = $this->modulePath('Resources/views');
-        if (!is_dir($sourcePath)) {
+        if (! is_dir($sourcePath)) {
             $sourcePath = $this->modulePath('resources/views');
         }
 
@@ -69,7 +70,7 @@ abstract class ModuleServiceProvider extends ServiceProvider implements ModuleCo
     protected function registerMigrations(): void
     {
         $migrationsPath = $this->modulePath('Database/Migrations');
-        if (!is_dir($migrationsPath)) {
+        if (! is_dir($migrationsPath)) {
             $migrationsPath = $this->modulePath('database/migrations');
         }
 
@@ -82,13 +83,13 @@ abstract class ModuleServiceProvider extends ServiceProvider implements ModuleCo
     {
         $livewireDir = $this->modulePath('Livewire');
 
-        if (!is_dir($livewireDir)) {
+        if (! is_dir($livewireDir)) {
             return;
         }
 
         $namespace = "Modules\\{$this->name}\\Livewire";
 
-        foreach (glob($livewireDir . '/*.php') as $file) {
+        foreach (glob($livewireDir.'/*.php') as $file) {
             $className = basename($file, '.php');
             $componentName = Str::kebab($className);
             $fullClass = "{$namespace}\\{$className}";

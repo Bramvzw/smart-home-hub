@@ -40,9 +40,21 @@ class BriefingSourceRegistryTest extends TestCase
 
 class HighPriorityBriefingSource implements BriefingSource
 {
-    public function key(): string { return 'high'; }
-    public function label(): string { return 'High'; }
-    public function priority(): int { return 10; }
+    public function key(): string
+    {
+        return 'high';
+    }
+
+    public function label(): string
+    {
+        return 'High';
+    }
+
+    public function priority(): int
+    {
+        return 10;
+    }
+
     public function contribute(CarbonImmutable $date): ?BriefingSection
     {
         return new BriefingSection('high', 'High', 10, 'High summary');
@@ -51,9 +63,21 @@ class HighPriorityBriefingSource implements BriefingSource
 
 class LowPriorityBriefingSource implements BriefingSource
 {
-    public function key(): string { return 'low'; }
-    public function label(): string { return 'Low'; }
-    public function priority(): int { return 30; }
+    public function key(): string
+    {
+        return 'low';
+    }
+
+    public function label(): string
+    {
+        return 'Low';
+    }
+
+    public function priority(): int
+    {
+        return 30;
+    }
+
     public function contribute(CarbonImmutable $date): ?BriefingSection
     {
         return new BriefingSection('low', 'Low', 30, 'Low summary');
@@ -62,9 +86,21 @@ class LowPriorityBriefingSource implements BriefingSource
 
 class EmptyBriefingSource implements BriefingSource
 {
-    public function key(): string { return 'empty'; }
-    public function label(): string { return 'Empty'; }
-    public function priority(): int { return 20; }
+    public function key(): string
+    {
+        return 'empty';
+    }
+
+    public function label(): string
+    {
+        return 'Empty';
+    }
+
+    public function priority(): int
+    {
+        return 20;
+    }
+
     public function contribute(CarbonImmutable $date): ?BriefingSection
     {
         return null;

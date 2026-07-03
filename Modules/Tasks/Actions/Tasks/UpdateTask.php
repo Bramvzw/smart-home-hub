@@ -10,8 +10,7 @@ class UpdateTask
 {
     public function __construct(
         private readonly CompleteMaintenanceCard $completeMaintenanceCard,
-    ) {
-    }
+    ) {}
 
     public function __invoke(KanbanTask $task, array $data): KanbanTask
     {

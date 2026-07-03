@@ -15,6 +15,5 @@ final readonly class ConcertData
         public ?string $city,
         public CarbonImmutable $date,
         public ?string $url,
-    ) {
-    }
+    ) {}
 }

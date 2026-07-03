@@ -10,6 +10,5 @@ final readonly class GeneratedRecipeSet
     public function __construct(
         public array $recipes,
         public string $model,
-    ) {
-    }
+    ) {}
 }

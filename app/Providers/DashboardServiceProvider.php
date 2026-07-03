@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Services\Ntfy\HubNotifier;
 use App\Services\ModuleRegistry;
+use App\Services\Ntfy\HubNotifier;
 use Illuminate\Support\ServiceProvider;
 
 class DashboardServiceProvider extends ServiceProvider

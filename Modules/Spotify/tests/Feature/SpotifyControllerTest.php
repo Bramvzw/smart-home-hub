@@ -3,7 +3,6 @@
 namespace Modules\Spotify\Tests\Feature;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Session;
 use Modules\Spotify\Services\SpotifyService;
 use Tests\TestCase;
 
@@ -13,6 +12,7 @@ class SpotifyControllerTest extends TestCase
     {
         $mock = \Mockery::mock(SpotifyService::class);
         $this->app->instance(SpotifyService::class, $mock);
+
         return $mock;
     }
 
@@ -477,7 +477,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertStatus(422);
     }
 
-    public function test_getPlaybackState_returns_502_when_service_errors()
+    public function test_get_playback_state_returns_502_when_service_errors()
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('getCurrentPlayback')->once()->andReturn(['error' => 'Spotify API request failed']);
@@ -487,11 +487,11 @@ class SpotifyControllerTest extends TestCase
         $response->assertJson(['success' => false]);
     }
 
-    public function test_getDevices_returns_devices_on_success()
+    public function test_get_devices_returns_devices_on_success()
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('getAvailableDevices')->once()->andReturn([
-            'devices' => [['id' => 'abc', 'name' => 'My Phone', 'type' => 'Smartphone', 'is_active' => true]]
+            'devices' => [['id' => 'abc', 'name' => 'My Phone', 'type' => 'Smartphone', 'is_active' => true]],
         ]);
         Cache::put('spotify_access_token', 'fake', 3600);
         $response = $this->getJson(route('spotify.devices'));

@@ -13,8 +13,8 @@ use Modules\Calendar\Contracts\PlanComposer;
 use Modules\Calendar\Data\BusyTime;
 use Modules\Calendar\Data\ComposedPlan;
 use Modules\Calendar\Data\PlanItemData;
-use Modules\Calendar\Models\GoogleCalendarToken;
 use Modules\Calendar\Models\CalendarPlanItem;
+use Modules\Calendar\Models\GoogleCalendarToken;
 use Modules\Calendar\Services\Google\GoogleCalendarClient;
 use Tests\TestCase;
 

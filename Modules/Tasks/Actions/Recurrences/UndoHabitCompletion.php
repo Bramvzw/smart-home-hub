@@ -12,8 +12,7 @@ class UndoHabitCompletion
 {
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
-    ) {
-    }
+    ) {}
 
     public function __invoke(TaskRecurrence $recurrence, ?CarbonInterface $date = null): bool
     {

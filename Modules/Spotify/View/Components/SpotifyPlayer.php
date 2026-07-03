@@ -8,6 +8,7 @@ use Modules\Spotify\View\ViewModels\UpcomingTrackViewModel;
 class SpotifyPlayer extends Component
 {
     public bool $isPlaying;
+
     public bool $hasCurrentTrack;
 
     /**

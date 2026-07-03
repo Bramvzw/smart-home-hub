@@ -32,8 +32,7 @@ class TasksController
 {
     public function __construct(
         private readonly TasksBoardViewModel $viewModel,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request, EnsureDefaultBoard $ensureDefaultBoard): View
     {

@@ -9,7 +9,7 @@ class FilamentSpoolComputationTest extends TestCase
 {
     private function spool(int $total, int $remaining): FilamentSpool
     {
-        $spool = new FilamentSpool();
+        $spool = new FilamentSpool;
         $spool->total_weight_g = $total;
         $spool->remaining_g = $remaining;
 

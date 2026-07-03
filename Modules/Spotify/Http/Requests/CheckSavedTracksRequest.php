@@ -14,7 +14,7 @@ class CheckSavedTracksRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ids'   => 'required|array|max:50',
+            'ids' => 'required|array|max:50',
             'ids.*' => 'string|max:50',
         ];
     }

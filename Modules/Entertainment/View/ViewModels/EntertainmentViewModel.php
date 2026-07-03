@@ -2,10 +2,10 @@
 
 namespace Modules\Entertainment\View\ViewModels;
 
+use Illuminate\Support\Facades\Cache;
 use Modules\Entertainment\Http\Resources\ConcertResource;
 use Modules\Entertainment\Http\Resources\FilmRecommendationResource;
 use Modules\Entertainment\Http\Resources\MusicReleaseResource;
-use Illuminate\Support\Facades\Cache;
 use Modules\Entertainment\Models\Concert;
 use Modules\Entertainment\Models\FilmRecommendation;
 use Modules\Entertainment\Models\MusicRelease;

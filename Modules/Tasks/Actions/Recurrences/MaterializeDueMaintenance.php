@@ -14,8 +14,7 @@ class MaterializeDueMaintenance
 {
     public function __construct(
         private readonly HubNotifier $notifier,
-    ) {
-    }
+    ) {}
 
     public function __invoke(?CarbonInterface $date = null): int
     {

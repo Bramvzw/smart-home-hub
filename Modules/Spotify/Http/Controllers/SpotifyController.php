@@ -4,8 +4,8 @@ namespace Modules\Spotify\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Modules\Spotify\Http\Requests\CheckSavedTracksRequest;
 use Modules\Spotify\Http\Requests\PlayRequest;
 use Modules\Spotify\Http\Requests\SearchRequest;
@@ -58,6 +58,7 @@ class SpotifyController extends Controller
                 'auth_required' => 401,
                 default => 502,
             };
+
             return response()->json(['success' => false, 'message' => $response['error']], $status);
         }
 
@@ -89,14 +90,14 @@ class SpotifyController extends Controller
         $state = $request->query('state');
         $expectedState = session()->pull('spotify_oauth_state');
 
-        if (!$state || $state !== $expectedState) {
+        if (! $state || $state !== $expectedState) {
             return redirect()->route('spotify.index')
                 ->with('error', 'Authorization failed: Invalid state parameter');
         }
 
         $code = $request->query('code');
 
-        if (!$code) {
+        if (! $code) {
             return redirect()->route('spotify.index')
                 ->with('error', 'Authorization failed: No code provided');
         }
@@ -105,7 +106,7 @@ class SpotifyController extends Controller
 
         if (isset($response['error'])) {
             return redirect()->route('spotify.index')
-                ->with('error', 'Authorization failed: ' . $response['error']);
+                ->with('error', 'Authorization failed: '.$response['error']);
         }
 
         return redirect()->route('spotify.index')
@@ -302,7 +303,8 @@ class SpotifyController extends Controller
 
             return response()->json(array_merge(['success' => true], $response));
         } catch (\Exception $e) {
-            Log::error('Error in getUserPlaylists: ' . $e->getMessage());
+            Log::error('Error in getUserPlaylists: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred',

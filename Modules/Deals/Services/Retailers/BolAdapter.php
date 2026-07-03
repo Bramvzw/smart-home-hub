@@ -4,7 +4,6 @@ namespace Modules\Deals\Services\Retailers;
 
 use Illuminate\Support\Facades\Http;
 use Modules\Deals\Contracts\RetailerAdapter;
-use Modules\Deals\Data\ListingCandidate;
 use Modules\Deals\Exceptions\RetailerUnavailable;
 use Modules\Deals\Models\ProductListing;
 use Modules\Deals\Services\Retailers\Concerns\ParsesRetailerPayloads;

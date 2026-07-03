@@ -11,8 +11,7 @@ class TaskRecurrencesViewModel
 {
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
-    ) {
-    }
+    ) {}
 
     public function habits(CarbonInterface $date): Collection
     {

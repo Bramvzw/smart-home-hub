@@ -8,6 +8,5 @@ final readonly class FilmPick
         public int $tmdbId,
         public ?string $why,
         public ?int $score,
-    ) {
-    }
+    ) {}
 }

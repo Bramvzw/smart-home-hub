@@ -13,11 +13,17 @@ use Modules\Weather\Data\WeatherHour;
 class WeatherService
 {
     private const FORECAST_CACHE_KEY = 'weather:forecast';
+
     private const ACTIVE_RAIN_KEY = 'weather:rain-alert:active';
+
     private const COOLDOWN_KEY = 'weather:rain-alert:cooldown';
+
     private const WIND_ACTIVE_KEY = 'weather:wind-alert:active';
+
     private const WIND_COOLDOWN_KEY = 'weather:wind-alert:cooldown';
+
     private const DAILY_SUMMARY_KEY = 'weather:daily-summary';
+
     private const LAST_ALERT_KEY = 'weather:rain-alert:last';
 
     public function __construct(

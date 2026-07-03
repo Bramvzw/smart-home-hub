@@ -29,6 +29,7 @@ class ModuleRegistry
                 $nav[] = $item;
             }
         }
+
         return $nav;
     }
 

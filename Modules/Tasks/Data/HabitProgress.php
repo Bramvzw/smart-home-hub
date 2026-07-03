@@ -8,8 +8,7 @@ final readonly class HabitProgress
         public string $periodKey,
         public int $completed,
         public int $target,
-    ) {
-    }
+    ) {}
 
     public function isComplete(): bool
     {

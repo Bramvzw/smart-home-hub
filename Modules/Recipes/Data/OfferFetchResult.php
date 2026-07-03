@@ -13,8 +13,7 @@ final readonly class OfferFetchResult
         public array $storesFetched,
         public array $storesFailed,
         public int $offersStored,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

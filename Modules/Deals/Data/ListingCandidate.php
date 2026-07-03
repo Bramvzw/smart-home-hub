@@ -11,6 +11,5 @@ final readonly class ListingCandidate
         public string $url,
         public ?float $price = null,
         public ?string $imageUrl = null,
-    ) {
-    }
+    ) {}
 }

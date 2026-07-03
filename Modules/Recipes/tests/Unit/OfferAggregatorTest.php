@@ -16,7 +16,8 @@ class OfferAggregatorTest extends TestCase
 
     public function test_aggregator_upserts_offers_and_records_failing_stores(): void
     {
-        $provider = new class implements OfferProvider {
+        $provider = new class implements OfferProvider
+        {
             public function store(): string
             {
                 return 'ah';
@@ -30,7 +31,8 @@ class OfferAggregatorTest extends TestCase
                 ];
             }
         };
-        $failing = new class implements OfferProvider {
+        $failing = new class implements OfferProvider
+        {
             public function store(): string
             {
                 return 'lidl';

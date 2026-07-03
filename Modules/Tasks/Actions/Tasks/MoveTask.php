@@ -10,8 +10,7 @@ class MoveTask
     public function __construct(
         private readonly ResequenceTasks $resequenceTasks,
         private readonly CompleteMaintenanceCard $completeMaintenanceCard,
-    ) {
-    }
+    ) {}
 
     public function __invoke(KanbanTask $task, int $columnId, array $orderedTaskIds): KanbanTask
     {

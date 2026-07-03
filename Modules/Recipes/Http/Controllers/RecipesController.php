@@ -19,8 +19,7 @@ class RecipesController
     public function __construct(
         private readonly RecipesViewModel $viewModel,
         private readonly OfferAggregator $offerAggregator,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): View|JsonResponse
     {

@@ -18,8 +18,7 @@ class CompleteMaintenance
 {
     public function __construct(
         private readonly MaintenanceScheduler $scheduler,
-    ) {
-    }
+    ) {}
 
     public function __invoke(TaskRecurrence $recurrence, ?CarbonInterface $completedOn = null): ?TaskRecurrence
     {

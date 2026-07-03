@@ -5,8 +5,11 @@ namespace Modules\Spotify\View\ViewModels;
 class PlaylistView
 {
     public string $id;
+
     public string $name;
+
     public string $imageUrl;
+
     public string $externalUrl;
 
     public function __construct($playlist)

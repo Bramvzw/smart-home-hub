@@ -13,8 +13,7 @@ class TasksBriefingSource implements BriefingSource
 {
     public function __construct(
         private readonly StreakCalculator $streakCalculator,
-    ) {
-    }
+    ) {}
 
     public function key(): string
     {

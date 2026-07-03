@@ -8,6 +8,7 @@ use Illuminate\View\Component;
 class Layout extends Component
 {
     public array $navigation;
+
     public string $title;
 
     public function __construct(string $title = 'Smart Home Hub')

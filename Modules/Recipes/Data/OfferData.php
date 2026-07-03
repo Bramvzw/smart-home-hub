@@ -19,8 +19,7 @@ final readonly class OfferData
         public ?string $imageUrl = null,
         public ?CarbonImmutable $validFrom = null,
         public ?CarbonImmutable $validTo = null,
-    ) {
-    }
+    ) {}
 
     public function toAttributes(string $weekKey, CarbonInterface $fetchedAt): array
     {

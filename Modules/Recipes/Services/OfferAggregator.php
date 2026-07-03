@@ -19,8 +19,7 @@ class OfferAggregator
      */
     public function __construct(
         private readonly iterable $providers,
-    ) {
-    }
+    ) {}
 
     public function fetch(?CarbonInterface $date = null): OfferFetchResult
     {

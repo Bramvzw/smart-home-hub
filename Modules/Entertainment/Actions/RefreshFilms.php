@@ -3,7 +3,6 @@
 namespace Modules\Entertainment\Actions;
 
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Collection;
 use Modules\Entertainment\Contracts\EntertainmentCurator;
 use Modules\Entertainment\Models\FilmFeedback;
 use Modules\Entertainment\Models\FilmRecommendation;

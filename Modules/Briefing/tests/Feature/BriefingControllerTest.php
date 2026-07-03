@@ -222,9 +222,21 @@ class FixedBriefingSource implements BriefingSource
         private readonly string $summary,
     ) {}
 
-    public function key(): string { return $this->key; }
-    public function label(): string { return $this->label; }
-    public function priority(): int { return $this->priority; }
+    public function key(): string
+    {
+        return $this->key;
+    }
+
+    public function label(): string
+    {
+        return $this->label;
+    }
+
+    public function priority(): int
+    {
+        return $this->priority;
+    }
+
     public function contribute(CarbonImmutable $date): ?BriefingSection
     {
         return new BriefingSection($this->key, $this->label, $this->priority, $this->summary, ['date' => $date->toDateString()]);
@@ -233,9 +245,21 @@ class FixedBriefingSource implements BriefingSource
 
 class NullBriefingSource implements BriefingSource
 {
-    public function key(): string { return 'null'; }
-    public function label(): string { return 'Null'; }
-    public function priority(): int { return 20; }
+    public function key(): string
+    {
+        return 'null';
+    }
+
+    public function label(): string
+    {
+        return 'Null';
+    }
+
+    public function priority(): int
+    {
+        return 20;
+    }
+
     public function contribute(CarbonImmutable $date): ?BriefingSection
     {
         return null;

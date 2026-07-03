@@ -12,8 +12,7 @@ class RecipeGenerator
 {
     public function __construct(
         private readonly RecipeTextGenerator $generator,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  Collection<int, GroceryOffer>  $offers

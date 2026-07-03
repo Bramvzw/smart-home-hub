@@ -5,8 +5,11 @@ namespace Modules\Spotify\View\ViewModels;
 class TrackDetailsView
 {
     public string $trackImage;
+
     public string $trackName;
+
     public string $artistNames;
+
     public string $albumName;
 
     public function __construct(array $playbackState = [])
@@ -16,6 +19,7 @@ class TrackDetailsView
             $this->trackName = '';
             $this->artistNames = '';
             $this->albumName = '';
+
             return;
         }
 

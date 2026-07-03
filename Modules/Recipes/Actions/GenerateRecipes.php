@@ -18,8 +18,7 @@ class GenerateRecipes
         private readonly OfferAggregator $offerAggregator,
         private readonly RecipeGenerator $recipeGenerator,
         private readonly HubNotifier $notifier,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  string|null  $resolvedWeekKey  Receives the week_key actually used for generation.

@@ -14,7 +14,7 @@ class SearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'q'    => ['required', 'string', 'min:1', 'max:200', 'not_regex:/^\s+$/'],
+            'q' => ['required', 'string', 'min:1', 'max:200', 'not_regex:/^\s+$/'],
             'type' => 'nullable|string',
         ];
     }

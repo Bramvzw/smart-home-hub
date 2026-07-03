@@ -5,8 +5,11 @@ namespace Modules\Spotify\View\ViewModels;
 class UpcomingTrackViewModel
 {
     public bool $hasTrack;
+
     public string $trackImage;
+
     public string $trackName;
+
     public string $artistNames;
 
     public function __construct(?array $track = null)
@@ -18,6 +21,7 @@ class UpcomingTrackViewModel
             $this->trackImage = '';
             $this->trackName = 'No upcoming track';
             $this->artistNames = '';
+
             return;
         }
 

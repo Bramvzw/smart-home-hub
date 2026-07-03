@@ -12,8 +12,7 @@ final readonly class PriceCheckResult
         public int $checked,
         public array $drops,
         public array $failedRetailers,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

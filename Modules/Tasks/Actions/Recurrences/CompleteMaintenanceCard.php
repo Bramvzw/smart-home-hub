@@ -13,8 +13,7 @@ class CompleteMaintenanceCard
 {
     public function __construct(
         private readonly MaintenanceScheduler $scheduler,
-    ) {
-    }
+    ) {}
 
     public function __invoke(KanbanTask $task, ?CarbonInterface $completedOn = null): ?TaskRecurrence
     {

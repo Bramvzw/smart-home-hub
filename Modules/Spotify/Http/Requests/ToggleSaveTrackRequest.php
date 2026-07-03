@@ -14,7 +14,7 @@ class ToggleSaveTrackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id'    => 'required|string|max:50',
+            'id' => 'required|string|max:50',
             'saved' => 'required|boolean',
         ];
     }
