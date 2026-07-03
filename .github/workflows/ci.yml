@@ -11,7 +11,7 @@ jobs:
     name: PHP — Pint, PHPUnit, audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -40,7 +40,7 @@ jobs:
     name: Frontend — Jest, Vite build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
