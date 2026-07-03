@@ -87,7 +87,7 @@ class WeatherService
         }
 
         $message = $this->notificationMessage($forecast, $rainyBlocks, $now);
-        $this->notifier->send('Rain expected in Amsterdam', $message);
+        $this->notifier->send('Rain expected in '.config('weather.location.label', 'Amsterdam'), $message);
 
         Cache::forever(self::ACTIVE_RAIN_KEY, [
             'first_rain_at' => $rainyBlocks[0]->time->toIso8601String(),
@@ -132,7 +132,7 @@ class WeatherService
         }
 
         $message = $this->windNotificationMessage($forecast, $windyBlocks, $now);
-        $this->notifier->send('Strong wind expected in Amsterdam', $message);
+        $this->notifier->send('Strong wind expected in '.config('weather.location.label', 'Amsterdam'), $message);
 
         Cache::forever(self::WIND_ACTIVE_KEY, [
             'first_wind_at' => $windyBlocks[0]->time->toIso8601String(),
@@ -168,7 +168,7 @@ class WeatherService
         }
 
         $message = $this->dailySummaryMessage($forecast, $now);
-        $this->notifier->send('Weather today in Amsterdam', $message);
+        $this->notifier->send('Weather today in '.config('weather.location.label', 'Amsterdam'), $message);
 
         Cache::put($key, true, $now->endOfDay());
         $this->rememberLastAlert($now, $now, $message, 'daily');

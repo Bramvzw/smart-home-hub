@@ -117,7 +117,7 @@ Layout:
 - The hourly strip shows time, condition, precipitation, probability, intensity, wind and temperature. Rain-triggering blocks use a sky-blue marker and alert probability colour; wind-triggering blocks use a teal border.
 
 Behavior:
-- Default location is Amsterdam from the Google Maps coordinates supplied by the user.
+- Default location is Amsterdam as a neutral placeholder; set your own via WEATHER_LOCATION_LABEL and the WEATHER_LATITUDE/WEATHER_LONGITUDE env vars.
 - The forecast source is Open-Meteo and the page degrades to a provider-failure state if it cannot be reached.
 - Rain detection checks fixed hourly blocks in the next 3 hours by default.
 - A block triggers when precipitation is greater than `WEATHER_RAIN_PRECIPITATION_THRESHOLD_MM` or probability is at least `WEATHER_RAIN_PROBABILITY_THRESHOLD`.
