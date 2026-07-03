@@ -3,7 +3,9 @@ services:
     image: webdevops/php-nginx:8.3-alpine
     restart: unless-stopped
     ports:
-      - "8080:80"
+      # Bind address is configurable: keep the default for LAN access (kiosk),
+      # or set HUB_HTTP_BIND=127.0.0.1 to only expose via a local reverse proxy.
+      - "${HUB_HTTP_BIND:-0.0.0.0}:8080:80"
     # No env_file here on purpose: Laravel reads its own .env via the bind-mount
     # below. Injecting .env as container env as well would shadow the file
     # (Dotenv never overrides a real env var), forcing a container recreate for
@@ -16,10 +18,14 @@ services:
     environment:
       WEB_DOCUMENT_ROOT: /app/public
       APP_ENV: production
+      # Forced off at the container level so a stray .env value can never leak
+      # stack traces in production (a real env var always wins over .env).
+      APP_DEBUG: "false"
       PHP_MEMORY_LIMIT: 128M
       PHP_MAX_EXECUTION_TIME: 30
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      # /up is Laravel's health endpoint; it stays open when basic auth is enabled.
+      test: ["CMD", "wget", "-qO-", "http://localhost/up"]
       interval: 30s
       timeout: 5s
       retries: 3
