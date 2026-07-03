@@ -1,6 +1,7 @@
 <?php
 
 use App\Dashboard\SidebarState;
+use App\Http\Middleware\EnsureBasicAuthentication;
 use App\Http\Middleware\EnsurePrivateNetworkAccess;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 | Request::HEADER_X_FORWARDED_PROTO,
         );
         $middleware->append(EnsurePrivateNetworkAccess::class);
+        $middleware->append(EnsureBasicAuthentication::class);
 
         // The sidebar cookie is read back on every server render, so it must stay unencrypted.
         $middleware->encryptCookies(except: [SidebarState::COOKIE]);
