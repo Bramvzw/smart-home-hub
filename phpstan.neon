@@ -1,12 +1,20 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - vendor/phpat/phpat/extension.neon
     - phpstan-baseline.neon
+
+services:
+    -
+        class: Tests\Architecture\ArchitectureTest
+        tags:
+            - phpat.test
 
 parameters:
     level: 8
     paths:
         - app
         - Modules
+        - tests/Architecture
     excludePaths:
         - Modules/*/resources/*
         - Modules/*/database/*
