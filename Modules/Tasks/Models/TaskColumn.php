@@ -14,11 +14,13 @@ class TaskColumn extends Model
         'position',
     ];
 
+    /** @return BelongsTo<TaskBoard, $this> */
     public function board(): BelongsTo
     {
         return $this->belongsTo(TaskBoard::class, 'board_id');
     }
 
+    /** @return HasMany<KanbanTask, $this> */
     public function tasks(): HasMany
     {
         return $this->hasMany(KanbanTask::class, 'column_id')->orderBy('position');

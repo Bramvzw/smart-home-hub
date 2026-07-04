@@ -41,16 +41,19 @@ class TaskRecurrence extends Model
         return new TaskRecurrenceBuilder($query);
     }
 
+    /** @return BelongsTo<TaskBoard, $this> */
     public function board(): BelongsTo
     {
         return $this->belongsTo(TaskBoard::class, 'board_id');
     }
 
+    /** @return HasMany<TaskRecurrenceCompletion, $this> */
     public function completions(): HasMany
     {
         return $this->hasMany(TaskRecurrenceCompletion::class, 'recurrence_id')->orderByDesc('completed_on');
     }
 
+    /** @return HasMany<KanbanTask, $this> */
     public function tasks(): HasMany
     {
         return $this->hasMany(KanbanTask::class, 'recurrence_id');

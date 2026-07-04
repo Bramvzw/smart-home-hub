@@ -34,14 +34,14 @@ class RecipesViewModel
             ->orderBy('store')
             ->orderBy('product_name')
             ->get();
-        $storesFetched = $run?->stores_fetched ?? $offers->pluck('store')->unique()->values()->all();
+        $storesFetched = $run->stores_fetched ?? $offers->pluck('store')->unique()->values()->all();
 
         return [
             'week_key' => $weekKey,
             'generated_at' => $run?->generated_at?->toIso8601String(),
-            'is_fallback' => (bool) ($run?->ai_unavailable ?? false),
+            'is_fallback' => (bool) ($run->ai_unavailable ?? false),
             'stores_fetched' => $storesFetched,
-            'stores_failed' => $run?->stores_failed ?? [],
+            'stores_failed' => $run->stores_failed ?? [],
             'recipes' => RecipeResource::collection($recipes)->resolve(),
             'offers' => OfferResource::collection($offers)->resolve(),
             'recipe_deals' => $this->recipeDeals($recipes, $offers, $weekKey),

@@ -80,7 +80,7 @@ class EntertainmentBriefingSource implements BriefingSource
                     'artist' => $release->artist,
                     'title' => $release->title,
                     'type' => $release->type,
-                    'release_date' => $release->release_date?->toDateString(),
+                    'release_date' => $release->release_date->toDateString(),
                     'url' => $release->url,
                 ])->values()->all(),
             ],

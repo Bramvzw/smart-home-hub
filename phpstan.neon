@@ -35,6 +35,14 @@ parameters:
         # real defects (unknown properties/methods, wrong argument types).
         - identifier: missingType.iterableValue
         - identifier: missingType.generics
+        # Mockery's expects()/allows() return a union PHPStan can't follow —
+        # known upstream friction in tests, not a real defect.
+        -
+            message: '#Call to an undefined method Mockery\\#'
+            paths:
+                - Modules/*/tests/*
+                - tests/*
+            reportUnmatched: false
 
     # Baseline captures pre-existing issues; new code must be clean at level 8.
     # Burn the baseline down over time — never add to it for new code.

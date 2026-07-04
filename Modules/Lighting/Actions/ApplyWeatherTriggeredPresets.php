@@ -52,9 +52,14 @@ class ApplyWeatherTriggeredPresets
         $applied = [];
 
         foreach ($triggeredPresets as $preset) {
+            $trigger = $preset->weatherTrigger;
+            if ($trigger === null) {
+                continue; // Filtered above; repeated here so the type stays provable.
+            }
+
             $activeKey = self::ACTIVE_KEY_PREFIX.$preset->key;
-            $matches = $preset->weatherTrigger->withinWindow($now->setTimezone($forecast->timezone))
-                && $preset->weatherTrigger->matches(
+            $matches = $trigger->withinWindow($now->setTimezone($forecast->timezone))
+                && $trigger->matches(
                     $forecast->currentPrecipitationMm,
                     $currentHour?->precipitationProbability,
                     $forecast->currentTemperature,

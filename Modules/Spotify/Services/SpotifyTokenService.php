@@ -96,7 +96,7 @@ class SpotifyTokenService
     public function getAccessToken(string $code): array
     {
         try {
-            $response = $this->client->post($this->authUrl, [
+            $response = $this->client->request('POST', $this->authUrl, [
                 'headers' => $this->authHeaders(),
                 'form_params' => [
                     'grant_type' => 'authorization_code',
@@ -125,7 +125,7 @@ class SpotifyTokenService
         }
 
         try {
-            $response = $this->client->post($this->authUrl, [
+            $response = $this->client->request('POST', $this->authUrl, [
                 'headers' => $this->authHeaders(),
                 'form_params' => [
                     'grant_type' => 'refresh_token',

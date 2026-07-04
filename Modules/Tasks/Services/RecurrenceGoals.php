@@ -169,7 +169,7 @@ class RecurrenceGoals implements SchedulableGoals
      */
     private function toAttributes(array $in, ?TaskRecurrence $existing = null): array
     {
-        $config = $existing?->cadence_config ?? [];
+        $config = $existing->cadence_config ?? [];
 
         if (array_key_exists('category', $in)) {
             $config['category'] = (string) $in['category'];
@@ -188,7 +188,7 @@ class RecurrenceGoals implements SchedulableGoals
         $attributes = [
             'type' => 'habit',
             'cadence_config' => $config,
-            'plannable' => $in['plannable'] ?? ($existing?->plannable ?? true),
+            'plannable' => $in['plannable'] ?? ($existing->plannable ?? true),
         ];
 
         if (array_key_exists('title', $in)) {

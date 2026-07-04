@@ -44,7 +44,7 @@ class DealsBriefingSource implements BriefingSource
 
         $labels = $drops->map(fn (ProductListing $listing): string => sprintf(
             '%s (€%s)',
-            $listing->product?->name ?? $listing->title,
+            $listing->product->name ?? $listing->title,
             number_format((float) $listing->current_price, 2, ',', '.'),
         ));
 
@@ -55,7 +55,7 @@ class DealsBriefingSource implements BriefingSource
             summary: $drops->count().' price drop'.($drops->count() === 1 ? '' : 's').' today: '.$labels->implode(', '),
             data: [
                 'drops' => $drops->map(fn (ProductListing $listing): array => [
-                    'product' => $listing->product?->name ?? $listing->title,
+                    'product' => $listing->product->name ?? $listing->title,
                     'retailer' => $listing->retailer,
                     'title' => $listing->title,
                     'url' => $listing->url,

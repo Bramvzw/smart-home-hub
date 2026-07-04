@@ -43,12 +43,6 @@ parameters:
 			path: Modules/Briefing/Http/Resources/BriefingResource.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Briefing/tests/Feature/BriefingSourcesTest.php
-
-		-
 			message: '#^Cannot access property \$data on null\.$#'
 			identifier: property.nonObject
 			count: 11
@@ -307,45 +301,9 @@ parameters:
 			path: Modules/Deals/Actions/ConfirmListing.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 2
-			path: Modules/Deals/Briefing/DealsBriefingSource.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$price\.$#'
 			identifier: property.notFound
 			count: 1
-			path: Modules/Deals/Briefing/DealsBriefingSource.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Deals\\Models\\ProductListing\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: Modules/Deals/Briefing/DealsBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Deals\\Models\\ProductListing\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Deals/Briefing/DealsBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Deals/Briefing/DealsBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Deals/Briefing/DealsBriefingSource.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
 			path: Modules/Deals/Briefing/DealsBriefingSource.php
 
 		-
@@ -557,12 +515,6 @@ parameters:
 			identifier: return.type
 			count: 1
 			path: Modules/Entertainment/Actions/UpdateTasteProfile.php
-
-		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
 
 		-
 			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$artist\.$#'
@@ -823,18 +775,6 @@ parameters:
 			path: Modules/Entertainment/tests/Feature/EntertainmentControllerTest.php
 
 		-
-			message: '#^Cannot call method matches\(\) on Modules\\Lighting\\Data\\WeatherPresetTrigger\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: Modules/Lighting/Actions/ApplyWeatherTriggeredPresets.php
-
-		-
-			message: '#^Cannot call method withinWindow\(\) on Modules\\Lighting\\Data\\WeatherPresetTrigger\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: Modules/Lighting/Actions/ApplyWeatherTriggeredPresets.php
-
-		-
 			message: '#^Method Modules\\Lighting\\Services\\Providers\\GoveeApiClient\:\:extractProviderResult\(\) has parameter \$response with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -901,18 +841,6 @@ parameters:
 			path: Modules/Lighting/tests/Unit/LightControlTest.php
 
 		-
-			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\ExpectsHigherOrderMessage\:\:andReturns\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: Modules/Lighting/tests/Unit/TuyaTokenEncryptionTest.php
-
-		-
-			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\ExpectsHigherOrderMessage\:\:never\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: Modules/Lighting/tests/Unit/TuyaTokenEncryptionTest.php
-
-		-
 			message: '#^Parameter \#1 \$client of class Modules\\Lighting\\Services\\Providers\\TuyaTokenService constructor expects Modules\\Lighting\\Services\\Providers\\TuyaApiClient, Mockery\\MockInterface given\.$#'
 			identifier: argument.type
 			count: 3
@@ -939,12 +867,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: string, matched_keywords\: array\}, Closure\(Modules\\News\\Models\\NewsItem\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: string, matched_keywords\: array\} given\.$#'
 			identifier: argument.type
-			count: 1
-			path: Modules/News/Briefing/NewsBriefingSource.php
-
-		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/News/Briefing/NewsBriefingSource.php
 
@@ -1465,24 +1387,6 @@ parameters:
 			path: Modules/Recipes/Services/RecipeGenerator.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>ai_unavailable" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>stores_failed" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>stores_fetched" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
-
-		-
 			message: '#^Method Modules\\Recipes\\Tests\\Feature\\RecipesControllerTest\:\:fixture\(\) should return string but returns string\|false\.$#'
 			identifier: return.type
 			count: 1
@@ -1531,12 +1435,6 @@ parameters:
 			path: Modules/Spotify/Http/Controllers/SpotifyController.php
 
 		-
-			message: '#^Call to an undefined method GuzzleHttp\\ClientInterface\:\:post\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: Modules/Spotify/Services/SpotifyTokenService.php
-
-		-
 			message: '#^Method Modules\\Spotify\\View\\ViewModels\\PlaylistView\:\:__construct\(\) has parameter \$playlist with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -1559,12 +1457,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: Modules/Spotify/View/ViewModels/TrackDetailsView.php
-
-		-
-			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:once\(\)\.$#'
-			identifier: method.notFound
-			count: 15
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
 
 		-
 			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_rejects_missing_uri\(\) has no return type specified\.$#'
@@ -2227,34 +2119,22 @@ parameters:
 			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
 
 		-
-			message: '#^Method Modules\\Tasks\\Actions\\Columns\\CreateColumn\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskColumn but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/Actions/Columns/CreateColumn.php
-
-		-
-			message: '#^Cannot call method columns\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Cannot call method columns\(\) on Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: method.nonObject
 			count: 2
 			path: Modules/Tasks/Actions/Columns/DeleteColumn.php
 
 		-
-			message: '#^Method Modules\\Tasks\\Actions\\Columns\\DeleteColumn\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Method Modules\\Tasks\\Actions\\Columns\\DeleteColumn\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: return.type
 			count: 1
 			path: Modules/Tasks/Actions/Columns/DeleteColumn.php
 
 		-
-			message: '#^Parameter \#1 \$board of callable Modules\\Tasks\\Actions\\Columns\\ResequenceColumns expects Modules\\Tasks\\Models\\TaskBoard, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			message: '#^Parameter \#1 \$board of callable Modules\\Tasks\\Actions\\Columns\\ResequenceColumns expects Modules\\Tasks\\Models\\TaskBoard, Modules\\Tasks\\Models\\TaskBoard\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Modules/Tasks/Actions/Columns/DeleteColumn.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\CompleteHabit\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskRecurrenceCompletion but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/Actions/Recurrences/CompleteHabit.php
 
 		-
 			message: '#^Anonymous function should return Modules\\Tasks\\Models\\TaskRecurrence but returns Modules\\Tasks\\Models\\TaskRecurrence\|null\.$#'
@@ -2293,24 +2173,6 @@ parameters:
 			path: Modules/Tasks/Actions/Recurrences/CreateRecurrence.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\MaterializeDueMaintenance\:\:maintenanceBoard\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\MaterializeDueMaintenance\:\:maintenanceColumn\(\) should return Modules\\Tasks\\Models\\TaskColumn but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 2
-			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
-
-		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:each\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: void given\.$#'
 			identifier: argument.type
 			count: 1
@@ -2323,64 +2185,40 @@ parameters:
 			path: Modules/Tasks/Actions/Recurrences/UpdateRecurrence.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Actions/Tasks/CreateTask.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isDoneColumn\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: Modules/Tasks/Actions/Tasks/CreateTask.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tasks\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: Modules/Tasks/Actions/Tasks/CreateTask.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Actions\\Tasks\\CreateTask\:\:__invoke\(\) should return Modules\\Tasks\\Models\\KanbanTask but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/Actions/Tasks/CreateTask.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Actions\\Tasks\\DeleteTask\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Method Modules\\Tasks\\Actions\\Tasks\\DeleteTask\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: return.type
 			count: 1
 			path: Modules/Tasks/Actions/Tasks/DeleteTask.php
 
 		-
-			message: '#^Cannot call method columns\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Cannot call method columns\(\) on Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: method.nonObject
 			count: 1
 			path: Modules/Tasks/Actions/Tasks/MoveTask.php
 
 		-
-			message: '#^Cannot access property \$columns on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Collection\<int, Modules\\Tasks\\Models\\TaskLabel\>\|Modules\\Tasks\\Models\\TaskLabel\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
+
+		-
+			message: '#^Cannot access property \$columns on Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: property.nonObject
 			count: 2
 			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
 
 		-
-			message: '#^Cannot call method labels\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Cannot call method labels\(\) on Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: method.nonObject
 			count: 2
 			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
+			message: '#^Property Modules\\Tasks\\Models\\KanbanTask\:\:\$column_id \(int\<0, max\>\) does not accept int\.$#'
+			identifier: assign.propertyType
 			count: 2
-			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
 
 		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, cadence_type\: ''annual''\|''interval''\|''monthly''\|''times_per_week''\|''weekdays''\|''weekly'', progress\: array, current_streak\: int, best_streak\: int, completed_today\: bool\}, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: array\{title\: string, cadence_type\: ''annual''\|''interval''\|''monthly''\|''times_per_week''\|''weekdays''\|''weekly'', progress\: array, current_streak\: int, best_streak\: int, completed_today\: bool\} given\.$#'
@@ -2389,31 +2227,7 @@ parameters:
 			path: Modules/Tasks/Briefing/TasksBriefingSource.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: Modules/Tasks/Briefing/TasksBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Tasks/Briefing/TasksBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Tasks/Briefing/TasksBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Tasks/Briefing/TasksBriefingSource.php
-
-		-
-			message: '#^Parameter \#1 \$board of method Modules\\Tasks\\Http\\Controllers\\TasksController\:\:stateResponse\(\) expects Modules\\Tasks\\Models\\TaskBoard, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			message: '#^Parameter \#1 \$board of method Modules\\Tasks\\Http\\Controllers\\TasksController\:\:stateResponse\(\) expects Modules\\Tasks\\Models\\TaskBoard, Modules\\Tasks\\Models\\TaskBoard\|null given\.$#'
 			identifier: argument.type
 			count: 5
 			path: Modules/Tasks/Http/Controllers/TasksController.php
@@ -2485,44 +2299,8 @@ parameters:
 			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
 			message: '#^Access to an undefined property Modules\\Tasks\\Models\\TaskBoard\:\:\$active_tasks_count\.$#'
 			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, name\: string, color\: string\}, Closure\(Modules\\Tasks\\Models\\TaskLabel\)\: array\{id\: int, name\: string, color\: string\} given\.$#'
-			identifier: argument.type
-			count: 2
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, name\: string, tasks\: Illuminate\\Support\\Collection\<int, array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\}\>\}, Closure\(Modules\\Tasks\\Models\\TaskColumn\)\: array\{id\: int, name\: string, tasks\: Illuminate\\Support\\Collection\<int, array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\}\>\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\}, Closure\(Modules\\Tasks\\Models\\KanbanTask\)\: array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, text\: string, completed\: bool\}, Closure\(Modules\\Tasks\\Models\\TaskChecklistItem\)\: array\{id\: int, text\: string, completed\: bool\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
 
@@ -2659,18 +2437,6 @@ parameters:
 			path: Modules/Tasks/Services/RecurrenceGoals.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>cadence_config" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Tasks/Services/RecurrenceGoals.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>plannable" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: Modules/Tasks/Services/RecurrenceGoals.php
-
-		-
 			message: '#^Cannot call method isoFormat\(\) on Carbon\\CarbonImmutable\|string\.$#'
 			identifier: method.nonObject
 			count: 2
@@ -2689,19 +2455,13 @@ parameters:
 			path: Modules/Tasks/View/ViewModels/TaskRecurrencesViewModel.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 5
-			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
-
-		-
-			message: '#^Cannot access property \$archived_at on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Cannot access property \$archived_at on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
 
 		-
-			message: '#^Cannot access property \$completed on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Cannot access property \$completed on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
@@ -2737,37 +2497,13 @@ parameters:
 			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
 
 		-
-			message: '#^Method Modules\\Tasks\\Tests\\Feature\\TaskRecurrenceControllerTest\:\:task\(\) should return Modules\\Tasks\\Models\\KanbanTask but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 6
-			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
-
-		-
 			message: '#^Cannot access property \$archived_at on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
 
 		-
-			message: '#^Cannot access property \$column_id on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
-
-		-
-			message: '#^Cannot access property \$completed on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Cannot access property \$column_id on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
@@ -2775,13 +2511,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$completed on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
 			identifier: property.nonObject
-			count: 1
-			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Tests\\Feature\\TasksControllerTest\:\:task\(\) should return Modules\\Tasks\\Models\\KanbanTask but returns Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: return.type
-			count: 1
+			count: 2
 			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
 
 		-
@@ -2803,44 +2533,8 @@ parameters:
 			path: Modules/Tasks/tests/Unit/StreakCalculatorTest.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$board\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/tests/Unit/TaskTest.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$checklistItems\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/tests/Unit/TaskTest.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$column\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/tests/Unit/TaskTest.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 3
-			path: Modules/Tasks/tests/Unit/TaskTest.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$labels\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/tests/Unit/TaskTest.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:checklistItems\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: Modules/Tasks/tests/Unit/TaskTest.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:labels\(\)\.$#'
-			identifier: method.notFound
+			message: '#^Cannot access property \$name on Modules\\Tasks\\Models\\TaskLabel\|null\.$#'
+			identifier: property.nonObject
 			count: 1
 			path: Modules/Tasks/tests/Unit/TaskTest.php
 
@@ -2869,38 +2563,8 @@ parameters:
 			path: app/Http/Controllers/DashboardController.php
 
 		-
-			message: '#^Call to an undefined method App\\Contracts\\ProvidesSettings\:\:getModuleName\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/SettingsController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\ProvidesSettings\:\:getModuleSlug\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/SettingsController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\SettingsController\:\:index\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/SettingsController.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),App\\Contracts\\ProvidesSettings\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: app/Http/Controllers/SettingsController.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<\(int\|string\),App\\Contracts\\ProvidesSettings\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: app/Http/Controllers/SettingsController.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<\(int\|string\),array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
 			count: 1
 			path: app/Http/Controllers/SettingsController.php
 

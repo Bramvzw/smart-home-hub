@@ -31,26 +31,31 @@ class KanbanTask extends Model
         'archived_at' => 'datetime',
     ];
 
+    /** @return BelongsTo<TaskBoard, $this> */
     public function board(): BelongsTo
     {
         return $this->belongsTo(TaskBoard::class, 'board_id');
     }
 
+    /** @return BelongsTo<TaskColumn, $this> */
     public function column(): BelongsTo
     {
         return $this->belongsTo(TaskColumn::class, 'column_id');
     }
 
+    /** @return BelongsTo<TaskRecurrence, $this> */
     public function recurrence(): BelongsTo
     {
         return $this->belongsTo(TaskRecurrence::class, 'recurrence_id');
     }
 
+    /** @return BelongsToMany<TaskLabel, $this> */
     public function labels(): BelongsToMany
     {
         return $this->belongsToMany(TaskLabel::class, 'kanban_task_label', 'task_id', 'label_id')->orderBy('name');
     }
 
+    /** @return HasMany<TaskChecklistItem, $this> */
     public function checklistItems(): HasMany
     {
         return $this->hasMany(TaskChecklistItem::class, 'task_id')->orderBy('position');

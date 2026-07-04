@@ -52,7 +52,7 @@ class UpdateTask
 
         if ($doneColumn && $task->column_id === $doneColumn->id) {
             $fallbackColumn = $task->board->columns->first(fn (TaskColumn $column) => ! $column->isDoneColumn());
-            $task->column_id = $fallbackColumn?->id ?? $task->column_id;
+            $task->column_id = $fallbackColumn->id ?? $task->column_id;
         }
     }
 

@@ -52,7 +52,7 @@ class NewsBriefingSource implements BriefingSource
                     'summary' => $item->summary,
                     'source' => (string) (($feeds->get($item->feed_key)['label'] ?? null) ?: $item->feed_key),
                     'url' => $item->url,
-                    'published_at' => $item->published_at?->toIso8601String(),
+                    'published_at' => $item->published_at->toIso8601String(),
                     'matched_keywords' => $item->matched_keywords ?? [],
                 ])->values()->all(),
             ];

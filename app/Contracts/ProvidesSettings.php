@@ -6,10 +6,10 @@ use App\Data\SettingField;
 
 /**
  * Implemented by module service providers that expose UI-editable settings on
- * the central /settings page. Implementers are also {@see ModuleContract}, so
- * the pane title/slug come from getModuleName()/getModuleSlug().
+ * the central /settings page. Extends ModuleContract so the pane title/slug
+ * come from getModuleName()/getModuleSlug() — enforced, not assumed.
  */
-interface ProvidesSettings
+interface ProvidesSettings extends ModuleContract
 {
     /**
      * The fields shown for this module, each carrying its current value,
