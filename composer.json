@@ -3,7 +3,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.2",
@@ -16,6 +19,7 @@
         "sabre/vobject": "^4.6"
     },
     "require-dev": {
+        "driftingly/rector-laravel": "^2.5",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.10",
         "laravel/pail": "^1.2.2",
@@ -25,7 +29,8 @@
         "nunomaduro/collision": "^8.6",
         "phpat/phpat": "^0.12.4",
         "phpstan/phpstan-phpunit": "^2.0",
-        "phpunit/phpunit": "^11.5.3"
+        "phpunit/phpunit": "^11.5.3",
+        "rector/rector": "^2.5"
     },
     "autoload": {
         "psr-4": {
@@ -69,8 +74,12 @@
         ],
         "check": [
             "vendor/bin/pint --test",
+            "@rector",
             "@analyse",
             "@test"
+        ],
+        "rector": [
+            "vendor/bin/rector process --dry-run"
         ]
     },
     "extra": {

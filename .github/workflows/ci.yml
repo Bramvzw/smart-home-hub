@@ -25,6 +25,9 @@ jobs:
       - name: Code style (Pint)
         run: vendor/bin/pint --test
 
+      - name: Modernization gate (Rector dry-run)
+        run: composer rector
+
       - name: Static analysis (PHPStan level 8)
         run: composer analyse -- --no-progress
 
