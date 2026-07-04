@@ -52,7 +52,7 @@ class DealsBriefingSource implements BriefingSource
             key: $this->key(),
             label: $this->label(),
             priority: $this->priority(),
-            summary: $drops->count().' '.($drops->count() === 1 ? 'prijsdaling' : 'prijsdalingen').' vandaag: '.$labels->implode(', '),
+            summary: $drops->count().' price drop'.($drops->count() === 1 ? '' : 's').' today: '.$labels->implode(', '),
             data: [
                 'drops' => $drops->map(fn (ProductListing $listing): array => [
                     'product' => $listing->product?->name ?? $listing->title,

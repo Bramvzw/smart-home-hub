@@ -14,13 +14,13 @@ class TemplatedBriefingComposer
     {
         if ($sections === []) {
             return new ComposedBriefing(
-                body: 'Goedemorgen! Ik heb voor vandaag nog geen concrete updates gevonden. Rustige start dus.',
+                body: 'Good morning! No concrete updates for today yet — a quiet start.',
                 model: null,
                 isFallback: true,
             );
         }
 
-        $paragraphs = ['Goedemorgen! Dit is je briefing voor vandaag.'];
+        $paragraphs = ['Good morning! This is your briefing for today.'];
 
         foreach ($sections as $section) {
             $paragraphs[] = sprintf('%s: %s', $section->label, $section->summary);

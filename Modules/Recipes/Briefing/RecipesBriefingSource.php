@@ -21,7 +21,7 @@ class RecipesBriefingSource implements BriefingSource
 
     public function label(): string
     {
-        return 'Recepten';
+        return 'Recipes';
     }
 
     public function priority(): int
@@ -47,7 +47,7 @@ class RecipesBriefingSource implements BriefingSource
             key: $this->key(),
             label: $this->label(),
             priority: $this->priority(),
-            summary: 'Weekmenu klaar: '.count($titles).' recept'.(count($titles) === 1 ? '' : 'en').' — '.implode(', ', $titles),
+            summary: 'Weekly menu ready: '.count($titles).' recipe'.(count($titles) === 1 ? '' : 's').' — '.implode(', ', $titles),
             data: [
                 'week_key' => $weekKey,
                 'recipes' => $recipes->map(fn (Recipe $recipe): array => [

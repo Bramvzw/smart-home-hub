@@ -72,26 +72,26 @@ class GenerateRecipes
     private function push(string $weekKey, array $recipes, array $offerNames, RecipeRun $run): void
     {
         if ($recipes !== []) {
-            $body = "Recepten voor {$weekKey} staan klaar:\n";
+            $body = "Recipes for {$weekKey} are ready:\n";
             $body .= collect($recipes)
                 ->map(fn (Recipe $recipe): string => '- '.$recipe->title)
                 ->implode("\n");
-            $body .= "\n\nBoodschappenlijsten staan in de hub.";
+            $body .= "\n\nShopping lists are waiting in the hub.";
         } else {
-            $body = "Geen AI-recepten beschikbaar voor {$weekKey}.";
+            $body = "No AI recipes available for {$weekKey}.";
 
             if ($offerNames !== []) {
-                $body .= "\n\nWel opgehaalde aanbiedingen:\n".collect($offerNames)
+                $body .= "\n\nOffers that were fetched:\n".collect($offerNames)
                     ->map(fn (string $name): string => '- '.$name)
                     ->implode("\n");
             }
         }
 
         if (($run->stores_failed ?? []) !== []) {
-            $body .= "\n\nNiet gelukt: ".implode(', ', $run->stores_failed);
+            $body .= "\n\nFailed: ".implode(', ', $run->stores_failed);
         }
 
-        $this->notifier->send('Recepten voor het weekend', $body);
+        $this->notifier->send('Recipes for the weekend', $body);
     }
 
     private function now(): CarbonImmutable

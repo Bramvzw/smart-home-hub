@@ -49,7 +49,7 @@ class WeatherServiceProvider extends ModuleServiceProvider
     {
         if ((string) config('weather.ntfy.topic', '') === '') {
             return ModuleHealth::degraded([
-                'Weeralerts uit — geen ntfy-topic ingesteld (WEATHER_NTFY_TOPIC of PHONE_PING_NTFY_TOPIC)',
+                'Weather alerts off — no ntfy topic configured (WEATHER_NTFY_TOPIC or PHONE_PING_NTFY_TOPIC)',
             ]);
         }
 

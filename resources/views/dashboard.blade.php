@@ -3,7 +3,7 @@
         <section class="mx-auto w-full max-w-[2000px]">
             <div class="mb-5">
                 <h2 class="text-[22px] font-bold text-[var(--hub-text)] leading-tight">Modules</h2>
-                <p class="mt-1 text-sm text-[var(--hub-dim)]">Local control for music and tasks.</p>
+                <p class="mt-1 text-sm text-[var(--hub-dim)]">All modules at a glance.</p>
             </div>
 
             @if(! empty($briefing))

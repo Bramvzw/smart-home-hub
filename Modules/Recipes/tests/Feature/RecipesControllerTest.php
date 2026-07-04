@@ -98,7 +98,7 @@ class RecipesControllerTest extends TestCase
         $this->assertDatabaseCount('recipes', 0);
         $this->assertTrue(RecipeRun::query()->where('week_key', '2026-W26')->firstOrFail()->ai_unavailable);
         $this->assertCount(1, $notifier->sent);
-        $this->assertStringContainsString('Geen AI-recepten beschikbaar', $notifier->sent[0]['message']);
+        $this->assertStringContainsString('No AI recipes available', $notifier->sent[0]['message']);
         $this->assertStringContainsString('Kipfilet', $notifier->sent[0]['message']);
     }
 

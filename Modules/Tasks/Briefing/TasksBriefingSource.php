@@ -68,11 +68,11 @@ class TasksBriefingSource implements BriefingSource
         $summaries = [];
 
         if ($titles !== []) {
-            $summaries[] = 'Top '.count($titles).' open taak'.(count($titles) === 1 ? '' : 'en').': '.implode(', ', $titles);
+            $summaries[] = 'Top '.count($titles).' open task'.(count($titles) === 1 ? '' : 's').': '.implode(', ', $titles);
         }
 
         if ($habitData->isNotEmpty()) {
-            $summaries[] = 'Habits vandaag: '.$habitData
+            $summaries[] = 'Habits today: '.$habitData
                 ->map(fn (array $habit): string => $habit['title'].' '.$habit['progress']['completed'].'/'.$habit['progress']['target'])
                 ->implode(', ');
         }

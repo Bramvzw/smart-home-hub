@@ -218,7 +218,7 @@ class BriefingSourcesTest extends TestCase
         $section = app(DealsBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
 
         $this->assertSame('deals', $section->key);
-        $this->assertStringContainsString('1 prijsdaling vandaag', $section->summary);
+        $this->assertStringContainsString('1 price drop today', $section->summary);
         $this->assertStringContainsString('Koffiezetapparaat', $section->summary);
         $this->assertSame(89.0, $section->data['drops'][0]['current_price']);
         $this->assertSame(99.0, $section->data['drops'][0]['previous_price']);
@@ -243,7 +243,7 @@ class BriefingSourcesTest extends TestCase
         $section = app(RecipesBriefingSource::class)->contribute(CarbonImmutable::now('Europe/Amsterdam'));
 
         $this->assertSame('recipes', $section->key);
-        $this->assertStringContainsString('Weekmenu klaar: 1 recept', $section->summary);
+        $this->assertStringContainsString('Weekly menu ready: 1 recipe', $section->summary);
         $this->assertStringContainsString('Pasta pesto', $section->summary);
         $this->assertSame($weekKey, $section->data['week_key']);
     }
