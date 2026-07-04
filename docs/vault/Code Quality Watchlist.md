@@ -36,5 +36,4 @@ Use this list during reviews and refactors. A signal is not automatically a bug,
 - `WeatherService` is 512 lines and owns forecast fetching, three alert flows and notification cooldowns — split by responsibility (AGENTS.md god-service rule) before adding behavior.
 - `Modules/Briefing/tests/Feature/BriefingSourcesTest` (plus a few News/Tasks/Deals tests) access nullable results without narrowing — ~50 baseline errors. `phpstan/phpstan-phpunit` is installed, so adding `assertInstanceOf`/`assertNotNull` before access resolves them properly.
 - Local command runs push to the real phone: the dev `.env` carries a real `PHONE_PING_NTFY_TOPIC` and Weather falls back to it. Consider an `NTFY_DRY_RUN` flag or dropping the topic from the dev `.env`.
-- `news:check-keywords` prints a stray `>` instead of a summary line; most commands report a one-line result — make them all do so.
 - PHPStan baseline stands at 392 (from 627); keep burning down, never add to it.

@@ -29,6 +29,9 @@ return [
         'time' => env('WEATHER_DAILY_SUMMARY_TIME', '07:15'),
     ],
 
+    // Deliberate fallback: without WEATHER_NTFY_* weather alerts reuse the
+    // PhonePing topic, so one configured topic covers the whole hub. See the
+    // decision log before changing this.
     'ntfy' => [
         'url' => env('WEATHER_NTFY_URL') ?: env('PHONE_PING_NTFY_URL', 'https://ntfy.sh'),
         'topic' => env('WEATHER_NTFY_TOPIC') ?: env('PHONE_PING_NTFY_TOPIC', ''),

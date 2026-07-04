@@ -4,6 +4,7 @@ namespace App\Services\Ntfy;
 
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class HubNotifier
 {
@@ -33,6 +34,13 @@ class HubNotifier
     public function sendWithOptions(string $title, string $message, ?string $tags, string $priority): void
     {
         if (! $this->isConfigured()) {
+            return;
+        }
+
+        // Dev/test safety net: log instead of pushing to a real phone.
+        if ((bool) config('ntfy.dry_run', false)) {
+            Log::info('ntfy dry-run: notification suppressed', ['title' => $title, 'message' => $message]);
+
             return;
         }
 

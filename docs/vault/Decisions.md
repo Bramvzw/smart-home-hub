@@ -36,6 +36,8 @@ Format: date · decision · rationale · revisit-when.
 | 2026-07-04 | **Quality-gate roadmap order: Larastan → NL-string/PII guards → scheduled health push → PHPat architecture tests → coverage/Infection.** | Ordered by defect-catching value per unit of work. | — |
 | 2026-07-04 | **PHPat enforces module isolation in CI** (`tests/Architecture/ArchitectureTest.php`, runs inside `composer analyse`). Three couplings are sanctioned: Entertainment→Spotify (library checks), Lighting→Weather (weather-triggered presets), DashboardController→Briefing ViewModel (dashboard embed). Module tests may integration-test across modules. | These couplings *are* the cross-module intelligence the product is built on; everything new goes through `app/Contracts` or gets added to the sanctioned list here + in the rule, deliberately. | A coupling grows beyond one direction → extract a contract. |
 
+| 2026-07-05 | **Weather reuses the PhonePing ntfy topic as fallback** (`WEATHER_NTFY_* ?: PHONE_PING_NTFY_*`), and `NTFY_DRY_RUN=true` on dev machines logs pushes instead of sending them. | One configured topic covers the whole hub (owner convenience); the dry-run flag exists because a dev `.env` with real topics once pushed test notifications to a real phone. | Generalization: make the topic explicit per module in settings. |
+
 ## Deployment & operations
 
 | Date | Decision | Rationale | Revisit when |
