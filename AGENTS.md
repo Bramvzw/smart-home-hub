@@ -156,6 +156,7 @@ Documentation is part of done. The docs entry point is `docs/vault/README.md`.
 
 Rules:
 - `AGENTS.md` is the canonical architecture rulebook.
+- `docs/vault/Decisions.md` is the decision log: consult it before proposing changes to security defaults, language policy, deployment flow or provider architecture — those choices were deliberate. Add an entry whenever you make a non-obvious choice.
 - `docs/vault/Architecture.md` summarizes these rules for human navigation.
 - `docs/vault/Setup/Definition of Done.md` is the handoff checklist.
 - `docs/vault/Setup/Testing.md` owns test command and coverage expectations.

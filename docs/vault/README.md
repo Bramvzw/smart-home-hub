@@ -16,6 +16,7 @@ Entry point for project documentation. `AGENTS.md` is the canonical agent rulebo
 | Note | Description |
 |---|---|
 | [Architecture](Architecture.md) | Module-first layering rules, dependency direction and anti-patterns |
+| [Decisions](Decisions.md) | Decision log: standing choices, their rationale and when to revisit them |
 | [Code Quality Watchlist](Code%20Quality%20Watchlist.md) | Refactor signals to watch during reviews |
 
 ## Backend
