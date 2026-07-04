@@ -55,7 +55,7 @@ final readonly class ModuleHealth
 
         foreach ($required as $envKey => $value) {
             if (self::isBlank($value)) {
-                $issues[] = "Ontbrekende .env: {$envKey}";
+                $issues[] = "Missing .env: {$envKey}";
             }
         }
 

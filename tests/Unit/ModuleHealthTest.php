@@ -23,8 +23,8 @@ class ModuleHealthTest extends TestCase
 
         $this->assertSame(ModuleHealthStatus::NeedsSetup, $health->status);
         $this->assertSame([
-            'Ontbrekende .env: FOO',
-            'Ontbrekende .env: BAR',
+            'Missing .env: FOO',
+            'Missing .env: BAR',
         ], $health->issues);
     }
 

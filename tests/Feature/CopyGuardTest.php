@@ -22,7 +22,7 @@ class CopyGuardTest extends TestCase
         'beschikbaar', 'aanbieding', 'boodschappen', 'weekmenu',
         'prijsdaling', 'ingesteld', 'verstuurd', 'opgehaald',
         'staan klaar', 'niet gelukt', 'instellingen',
-        'goedkoper', 'opgeslagen', 'laagste ooit',
+        'goedkoper', 'opgeslagen', 'laagste ooit', 'ontbrekende',
     ];
 
     /**
@@ -30,8 +30,10 @@ class CopyGuardTest extends TestCase
      * Dutch words as internal identifiers only.
      */
     private const DUTCH_ALLOWLIST = [
-        // AI prompts stay Dutch: prompt language = generated menu language.
+        // AI prompts stay Dutch: see the decision log (prompt language ≠ output
+        // language for the briefing; = generated menu language for recipes).
         'Modules/Recipes/Services/PrismRecipeTextGenerator.php',
+        'Modules/Briefing/Services/BriefingComposer.php',
         // Internal tab keys ('recepten'/'aanbiedingen'); visible labels are English.
         'Modules/Recipes/resources/views/index.blade.php',
         'Modules/Recipes/resources/assets/js/recepten.js',

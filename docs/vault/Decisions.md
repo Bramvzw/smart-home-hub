@@ -23,7 +23,7 @@ Format: date · decision · rationale · revisit-when.
 | Date | Decision | Rationale | Revisit when |
 |---|---|---|---|
 | 2026 | **All UI copy, briefing summaries, notifications and health messages are English.** | Public repo targets an international audience; mixed-language UI reads as unfinished. Tests assert on these strings — update assertions together with copy. | — |
-| 2026-07-04 | **Recipes AI prompts stay Dutch for now.** | The prompt language determines the generated menu's language; the owner wants Dutch recipes. Plan: make it configurable (`recipes.language`) in the generalization phase — don't just translate the prompts. | Generalization phase starts. |
+| 2026-07-04 | **AI prompts (Recipes generator, Briefing composer) stay Dutch for now.** Allowlisted in `CopyGuardTest`. | For recipes the prompt language determines the generated menu's language and the owner wants Dutch menus; the briefing prompt already makes output language configurable via `briefing.language`. Plan: make the recipes language configurable in the generalization phase — don't just translate the prompts. | Generalization phase starts. |
 | 2026-07-04 | **Internal identifiers `recepten`/`aanbiedingen` (tab keys, `recepten.js`) stay for now.** Visible labels are already English. | Renaming touches Blade + JS + filenames for zero user-facing gain; batch it with the generalization cleanup. | Generalization phase starts. |
 
 ## Architecture & quality gates
