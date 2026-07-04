@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin \Modules\Tasks\Models\TaskRecurrence */
 class RecurrenceResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap;
 
     public function toArray(Request $request): array
     {

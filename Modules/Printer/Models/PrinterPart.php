@@ -20,16 +20,17 @@ class PrinterPart extends Model
         'notes',
     ];
 
-    protected $casts = [
-        'quantity' => 'float',
-        'low_threshold' => 'integer',
-        'purchase_price' => 'float',
-    ];
-
     protected function isLow(): Attribute
     {
-        return Attribute::get(function (): bool {
-            return $this->low_threshold !== null && (float) $this->quantity <= (int) $this->low_threshold;
-        });
+        return Attribute::get(fn (): bool => $this->low_threshold !== null && (float) $this->quantity <= (int) $this->low_threshold);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'float',
+            'low_threshold' => 'integer',
+            'purchase_price' => 'float',
+        ];
     }
 }

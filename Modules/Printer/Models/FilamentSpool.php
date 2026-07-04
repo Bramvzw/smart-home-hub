@@ -28,14 +28,6 @@ class FilamentSpool extends Model
         'notes',
     ];
 
-    protected $casts = [
-        'diameter_mm' => 'float',
-        'total_weight_g' => 'integer',
-        'remaining_g' => 'integer',
-        'purchase_price' => 'float',
-        'purchased_at' => 'date',
-    ];
-
     protected function remainingPct(): Attribute
     {
         return Attribute::get(function (): int {
@@ -57,5 +49,16 @@ class FilamentSpool extends Model
 
             return $this->remaining_pct <= $threshold;
         });
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'diameter_mm' => 'float',
+            'total_weight_g' => 'integer',
+            'remaining_g' => 'integer',
+            'purchase_price' => 'float',
+            'purchased_at' => 'date',
+        ];
     }
 }

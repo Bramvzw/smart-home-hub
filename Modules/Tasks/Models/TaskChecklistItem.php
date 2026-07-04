@@ -14,12 +14,15 @@ class TaskChecklistItem extends Model
         'position',
     ];
 
-    protected $casts = [
-        'completed' => 'boolean',
-    ];
-
     public function task(): BelongsTo
     {
         return $this->belongsTo(KanbanTask::class, 'task_id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'completed' => 'boolean',
+        ];
     }
 }

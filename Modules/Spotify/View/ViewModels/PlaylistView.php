@@ -12,7 +12,7 @@ class PlaylistView
 
     public string $externalUrl;
 
-    public function __construct($playlist)
+    public function __construct(array $playlist)
     {
         $this->id = $playlist['id'];
         $this->name = $playlist['name'];

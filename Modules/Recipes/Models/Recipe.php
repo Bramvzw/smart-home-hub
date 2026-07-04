@@ -20,13 +20,16 @@ class Recipe extends Model
         'is_fallback',
     ];
 
-    protected $casts = [
-        'servings' => 'integer',
-        'time_minutes' => 'integer',
-        'estimated_cost' => 'decimal:2',
-        'ingredients' => 'array',
-        'steps' => 'array',
-        'shopping_list' => 'array',
-        'is_fallback' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'servings' => 'integer',
+            'time_minutes' => 'integer',
+            'estimated_cost' => 'decimal:2',
+            'ingredients' => 'array',
+            'steps' => 'array',
+            'shopping_list' => 'array',
+            'is_fallback' => 'boolean',
+        ];
+    }
 }

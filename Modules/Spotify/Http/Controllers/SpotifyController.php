@@ -75,7 +75,7 @@ class SpotifyController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index(SpotifyPlayerViewModel $viewModel)
+    public function index(SpotifyPlayerViewModel $viewModel): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('spotify::index', $viewModel->page());
     }

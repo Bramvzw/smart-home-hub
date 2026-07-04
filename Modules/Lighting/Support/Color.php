@@ -33,7 +33,7 @@ final class Color
      */
     public static function hexToTuyaHsv(string $hex): array
     {
-        [$r, $g, $b] = array_map(static fn ($c) => $c / 255, self::hexToRgb($hex));
+        [$r, $g, $b] = array_map(static fn (int $c): int|float => $c / 255, self::hexToRgb($hex));
         $max = max($r, $g, $b);
         $min = min($r, $g, $b);
         $delta = $max - $min;

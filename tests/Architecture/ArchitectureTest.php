@@ -41,7 +41,7 @@ final class ArchitectureTest
                 ->shouldNotDependOn()
                 ->classes(Selector::inNamespace('Modules'))
                 ->excluding(...array_map(
-                    static fn (string $name) => Selector::inNamespace("Modules\\{$name}"),
+                    static fn (string $name): \PHPat\Selector\ClassNamespace => Selector::inNamespace("Modules\\{$name}"),
                     $allowed,
                 ))
                 ->because('modules integrate via app/Contracts; new cross-module couplings need a contract (AGENTS.md)');
@@ -54,7 +54,7 @@ final class ArchitectureTest
             ->classes(Selector::inNamespace('App'))
             ->excluding(
                 // Sanctioned: the dashboard page embeds the briefing read model.
-                Selector::classname('App\Http\Controllers\DashboardController'),
+                Selector::classname(\App\Http\Controllers\DashboardController::class),
             )
             ->shouldNotDependOn()
             ->classes(Selector::inNamespace('Modules'))

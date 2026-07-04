@@ -22,11 +22,14 @@ class GroceryOffer extends Model
         'fetched_at',
     ];
 
-    protected $casts = [
-        'normal_price' => 'decimal:2',
-        'offer_price' => 'decimal:2',
-        'valid_from' => 'immutable_date',
-        'valid_to' => 'immutable_date',
-        'fetched_at' => 'immutable_datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'normal_price' => 'decimal:2',
+            'offer_price' => 'decimal:2',
+            'valid_from' => 'immutable_date',
+            'valid_to' => 'immutable_date',
+            'fetched_at' => 'immutable_datetime',
+        ];
+    }
 }

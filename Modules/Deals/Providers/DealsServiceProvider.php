@@ -24,8 +24,8 @@ class DealsServiceProvider extends ModuleServiceProvider
         parent::register();
 
         $this->app->tag([BolAdapter::class, AmazonAdapter::class, TweakersAdapter::class], 'deals.retailer');
-        $this->app->bind(ProductMatcher::class, fn ($app) => new ProductMatcher($app->tagged('deals.retailer')));
-        $this->app->bind(PriceChecker::class, fn ($app) => new PriceChecker($app->tagged('deals.retailer')));
+        $this->app->bind(ProductMatcher::class, fn ($app): \Modules\Deals\Services\ProductMatcher => new ProductMatcher($app->tagged('deals.retailer')));
+        $this->app->bind(PriceChecker::class, fn ($app): \Modules\Deals\Services\PriceChecker => new PriceChecker($app->tagged('deals.retailer')));
         $this->app->tag([DealsBriefingSource::class], 'briefing.source');
     }
 

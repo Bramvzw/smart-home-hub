@@ -47,7 +47,7 @@ class RefreshFilms
         $now = CarbonImmutable::now();
 
         foreach ($candidates as $movie) {
-            $pick = $picks->first(fn ($pick) => $pick->tmdbId === $movie['tmdb_id']);
+            $pick = $picks->first(fn ($pick): bool => $pick->tmdbId === $movie['tmdb_id']);
 
             FilmRecommendation::query()->updateOrCreate(
                 ['tmdb_id' => $movie['tmdb_id']],

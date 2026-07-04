@@ -25,16 +25,6 @@ class TaskRecurrence extends Model
         'last_materialized_on',
     ];
 
-    protected $casts = [
-        'cadence_config' => 'array',
-        'notify' => 'boolean',
-        'active' => 'boolean',
-        'plannable' => 'boolean',
-        'duration_minutes' => 'integer',
-        'next_due_on' => 'immutable_date',
-        'last_materialized_on' => 'immutable_date',
-    ];
-
     public function newEloquentBuilder($query): TaskRecurrenceBuilder
     {
         /** @var BaseBuilder $query */
@@ -67,5 +57,18 @@ class TaskRecurrence extends Model
     public function isMaintenance(): bool
     {
         return $this->type === 'maintenance';
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'cadence_config' => 'array',
+            'notify' => 'boolean',
+            'active' => 'boolean',
+            'plannable' => 'boolean',
+            'duration_minutes' => 'integer',
+            'next_due_on' => 'immutable_date',
+            'last_materialized_on' => 'immutable_date',
+        ];
     }
 }

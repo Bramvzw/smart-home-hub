@@ -15,10 +15,13 @@ class Briefing extends Model
         'is_fallback',
     ];
 
-    protected $casts = [
-        'date' => 'immutable_date:Y-m-d',
-        'sections' => 'array',
-        'generated_at' => 'immutable_datetime',
-        'is_fallback' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'date' => 'immutable_date:Y-m-d',
+            'sections' => 'array',
+            'generated_at' => 'immutable_datetime',
+            'is_fallback' => 'boolean',
+        ];
+    }
 }

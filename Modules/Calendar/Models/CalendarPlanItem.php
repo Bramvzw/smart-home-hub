@@ -12,13 +12,16 @@ class CalendarPlanItem extends Model
 
     protected $fillable = ['plan_id', 'recurrence_id', 'title', 'category', 'start_at', 'end_at', 'status', 'unplaceable_reason', 'google_event_id'];
 
-    protected $casts = [
-        'start_at' => 'immutable_datetime',
-        'end_at' => 'immutable_datetime',
-    ];
-
     public function plan(): BelongsTo
     {
         return $this->belongsTo(CalendarPlan::class, 'plan_id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'start_at' => 'immutable_datetime',
+            'end_at' => 'immutable_datetime',
+        ];
     }
 }

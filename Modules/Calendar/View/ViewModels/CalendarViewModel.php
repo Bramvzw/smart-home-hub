@@ -37,7 +37,7 @@ class CalendarViewModel
             'failed' => $feed->failed,
             'staleFeeds' => $feed->staleFeeds,
             'plan' => $plan ? CalendarPlanResource::make($plan)->resolve() : null,
-            'habits' => array_map(fn ($card) => $card->toArray(), $this->goals->cards($today)),
+            'habits' => array_map(fn (\App\Data\HabitCard $card): array => $card->toArray(), $this->goals->cards($today)),
             'today' => $today->toDateString(),
         ];
     }

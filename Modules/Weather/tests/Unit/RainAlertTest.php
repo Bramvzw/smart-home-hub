@@ -79,7 +79,7 @@ class RainAlertTest extends TestCase
         $this->assertSame('already_notified', $second->status);
 
         Http::assertSentCount(2);
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'ntfy.sh/weather-topic')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'ntfy.sh/weather-topic')
             && str_contains((string) $request->body(), 'Start: 11:00'));
     }
 
@@ -92,7 +92,7 @@ class RainAlertTest extends TestCase
 
         app(CheckRainForecast::class)(CarbonImmutable::parse('2026-06-23 10:30:00', 'Europe/Amsterdam'));
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'ntfy.sh/weather-topic')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'ntfy.sh/weather-topic')
             && str_contains((string) $request->body(), 'Start: 11:00')
             && str_contains((string) $request->body(), 'Expected duration: 2 hours')
             && str_contains((string) $request->body(), 'Intensity: Moderate rain'));
@@ -112,7 +112,7 @@ class RainAlertTest extends TestCase
         $this->assertTrue($result->notified);
         $this->assertSame('sent', $result->status);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'ntfy.sh/weather-topic')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'ntfy.sh/weather-topic')
             && str_contains((string) $request->body(), 'First strong wind block: 11:00')
             && str_contains((string) $request->body(), 'Max gust: 64 km/h'));
     }
@@ -129,7 +129,7 @@ class RainAlertTest extends TestCase
         $this->assertTrue($result->notified);
         $this->assertSame('sent', $result->status);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'ntfy.sh/weather-topic')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), 'ntfy.sh/weather-topic')
             && str_contains((string) $request->body(), 'Today:')
             && str_contains((string) $request->body(), 'Tomorrow:'));
     }
@@ -148,7 +148,7 @@ class RainAlertTest extends TestCase
         $this->assertFalse($result->notified);
         $this->assertSame('outside_hours', $result->status);
 
-        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'ntfy.sh/weather-topic'));
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), 'ntfy.sh/weather-topic'));
     }
 
     /**

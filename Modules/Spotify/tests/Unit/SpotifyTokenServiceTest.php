@@ -27,7 +27,7 @@ class SpotifyTokenServiceTest extends TestCase
         return new SpotifyTokenService($client);
     }
 
-    public function test_access_token_decrypts_an_encrypted_cached_value()
+    public function test_access_token_decrypts_an_encrypted_cached_value(): void
     {
         Cache::put('spotify_access_token', Crypt::encryptString('encrypted_token'), 3600);
 
@@ -38,7 +38,7 @@ class SpotifyTokenServiceTest extends TestCase
         $this->assertEquals('encrypted_token', Crypt::decryptString(Cache::get('spotify_access_token')));
     }
 
-    public function test_access_token_migrates_legacy_plaintext_value_in_place()
+    public function test_access_token_migrates_legacy_plaintext_value_in_place(): void
     {
         Cache::put('spotify_access_token', 'legacy_plaintext_token', 3600);
 
@@ -53,7 +53,7 @@ class SpotifyTokenServiceTest extends TestCase
         $this->assertEquals('legacy_plaintext_token', Crypt::decryptString($stored));
     }
 
-    public function test_refresh_access_token_migrates_legacy_plaintext_refresh_token()
+    public function test_refresh_access_token_migrates_legacy_plaintext_refresh_token(): void
     {
         Cache::put('spotify_refresh_token', 'legacy_refresh_token', 3600);
 
@@ -78,7 +78,7 @@ class SpotifyTokenServiceTest extends TestCase
         $this->assertEquals('new_access_token', Crypt::decryptString(Cache::get('spotify_access_token')));
     }
 
-    public function test_access_token_returns_null_when_nothing_cached()
+    public function test_access_token_returns_null_when_nothing_cached(): void
     {
         $service = $this->tokenService();
 

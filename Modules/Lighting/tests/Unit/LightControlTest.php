@@ -37,7 +37,7 @@ class LightControlTest extends TestCase
 
         app(TuyaProvider::class)->setPower('d1', true);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1.0/devices/d1/commands')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1.0/devices/d1/commands')
             && $request['commands'][0]['code'] === 'switch_led'
             && $request['commands'][0]['value'] === true);
     }
@@ -51,7 +51,7 @@ class LightControlTest extends TestCase
 
         app(TuyaProvider::class)->setBrightness('d1', 50);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1.0/devices/d1/commands')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1.0/devices/d1/commands')
             && $request['commands'][0]['code'] === 'bright_value_v2'
             && $request['commands'][0]['value'] === 500);
     }
@@ -69,7 +69,7 @@ class LightControlTest extends TestCase
 
         app(TuyaProvider::class)->setBrightness('d1', 50);
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
             if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
                 return false;
             }
@@ -92,7 +92,7 @@ class LightControlTest extends TestCase
 
         app(TuyaProvider::class)->setColor('d1', '#ff0000');
 
-        Http::assertSent(function ($request) {
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
             if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
                 return false;
             }
@@ -114,7 +114,7 @@ class LightControlTest extends TestCase
 
         app(GoveeProvider::class)->setPower('AA:BB', true);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'AA:BB'
             && $request['model'] === 'H6159'
             && $request['cmd']['name'] === 'turn'
@@ -132,7 +132,7 @@ class LightControlTest extends TestCase
 
         app(GoveeProvider::class)->setColor('AA:BB', '#ff0000');
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['cmd']['name'] === 'color'
             && $request['cmd']['value'] === ['r' => 255, 'g' => 0, 'b' => 0]);
     }
@@ -153,7 +153,7 @@ class LightControlTest extends TestCase
         app(GoveeProvider::class)->setBrightness('AA:BB', 72);
 
         Http::assertSentCount(3);
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'AA:BB'
             && $request['cmd']['name'] === 'brightness'
             && $request['cmd']['value'] === 72);
@@ -189,15 +189,15 @@ class LightControlTest extends TestCase
         $this->assertSame(0, $result->skipped);
         $this->assertSame([], $result->failedLights);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1.0/devices/calex-1/commands')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1.0/devices/calex-1/commands')
             && $request['commands'][0]['code'] === 'switch_led'
             && $request['commands'][0]['value'] === true);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1.0/devices/calex-1/commands')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1.0/devices/calex-1/commands')
             && $request['commands'][0]['code'] === 'bright_value_v2'
             && $request['commands'][0]['value'] === 1000);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'govee-1'
             && $request['cmd']['name'] === 'color'
             && $request['cmd']['value'] === ['r' => 245, 'g' => 247, 'b' => 255]);

@@ -13,7 +13,7 @@ class DashboardServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(config_path('ntfy.php'), 'ntfy');
 
         $this->app->singleton(ModuleRegistry::class);
-        $this->app->singleton(HubNotifier::class, fn () => new HubNotifier(
+        $this->app->singleton(HubNotifier::class, fn (): \App\Services\Ntfy\HubNotifier => new HubNotifier(
             url: rtrim((string) config('ntfy.url', 'https://ntfy.sh'), '/'),
             topic: (string) config('ntfy.topic', ''),
             token: (string) config('ntfy.token', ''),

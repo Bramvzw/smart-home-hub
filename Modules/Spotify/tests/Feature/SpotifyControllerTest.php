@@ -16,14 +16,14 @@ class SpotifyControllerTest extends TestCase
         return $mock;
     }
 
-    public function test_index_page_loads()
+    public function test_index_page_loads(): void
     {
         $response = $this->get(route('spotify.index'));
 
         $response->assertStatus(200);
     }
 
-    public function test_index_refreshes_access_token_when_refresh_token_exists()
+    public function test_index_refreshes_access_token_when_refresh_token_exists(): void
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('hasStoredAuthorization')->once()->andReturn(true);
@@ -36,11 +36,11 @@ class SpotifyControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('isConnected', true);
-        $response->assertSee('id="search-input"', false);
+        $response->assertSeeHtml('id="search-input"');
         $response->assertDontSee('No active music');
     }
 
-    public function test_index_shows_player_for_paused_track()
+    public function test_index_shows_player_for_paused_track(): void
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('hasStoredAuthorization')->once()->andReturn(true);
@@ -68,11 +68,11 @@ class SpotifyControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Paused Track');
-        $response->assertSee('data-tab="panel-playing"', false);
+        $response->assertSeeHtml('data-tab="panel-playing"');
         $response->assertDontSee('No active music');
     }
 
-    public function test_index_shows_connect_when_refresh_token_cannot_be_used()
+    public function test_index_shows_connect_when_refresh_token_cannot_be_used(): void
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('hasStoredAuthorization')->once()->andReturn(true);
@@ -86,7 +86,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertViewHas('isConnected', false);
     }
 
-    public function test_callback_rejects_missing_state()
+    public function test_callback_rejects_missing_state(): void
     {
         $response = $this->get(route('spotify.callback', ['code' => 'test_code']));
 
@@ -94,7 +94,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertSessionHas('error');
     }
 
-    public function test_callback_rejects_invalid_state()
+    public function test_callback_rejects_invalid_state(): void
     {
         session(['spotify_oauth_state' => 'valid_state']);
 
@@ -107,7 +107,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertSessionHas('error');
     }
 
-    public function test_callback_rejects_missing_code()
+    public function test_callback_rejects_missing_code(): void
     {
         session(['spotify_oauth_state' => 'valid_state']);
 
@@ -119,7 +119,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertSessionHas('error');
     }
 
-    public function test_play_returns_json()
+    public function test_play_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -129,7 +129,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertJsonStructure(['success']);
     }
 
-    public function test_pause_returns_json()
+    public function test_pause_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -138,42 +138,42 @@ class SpotifyControllerTest extends TestCase
         $response->assertJsonStructure(['success']);
     }
 
-    public function test_volume_rejects_invalid_value()
+    public function test_volume_rejects_invalid_value(): void
     {
         $response = $this->postJson(route('spotify.volume'), ['volume' => 150]);
 
         $response->assertStatus(422);
     }
 
-    public function test_volume_rejects_negative_value()
+    public function test_volume_rejects_negative_value(): void
     {
         $response = $this->postJson(route('spotify.volume'), ['volume' => -1]);
 
         $response->assertStatus(422);
     }
 
-    public function test_seek_rejects_invalid_position()
+    public function test_seek_rejects_invalid_position(): void
     {
         $response = $this->postJson(route('spotify.seek'), ['position_ms' => -1]);
 
         $response->assertStatus(422);
     }
 
-    public function test_check_saved_tracks_rejects_missing_ids()
+    public function test_check_saved_tracks_rejects_missing_ids(): void
     {
         $response = $this->getJson(route('spotify.check-saved-tracks'));
 
         $response->assertStatus(422);
     }
 
-    public function test_toggle_save_track_rejects_missing_id()
+    public function test_toggle_save_track_rejects_missing_id(): void
     {
         $response = $this->postJson(route('spotify.toggle-save-track'));
 
         $response->assertStatus(422);
     }
 
-    public function test_shuffle_play_rejects_missing_uri()
+    public function test_shuffle_play_rejects_missing_uri(): void
     {
         $response = $this->postJson(route('spotify.shuffle-play-playlist'));
 
@@ -182,7 +182,7 @@ class SpotifyControllerTest extends TestCase
 
     // Shuffle
 
-    public function test_shuffle_returns_json()
+    public function test_shuffle_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -193,7 +193,7 @@ class SpotifyControllerTest extends TestCase
 
     // Repeat
 
-    public function test_repeat_accepts_valid_states()
+    public function test_repeat_accepts_valid_states(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -203,14 +203,14 @@ class SpotifyControllerTest extends TestCase
         }
     }
 
-    public function test_repeat_rejects_invalid_state()
+    public function test_repeat_rejects_invalid_state(): void
     {
         $response = $this->postJson(route('spotify.repeat'), ['state' => 'invalid']);
 
         $response->assertStatus(422);
     }
 
-    public function test_repeat_rejects_missing_state()
+    public function test_repeat_rejects_missing_state(): void
     {
         $response = $this->postJson(route('spotify.repeat'));
 
@@ -219,7 +219,7 @@ class SpotifyControllerTest extends TestCase
 
     // Devices
 
-    public function test_devices_returns_json()
+    public function test_devices_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -228,14 +228,14 @@ class SpotifyControllerTest extends TestCase
         $response->assertJsonStructure(['success']);
     }
 
-    public function test_transfer_playback_rejects_missing_device_id()
+    public function test_transfer_playback_rejects_missing_device_id(): void
     {
         $response = $this->postJson(route('spotify.transfer-playback'));
 
         $response->assertStatus(422);
     }
 
-    public function test_transfer_playback_returns_json()
+    public function test_transfer_playback_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -246,7 +246,7 @@ class SpotifyControllerTest extends TestCase
 
     // Recently played
 
-    public function test_recently_played_returns_json()
+    public function test_recently_played_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -257,7 +257,7 @@ class SpotifyControllerTest extends TestCase
 
     // Search
 
-    public function test_search_returns_json()
+    public function test_search_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -266,14 +266,14 @@ class SpotifyControllerTest extends TestCase
         $response->assertJsonStructure(['success']);
     }
 
-    public function test_search_rejects_empty_query()
+    public function test_search_rejects_empty_query(): void
     {
         $response = $this->getJson(route('spotify.search'));
 
         $response->assertStatus(422);
     }
 
-    public function test_search_rejects_blank_query()
+    public function test_search_rejects_blank_query(): void
     {
         $response = $this->getJson(route('spotify.search', ['q' => '   ']));
 
@@ -282,7 +282,7 @@ class SpotifyControllerTest extends TestCase
 
     // Queue
 
-    public function test_queue_returns_json()
+    public function test_queue_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -293,14 +293,14 @@ class SpotifyControllerTest extends TestCase
 
     // Add to queue
 
-    public function test_add_to_queue_rejects_missing_uri()
+    public function test_add_to_queue_rejects_missing_uri(): void
     {
         $response = $this->postJson(route('spotify.add-to-queue'));
 
         $response->assertStatus(422);
     }
 
-    public function test_add_to_queue_returns_json()
+    public function test_add_to_queue_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -311,7 +311,7 @@ class SpotifyControllerTest extends TestCase
 
     // Next / Previous
 
-    public function test_next_returns_json()
+    public function test_next_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -320,7 +320,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertJsonStructure(['success']);
     }
 
-    public function test_previous_returns_json()
+    public function test_previous_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -331,7 +331,7 @@ class SpotifyControllerTest extends TestCase
 
     // Playback state
 
-    public function test_playback_state_returns_json()
+    public function test_playback_state_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -342,7 +342,7 @@ class SpotifyControllerTest extends TestCase
 
     // Next track
 
-    public function test_next_track_returns_json()
+    public function test_next_track_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -353,7 +353,7 @@ class SpotifyControllerTest extends TestCase
 
     // User playlists
 
-    public function test_user_playlists_returns_json()
+    public function test_user_playlists_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -364,7 +364,7 @@ class SpotifyControllerTest extends TestCase
 
     // Toggle save track
 
-    public function test_toggle_save_track_returns_json()
+    public function test_toggle_save_track_returns_json(): void
     {
         Cache::put('spotify_access_token', 'fake_token', 3600);
 
@@ -378,7 +378,7 @@ class SpotifyControllerTest extends TestCase
 
     // Mocked service tests
 
-    public function test_play_success_with_mocked_service()
+    public function test_play_success_with_mocked_service(): void
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('play')->once()->with(null)->andReturn(['success' => true]);
@@ -387,97 +387,97 @@ class SpotifyControllerTest extends TestCase
         $response->assertJson(['success' => true]);
     }
 
-    public function test_play_with_uri_validates_format()
+    public function test_play_with_uri_validates_format(): void
     {
         $response = $this->postJson(route('spotify.play'), ['uri' => 'not-a-valid-uri']);
         $response->assertStatus(422);
     }
 
-    public function test_volume_returns_422_for_invalid_value()
+    public function test_volume_returns_422_for_invalid_value(): void
     {
         $response = $this->postJson(route('spotify.volume'), ['volume' => 150]);
         $response->assertStatus(422);
     }
 
-    public function test_seek_returns_422_for_negative_position()
+    public function test_seek_returns_422_for_negative_position(): void
     {
         $response = $this->postJson(route('spotify.seek'), ['position_ms' => -1]);
         $response->assertStatus(422);
     }
 
-    public function test_seek_returns_422_for_missing_position()
+    public function test_seek_returns_422_for_missing_position(): void
     {
         $response = $this->postJson(route('spotify.seek'));
         $response->assertStatus(422);
     }
 
-    public function test_repeat_returns_422_for_invalid_state()
+    public function test_repeat_returns_422_for_invalid_state(): void
     {
         $response = $this->postJson(route('spotify.repeat'), ['state' => 'invalid']);
         $response->assertStatus(422);
     }
 
-    public function test_repeat_returns_422_for_missing_state()
+    public function test_repeat_returns_422_for_missing_state(): void
     {
         $response = $this->postJson(route('spotify.repeat'));
         $response->assertStatus(422);
     }
 
-    public function test_search_returns_422_for_missing_query()
+    public function test_search_returns_422_for_missing_query(): void
     {
         $response = $this->getJson(route('spotify.search'));
         $response->assertStatus(422);
     }
 
-    public function test_search_returns_422_for_blank_query()
+    public function test_search_returns_422_for_blank_query(): void
     {
         $response = $this->getJson(route('spotify.search', ['q' => '   ']));
         $response->assertStatus(422);
     }
 
-    public function test_search_returns_422_for_too_long_query()
+    public function test_search_returns_422_for_too_long_query(): void
     {
         $response = $this->getJson(route('spotify.search', ['q' => str_repeat('a', 201)]));
         $response->assertStatus(422);
     }
 
-    public function test_transfer_playback_returns_422_for_missing_device_id()
+    public function test_transfer_playback_returns_422_for_missing_device_id(): void
     {
         $response = $this->postJson(route('spotify.transfer-playback'));
         $response->assertStatus(422);
     }
 
-    public function test_check_saved_tracks_returns_422_for_missing_ids()
+    public function test_check_saved_tracks_returns_422_for_missing_ids(): void
     {
         $response = $this->getJson(route('spotify.check-saved-tracks'));
         $response->assertStatus(422);
     }
 
-    public function test_check_saved_tracks_returns_422_for_non_array_ids()
+    public function test_check_saved_tracks_returns_422_for_non_array_ids(): void
     {
         $response = $this->getJson(route('spotify.check-saved-tracks', ['ids' => 'not-an-array']));
         $response->assertStatus(422);
     }
 
-    public function test_toggle_save_track_returns_422_for_missing_fields()
+    public function test_toggle_save_track_returns_422_for_missing_fields(): void
     {
         $response = $this->postJson(route('spotify.toggle-save-track'));
         $response->assertStatus(422);
     }
 
-    public function test_toggle_save_track_returns_422_for_missing_saved_flag()
+    public function test_toggle_save_track_returns_422_for_missing_saved_flag(): void
     {
         $response = $this->postJson(route('spotify.toggle-save-track'), ['id' => 'track123']);
         $response->assertStatus(422);
     }
 
-    public function test_add_to_queue_returns_422_for_invalid_uri()
+    public function test_add_to_queue_returns_422_for_invalid_uri(): void
     {
         $response = $this->postJson(route('spotify.add-to-queue'), ['uri' => 'not-a-spotify-uri']);
         $response->assertStatus(422);
     }
 
-    public function test_get_playback_state_returns_502_when_service_errors()
+    public function test_get_playback_state_returns_502_when_service_errors(): void
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('getCurrentPlayback')->once()->andReturn(['error' => 'Spotify API request failed']);
@@ -487,7 +487,7 @@ class SpotifyControllerTest extends TestCase
         $response->assertJson(['success' => false]);
     }
 
-    public function test_get_devices_returns_devices_on_success()
+    public function test_get_devices_returns_devices_on_success(): void
     {
         $mock = $this->mockSpotifyService();
         $mock->shouldReceive('getAvailableDevices')->once()->andReturn([

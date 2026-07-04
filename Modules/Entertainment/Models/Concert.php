@@ -8,8 +8,11 @@ class Concert extends Model
 {
     protected $fillable = ['source', 'external_id', 'artist', 'title', 'venue', 'city', 'date', 'url', 'relevance', 'notified'];
 
-    protected $casts = [
-        'date' => 'immutable_datetime',
-        'notified' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'date' => 'immutable_datetime',
+            'notified' => 'boolean',
+        ];
+    }
 }

@@ -37,7 +37,7 @@ class CalendarService
         }
 
         $timezone = (string) config('app.timezone', 'UTC');
-        $days = $days ?? (int) config('calendar.window_days', 7);
+        $days ??= (int) config('calendar.window_days', 7);
         $now = ($now ?? CarbonImmutable::now($timezone))->setTimezone($timezone);
 
         $rangeStart = $now->startOfDay();
@@ -59,7 +59,7 @@ class CalendarService
             Cache::forever($lastGoodKey, $events);
 
             return new CalendarFeed($this->sort($events));
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             $lastGood = Cache::get($lastGoodKey);
 
             return new CalendarFeed(
@@ -77,7 +77,7 @@ class CalendarService
      */
     private function sort(array $events): array
     {
-        usort($events, static fn (CalendarEvent $a, CalendarEvent $b) => $a->start <=> $b->start);
+        usort($events, static fn (CalendarEvent $a, CalendarEvent $b): int => $a->start <=> $b->start);
 
         return array_values($events);
     }

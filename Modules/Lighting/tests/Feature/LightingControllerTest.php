@@ -49,7 +49,7 @@ class LightingControllerTest extends TestCase
         $response->assertSee('Presets');
         $response->assertSee('Cozy');
         $response->assertSee('Night light');
-        $response->assertSee('data-preset-url-template', false);
+        $response->assertSeeHtml('data-preset-url-template');
     }
 
     public function test_index_shows_no_credentials_state(): void
@@ -86,7 +86,7 @@ class LightingControllerTest extends TestCase
         $response->assertJsonPath('data.id', 'DEV1');
         $response->assertJsonPath('data.provider', 'govee');
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control'));
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control'));
     }
 
     public function test_preset_endpoint_applies_a_preset_to_govee_lights(): void
@@ -104,17 +104,17 @@ class LightingControllerTest extends TestCase
 
         // A preset deterministically overwrites the lamp's state, so the power
         // command is sent even when the lamp is already on.
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'DEV1'
             && $request['cmd']['name'] === 'turn'
             && $request['cmd']['value'] === 'on');
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'DEV1'
             && $request['cmd']['name'] === 'brightness'
             && $request['cmd']['value'] === 72);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'DEV1'
             && $request['cmd']['name'] === 'color'
             && $request['cmd']['value'] === ['r' => 255, 'g' => 194, 'b' => 107]);
@@ -148,22 +148,22 @@ class LightingControllerTest extends TestCase
         $response->assertJsonPath('data.applied', 1);
         $response->assertJsonPath('data.skipped', 1);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'STRIP1'
             && $request['cmd']['name'] === 'turn'
             && $request['cmd']['value'] === 'on');
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'STRIP1'
             && $request['cmd']['name'] === 'brightness'
             && $request['cmd']['value'] === 1);
 
-        Http::assertSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'STRIP1'
             && $request['cmd']['name'] === 'color'
             && $request['cmd']['value'] === ['r' => 255, 'g' => 133, 'b' => 89]);
 
-        Http::assertNotSent(fn ($request) => str_contains($request->url(), '/v1/devices/control')
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'LAMP1');
     }
 

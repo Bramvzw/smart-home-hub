@@ -21,7 +21,7 @@ class SpotifyApiClientTest extends TestCase
         Cache::flush();
     }
 
-    public function test_request_returns_error_when_connection_times_out()
+    public function test_request_returns_error_when_connection_times_out(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -37,7 +37,7 @@ class SpotifyApiClientTest extends TestCase
         $this->assertEquals('Spotify API request failed', $result['error']);
     }
 
-    public function test_service_provider_binds_client_with_configured_timeout()
+    public function test_service_provider_binds_client_with_configured_timeout(): void
     {
         config(['spotify.request_timeout' => 7]);
 
@@ -48,7 +48,7 @@ class SpotifyApiClientTest extends TestCase
         $this->assertEquals(7.0, $client->getConfig('connect_timeout'));
     }
 
-    public function test_service_provider_binds_client_with_default_timeout()
+    public function test_service_provider_binds_client_with_default_timeout(): void
     {
         $client = $this->app->make(ClientInterface::class);
 

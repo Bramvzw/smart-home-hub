@@ -9,11 +9,11 @@ use Illuminate\Http\RedirectResponse;
 
 class SettingsController
 {
-    public function index(ModuleRegistry $registry)
+    public function index(ModuleRegistry $registry): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $panes = $registry->getModules()
-            ->filter(fn ($module) => $module instanceof ProvidesSettings)
-            ->map(fn ($module) => [
+            ->filter(fn ($module): bool => $module instanceof ProvidesSettings)
+            ->map(fn ($module): array => [
                 'slug' => $module->getModuleSlug(),
                 'name' => $module->getModuleName(),
                 'fields' => $module->settingsSchema(),

@@ -45,7 +45,7 @@ class UpcomingTrackViewModelTest extends TestCase
 
     public function test_it_marks_missing_next_track_without_placeholder_image(): void
     {
-        $view = new UpcomingTrackViewModel(null);
+        $view = new UpcomingTrackViewModel;
 
         $this->assertFalse($view->hasTrack);
         $this->assertSame('', $view->trackImage);

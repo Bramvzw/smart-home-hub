@@ -21,14 +21,6 @@ class ProductListing extends Model
         'last_checked_at',
     ];
 
-    protected $casts = [
-        'current_price' => 'decimal:2',
-        'lowest_price' => 'decimal:2',
-        'confirmed' => 'boolean',
-        'active' => 'boolean',
-        'last_checked_at' => 'immutable_datetime',
-    ];
-
     public function product(): BelongsTo
     {
         return $this->belongsTo(WatchedProduct::class, 'watched_product_id');
@@ -37,5 +29,16 @@ class ProductListing extends Model
     public function pricePoints(): HasMany
     {
         return $this->hasMany(PricePoint::class, 'product_listing_id')->orderBy('observed_at');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'current_price' => 'decimal:2',
+            'lowest_price' => 'decimal:2',
+            'confirmed' => 'boolean',
+            'active' => 'boolean',
+            'last_checked_at' => 'immutable_datetime',
+        ];
     }
 }

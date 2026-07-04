@@ -62,19 +62,17 @@ class RecipesViewModel
 
         $cacheKey = "recipes.deals.{$weekKey}.{$recipes->count()}.{$offers->count()}";
 
-        return Cache::remember($cacheKey, 300, function () use ($recipes, $offers): array {
-            return $this->dealsMatcher->match($recipes, $offers)
-                ->filter(fn (RecipeDealsMatch $match): bool => $match->hasMatches())
-                ->map(fn (RecipeDealsMatch $match): array => [
-                    'total_savings' => $match->totalSavings,
-                    'matches' => collect($match->matchedOffers)->map(fn (MatchedOffer $matchedOffer): array => [
-                        'ingredient' => $matchedOffer->ingredientName,
-                        'offer' => $matchedOffer->offerProductName,
-                        'store' => $matchedOffer->store,
-                        'savings' => $matchedOffer->savings,
-                    ])->all(),
-                ])
-                ->all();
-        });
+        return Cache::remember($cacheKey, 300, fn (): array => $this->dealsMatcher->match($recipes, $offers)
+            ->filter(fn (RecipeDealsMatch $match): bool => $match->hasMatches())
+            ->map(fn (RecipeDealsMatch $match): array => [
+                'total_savings' => $match->totalSavings,
+                'matches' => collect($match->matchedOffers)->map(fn (MatchedOffer $matchedOffer): array => [
+                    'ingredient' => $matchedOffer->ingredientName,
+                    'offer' => $matchedOffer->offerProductName,
+                    'store' => $matchedOffer->store,
+                    'savings' => $matchedOffer->savings,
+                ])->all(),
+            ])
+            ->all());
     }
 }

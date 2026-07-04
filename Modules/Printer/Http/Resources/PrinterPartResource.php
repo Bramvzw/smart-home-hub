@@ -8,7 +8,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin \Modules\Printer\Models\PrinterPart */
 class PrinterPartResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap;
 
     public function toArray(Request $request): array
     {

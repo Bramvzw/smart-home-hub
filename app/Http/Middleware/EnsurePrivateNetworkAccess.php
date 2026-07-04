@@ -22,7 +22,7 @@ final class EnsurePrivateNetworkAccess
         $allowedCidrs = config('network.private_access.allowed_cidrs', []);
 
         if (is_string($allowedCidrs)) {
-            $allowedCidrs = array_values(array_filter(array_map('trim', explode(',', $allowedCidrs))));
+            $allowedCidrs = array_values(array_filter(array_map(trim(...), explode(',', $allowedCidrs))));
         }
 
         if ($clientIp !== null && IpUtils::checkIp($clientIp, $allowedCidrs)) {

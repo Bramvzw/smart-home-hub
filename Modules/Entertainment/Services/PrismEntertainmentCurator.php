@@ -70,7 +70,7 @@ class PrismEntertainmentCurator implements EntertainmentCurator
             return false;
         }
 
-        $haystack = mb_strtolower(trim($concert->artist.' '.(string) $concert->title));
+        $haystack = mb_strtolower(trim($concert->artist.' '.$concert->title));
 
         return $keywords->contains(fn (string $term): bool => str_contains($haystack, $term));
     }

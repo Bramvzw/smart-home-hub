@@ -9,11 +9,8 @@ class Layout extends Component
 {
     public array $navigation;
 
-    public string $title;
-
-    public function __construct(string $title = 'Smart Home Hub')
+    public function __construct(public string $title = 'Smart Home Hub')
     {
-        $this->title = $title;
         $this->navigation = app(ModuleRegistry::class)->getNavigation();
     }
 

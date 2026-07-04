@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Spotify\Http\Controllers\SpotifyController;
 
-Route::prefix('spotify')->name('spotify.')->group(function () {
+Route::prefix('spotify')->name('spotify.')->group(function (): void {
     Route::get('/', [SpotifyController::class, 'index'])->name('index');
     Route::get('/callback', [SpotifyController::class, 'callback'])->name('callback');
 

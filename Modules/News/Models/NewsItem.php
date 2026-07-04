@@ -24,17 +24,20 @@ class NewsItem extends Model
         'matched_keywords',
     ];
 
-    protected $casts = [
-        'published_at' => 'immutable_datetime',
-        'is_read' => 'boolean',
-        'read_at' => 'immutable_datetime',
-        'notified' => 'boolean',
-        'matched_keywords' => 'array',
-    ];
-
     public function newEloquentBuilder($query): NewsItemBuilder
     {
         /** @var BaseBuilder $query */
         return new NewsItemBuilder($query);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'published_at' => 'immutable_datetime',
+            'is_read' => 'boolean',
+            'read_at' => 'immutable_datetime',
+            'notified' => 'boolean',
+            'matched_keywords' => 'array',
+        ];
     }
 }

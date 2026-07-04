@@ -1,6 +1,42 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Cannot call method setTimezone\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,string\>\:\:map\(\) expects callable\(string, 0\)\: array\{key\: string, label\: string, summary\: string\}, Closure\(array\)\: array\{key\: string, label\: string, summary\: string\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\*NEVER\*, \*NEVER\*\>\|iterable\<\*NEVER\*, \*NEVER\*\>\|null, array\{\}\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Offset ''key'' does not exist on non\-empty\-string\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: Modules/Briefing/tests/Feature/BriefingControllerTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertCount\(\) expects Countable\|iterable, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Briefing/tests/Feature/BriefingControllerTest.php
+
+		-
 			message: '#^Cannot access property \$data on null\.$#'
 			identifier: property.nonObject
 			count: 11
@@ -67,7 +103,19 @@ parameters:
 			path: Modules/Calendar/Actions/RejectPlanItem.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
@@ -89,6 +137,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: Modules/Calendar/Services/CalendarService.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
 
 		-
 			message: '#^Method Modules\\Calendar\\Services\\Google\\GoogleCalendarClient\:\:busyTimes\(\) should return list\<Modules\\Calendar\\Data\\BusyTime\> but returns array\<int, Modules\\Calendar\\Data\\BusyTime\>\.$#'
@@ -119,6 +173,12 @@ parameters:
 			identifier: argument.templateType
 			count: 2
 			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Calendar/Services/Google/GoogleCalendarTokenService.php
 
 		-
 			message: '#^Cannot access property \$access_token on stdClass\|null\.$#'
@@ -181,13 +241,19 @@ parameters:
 			path: Modules/Deals/Briefing/DealsBriefingSource.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between numeric\-string and null will always evaluate to true\.$#'
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Deals/Http/Resources/PricePointResource.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between float and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: Modules/Deals/Http/Resources/PricePointResource.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Deals/Http/Resources/PricePointResource.php
@@ -227,6 +293,12 @@ parameters:
 			identifier: method.unresolvableReturnType
 			count: 1
 			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
 
 		-
 			message: '#^Cannot access property \$confirmed on Modules\\Deals\\Models\\ProductListing\|null\.$#'
@@ -283,6 +355,12 @@ parameters:
 			path: Modules/Entertainment/Actions/DismissFilm.php
 
 		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Actions/NotifyEntertainment.php
+
+		-
 			message: '#^Parameter \#1 \$concert of method Modules\\Entertainment\\Contracts\\EntertainmentCurator\:\:concertRelevance\(\) expects Modules\\Entertainment\\Models\\Concert, Modules\\Entertainment\\Models\\Concert\|null given\.$#'
 			identifier: argument.type
 			count: 1
@@ -319,19 +397,91 @@ parameters:
 			path: Modules/Entertainment/Actions/UpdateTasteProfile.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Entertainment\\Models\\Concert\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Entertainment\\Models\\MusicRelease\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Entertainment\\Models\\Concert\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Entertainment\\Models\\MusicRelease\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 2
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 2
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Entertainment/Http/Resources/ConcertResource.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
@@ -375,6 +525,24 @@ parameters:
 		-
 			message: '#^Method Modules\\Entertainment\\Services\\PrismEntertainmentCurator\:\:curateFilms\(\) should return list\<Modules\\Entertainment\\Data\\FilmPick\> but returns array\<int, Modules\\Entertainment\\Data\\FilmPick\>\.$#'
 			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Parameter \#1 \$items of method Illuminate\\Support\\Collection\<int,string\>\:\:merge\(\) expects Illuminate\\Contracts\\Support\\Arrayable\<0, \*NEVER\*\>\|iterable\<0, \*NEVER\*\>, array\{\}\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Parameter \#1 \$items of method Illuminate\\Support\\Collection\<int,string\>\:\:merge\(\) expects Illuminate\\Contracts\\Support\\Arrayable\<0, non\-empty\-string\>\|iterable\<0, non\-empty\-string\>, list\<non\-empty\-string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\*NEVER\*, \*NEVER\*\>\|iterable\<\*NEVER\*, \*NEVER\*\>\|null, array\{\}\|string given\.$#'
+			identifier: argument.type
 			count: 1
 			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
 
@@ -499,10 +667,70 @@ parameters:
 			path: Modules/News/Actions/CheckNewsKeywords.php
 
 		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: string, matched_keywords\: array\}, Closure\(Modules\\News\\Models\\NewsItem\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: string, matched_keywords\: array\} given\.$#'
+			message: '#^Parameter \#1 \$value of function count expects array\|Countable, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/Actions/CheckNewsKeywords.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/Actions/CheckNewsKeywords.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: mixed, matched_keywords\: array\{\}\|string\}, Closure\(Modules\\News\\Models\\NewsItem\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: mixed, matched_keywords\: array\{\}\|string\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Cannot call method setTimezone\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\{\}\|string\) to function array_values is empty, call has no effect\.$#'
+			identifier: arrayValues.empty
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_values expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
 
 		-
 			message: '#^Cannot access property \$is_read on Modules\\News\\Models\\NewsItem\|null\.$#'
@@ -583,6 +811,12 @@ parameters:
 			path: Modules/Printer/Briefing/PrinterBriefingSource.php
 
 		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
 			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$is_low\.$#'
 			identifier: property.notFound
 			count: 1
@@ -595,7 +829,19 @@ parameters:
 			path: Modules/Printer/tests/Feature/PrinterPartControllerTest.php
 
 		-
-			message: '#^Parameter \#2 \$array of function implode expects array, array\|null given\.$#'
+			message: '#^Property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_g \(int\<0, max\>\) does not accept int\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: Modules/Printer/tests/Unit/FilamentSpoolComputationTest.php
+
+		-
+			message: '#^Property Modules\\Printer\\Models\\FilamentSpool\:\:\$total_weight_g \(int\<0, max\>\) does not accept int\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: Modules/Printer/tests/Unit/FilamentSpoolComputationTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array, string\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Modules/Recipes/Actions/GenerateRecipes.php
@@ -607,10 +853,40 @@ parameters:
 			path: Modules/Recipes/Actions/GenerateRecipes.php
 
 		-
-			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,string\>\:\:filter\(\) expects \(callable\(string, 0\)\: bool\)\|null, Closure\(array\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,string\>\:\:map\(\) expects callable\(string, 0\)\: string, Closure\(array\)\: string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\*NEVER\*, \*NEVER\*\>\|iterable\<\*NEVER\*, \*NEVER\*\>\|null, array\{\}\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
 
 		-
 			message: '#^Method Modules\\Recipes\\Services\\AlbertHeijnOfferProvider\:\:candidateItems\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
@@ -637,6 +913,12 @@ parameters:
 			path: Modules/Recipes/Services/LidlOfferProvider.php
 
 		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\*NEVER\*, \*NEVER\*\>\|iterable\<\*NEVER\*, \*NEVER\*\>\|null, array\{\}\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Services/RecipeDealsMatcher.php
+
+		-
 			message: '#^Method Modules\\Recipes\\Services\\RecipeGenerator\:\:generate\(\) should return list\<Modules\\Recipes\\Models\\Recipe\> but returns array\<int, Modules\\Recipes\\Models\\Recipe\>\.$#'
 			identifier: return.type
 			count: 1
@@ -653,6 +935,12 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: Modules/Recipes/Services/RecipeGenerator.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
 
 		-
 			message: '#^Method Modules\\Recipes\\Tests\\Feature\\RecipesControllerTest\:\:fixture\(\) should return string but returns string\|false\.$#'
@@ -703,12 +991,6 @@ parameters:
 			path: Modules/Spotify/Http/Controllers/SpotifyController.php
 
 		-
-			message: '#^Method Modules\\Spotify\\View\\ViewModels\\PlaylistView\:\:__construct\(\) has parameter \$playlist with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: Modules/Spotify/View/ViewModels/PlaylistView.php
-
-		-
 			message: '#^Method Modules\\Spotify\\View\\ViewModels\\SpotifyPlayerViewModel\:\:resolvePlaylists\(\) should return list\<Modules\\Spotify\\View\\ViewModels\\PlaylistView\> but returns array\<Modules\\Spotify\\View\\ViewModels\\PlaylistView\>\.$#'
 			identifier: return.type
 			count: 1
@@ -727,664 +1009,16 @@ parameters:
 			path: Modules/Spotify/View/ViewModels/TrackDetailsView.php
 
 		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_rejects_missing_uri\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_returns_422_for_invalid_uri\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_callback_rejects_invalid_state\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_callback_rejects_missing_code\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_callback_rejects_missing_state\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_check_saved_tracks_rejects_missing_ids\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_check_saved_tracks_returns_422_for_missing_ids\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_check_saved_tracks_returns_422_for_non_array_ids\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_devices_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_get_devices_returns_devices_on_success\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_get_playback_state_returns_502_when_service_errors\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_page_loads\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_refreshes_access_token_when_refresh_token_exists\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_shows_connect_when_refresh_token_cannot_be_used\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_shows_player_for_paused_track\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_next_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_next_track_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_pause_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_play_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_play_success_with_mocked_service\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_play_with_uri_validates_format\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_playback_state_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_previous_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_queue_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_recently_played_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_accepts_valid_states\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_rejects_invalid_state\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_rejects_missing_state\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_returns_422_for_invalid_state\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_returns_422_for_missing_state\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_rejects_blank_query\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_rejects_empty_query\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_422_for_blank_query\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_422_for_missing_query\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_422_for_too_long_query\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_seek_rejects_invalid_position\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_seek_returns_422_for_missing_position\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_seek_returns_422_for_negative_position\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_shuffle_play_rejects_missing_uri\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_shuffle_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_rejects_missing_id\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_returns_422_for_missing_fields\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_returns_422_for_missing_saved_flag\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_transfer_playback_rejects_missing_device_id\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_transfer_playback_returns_422_for_missing_device_id\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_transfer_playback_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_user_playlists_returns_json\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_volume_rejects_invalid_value\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_volume_rejects_negative_value\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_volume_returns_422_for_invalid_value\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
-
-		-
 			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''GuzzleHttp\\\\Client'' and GuzzleHttp\\Client will always evaluate to true\.$#'
 			identifier: method.alreadyNarrowedType
 			count: 1
 			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
 
 		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_request_returns_error_when_connection_times_out\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_service_provider_binds_client_with_configured_timeout\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_service_provider_binds_client_with_default_timeout\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_add_to_queue\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_check_saved_tracks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_ensure_access_token_succeeds_when_access_token_exists\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_access_token_returns_error_on_failed_response\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_access_token_stores_tokens_in_cache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_authorization_url_returns_valid_url\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_authorization_url_stores_state_in_session\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_available_devices_returns_devices\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_available_devices_returns_empty_list\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_available_devices_with_mocked_response\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_current_playback_returns_data\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_next_track_returns_null_when_empty_queue\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_next_track_returns_track\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_profile\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_queue_empty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_queue_returns_queue\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_recently_played\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_saved_tracks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_saved_tracks_returns_empty_when_no_items\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_user_playlists\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_user_playlists_without_liked_songs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_has_stored_authorization_uses_refresh_token\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_make_request_fails_after_retry_on_second_401\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_make_request_retries_on_401_and_succeeds\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_next_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_pause_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_play_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_play_with_playlist_uri\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_play_with_track_uri\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_previous_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_refresh_access_token_updates_cache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_refresh_token_returns_error_when_no_refresh_token\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_remove_tracks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_save_tracks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_search_returns_tracks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_search_with_multiple_types\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_seek_to_position\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_repeat_mode\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_repeat_mode_context\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_repeat_mode_off\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_shuffle_off\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_shuffle_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_volume_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_shuffle_play_playlist\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_transfer_playback_sends_correct_payload\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_transfer_playback_sends_correct_request\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_validate_spotify_uri_rejects_invalid_format\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_volume_control_not_supported_returns_specific_error\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
 			message: '#^Parameter \#3 \$body of class GuzzleHttp\\Psr7\\Response constructor expects Psr\\Http\\Message\\StreamInterface\|resource\|string\|null, string\|false given\.$#'
 			identifier: argument.type
 			count: 27
 			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_access_token_decrypts_an_encrypted_cached_value\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_access_token_migrates_legacy_plaintext_value_in_place\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_access_token_returns_null_when_nothing_cached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
-
-		-
-			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_refresh_access_token_migrates_legacy_plaintext_refresh_token\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
 
 		-
 			message: '#^Parameter \#3 \$body of class GuzzleHttp\\Psr7\\Response constructor expects Psr\\Http\\Message\\StreamInterface\|resource\|string\|null, string\|false given\.$#'
@@ -1447,7 +1081,19 @@ parameters:
 			path: Modules/Tasks/Actions/Recurrences/CreateRecurrence.php
 
 		-
+			message: '#^Cannot call method isSameDay\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
+
+		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:each\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
+
+		-
+			message: '#^Parameter \#1 \$date of static method Carbon\\CarbonImmutable\:\:instance\(\) expects DateTimeInterface, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
@@ -1489,8 +1135,38 @@ parameters:
 			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
 
 		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, cadence_type\: ''annual''\|''interval''\|''monthly''\|''times_per_week''\|''weekdays''\|''weekly'', progress\: array, current_streak\: int, best_streak\: int, completed_today\: bool\}, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: array\{title\: string, cadence_type\: ''annual''\|''interval''\|''monthly''\|''times_per_week''\|''weekdays''\|''weekly'', progress\: array, current_streak\: int, best_streak\: int, completed_today\: bool\} given\.$#'
 			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
 			count: 1
 			path: Modules/Tasks/Briefing/TasksBriefingSource.php
 
@@ -1501,19 +1177,121 @@ parameters:
 			path: Modules/Tasks/Http/Controllers/TasksController.php
 
 		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Cannot call method format\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\TaskColumn\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\TaskColumn\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, Illuminate\\Support\\Collection\<int, array\<string, mixed\>\>\|int\|string\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
 			message: '#^Method Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\:\:dueOn\(\) should return static\(Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\) but returns Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\.$#'
 			identifier: return.type
 			count: 1
 			path: Modules/Tasks/Models/Builders/TaskRecurrenceBuilder.php
 
 		-
-			message: '#^Method Modules\\Tasks\\Services\\HabitCardPresenter\:\:scheduledWeekdays\(\) should return list\<int\> but returns non\-empty\-array\<int, int\<min, \-1\>\|int\<1, max\>\>\.$#'
-			identifier: return.type
+			message: '#^Call to function is_array\(\) with array\{\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: Modules/Tasks/Services/HabitCardPresenter.php
 
 		-
-			message: '#^Parameter \$preferredWindows of class App\\Data\\HabitCard constructor expects list\<array\<string, mixed\>\>, array\<mixed\> given\.$#'
+			message: '#^Call to function is_array\(\) with null will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\HabitCardPresenter\:\:mapWeekday\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''category'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''count'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''days'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''preferred_windows'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''target'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''times'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Offset ''weekdays'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Parameter \#2 \$config of method Modules\\Tasks\\Services\\HabitCardPresenter\:\:targetRange\(\) expects array, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Modules/Tasks/Services/HabitCardPresenter.php
@@ -1523,6 +1301,72 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{\} and array\{\} will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Parameter \#2 \$config of method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:annualNextDueOn\(\) expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Parameter \#2 \$config of method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:intervalNextDueOn\(\) expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Parameter \#2 \$config of method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:monthlyNextDueOn\(\) expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Parameter \#2 \$config of method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:weeklyNextDueOn\(\) expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Call to function is_array\(\) with null will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Cannot assign offset ''category'' to array\|string\.$#'
+			identifier: offsetAssign.dimType
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Cannot assign offset ''preferred_windows'' to array\<string, string\>\|string\.$#'
+			identifier: offsetAssign.dimType
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Cannot assign offset ''target_min'' to array\<string, array\<mixed\>\|string\>\|string\.$#'
+			identifier: offsetAssign.dimType
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
 
 		-
 			message: '#^Method Modules\\Tasks\\Services\\RecurrenceGoals\:\:all\(\) should return list\<App\\Data\\SchedulableGoal\> but returns array\<int, App\\Data\\SchedulableGoal\>\.$#'
@@ -1539,6 +1383,30 @@ parameters:
 		-
 			message: '#^Method Modules\\Tasks\\Services\\RecurrenceGoals\:\:plannable\(\) should return list\<App\\Data\\SchedulableGoal\> but returns array\<int, App\\Data\\SchedulableGoal\>\.$#'
 			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Offset ''category'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Offset ''preferred_windows'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Offset ''target_max'' on array\{\}\|array\{category\?\: string, preferred_windows\?\: array\<mixed\>\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Offset ''target_min'' on array\{\}\|array\{category\?\: string, preferred_windows\?\: array\<mixed\>\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
 			count: 1
 			path: Modules/Tasks/Services/RecurrenceGoals.php
 
@@ -1591,16 +1459,76 @@ parameters:
 			path: Modules/Tasks/Services/RecurrenceGoals.php
 
 		-
+			message: '#^Parameter \#2 \$config of method Modules\\Tasks\\Services\\RecurrenceGoals\:\:targetRange\(\) expects array, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
 			message: '#^Parameter \#2 \$existing of method Modules\\Tasks\\Services\\RecurrenceGoals\:\:toAttributes\(\) expects Modules\\Tasks\\Models\\TaskRecurrence\|null, Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 1
 			path: Modules/Tasks/Services/RecurrenceGoals.php
 
 		-
-			message: '#^Parameter \$preferredWindows of class App\\Data\\SchedulableGoal constructor expects list\<array\{days\?\: string, after\?\: string, before\?\: string, start\?\: string, end\?\: string\}\>, array\<mixed\> given\.$#'
-			identifier: argument.type
+			message: '#^Call to function is_array\(\) with array\{\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
-			path: Modules/Tasks/Services/RecurrenceGoals.php
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\StreakCalculator\:\:mapWeekday\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Offset ''count'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Offset ''days'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Offset ''target'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Offset ''times'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Offset ''weekdays'' on string\|null on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{\} and array\{\} will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: Modules/Tasks/Services/StreakCalculator.php
 
 		-
 			message: '#^Cannot call method isoFormat\(\) on Carbon\\CarbonImmutable\|string\.$#'
@@ -1609,9 +1537,33 @@ parameters:
 			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
 
 		-
+			message: '#^Offset ''every'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
+
+		-
+			message: '#^Offset ''interval'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
+
+		-
+			message: '#^Offset ''unit'' on array\{\}\|string on left side of \?\? does not exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
+
+		-
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: array given\.$#'
 			identifier: argument.type
 			count: 1
+			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
+
+		-
+			message: '#^Parameter \#1 \$date of static method Carbon\\CarbonImmutable\:\:instance\(\) expects DateTimeInterface, string given\.$#'
+			identifier: argument.type
+			count: 2
 			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
 
 		-
@@ -1651,7 +1603,7 @@ parameters:
 			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
 
 		-
-			message: '#^Cannot call method toDateString\(\) on Carbon\\CarbonImmutable\|null\.$#'
+			message: '#^Cannot call method toDateString\(\) on string\|null\.$#'
 			identifier: method.nonObject
 			count: 3
 			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
@@ -1721,18 +1673,6 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: Modules/Weather/tests/Unit/RainAlertTest.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:index\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/DashboardController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\SettingsController\:\:index\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/SettingsController.php
 
 		-
 			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'

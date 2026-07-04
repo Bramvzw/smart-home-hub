@@ -32,7 +32,7 @@ class SpotifyServiceTest extends TestCase
         return $this->app->make(SpotifyService::class);
     }
 
-    public function test_get_authorization_url_returns_valid_url()
+    public function test_get_authorization_url_returns_valid_url(): void
     {
         $service = $this->app->make(SpotifyService::class);
         $url = $service->getAuthorizationUrl();
@@ -41,7 +41,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertStringContainsString('response_type=code', $url);
     }
 
-    public function test_get_authorization_url_stores_state_in_session()
+    public function test_get_authorization_url_stores_state_in_session(): void
     {
         $service = $this->app->make(SpotifyService::class);
         $service->getAuthorizationUrl();
@@ -49,7 +49,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue(Session::has('spotify_oauth_state'));
     }
 
-    public function test_has_stored_authorization_uses_refresh_token()
+    public function test_has_stored_authorization_uses_refresh_token(): void
     {
         Cache::put('spotify_refresh_token', Crypt::encryptString('test_refresh_token'), 3600);
 
@@ -58,7 +58,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($service->hasStoredAuthorization());
     }
 
-    public function test_ensure_access_token_succeeds_when_access_token_exists()
+    public function test_ensure_access_token_succeeds_when_access_token_exists(): void
     {
         Cache::put('spotify_access_token', Crypt::encryptString('test_access_token'), 3600);
 
@@ -67,7 +67,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals(['success' => true], $service->ensureAccessToken());
     }
 
-    public function test_get_access_token_stores_tokens_in_cache()
+    public function test_get_access_token_stores_tokens_in_cache(): void
     {
         $service = $this->createServiceWithMockClient([
             new Response(200, [], json_encode([
@@ -85,7 +85,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('test_refresh_token', Crypt::decryptString(Cache::get('spotify_refresh_token')));
     }
 
-    public function test_get_current_playback_returns_data()
+    public function test_get_current_playback_returns_data(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -104,7 +104,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Test Track', $result['item']['name']);
     }
 
-    public function test_play_sends_correct_request()
+    public function test_play_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -117,7 +117,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_pause_sends_correct_request()
+    public function test_pause_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -130,7 +130,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_set_volume_sends_correct_request()
+    public function test_set_volume_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -143,7 +143,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_get_next_track_returns_track()
+    public function test_get_next_track_returns_track(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -160,7 +160,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Next Track', $result['next_track']['name']);
     }
 
-    public function test_get_next_track_returns_null_when_empty_queue()
+    public function test_get_next_track_returns_null_when_empty_queue(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -173,7 +173,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertNull($result['next_track']);
     }
 
-    public function test_refresh_token_returns_error_when_no_refresh_token()
+    public function test_refresh_token_returns_error_when_no_refresh_token(): void
     {
         Cache::forget('spotify_refresh_token');
 
@@ -183,7 +183,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertArrayHasKey('error', $result);
     }
 
-    public function test_check_saved_tracks()
+    public function test_check_saved_tracks(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -196,7 +196,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals([true, false], $result);
     }
 
-    public function test_get_user_playlists()
+    public function test_get_user_playlists(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -221,7 +221,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertNotEmpty($result['playlists']);
     }
 
-    public function test_set_shuffle_sends_correct_request()
+    public function test_set_shuffle_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -234,7 +234,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_set_shuffle_off()
+    public function test_set_shuffle_off(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -247,7 +247,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_set_repeat_mode()
+    public function test_set_repeat_mode(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -260,7 +260,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_set_repeat_mode_off()
+    public function test_set_repeat_mode_off(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -273,7 +273,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_set_repeat_mode_context()
+    public function test_set_repeat_mode_context(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -286,7 +286,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_get_available_devices_returns_devices()
+    public function test_get_available_devices_returns_devices(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -306,7 +306,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('My Phone', $result['devices'][0]['name']);
     }
 
-    public function test_get_available_devices_returns_empty_list()
+    public function test_get_available_devices_returns_empty_list(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -319,7 +319,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEmpty($result['devices']);
     }
 
-    public function test_transfer_playback_sends_correct_request()
+    public function test_transfer_playback_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -332,7 +332,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_add_to_queue()
+    public function test_add_to_queue(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -345,7 +345,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_get_recently_played()
+    public function test_get_recently_played(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -366,7 +366,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Recent Track', $result['items'][0]['track']['name']);
     }
 
-    public function test_search_returns_tracks()
+    public function test_search_returns_tracks(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -386,7 +386,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Found Track', $result['tracks']['items'][0]['name']);
     }
 
-    public function test_search_with_multiple_types()
+    public function test_search_with_multiple_types(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -405,7 +405,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertArrayHasKey('playlists', $result);
     }
 
-    public function test_get_queue_returns_queue()
+    public function test_get_queue_returns_queue(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -424,7 +424,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertCount(2, $result['queue']);
     }
 
-    public function test_get_queue_empty()
+    public function test_get_queue_empty(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -439,7 +439,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEmpty($result['queue']);
     }
 
-    public function test_next_sends_correct_request()
+    public function test_next_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -452,7 +452,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_previous_sends_correct_request()
+    public function test_previous_sends_correct_request(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -465,7 +465,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_seek_to_position()
+    public function test_seek_to_position(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -478,7 +478,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_save_tracks()
+    public function test_save_tracks(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -491,7 +491,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_remove_tracks()
+    public function test_remove_tracks(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -504,7 +504,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_play_with_track_uri()
+    public function test_play_with_track_uri(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -517,7 +517,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_play_with_playlist_uri()
+    public function test_play_with_playlist_uri(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -530,7 +530,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_shuffle_play_playlist()
+    public function test_shuffle_play_playlist(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -544,7 +544,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['success']);
     }
 
-    public function test_get_saved_tracks()
+    public function test_get_saved_tracks(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -561,7 +561,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertCount(1, $result);
     }
 
-    public function test_get_saved_tracks_returns_empty_when_no_items()
+    public function test_get_saved_tracks_returns_empty_when_no_items(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -574,7 +574,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEmpty($result);
     }
 
-    public function test_refresh_access_token_updates_cache()
+    public function test_refresh_access_token_updates_cache(): void
     {
         Cache::put('spotify_refresh_token', 'test_refresh_token', 3600);
 
@@ -591,7 +591,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('new_access_token', Crypt::decryptString(Cache::get('spotify_access_token')));
     }
 
-    public function test_get_profile()
+    public function test_get_profile(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -607,7 +607,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Test User', $result['display_name']);
     }
 
-    public function test_make_request_retries_on_401_and_succeeds()
+    public function test_make_request_retries_on_401_and_succeeds(): void
     {
         Cache::put('spotify_access_token', 'expired_token', 3600);
         Cache::put('spotify_refresh_token', 'refresh_token', 3600);
@@ -627,7 +627,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertTrue($result['is_playing']);
     }
 
-    public function test_make_request_fails_after_retry_on_second_401()
+    public function test_make_request_fails_after_retry_on_second_401(): void
     {
         Cache::put('spotify_access_token', 'expired_token', 3600);
         Cache::put('spotify_refresh_token', 'refresh_token', 3600);
@@ -645,7 +645,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertArrayHasKey('error', $result);
     }
 
-    public function test_volume_control_not_supported_returns_specific_error()
+    public function test_volume_control_not_supported_returns_specific_error(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -658,7 +658,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('volume_control_not_supported', $result['code'] ?? null);
     }
 
-    public function test_get_access_token_returns_error_on_failed_response()
+    public function test_get_access_token_returns_error_on_failed_response(): void
     {
         $service = $this->createServiceWithMockClient([
             new Response(400, [], json_encode(['error' => 'invalid_grant'])),
@@ -668,7 +668,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertArrayHasKey('error', $result);
     }
 
-    public function test_get_user_playlists_without_liked_songs()
+    public function test_get_user_playlists_without_liked_songs(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -684,7 +684,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertArrayHasKey('playlists', $result);
     }
 
-    public function test_validate_spotify_uri_rejects_invalid_format()
+    public function test_validate_spotify_uri_rejects_invalid_format(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -694,7 +694,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Invalid Spotify URI format', $result['error']);
     }
 
-    public function test_get_available_devices_with_mocked_response()
+    public function test_get_available_devices_with_mocked_response(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 
@@ -711,7 +711,7 @@ class SpotifyServiceTest extends TestCase
         $this->assertEquals('Phone', $result['devices'][0]['name']);
     }
 
-    public function test_transfer_playback_sends_correct_payload()
+    public function test_transfer_playback_sends_correct_payload(): void
     {
         Cache::put('spotify_access_token', 'test_token', 3600);
 

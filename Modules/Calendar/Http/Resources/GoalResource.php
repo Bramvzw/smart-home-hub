@@ -15,7 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class GoalResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap;
 
     public function toArray(Request $request): array
     {

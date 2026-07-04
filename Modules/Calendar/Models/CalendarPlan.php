@@ -13,11 +13,6 @@ class CalendarPlan extends Model
 
     protected $fillable = ['week_key', 'summary', 'status', 'is_fallback', 'generated_at'];
 
-    protected $casts = [
-        'is_fallback' => 'boolean',
-        'generated_at' => 'immutable_datetime',
-    ];
-
     public function items(): HasMany
     {
         return $this->hasMany(CalendarPlanItem::class, 'plan_id')->orderByRaw('start_at is null')->orderBy('start_at')->orderBy('id');
@@ -26,8 +21,17 @@ class CalendarPlan extends Model
     /**
      * The most recently generated plan, with its items eager-loaded.
      */
-    public function scopeLatestGenerated(Builder $query): Builder
+    #[\Illuminate\Database\Eloquent\Attributes\Scope]
+    protected function latestGenerated(Builder $query): Builder
     {
         return $query->with('items')->latest('generated_at');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'is_fallback' => 'boolean',
+            'generated_at' => 'immutable_datetime',
+        ];
     }
 }

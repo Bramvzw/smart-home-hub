@@ -29,7 +29,7 @@ class UpdateLightRequest extends FormRequest
     {
         $changes = $this->validated();
 
-        if (isset($changes['color']) && ! str_starts_with($changes['color'], '#')) {
+        if (isset($changes['color']) && ! str_starts_with((string) $changes['color'], '#')) {
             $changes['color'] = '#'.$changes['color'];
         }
 

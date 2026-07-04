@@ -152,7 +152,6 @@ class WeatherTriggeredPresetsTest extends TestCase
                 enabled: true,
                 rainProbabilityMin: 60,
                 precipitationMinMm: 0.1,
-                temperatureMax: null,
                 startTime: '07:00',
                 endTime: '23:00',
             ),

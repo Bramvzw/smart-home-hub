@@ -8,8 +8,11 @@ class TasteProfile extends Model
 {
     protected $fillable = ['favorite_titles', 'genres', 'notes'];
 
-    protected $casts = [
-        'favorite_titles' => 'array',
-        'genres' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'favorite_titles' => 'array',
+            'genres' => 'array',
+        ];
+    }
 }

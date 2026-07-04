@@ -9,7 +9,7 @@ use Modules\Deals\Support\SafeUrl;
 /** @mixin \Modules\Deals\Models\ProductListing */
 class ProductListingResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap;
 
     public function toArray(Request $request): array
     {

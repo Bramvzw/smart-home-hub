@@ -7,7 +7,7 @@ use Modules\Briefing\View\ViewModels\BriefingViewModel;
 
 class DashboardController
 {
-    public function index(ModuleRegistry $registry)
+    public function index(ModuleRegistry $registry): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('dashboard', [
             'modules' => $registry->getModules(),

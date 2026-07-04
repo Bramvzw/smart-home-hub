@@ -12,7 +12,7 @@ class MarkItemsRead
      */
     public function __invoke(array $ids): int
     {
-        $ids = array_values(array_filter(array_map('intval', $ids)));
+        $ids = array_values(array_filter(array_map(intval(...), $ids)));
 
         if ($ids === []) {
             return 0;

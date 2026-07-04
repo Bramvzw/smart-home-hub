@@ -275,9 +275,7 @@ class CalendarPlanControllerTest extends TestCase
             $this->assertSame(503, $e->response->status());
         }
 
-        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
-            return str_contains($request->url(), 'googleapis.com/calendar/v3/');
-        });
+        Http::assertSent(fn (\Illuminate\Http\Client\Request $request): bool => str_contains($request->url(), 'googleapis.com/calendar/v3/'));
     }
 }
 
@@ -317,7 +315,7 @@ class FakePlannerNotifier extends HubNotifier
 
     public function __construct()
     {
-        parent::__construct('https://ntfy.sh', 'topic', '', 10);
+        parent::__construct('https://ntfy.sh', 'topic', '');
     }
 
     public function send(string $title, string $message): void

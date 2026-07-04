@@ -111,7 +111,7 @@ abstract class ModuleServiceProvider extends ServiceProvider implements ModuleCo
 
     protected function registerWithDashboard(): void
     {
-        $this->app->booted(function () {
+        $this->app->booted(function (): void {
             $registry = $this->app->make(ModuleRegistry::class);
             $registry->register($this);
         });

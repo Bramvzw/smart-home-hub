@@ -29,7 +29,7 @@ class GenerateBriefing
             ['date' => $date->toDateString()],
             [
                 'body' => $composed->body,
-                'sections' => array_map(fn ($section): array => $section->toArray(), $sections),
+                'sections' => array_map(fn (\App\Support\Briefing\BriefingSection $section): array => $section->toArray(), $sections),
                 'generated_at' => $generatedAt->utc(),
                 'model' => $composed->model,
                 'is_fallback' => $composed->isFallback,

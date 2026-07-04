@@ -14,10 +14,13 @@ class RecipeRun extends Model
         'generated_at',
     ];
 
-    protected $casts = [
-        'stores_fetched' => 'array',
-        'stores_failed' => 'array',
-        'ai_unavailable' => 'boolean',
-        'generated_at' => 'immutable_datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'stores_fetched' => 'array',
+            'stores_failed' => 'array',
+            'ai_unavailable' => 'boolean',
+            'generated_at' => 'immutable_datetime',
+        ];
+    }
 }

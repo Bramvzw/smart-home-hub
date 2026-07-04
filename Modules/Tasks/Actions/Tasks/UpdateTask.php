@@ -47,7 +47,7 @@ class UpdateTask
             return;
         }
 
-        $doneColumn = $board->columns->first(fn (TaskColumn $column) => $column->isDoneColumn());
+        $doneColumn = $board->columns->first(fn (TaskColumn $column): bool => $column->isDoneColumn());
 
         if ($doneColumn && $completed) {
             $task->column_id = $doneColumn->id;
@@ -56,7 +56,7 @@ class UpdateTask
         }
 
         if ($doneColumn && $task->column_id === $doneColumn->id) {
-            $fallbackColumn = $board->columns->first(fn (TaskColumn $column) => ! $column->isDoneColumn());
+            $fallbackColumn = $board->columns->first(fn (TaskColumn $column): bool => ! $column->isDoneColumn());
             $task->column_id = $fallbackColumn->id ?? $task->column_id;
         }
     }

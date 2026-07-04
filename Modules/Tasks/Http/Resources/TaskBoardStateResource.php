@@ -12,7 +12,7 @@ use Modules\Tasks\Models\TaskLabel;
 
 class TaskBoardStateResource extends JsonResource
 {
-    public static $wrap = null;
+    public static $wrap;
 
     public function toArray(Request $request): array
     {

@@ -13,12 +13,15 @@ class TaskRecurrenceCompletion extends Model
         'period_key',
     ];
 
-    protected $casts = [
-        'completed_on' => 'immutable_date',
-    ];
-
     public function recurrence(): BelongsTo
     {
         return $this->belongsTo(TaskRecurrence::class, 'recurrence_id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'completed_on' => 'immutable_date',
+        ];
     }
 }

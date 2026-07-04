@@ -22,7 +22,7 @@ use Throwable;
 class LightingService
 {
     /** @var list<LightProvider> */
-    private array $providers;
+    private readonly array $providers;
 
     public function __construct(TuyaProvider $tuya, GoveeProvider $govee)
     {
@@ -67,13 +67,13 @@ class LightingService
             $provider = $this->providerByKey($providerKey);
 
             if (array_key_exists('power', $changes)) {
-                $provider->setPower($id, (bool) $changes['power']);
+                $provider->setPower($id, $changes['power']);
             }
             if (array_key_exists('brightness', $changes)) {
-                $provider->setBrightness($id, (int) $changes['brightness']);
+                $provider->setBrightness($id, $changes['brightness']);
             }
             if (array_key_exists('color', $changes)) {
-                $provider->setColor($id, (string) $changes['color']);
+                $provider->setColor($id, $changes['color']);
             }
 
             Cache::forget($this->cacheKey($provider));
@@ -85,7 +85,7 @@ class LightingService
                 name: '',
                 on: (bool) ($changes['power'] ?? true),
                 brightness: (int) ($changes['brightness'] ?? 0),
-                color: isset($changes['color']) ? (string) $changes['color'] : null,
+                color: $changes['color'] ?? null,
                 reachable: true,
                 supportsColor: array_key_exists('color', $changes),
             );
@@ -154,7 +154,7 @@ class LightingService
      */
     public function configuredProviders(): array
     {
-        return array_values(array_filter($this->providers, static fn (LightProvider $p) => $p->isConfigured()));
+        return array_values(array_filter($this->providers, static fn (LightProvider $p): bool => $p->isConfigured()));
     }
 
     /**
@@ -165,7 +165,7 @@ class LightingService
         return Cache::remember(
             $this->cacheKey($provider),
             (int) config('lighting.cache_ttl', 30),
-            static fn () => $provider->lights(),
+            static fn (): array => $provider->lights(),
         );
     }
 

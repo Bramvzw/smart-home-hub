@@ -71,7 +71,7 @@ class SlotFinder
             'weekday' => $date->isWeekday(),
             'weekend' => $date->isWeekend(),
             'any', null => true,
-            default => in_array($date->dayOfWeekIso, array_map('intval', explode(',', $days)), true),
+            default => in_array($date->dayOfWeekIso, array_map(intval(...), explode(',', $days)), true),
         };
     }
 

@@ -18,7 +18,7 @@ class WeatherServiceProvider extends ModuleServiceProvider
     {
         parent::register();
 
-        $this->app->singleton(NtfyWeatherNotifier::class, fn () => new NtfyWeatherNotifier(new HubNotifier(
+        $this->app->singleton(NtfyWeatherNotifier::class, fn (): \Modules\Weather\Services\NtfyWeatherNotifier => new NtfyWeatherNotifier(new HubNotifier(
             url: rtrim((string) config('weather.ntfy.url', 'https://ntfy.sh'), '/'),
             topic: (string) config('weather.ntfy.topic', ''),
             token: (string) config('weather.ntfy.token', ''),

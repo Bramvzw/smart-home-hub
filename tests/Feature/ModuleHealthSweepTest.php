@@ -91,7 +91,7 @@ class FakeSweepNotifier extends HubNotifier
 
     public function __construct()
     {
-        parent::__construct('https://ntfy.sh', 'topic', '', 10);
+        parent::__construct('https://ntfy.sh', 'topic', '');
     }
 
     public function sendWithOptions(string $title, string $message, ?string $tags, string $priority): void

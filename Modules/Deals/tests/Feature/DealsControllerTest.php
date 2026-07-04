@@ -201,7 +201,7 @@ class FakeDealsNotifier extends HubNotifier
 
     public function __construct()
     {
-        parent::__construct('https://ntfy.sh', 'topic', '', 10);
+        parent::__construct('https://ntfy.sh', 'topic', '');
     }
 
     public function send(string $title, string $message): void

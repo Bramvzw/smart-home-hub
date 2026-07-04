@@ -29,7 +29,7 @@ class SpotifyLibraryService
     {
         $cacheKey = 'spotify_playlists_'.md5($limit.'_'.($includeLikedSongs ? '1' : '0'));
 
-        return Cache::remember($cacheKey, config('spotify.cache_ttl', 300), function () use ($limit, $includeLikedSongs) {
+        return Cache::remember($cacheKey, config('spotify.cache_ttl', 300), function () use ($limit, $includeLikedSongs): array {
             $response = $this->api->request('GET', '/me/playlists', [
                 'query' => ['limit' => $limit],
             ]);

@@ -20,7 +20,7 @@ class PhonePingServiceProvider extends ModuleServiceProvider implements Provides
     {
         parent::register();
 
-        $this->app->singleton(NtfyClient::class, fn () => new NtfyClient(new HubNotifier(
+        $this->app->singleton(NtfyClient::class, fn (): \Modules\PhonePing\Services\NtfyClient => new NtfyClient(new HubNotifier(
             url: rtrim((string) config('phoneping.ntfy.url', 'https://ntfy.sh'), '/'),
             topic: $this->topic(),
             token: (string) config('phoneping.ntfy.token', ''),

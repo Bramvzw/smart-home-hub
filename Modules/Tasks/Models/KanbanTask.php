@@ -25,12 +25,6 @@ class KanbanTask extends Model
         'position',
     ];
 
-    protected $casts = [
-        'completed' => 'boolean',
-        'due_date' => 'date',
-        'archived_at' => 'datetime',
-    ];
-
     /** @return BelongsTo<TaskBoard, $this> */
     public function board(): BelongsTo
     {
@@ -61,8 +55,18 @@ class KanbanTask extends Model
         return $this->hasMany(TaskChecklistItem::class, 'task_id')->orderBy('position');
     }
 
-    public function scopeActive(Builder $query): Builder
+    #[\Illuminate\Database\Eloquent\Attributes\Scope]
+    protected function active(Builder $query): Builder
     {
         return $query->whereNull('archived_at');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'completed' => 'boolean',
+            'due_date' => 'date',
+            'archived_at' => 'datetime',
+        ];
     }
 }

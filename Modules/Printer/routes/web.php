@@ -5,7 +5,7 @@ use Modules\Printer\Http\Controllers\FilamentSpoolController;
 use Modules\Printer\Http\Controllers\PrinterController;
 use Modules\Printer\Http\Controllers\PrinterPartController;
 
-Route::prefix('printer')->name('printer.')->group(function () {
+Route::prefix('printer')->name('printer.')->group(function (): void {
     Route::get('/', [PrinterController::class, 'index'])->name('index');
 
     Route::post('/filament', [FilamentSpoolController::class, 'store'])->name('filament.store');

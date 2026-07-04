@@ -12,5 +12,8 @@ class FilmFeedback extends Model
 
     protected $fillable = ['tmdb_id', 'title', 'sentiment', 'created_at'];
 
-    protected $casts = ['created_at' => 'immutable_datetime'];
+    protected function casts(): array
+    {
+        return ['created_at' => 'immutable_datetime'];
+    }
 }
