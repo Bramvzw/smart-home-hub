@@ -169,7 +169,15 @@ Artisan::command('deals:check-prices', function () {
 })->purpose('Check confirmed deal listings for price drops');
 
 Artisan::command('entertainment:refresh-films', function () {
-    $count = app(RefreshFilms::class)();
+    try {
+        $count = app(RefreshFilms::class)();
+    } catch (\Throwable $exception) {
+        report($exception);
+        $this->error('Entertainment films: failed');
+
+        return 1;
+    }
+
     $this->info("Entertainment films: refreshed {$count} candidates");
 
     return 0;
