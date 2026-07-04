@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Health\ModuleHealthSweep;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -305,4 +306,28 @@ Schedule::command('calendar:generate')
         'friday' => 5,
         'saturday' => 6,
     ][mb_strtolower((string) config('calendar.generate.day', 'sunday'))] ?? 0, (string) config('calendar.generate.time', '19:00'))
+    ->withoutOverlapping();
+
+Artisan::command('health:sweep', function () {
+    try {
+        $statuses = app(ModuleHealthSweep::class)();
+    } catch (\Throwable $exception) {
+        report($exception);
+        $this->error('Health sweep: failed');
+
+        return 1;
+    }
+
+    $notOk = array_filter($statuses, fn (string $status): bool => $status !== 'ok');
+
+    $this->info(sprintf(
+        'Health sweep: %d modules checked, %d not ok%s',
+        count($statuses),
+        count($notOk),
+        $notOk === [] ? '' : ' ('.implode(', ', array_keys($notOk)).')',
+    ));
+})->purpose('Sweep module health and notify on regressions');
+
+Schedule::command('health:sweep')
+    ->hourly()
     ->withoutOverlapping();
