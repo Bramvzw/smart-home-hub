@@ -42,7 +42,12 @@ class UpdateTask
 
     private function syncColumnForCompletedState(KanbanTask $task, bool $completed): void
     {
-        $doneColumn = $task->board->columns->first(fn (TaskColumn $column) => $column->isDoneColumn());
+        $board = $task->board;
+        if ($board === null) {
+            return;
+        }
+
+        $doneColumn = $board->columns->first(fn (TaskColumn $column) => $column->isDoneColumn());
 
         if ($doneColumn && $completed) {
             $task->column_id = $doneColumn->id;
@@ -51,7 +56,7 @@ class UpdateTask
         }
 
         if ($doneColumn && $task->column_id === $doneColumn->id) {
-            $fallbackColumn = $task->board->columns->first(fn (TaskColumn $column) => ! $column->isDoneColumn());
+            $fallbackColumn = $board->columns->first(fn (TaskColumn $column) => ! $column->isDoneColumn());
             $task->column_id = $fallbackColumn->id ?? $task->column_id;
         }
     }

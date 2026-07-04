@@ -5,6 +5,7 @@ namespace Modules\Entertainment\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \Modules\Entertainment\Models\MusicRelease */
 class MusicReleaseResource extends JsonResource
 {
     public static $wrap = null;

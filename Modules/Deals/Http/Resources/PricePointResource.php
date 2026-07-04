@@ -5,6 +5,7 @@ namespace Modules\Deals\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \Modules\Deals\Models\PricePoint */
 class PricePointResource extends JsonResource
 {
     public static $wrap = null;

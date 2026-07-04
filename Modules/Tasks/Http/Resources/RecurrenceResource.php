@@ -5,6 +5,7 @@ namespace Modules\Tasks\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \Modules\Tasks\Models\TaskRecurrence */
 class RecurrenceResource extends JsonResource
 {
     public static $wrap = null;

@@ -1,48 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$body\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$date\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$generated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$is_fallback\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$model\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: Modules/Briefing/Http/Resources/BriefingResource.php
-
-		-
 			message: '#^Cannot access property \$data on null\.$#'
 			identifier: property.nonObject
 			count: 11
@@ -109,92 +67,8 @@ parameters:
 			path: Modules/Calendar/Actions/RejectPlanItem.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$category\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$end_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$google_event_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$recurrence_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$start_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$unplaceable_reason\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$generated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$is_fallback\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$summary\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$week_key\.$#'
-			identifier: property.notFound
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
 
@@ -307,124 +181,52 @@ parameters:
 			path: Modules/Deals/Briefing/DealsBriefingSource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\PricePointResource\:\:\$observed_at\.$#'
-			identifier: property.notFound
+			message: '#^Strict comparison using \!\=\= between numeric\-string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: Modules/Deals/Http/Resources/PricePointResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\PricePointResource\:\:\$price\.$#'
-			identifier: property.notFound
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Deals/Http/Resources/PricePointResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductHistoryResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
 			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductHistoryResource\:\:\$listings\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pricePoints\.$#'
 			identifier: property.notFound
 			count: 1
 			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$active\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$retailer\.$#'
 			identifier: property.notFound
 			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
+			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$confirmed\.$#'
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
 			identifier: property.notFound
 			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
+			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$current_price\.$#'
-			identifier: property.notFound
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
 			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
+			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$external_id\.$#'
-			identifier: property.notFound
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
 			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$last_checked_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$lowest_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$retailer\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/ProductListingResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$category\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/WatchedProductResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/WatchedProductResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$image_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/WatchedProductResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/WatchedProductResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$notes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/WatchedProductResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$query\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
 
 		-
 			message: '#^Cannot access property \$confirmed on Modules\\Deals\\Models\\ProductListing\|null\.$#'
@@ -517,190 +319,22 @@ parameters:
 			path: Modules/Entertainment/Actions/UpdateTasteProfile.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$artist\.$#'
-			identifier: property.notFound
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Entertainment/Http/Resources/ConcertResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$city\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$date\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$external_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$notified\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$relevance\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$source\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$venue\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/ConcertResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$dismissed\.$#'
-			identifier: property.notFound
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$overview\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$poster_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$refreshed_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$score\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$tmdb_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$why\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$artist\.$#'
-			identifier: property.notFound
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$image_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$notified\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$release_date\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$saved_on_spotify\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$spotify_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\TasteProfileResource\:\:\$notes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Entertainment/Http/Resources/TasteProfileResource.php
 
 		-
 			message: '#^Method Modules\\Entertainment\\Services\\Concerts\\BandsintownProvider\:\:fetch\(\) should return list\<Modules\\Entertainment\\Data\\ConcertData\> but returns array\.$#'
@@ -871,60 +505,6 @@ parameters:
 			path: Modules/News/Briefing/NewsBriefingSource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$feed_key\.$#'
-			identifier: property.notFound
-			count: 2
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$image_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$is_read\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$published_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$summary\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$topic\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/News/Http/Resources/NewsItemResource.php
-
-		-
 			message: '#^Cannot access property \$is_read on Modules\\News\\Models\\NewsItem\|null\.$#'
 			identifier: property.nonObject
 			count: 3
@@ -985,18 +565,6 @@ parameters:
 			path: Modules/News/tests/Unit/NewsServiceTest.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$is_low\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_pct\.$#'
-			identifier: property.notFound
-			count: 2
-			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
 			message: '#^Access to an undefined property Modules\\Printer\\Models\\PrinterPart\:\:\$is_low\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1009,124 +577,10 @@ parameters:
 			path: Modules/Printer/Briefing/PrinterBriefingSource.php
 
 		-
-			message: '#^Method Modules\\Printer\\Briefing\\PrinterBriefingSource\:\:spoolData\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\{material\: string, color_name\: string, remaining_pct\: mixed\}\>\.$#'
+			message: '#^Method Modules\\Printer\\Briefing\\PrinterBriefingSource\:\:spoolData\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\{material\: string, color_name\: string, remaining_pct\: int\}\>\.$#'
 			identifier: return.type
 			count: 1
 			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Modules\\Printer\\Models\\FilamentSpool\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: argument.unresolvableType
-			count: 1
-			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,Modules\\Printer\\Models\\FilamentSpool\>\:\:map\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
-			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
-			identifier: method.unresolvableReturnType
-			count: 1
-			path: Modules/Printer/Briefing/PrinterBriefingSource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$brand\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$color_hex\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$color_name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$diameter_mm\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$is_low\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$material\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$purchase_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$purchase_store\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$purchased_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$remaining_g\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$remaining_pct\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$total_weight_g\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$category\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/PrinterPartResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/PrinterPartResource.php
 
 		-
 			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$is_low\.$#'
@@ -1135,52 +589,10 @@ parameters:
 			path: Modules/Printer/Http/Resources/PrinterPartResource.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$low_threshold\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/PrinterPartResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/PrinterPartResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$quantity\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/PrinterPartResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$unit\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Http/Resources/PrinterPartResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_pct\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Printer/Models/FilamentSpool.php
-
-		-
 			message: '#^Cannot access property \$is_low on Modules\\Printer\\Models\\PrinterPart\|null\.$#'
 			identifier: property.nonObject
 			count: 2
 			path: Modules/Printer/tests/Feature/PrinterPartControllerTest.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$is_low\.$#'
-			identifier: property.notFound
-			count: 3
-			path: Modules/Printer/tests/Unit/FilamentSpoolComputationTest.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_pct\.$#'
-			identifier: property.notFound
-			count: 5
-			path: Modules/Printer/tests/Unit/FilamentSpoolComputationTest.php
 
 		-
 			message: '#^Parameter \#2 \$array of function implode expects array, array\|null given\.$#'
@@ -1195,154 +607,10 @@ parameters:
 			path: Modules/Recipes/Actions/GenerateRecipes.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$category\.$#'
-			identifier: property.notFound
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
 			count: 1
 			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$discount_label\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$external_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$fetched_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$image_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$normal_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$offer_price\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$product_name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$store\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$unit\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$valid_from\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$valid_to\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$week_key\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/OfferResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$estimated_cost\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$is_fallback\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$model\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$servings\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$time_minutes\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$week_key\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: Modules/Recipes/Http/Resources/RecipeResource.php
 
 		-
 			message: '#^Method Modules\\Recipes\\Services\\AlbertHeijnOfferProvider\:\:candidateItems\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
@@ -1777,6 +1045,12 @@ parameters:
 			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
 
 		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''GuzzleHttp\\\\Client'' and GuzzleHttp\\Client will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
+
+		-
 			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_request_returns_error_when_connection_times_out\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2203,12 +1477,6 @@ parameters:
 			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
 
 		-
-			message: '#^Cannot access property \$columns on Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
-
-		-
 			message: '#^Cannot call method labels\(\) on Modules\\Tasks\\Models\\TaskBoard\|null\.$#'
 			identifier: method.nonObject
 			count: 2
@@ -2233,78 +1501,6 @@ parameters:
 			path: Modules/Tasks/Http/Controllers/TasksController.php
 
 		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$board_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$cadence_type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$last_materialized_on\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$next_due_on\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$notify\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$title\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
-
-		-
-			message: '#^Access to an undefined property Modules\\Tasks\\Models\\TaskBoard\:\:\$active_tasks_count\.$#'
-			identifier: property.notFound
-			count: 1
-			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
-
-		-
 			message: '#^Method Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\:\:dueOn\(\) should return static\(Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\) but returns Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\.$#'
 			identifier: return.type
 			count: 1
@@ -2327,36 +1523,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: Modules/Tasks/Services/HabitCardPresenter.php
-
-		-
-			message: '#^Cannot access property \$daysInMonth on Carbon\\CarbonImmutable\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: Modules/Tasks/Services/MaintenanceScheduler.php
-
-		-
-			message: '#^Cannot call method greaterThan\(\) on Carbon\\CarbonImmutable\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: Modules/Tasks/Services/MaintenanceScheduler.php
-
-		-
-			message: '#^Cannot call method lessThanOrEqualTo\(\) on Carbon\\CarbonImmutable\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: Modules/Tasks/Services/MaintenanceScheduler.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:annualNextDueOn\(\) should return Carbon\\CarbonImmutable but returns Carbon\\CarbonImmutable\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/Services/MaintenanceScheduler.php
-
-		-
-			message: '#^Method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:monthlyNextDueOn\(\) should return Carbon\\CarbonImmutable but returns Carbon\\CarbonImmutable\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Tasks/Services/MaintenanceScheduler.php
 
 		-
 			message: '#^Method Modules\\Tasks\\Services\\RecurrenceGoals\:\:all\(\) should return list\<App\\Data\\SchedulableGoal\> but returns array\<int, App\\Data\\SchedulableGoal\>\.$#'

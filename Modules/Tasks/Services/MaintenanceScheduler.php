@@ -64,15 +64,7 @@ class MaintenanceScheduler
 
         for ($months = 0; $months < 24; $months++) {
             $month = $completedOn->firstOfMonth()->addMonthsNoOverflow($months);
-            $candidate = CarbonImmutable::create(
-                $month->year,
-                $month->month,
-                min($day, $month->daysInMonth),
-                0,
-                0,
-                0,
-                $completedOn->timezone
-            );
+            $candidate = $month->setDate($month->year, $month->month, min($day, $month->daysInMonth))->startOfDay();
 
             if ($candidate->greaterThan($completedOn)) {
                 return $candidate;
@@ -86,26 +78,14 @@ class MaintenanceScheduler
     {
         $month = max(1, min(12, (int) ($config['month'] ?? $completedOn->month)));
         $day = max(1, min(31, (int) ($config['day'] ?? $completedOn->day)));
-        $candidate = CarbonImmutable::create(
-            $completedOn->year,
-            $month,
-            min($day, CarbonImmutable::create($completedOn->year, $month, 1)->daysInMonth),
-            0,
-            0,
-            0,
-            $completedOn->timezone
-        );
+        $candidate = $completedOn
+            ->setDate($completedOn->year, $month, min($day, $completedOn->setDate($completedOn->year, $month, 1)->daysInMonth))
+            ->startOfDay();
 
         if ($candidate->lessThanOrEqualTo($completedOn)) {
-            $candidate = CarbonImmutable::create(
-                $completedOn->year + 1,
-                $month,
-                min($day, CarbonImmutable::create($completedOn->year + 1, $month, 1)->daysInMonth),
-                0,
-                0,
-                0,
-                $completedOn->timezone
-            );
+            $candidate = $completedOn
+                ->setDate($completedOn->year + 1, $month, min($day, $completedOn->setDate($completedOn->year + 1, $month, 1)->daysInMonth))
+                ->startOfDay();
         }
 
         return $candidate;

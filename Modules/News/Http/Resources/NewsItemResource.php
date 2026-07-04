@@ -5,6 +5,7 @@ namespace Modules\News\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \Modules\News\Models\NewsItem */
 class NewsItemResource extends JsonResource
 {
     public static $wrap = null;

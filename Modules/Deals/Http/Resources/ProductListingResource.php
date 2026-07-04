@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Modules\Deals\Support\SafeUrl;
 
+/** @mixin \Modules\Deals\Models\ProductListing */
 class ProductListingResource extends JsonResource
 {
     public static $wrap = null;

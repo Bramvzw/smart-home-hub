@@ -6,6 +6,10 @@ use App\Services\Settings\SettingsStore;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property-read int $remaining_pct
+ * @property-read bool $is_low
+ */
 class FilamentSpool extends Model
 {
     protected $table = 'filament_spools';

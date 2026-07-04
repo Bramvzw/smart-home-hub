@@ -5,6 +5,7 @@ namespace Modules\Printer\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin \Modules\Printer\Models\FilamentSpool */
 class FilamentSpoolResource extends JsonResource
 {
     public static $wrap = null;
