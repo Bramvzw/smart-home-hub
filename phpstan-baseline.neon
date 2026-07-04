@@ -1,0 +1,2923 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$body\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$generated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$is_fallback\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Briefing\\Http\\Resources\\BriefingResource\:\:\$model\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Briefing/Http/Resources/BriefingResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Briefing/tests/Feature/BriefingSourcesTest.php
+
+		-
+			message: '#^Cannot access property \$data on null\.$#'
+			identifier: property.nonObject
+			count: 11
+			path: Modules/Briefing/tests/Feature/BriefingSourcesTest.php
+
+		-
+			message: '#^Cannot access property \$key on App\\Support\\Briefing\\BriefingSection\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Briefing/tests/Feature/BriefingSourcesTest.php
+
+		-
+			message: '#^Cannot access property \$key on null\.$#'
+			identifier: property.nonObject
+			count: 8
+			path: Modules/Briefing/tests/Feature/BriefingSourcesTest.php
+
+		-
+			message: '#^Cannot access property \$summary on null\.$#'
+			identifier: property.nonObject
+			count: 13
+			path: Modules/Briefing/tests/Feature/BriefingSourcesTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Actions/AcceptAllPlanItems.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Actions\\AcceptAllPlanItems\:\:__invoke\(\) should return Modules\\Calendar\\Models\\CalendarPlan but returns Modules\\Calendar\\Models\\CalendarPlan\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/Actions/AcceptAllPlanItems.php
+
+		-
+			message: '#^Parameter \#1 \$item of callable Modules\\Calendar\\Actions\\AcceptPlanItem expects Modules\\Calendar\\Models\\CalendarPlanItem, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Calendar/Actions/AcceptAllPlanItems.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Actions\\AcceptPlanItem\:\:__invoke\(\) should return Modules\\Calendar\\Models\\CalendarPlanItem but returns Modules\\Calendar\\Models\\CalendarPlanItem\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/Actions/AcceptPlanItem.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Actions\\AcceptPlanItem\:\:syncPlanStatus\(\) has parameter \$plan with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Modules/Calendar/Actions/AcceptPlanItem.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Actions\\GenerateWeeklyPlan\:\:__invoke\(\) should return Modules\\Calendar\\Models\\CalendarPlan but returns Modules\\Calendar\\Models\\CalendarPlan\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/Actions/GenerateWeeklyPlan.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Actions\\RejectPlanItem\:\:__invoke\(\) should return Modules\\Calendar\\Models\\CalendarPlanItem but returns Modules\\Calendar\\Models\\CalendarPlanItem\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/Actions/RejectPlanItem.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$end_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$google_event_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$recurrence_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$start_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanItemResource\:\:\$unplaceable_reason\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$generated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$is_fallback\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$summary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Calendar\\Http\\Resources\\CalendarPlanResource\:\:\$week_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Calendar/Http/Resources/CalendarPlanResource.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<Modules\\Calendar\\Data\\CalendarEvent\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: Modules/Calendar/Services/CalendarService.php
+
+		-
+			message: '#^Parameter \#1 \$events of method Modules\\Calendar\\Services\\CalendarService\:\:sort\(\) expects list\<Modules\\Calendar\\Data\\CalendarEvent\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Calendar/Services/CalendarService.php
+
+		-
+			message: '#^Parameter \#1 \$events of method Modules\\Calendar\\Services\\CalendarService\:\:sort\(\) expects list\<Modules\\Calendar\\Data\\CalendarEvent\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Calendar/Services/CalendarService.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Services\\Google\\GoogleCalendarClient\:\:busyTimes\(\) should return list\<Modules\\Calendar\\Data\\BusyTime\> but returns array\<int, Modules\\Calendar\\Data\\BusyTime\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Services\\Google\\GoogleCalendarClient\:\:events\(\) should return list\<Modules\\Calendar\\Data\\CalendarEvent\> but returns array\<int, Modules\\Calendar\\Data\\CalendarEvent\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
+
+		-
+			message: '#^Parameter \#1 \$date of static method Carbon\\CarbonImmutable\:\:instance\(\) expects DateTimeInterface, Carbon\\CarbonInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
+
+		-
+			message: '#^Cannot access property \$access_token on stdClass\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Calendar/tests/Feature/CalendarPlanControllerTest.php
+
+		-
+			message: '#^Cannot access property \$refresh_token on stdClass\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Calendar/tests/Feature/CalendarPlanControllerTest.php
+
+		-
+			message: '#^Method Modules\\Calendar\\Tests\\Feature\\FakePlannerCalendar\:\:busyTimes\(\) should return list\<Modules\\Calendar\\Data\\BusyTime\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Calendar/tests/Feature/CalendarPlanControllerTest.php
+
+		-
+			message: '#^Parameter \$preferredWindows of class App\\Data\\SchedulableGoal constructor expects list\<array\{days\?\: string, after\?\: string, before\?\: string, start\?\: string, end\?\: string\}\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Calendar/tests/Unit/SlotFinderTest.php
+
+		-
+			message: '#^Cannot access property \$unplaceableReason on Modules\\Calendar\\Data\\PlanItemData\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Calendar/tests/Unit/WeeklyPlannerTest.php
+
+		-
+			message: '#^Parameter \$preferredWindows of class App\\Data\\SchedulableGoal constructor expects list\<array\{days\?\: string, after\?\: string, before\?\: string, start\?\: string, end\?\: string\}\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Calendar/tests/Unit/WeeklyPlannerTest.php
+
+		-
+			message: '#^Method Modules\\Deals\\Actions\\AddWatchedProduct\:\:__invoke\(\) should return Modules\\Deals\\Models\\WatchedProduct but returns Modules\\Deals\\Models\\WatchedProduct\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Deals/Actions/AddWatchedProduct.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Actions/CheckPrices.php
+
+		-
+			message: '#^Method Modules\\Deals\\Actions\\ConfirmListing\:\:__invoke\(\) should return Modules\\Deals\\Models\\ProductListing but returns Modules\\Deals\\Models\\ProductListing\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Deals/Actions/ConfirmListing.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Deals\\Models\\ProductListing\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Deals\\Models\\ProductListing\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: Modules/Deals/Briefing/DealsBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\PricePointResource\:\:\$observed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/PricePointResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\PricePointResource\:\:\$price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/PricePointResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductHistoryResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductHistoryResource\:\:\$listings\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductHistoryResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$confirmed\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$current_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$external_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$last_checked_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$lowest_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$retailer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\ProductListingResource\:\:\$url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/ProductListingResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$image_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Deals\\Http\\Resources\\WatchedProductResource\:\:\$query\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Deals/Http/Resources/WatchedProductResource.php
+
+		-
+			message: '#^Cannot access property \$confirmed on Modules\\Deals\\Models\\ProductListing\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Deals/tests/Feature/DealsControllerTest.php
+
+		-
+			message: '#^Method Modules\\Deals\\Tests\\Feature\\DealsControllerTest\:\:listing\(\) should return Modules\\Deals\\Models\\ProductListing but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Deals/tests/Feature/DealsControllerTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: Modules/Deals/tests/Unit/PriceCheckerTest.php
+
+		-
+			message: '#^Cannot access property \$current_price on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Deals/tests/Unit/PriceCheckerTest.php
+
+		-
+			message: '#^Cannot access property \$lowest_price on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Modules/Deals/tests/Unit/PriceCheckerTest.php
+
+		-
+			message: '#^Offset ''dropped'' might not exist on array\|null\.$#'
+			identifier: offsetAccess.notFound
+			count: 2
+			path: Modules/Deals/tests/Unit/PriceCheckerTest.php
+
+		-
+			message: '#^Parameter \#1 \$listing of method Modules\\Deals\\Services\\PriceChecker\:\:check\(\) expects Modules\\Deals\\Models\\ProductListing, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 3
+			path: Modules/Deals/tests/Unit/PriceCheckerTest.php
+
+		-
+			message: '#^Method Modules\\Deals\\Tests\\Unit\\RetailerAdapterTest\:\:fixture\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Deals/tests/Unit/RetailerAdapterTest.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Actions\\DismissFilm\:\:__invoke\(\) should return Modules\\Entertainment\\Models\\FilmRecommendation but returns Modules\\Entertainment\\Models\\FilmRecommendation\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Actions/DismissFilm.php
+
+		-
+			message: '#^Parameter \#1 \$concert of method Modules\\Entertainment\\Contracts\\EntertainmentCurator\:\:concertRelevance\(\) expects Modules\\Entertainment\\Models\\Concert, Modules\\Entertainment\\Models\\Concert\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Entertainment/Actions/RefreshConcerts.php
+
+		-
+			message: '#^Parameter \#2 \$followedArtists of method Modules\\Entertainment\\Contracts\\EntertainmentCurator\:\:concertRelevance\(\) expects list\<string\>, array\<int, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Entertainment/Actions/RefreshConcerts.php
+
+		-
+			message: '#^Parameter \#1 \$candidates of method Modules\\Entertainment\\Contracts\\EntertainmentCurator\:\:curateFilms\(\) expects list\<array\<string, mixed\>\>, array\<int, array\{tmdb_id\: int\<1, max\>, title\: non\-empty\-string, overview\: mixed, availability\: non\-empty\-list\<string\>, poster_url\: string\|null\}\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Entertainment/Actions/RefreshFilms.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Entertainment/Actions/RefreshFilms.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Entertainment/Actions/RefreshFilms.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Actions\\UpdateTasteProfile\:\:__invoke\(\) should return Modules\\Entertainment\\Models\\TasteProfile but returns Modules\\Entertainment\\Models\\TasteProfile\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Actions/UpdateTasteProfile.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Entertainment/Briefing/EntertainmentBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$artist\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$city\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$external_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$notified\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$relevance\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$source\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\ConcertResource\:\:\$venue\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/ConcertResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$dismissed\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$overview\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$poster_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$refreshed_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$score\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$tmdb_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\FilmRecommendationResource\:\:\$why\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/FilmRecommendationResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$artist\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$image_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$notified\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$release_date\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$saved_on_spotify\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$spotify_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\MusicReleaseResource\:\:\$url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/MusicReleaseResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Entertainment\\Http\\Resources\\TasteProfileResource\:\:\$notes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Entertainment/Http/Resources/TasteProfileResource.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Services\\Concerts\\BandsintownProvider\:\:fetch\(\) should return list\<Modules\\Entertainment\\Data\\ConcertData\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Services/Concerts/BandsintownProvider.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Services\\Concerts\\HedonProvider\:\:fetch\(\) should return list\<Modules\\Entertainment\\Data\\ConcertData\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Services/Concerts/HedonProvider.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Services\\Concerts\\TicketmasterProvider\:\:fetch\(\) should return list\<Modules\\Entertainment\\Data\\ConcertData\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Services/Concerts/TicketmasterProvider.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Entertainment/Services/Music/SpotifyReleasesService.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Entertainment/Services/Music/SpotifyReleasesService.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Services\\PrismEntertainmentCurator\:\:curateFilms\(\) should return list\<Modules\\Entertainment\\Data\\FilmPick\> but returns array\<Modules\\Entertainment\\Data\\FilmPick\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Method Modules\\Entertainment\\Services\\PrismEntertainmentCurator\:\:curateFilms\(\) should return list\<Modules\\Entertainment\\Data\\FilmPick\> but returns array\<int, Modules\\Entertainment\\Data\\FilmPick\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Parameter \#2 \$offset of function substr expects int, int\<0, max\>\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Entertainment/Services/PrismEntertainmentCurator.php
+
+		-
+			message: '#^Cannot access property \$notified on Modules\\Entertainment\\Models\\Concert\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Entertainment/tests/Feature/EntertainmentControllerTest.php
+
+		-
+			message: '#^Cannot access property \$notified on Modules\\Entertainment\\Models\\MusicRelease\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Entertainment/tests/Feature/EntertainmentControllerTest.php
+
+		-
+			message: '#^Cannot call method matches\(\) on Modules\\Lighting\\Data\\WeatherPresetTrigger\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Lighting/Actions/ApplyWeatherTriggeredPresets.php
+
+		-
+			message: '#^Cannot call method withinWindow\(\) on Modules\\Lighting\\Data\\WeatherPresetTrigger\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Lighting/Actions/ApplyWeatherTriggeredPresets.php
+
+		-
+			message: '#^Method Modules\\Lighting\\Services\\Providers\\GoveeApiClient\:\:extractProviderResult\(\) has parameter \$response with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Modules/Lighting/Services/Providers/GoveeApiClient.php
+
+		-
+			message: '#^Method Modules\\Lighting\\Services\\Providers\\GoveeApiClient\:\:http\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Lighting/Services/Providers/GoveeApiClient.php
+
+		-
+			message: '#^Method Modules\\Lighting\\Services\\Providers\\GoveeApiClient\:\:result\(\) has parameter \$response with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Modules/Lighting/Services/Providers/GoveeApiClient.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: Modules/Lighting/Services/Providers/GoveeProvider.php
+
+		-
+			message: '#^Method Modules\\Lighting\\Services\\Providers\\TuyaApiClient\:\:extractProviderResult\(\) has parameter \$response with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
+
+		-
+			message: '#^Method Modules\\Lighting\\Services\\Providers\\TuyaApiClient\:\:result\(\) has parameter \$response with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
+
+		-
+			message: '#^Parameter \#1 \$content of method Illuminate\\Http\\Client\\PendingRequest\<false\>\:\:withBody\(\) expects Psr\\Http\\Message\\StreamInterface\|string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
+
+		-
+			message: '#^Parameter \#3 \$body of method Modules\\Lighting\\Services\\Providers\\TuyaApiClient\:\:headers\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: Modules/Lighting/Services/Providers/TuyaProvider.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: Modules/Lighting/tests/Unit/LightControlTest.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: Modules/Lighting/tests/Unit/LightControlTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\ExpectsHigherOrderMessage\:\:andReturns\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: Modules/Lighting/tests/Unit/TuyaTokenEncryptionTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\ExpectsHigherOrderMessage\:\:never\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Lighting/tests/Unit/TuyaTokenEncryptionTest.php
+
+		-
+			message: '#^Parameter \#1 \$client of class Modules\\Lighting\\Services\\Providers\\TuyaTokenService constructor expects Modules\\Lighting\\Services\\Providers\\TuyaApiClient, Mockery\\MockInterface given\.$#'
+			identifier: argument.type
+			count: 3
+			path: Modules/Lighting/tests/Unit/TuyaTokenEncryptionTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Actions/CheckNewsKeywords.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:filter\(\) expects \(callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: bool\)\|null, Closure\(Modules\\News\\Models\\NewsItem\)\: bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/Actions/CheckNewsKeywords.php
+
+		-
+			message: '#^Parameter \#1 \$item of method Modules\\News\\Actions\\CheckNewsKeywords\:\:message\(\) expects Modules\\News\\Models\\NewsItem, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/Actions/CheckNewsKeywords.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: string, matched_keywords\: array\}, Closure\(Modules\\News\\Models\\NewsItem\)\: array\{title\: string, summary\: string, source\: string, url\: string, published_at\: string, matched_keywords\: array\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Carbon\\CarbonImmutable\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/News/Briefing/NewsBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$feed_key\.$#'
+			identifier: property.notFound
+			count: 2
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$image_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$is_read\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$published_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$summary\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$topic\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Http\\Resources\\NewsItemResource\:\:\$url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/Http/Resources/NewsItemResource.php
+
+		-
+			message: '#^Cannot access property \$is_read on Modules\\News\\Models\\NewsItem\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Modules/News/tests/Feature/NewsControllerTest.php
+
+		-
+			message: '#^Cannot access property \$notified on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/News/tests/Feature/NewsControllerTest.php
+
+		-
+			message: '#^Method Modules\\News\\Tests\\Feature\\NewsControllerTest\:\:fixture\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/News/tests/Feature/NewsControllerTest.php
+
+		-
+			message: '#^Method Modules\\News\\Tests\\Feature\\NewsControllerTest\:\:item\(\) should return Modules\\News\\Models\\NewsItem but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/News/tests/Feature/NewsControllerTest.php
+
+		-
+			message: '#^Method Modules\\News\\Tests\\Unit\\FeedClientTest\:\:fixture\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/News/tests/Unit/FeedClientTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_read\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/tests/Unit/NewsServiceTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$notified\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/tests/Unit/NewsServiceTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/tests/Unit/NewsServiceTest.php
+
+		-
+			message: '#^Access to an undefined property Modules\\News\\Services\\FeedClient\:\:\$items\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/News/tests/Unit/NewsServiceTest.php
+
+		-
+			message: '#^Parameter \#1 \$item of method Modules\\News\\Services\\NewsService\:\:keywordMatches\(\) expects Modules\\News\\Models\\NewsItem, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/News/tests/Unit/NewsServiceTest.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$is_low\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_pct\.$#'
+			identifier: property.notFound
+			count: 2
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Models\\PrinterPart\:\:\$is_low\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Method Modules\\Printer\\Briefing\\PrinterBriefingSource\:\:partData\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\{name\: string, category\: string, quantity\: float, unit\: string\|null\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Method Modules\\Printer\\Briefing\\PrinterBriefingSource\:\:spoolData\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\{material\: string, color_name\: string, remaining_pct\: mixed\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Modules\\Printer\\Models\\FilamentSpool\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,Modules\\Printer\\Models\\FilamentSpool\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Printer/Briefing/PrinterBriefingSource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$brand\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$color_hex\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$color_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$diameter_mm\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$is_low\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$material\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$purchase_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$purchase_store\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$purchased_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$remaining_g\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$remaining_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\FilamentSpoolResource\:\:\$total_weight_g\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/FilamentSpoolResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$is_low\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$low_threshold\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$quantity\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Http\\Resources\\PrinterPartResource\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Http/Resources/PrinterPartResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_pct\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Printer/Models/FilamentSpool.php
+
+		-
+			message: '#^Cannot access property \$is_low on Modules\\Printer\\Models\\PrinterPart\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Printer/tests/Feature/PrinterPartControllerTest.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$is_low\.$#'
+			identifier: property.notFound
+			count: 3
+			path: Modules/Printer/tests/Unit/FilamentSpoolComputationTest.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Printer\\Models\\FilamentSpool\:\:\$remaining_pct\.$#'
+			identifier: property.notFound
+			count: 5
+			path: Modules/Printer/tests/Unit/FilamentSpoolComputationTest.php
+
+		-
+			message: '#^Parameter \#2 \$array of function implode expects array, array\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Actions/GenerateRecipes.php
+
+		-
+			message: '#^Parameter \#4 \$run of method Modules\\Recipes\\Actions\\GenerateRecipes\:\:push\(\) expects Modules\\Recipes\\Models\\RecipeRun, Modules\\Recipes\\Models\\RecipeRun\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Actions/GenerateRecipes.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$category\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$discount_label\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$external_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$fetched_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$image_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$normal_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$offer_price\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$product_name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$store\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$unit\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$valid_from\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$valid_to\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\OfferResource\:\:\$week_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/OfferResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$estimated_cost\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$is_fallback\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$model\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$servings\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$time_minutes\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Recipes\\Http\\Resources\\RecipeResource\:\:\$week_key\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Recipes/Http/Resources/RecipeResource.php
+
+		-
+			message: '#^Method Modules\\Recipes\\Services\\AlbertHeijnOfferProvider\:\:candidateItems\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Recipes/Services/AlbertHeijnOfferProvider.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<Modules\\Recipes\\Data\\OfferData\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: Modules/Recipes/Services/AlbertHeijnOfferProvider.php
+
+		-
+			message: '#^Method Modules\\Recipes\\Services\\LidlOfferProvider\:\:candidateItems\(\) should return list\<array\<string, mixed\>\> but returns array\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Recipes/Services/LidlOfferProvider.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<Modules\\Recipes\\Data\\OfferData\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: Modules/Recipes/Services/LidlOfferProvider.php
+
+		-
+			message: '#^Method Modules\\Recipes\\Services\\RecipeGenerator\:\:generate\(\) should return list\<Modules\\Recipes\\Models\\Recipe\> but returns array\<int, Modules\\Recipes\\Models\\Recipe\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Recipes/Services/RecipeGenerator.php
+
+		-
+			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Services/RecipeGenerator.php
+
+		-
+			message: '#^Parameter \$offers of method Modules\\Recipes\\Contracts\\RecipeTextGenerator\:\:generate\(\) expects list\<array\<string, mixed\>\>, array\<int, array\{store\: string, product_name\: string, category\: string\|null, normal_price\: float\|null, offer_price\: float\|null, discount_label\: string\|null, unit\: string\|null\}\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/Services/RecipeGenerator.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>ai_unavailable" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>stores_failed" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>stores_fetched" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Recipes/View/ViewModels/RecipesViewModel.php
+
+		-
+			message: '#^Method Modules\\Recipes\\Tests\\Feature\\RecipesControllerTest\:\:fixture\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Recipes/tests/Feature/RecipesControllerTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Recipes/tests/Feature/RecipesControllerTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertStringNotContainsString\(\) expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Recipes/tests/Feature/RecipesControllerTest.php
+
+		-
+			message: '#^Method Modules\\Recipes\\Tests\\Unit\\OfferProviderTest\:\:fixture\(\) should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Recipes/tests/Unit/OfferProviderTest.php
+
+		-
+			message: '#^Cannot access property \$matchedOffers on Modules\\Recipes\\Data\\RecipeDealsMatch\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Recipes/tests/Unit/RecipeDealsMatcherTest.php
+
+		-
+			message: '#^Cannot access property \$totalSavings on Modules\\Recipes\\Data\\RecipeDealsMatch\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Recipes/tests/Unit/RecipeDealsMatcherTest.php
+
+		-
+			message: '#^Cannot call method hasMatches\(\) on Modules\\Recipes\\Data\\RecipeDealsMatch\|null\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: Modules/Recipes/tests/Unit/RecipeDealsMatcherTest.php
+
+		-
+			message: '#^Offset ''error'' on non\-empty\-array in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: Modules/Spotify/Http/Controllers/SpotifyController.php
+
+		-
+			message: '#^Call to an undefined method GuzzleHttp\\ClientInterface\:\:post\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: Modules/Spotify/Services/SpotifyTokenService.php
+
+		-
+			message: '#^Method Modules\\Spotify\\View\\ViewModels\\PlaylistView\:\:__construct\(\) has parameter \$playlist with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Modules/Spotify/View/ViewModels/PlaylistView.php
+
+		-
+			message: '#^Method Modules\\Spotify\\View\\ViewModels\\SpotifyPlayerViewModel\:\:resolvePlaylists\(\) should return list\<Modules\\Spotify\\View\\ViewModels\\PlaylistView\> but returns array\<Modules\\Spotify\\View\\ViewModels\\PlaylistView\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Spotify/View/ViewModels/SpotifyPlayerViewModel.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Spotify/View/ViewModels/TrackDetailsView.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: Modules/Spotify/View/ViewModels/TrackDetailsView.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:once\(\)\.$#'
+			identifier: method.notFound
+			count: 15
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_rejects_missing_uri\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_returns_422_for_invalid_uri\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_add_to_queue_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_callback_rejects_invalid_state\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_callback_rejects_missing_code\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_callback_rejects_missing_state\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_check_saved_tracks_rejects_missing_ids\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_check_saved_tracks_returns_422_for_missing_ids\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_check_saved_tracks_returns_422_for_non_array_ids\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_devices_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_get_devices_returns_devices_on_success\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_get_playback_state_returns_502_when_service_errors\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_page_loads\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_refreshes_access_token_when_refresh_token_exists\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_shows_connect_when_refresh_token_cannot_be_used\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_index_shows_player_for_paused_track\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_next_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_next_track_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_pause_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_play_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_play_success_with_mocked_service\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_play_with_uri_validates_format\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_playback_state_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_previous_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_queue_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_recently_played_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_accepts_valid_states\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_rejects_invalid_state\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_rejects_missing_state\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_returns_422_for_invalid_state\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_repeat_returns_422_for_missing_state\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_rejects_blank_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_rejects_empty_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_422_for_blank_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_422_for_missing_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_422_for_too_long_query\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_search_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_seek_rejects_invalid_position\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_seek_returns_422_for_missing_position\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_seek_returns_422_for_negative_position\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_shuffle_play_rejects_missing_uri\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_shuffle_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_rejects_missing_id\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_returns_422_for_missing_fields\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_returns_422_for_missing_saved_flag\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_toggle_save_track_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_transfer_playback_rejects_missing_device_id\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_transfer_playback_returns_422_for_missing_device_id\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_transfer_playback_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_user_playlists_returns_json\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_volume_rejects_invalid_value\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_volume_rejects_negative_value\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Feature\\SpotifyControllerTest\:\:test_volume_returns_422_for_invalid_value\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Feature/SpotifyControllerTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_request_returns_error_when_connection_times_out\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_service_provider_binds_client_with_configured_timeout\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyApiClientTest\:\:test_service_provider_binds_client_with_default_timeout\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyApiClientTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_add_to_queue\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_check_saved_tracks\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_ensure_access_token_succeeds_when_access_token_exists\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_access_token_returns_error_on_failed_response\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_access_token_stores_tokens_in_cache\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_authorization_url_returns_valid_url\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_authorization_url_stores_state_in_session\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_available_devices_returns_devices\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_available_devices_returns_empty_list\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_available_devices_with_mocked_response\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_current_playback_returns_data\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_next_track_returns_null_when_empty_queue\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_next_track_returns_track\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_profile\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_queue_empty\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_queue_returns_queue\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_recently_played\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_saved_tracks\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_saved_tracks_returns_empty_when_no_items\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_user_playlists\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_get_user_playlists_without_liked_songs\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_has_stored_authorization_uses_refresh_token\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_make_request_fails_after_retry_on_second_401\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_make_request_retries_on_401_and_succeeds\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_next_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_pause_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_play_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_play_with_playlist_uri\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_play_with_track_uri\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_previous_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_refresh_access_token_updates_cache\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_refresh_token_returns_error_when_no_refresh_token\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_remove_tracks\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_save_tracks\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_search_returns_tracks\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_search_with_multiple_types\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_seek_to_position\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_repeat_mode\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_repeat_mode_context\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_repeat_mode_off\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_shuffle_off\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_shuffle_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_set_volume_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_shuffle_play_playlist\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_transfer_playback_sends_correct_payload\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_transfer_playback_sends_correct_request\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_validate_spotify_uri_rejects_invalid_format\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyServiceTest\:\:test_volume_control_not_supported_returns_specific_error\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Parameter \#3 \$body of class GuzzleHttp\\Psr7\\Response constructor expects Psr\\Http\\Message\\StreamInterface\|resource\|string\|null, string\|false given\.$#'
+			identifier: argument.type
+			count: 27
+			path: Modules/Spotify/tests/Unit/SpotifyServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_access_token_decrypts_an_encrypted_cached_value\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_access_token_migrates_legacy_plaintext_value_in_place\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_access_token_returns_null_when_nothing_cached\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
+
+		-
+			message: '#^Method Modules\\Spotify\\Tests\\Unit\\SpotifyTokenServiceTest\:\:test_refresh_access_token_migrates_legacy_plaintext_refresh_token\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
+
+		-
+			message: '#^Parameter \#3 \$body of class GuzzleHttp\\Psr7\\Response constructor expects Psr\\Http\\Message\\StreamInterface\|resource\|string\|null, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Spotify/tests/Unit/SpotifyTokenServiceTest.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Columns\\CreateColumn\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskColumn but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Columns/CreateColumn.php
+
+		-
+			message: '#^Cannot call method columns\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Tasks/Actions/Columns/DeleteColumn.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Columns\\DeleteColumn\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Columns/DeleteColumn.php
+
+		-
+			message: '#^Parameter \#1 \$board of callable Modules\\Tasks\\Actions\\Columns\\ResequenceColumns expects Modules\\Tasks\\Models\\TaskBoard, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Actions/Columns/DeleteColumn.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\CompleteHabit\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskRecurrenceCompletion but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CompleteHabit.php
+
+		-
+			message: '#^Anonymous function should return Modules\\Tasks\\Models\\TaskRecurrence but returns Modules\\Tasks\\Models\\TaskRecurrence\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CompleteMaintenance.php
+
+		-
+			message: '#^Anonymous function should return Modules\\Tasks\\Models\\TaskRecurrence\|null but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CompleteMaintenanceCard.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:completions\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CompleteMaintenanceCard.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isMaintenance\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CompleteMaintenanceCard.php
+
+		-
+			message: '#^Parameter \#1 \$recurrence of method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:nextDueOn\(\) expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CompleteMaintenanceCard.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\CreateRecurrence\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskRecurrence but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/CreateRecurrence.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\MaterializeDueMaintenance\:\:maintenanceBoard\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\MaterializeDueMaintenance\:\:maintenanceColumn\(\) should return Modules\\Tasks\\Models\\TaskColumn but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 2
+			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:each\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: mixed, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/MaterializeDueMaintenance.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Recurrences\\UpdateRecurrence\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskRecurrence but returns Modules\\Tasks\\Models\\TaskRecurrence\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Recurrences/UpdateRecurrence.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/CreateTask.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isDoneColumn\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/CreateTask.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tasks\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/CreateTask.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Tasks\\CreateTask\:\:__invoke\(\) should return Modules\\Tasks\\Models\\KanbanTask but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/CreateTask.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Actions\\Tasks\\DeleteTask\:\:__invoke\(\) should return Modules\\Tasks\\Models\\TaskBoard but returns Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/DeleteTask.php
+
+		-
+			message: '#^Cannot call method columns\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/MoveTask.php
+
+		-
+			message: '#^Cannot access property \$columns on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
+
+		-
+			message: '#^Cannot call method labels\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>id" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Tasks/Actions/Tasks/UpdateTask.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{title\: string, cadence_type\: ''annual''\|''interval''\|''monthly''\|''times_per_week''\|''weekdays''\|''weekly'', progress\: array, current_streak\: int, best_streak\: int, completed_today\: bool\}, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: array\{title\: string, cadence_type\: ''annual''\|''interval''\|''monthly''\|''times_per_week''\|''weekdays''\|''weekly'', progress\: array, current_streak\: int, best_streak\: int, completed_today\: bool\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Database\\Eloquent\\Collection\<int,Modules\\Tasks\\Models\\KanbanTask\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:all\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<int,array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: Modules/Tasks/Briefing/TasksBriefingSource.php
+
+		-
+			message: '#^Parameter \#1 \$board of method Modules\\Tasks\\Http\\Controllers\\TasksController\:\:stateResponse\(\) expects Modules\\Tasks\\Models\\TaskBoard, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 5
+			path: Modules/Tasks/Http/Controllers/TasksController.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$board_id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$cadence_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$last_materialized_on\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$next_due_on\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$notify\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Http\\Resources\\RecurrenceResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/RecurrenceResource.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Access to an undefined property Modules\\Tasks\\Models\\TaskBoard\:\:\$active_tasks_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, name\: string, color\: string\}, Closure\(Modules\\Tasks\\Models\\TaskLabel\)\: array\{id\: int, name\: string, color\: string\} given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, name\: string, tasks\: Illuminate\\Support\\Collection\<int, array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\}\>\}, Closure\(Modules\\Tasks\\Models\\TaskColumn\)\: array\{id\: int, name\: string, tasks\: Illuminate\\Support\\Collection\<int, array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\}\>\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\}, Closure\(Modules\\Tasks\\Models\\KanbanTask\)\: array\{id\: int, recurrence_id\: int\<0, max\>\|null, is_maintenance\: bool, title\: string, description\: string, priority\: ''high''\|''low''\|''normal'', due_date\: non\-falsy\-string\|null, completed\: bool, archived\: bool, created_at\: non\-falsy\-string\|null, labels\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string, color\: string\}\>, checklist\: Illuminate\\Support\\Collection\<int, array\{id\: int, text\: string, completed\: bool\}\>\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array\{id\: int, text\: string, completed\: bool\}, Closure\(Modules\\Tasks\\Models\\TaskChecklistItem\)\: array\{id\: int, text\: string, completed\: bool\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Tasks/Http/Resources/TaskBoardStateResource.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\:\:dueOn\(\) should return static\(Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\) but returns Modules\\Tasks\\Models\\Builders\\TaskRecurrenceBuilder\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Models/Builders/TaskRecurrenceBuilder.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\HabitCardPresenter\:\:scheduledWeekdays\(\) should return list\<int\> but returns non\-empty\-array\<int, int\<min, \-1\>\|int\<1, max\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Parameter \$preferredWindows of class App\\Data\\HabitCard constructor expects list\<array\<string, mixed\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Parameter \$week of class App\\Data\\HabitCard constructor expects list\<array\{label\: string, status\: string, today\: bool\}\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/HabitCardPresenter.php
+
+		-
+			message: '#^Cannot access property \$daysInMonth on Carbon\\CarbonImmutable\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Cannot call method greaterThan\(\) on Carbon\\CarbonImmutable\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Cannot call method lessThanOrEqualTo\(\) on Carbon\\CarbonImmutable\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:annualNextDueOn\(\) should return Carbon\\CarbonImmutable but returns Carbon\\CarbonImmutable\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\MaintenanceScheduler\:\:monthlyNextDueOn\(\) should return Carbon\\CarbonImmutable but returns Carbon\\CarbonImmutable\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/MaintenanceScheduler.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\RecurrenceGoals\:\:all\(\) should return list\<App\\Data\\SchedulableGoal\> but returns array\<int, App\\Data\\SchedulableGoal\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\RecurrenceGoals\:\:cards\(\) should return list\<App\\Data\\HabitCard\> but returns array\<int, App\\Data\\HabitCard\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Services\\RecurrenceGoals\:\:plannable\(\) should return list\<App\\Data\\SchedulableGoal\> but returns array\<int, App\\Data\\SchedulableGoal\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: App\\Data\\HabitCard, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: App\\Data\\HabitCard given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: App\\Data\\SchedulableGoal, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: App\\Data\\SchedulableGoal given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$r of method Modules\\Tasks\\Services\\RecurrenceGoals\:\:toGoal\(\) expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$recurrence of callable Modules\\Tasks\\Actions\\Recurrences\\CompleteHabit expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$recurrence of callable Modules\\Tasks\\Actions\\Recurrences\\DeleteRecurrence expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$recurrence of callable Modules\\Tasks\\Actions\\Recurrences\\UndoHabitCompletion expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$recurrence of callable Modules\\Tasks\\Actions\\Recurrences\\UpdateRecurrence expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 3
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#1 \$recurrence of method Modules\\Tasks\\Services\\HabitCardPresenter\:\:present\(\) expects Modules\\Tasks\\Models\\TaskRecurrence, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \#2 \$existing of method Modules\\Tasks\\Services\\RecurrenceGoals\:\:toAttributes\(\) expects Modules\\Tasks\\Models\\TaskRecurrence\|null, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Parameter \$preferredWindows of class App\\Data\\SchedulableGoal constructor expects list\<array\{days\?\: string, after\?\: string, before\?\: string, start\?\: string, end\?\: string\}\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>cadence_config" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>plannable" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: Modules/Tasks/Services/RecurrenceGoals.php
+
+		-
+			message: '#^Cannot call method isoFormat\(\) on Carbon\\CarbonImmutable\|string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/View/ViewModels/MaintenancePageViewModel.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Eloquent\\Collection\<int,Illuminate\\Database\\Eloquent\\Model\>\:\:map\(\) expects callable\(Illuminate\\Database\\Eloquent\\Model, int\)\: array, Closure\(Modules\\Tasks\\Models\\TaskRecurrence\)\: array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Modules/Tasks/View/ViewModels/TaskRecurrencesViewModel.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Cannot access property \$archived_at on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Cannot access property \$completed on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Cannot access property \$id on Modules\\Tasks\\Models\\TaskRecurrence\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Cannot access property \$last_materialized_on on Modules\\Tasks\\Models\\TaskRecurrence\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Cannot access property \$next_due_on on Modules\\Tasks\\Models\\TaskRecurrence\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on Carbon\\CarbonImmutable\|null\.$#'
+			identifier: method.nonObject
+			count: 3
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Tests\\Feature\\TaskRecurrenceControllerTest\:\:recurrence\(\) should return Modules\\Tasks\\Models\\TaskRecurrence but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Tests\\Feature\\TaskRecurrenceControllerTest\:\:task\(\) should return Modules\\Tasks\\Models\\KanbanTask but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/tests/Feature/TaskRecurrenceControllerTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 6
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Cannot access property \$archived_at on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Cannot access property \$column_id on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Cannot access property \$completed on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Cannot access property \$completed on Modules\\Tasks\\Models\\KanbanTask\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Tests\\Feature\\TasksControllerTest\:\:task\(\) should return Modules\\Tasks\\Models\\KanbanTask but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/tests/Feature/TasksControllerTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$cadence_config\.$#'
+			identifier: property.notFound
+			count: 2
+			path: Modules/Tasks/tests/Unit/RecurrenceGoalsTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$plannable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/RecurrenceGoalsTest.php
+
+		-
+			message: '#^Method Modules\\Tasks\\Tests\\Unit\\StreakCalculatorTest\:\:habit\(\) should return Modules\\Tasks\\Models\\TaskRecurrence but returns Illuminate\\Database\\Eloquent\\Model\.$#'
+			identifier: return.type
+			count: 1
+			path: Modules/Tasks/tests/Unit/StreakCalculatorTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$board\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$checklistItems\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$column\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$labels\.$#'
+			identifier: property.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:checklistItems\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:labels\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: Modules/Tasks/tests/Unit/TaskTest.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: Modules/Weather/Services/WeatherService.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function max expects non\-empty\-array, list\<float\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Weather/Services/WeatherService.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function max expects non\-empty\-array, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: Modules/Weather/tests/Unit/RainAlertTest.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\DashboardController\:\:index\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/DashboardController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\ProvidesSettings\:\:getModuleName\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/SettingsController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\ProvidesSettings\:\:getModuleSlug\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/SettingsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsController\:\:index\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/SettingsController.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),App\\Contracts\\ProvidesSettings\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: argument.unresolvableType
+			count: 1
+			path: app/Http/Controllers/SettingsController.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<\(int\|string\),App\\Contracts\\ProvidesSettings\>\:\:map\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: app/Http/Controllers/SettingsController.php
+
+		-
+			message: '#^Return type of call to method Illuminate\\Support\\Collection\<\(int\|string\),array\<string, mixed\>\>\:\:values\(\) contains unresolvable type\.$#'
+			identifier: method.unresolvableReturnType
+			count: 1
+			path: app/Http/Controllers/SettingsController.php
+
+		-
+			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Providers/ModuleServiceProvider.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_key_exists expects array, array\<string, mixed\>\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Services/Settings/SettingsStore.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<string\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 2
+			path: app/Support/Health/ModuleHealth.php

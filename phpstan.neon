@@ -1,0 +1,40 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 8
+    paths:
+        - app
+        - Modules
+    excludePaths:
+        - Modules/*/resources/*
+        - Modules/*/database/*
+
+    # Let Larastan infer Eloquent model properties from migrations.
+    databaseMigrationsPath:
+        - database/migrations
+        - Modules/Briefing/database/migrations
+        - Modules/Calendar/database/migrations
+        - Modules/Deals/database/migrations
+        - Modules/Entertainment/database/migrations
+        - Modules/News/database/migrations
+        - Modules/Printer/database/migrations
+        - Modules/Recipes/database/migrations
+        - Modules/Tasks/database/migrations
+
+    ignoreErrors:
+        # Module config files are real config: nwidart merges them via
+        # mergeConfigFrom, so env() there is evaluated at config:cache time
+        # exactly like root config/. Larastan only whitelists root config/.
+        -
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            paths:
+                - Modules/*/config/config.php
+        # Docblock-generics hygiene is a later pass; keep the gate focused on
+        # real defects (unknown properties/methods, wrong argument types).
+        - identifier: missingType.iterableValue
+        - identifier: missingType.generics
+
+    # Baseline captures pre-existing issues; new code must be clean at level 8.
+    # Burn the baseline down over time — never add to it for new code.
