@@ -39,7 +39,7 @@ class GenerateBriefing
         $this->prune($date);
 
         if ($push) {
-            $this->notifier->send('Goedemorgen', $this->notificationBody($briefing->body));
+            $this->notifier->send('Good morning', $this->notificationBody($briefing->body));
         }
 
         return $briefing->refresh();

@@ -33,6 +33,6 @@ class SettingsController
 
         $target->saveSettings($request->validated());
 
-        return back()->with('settings_status', 'Instellingen opgeslagen.');
+        return back()->with('settings_status', 'Settings saved.');
     }
 }

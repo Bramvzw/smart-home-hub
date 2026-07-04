@@ -64,14 +64,14 @@ class CheckPrices
     private function notifyDrop(array $drop): void
     {
         $this->notifier->send(
-            'Prijsdaling',
+            'Price drop',
             sprintf(
-                '%s goedkoper bij %s: €%.2f -> €%.2f (%s). %s',
+                '%s cheaper at %s: €%.2f -> €%.2f (%s). %s',
                 $drop['product'] ?? $drop['title'],
                 $drop['retailer'],
                 $drop['old_price'],
                 $drop['new_price'],
-                $drop['lowest_ever'] ? 'laagste ooit' : 'niet laagste ooit',
+                $drop['lowest_ever'] ? 'lowest ever' : 'not the lowest ever',
                 $drop['url'],
             )
         );
