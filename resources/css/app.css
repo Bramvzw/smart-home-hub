@@ -695,3 +695,16 @@ body:has(.touch-keyboard[data-mode="symbols"].is-open) .hub-main > main {
         --hub-page-pad-x: 12px;
     }
 }
+
+/* Low-power kiosk mode (Raspberry Pi): blur compositing and always-running
+   animations keep a weak GPU at full load. Enable once per device with
+   ?lowpower=1 (persisted in localStorage by the dashboard layout). */
+html.low-power *,
+html.low-power *::before,
+html.low-power *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}

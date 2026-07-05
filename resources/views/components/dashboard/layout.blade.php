@@ -9,6 +9,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} - Smart Home Hub</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        // Low-power mode for weak kiosk hardware (Raspberry Pi): visit once
+        // with ?lowpower=1 to enable, ?lowpower=0 to disable. Persisted per
+        // device in localStorage; disables blur and ambient animations in CSS.
+        (function () {
+            var param = new URLSearchParams(window.location.search).get('lowpower');
+            if (param !== null) localStorage.setItem('hub-low-power', param === '1' ? '1' : '0');
+            if (localStorage.getItem('hub-low-power') === '1') document.documentElement.classList.add('low-power');
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     {{ $head ?? '' }}
