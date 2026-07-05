@@ -33,6 +33,45 @@ class GoveeApiClient
         );
     }
 
+    /**
+     * Fetch several device states concurrently — state reads are cheap GETs,
+     * so the page load pays one round-trip instead of one per lamp.
+     *
+     * @param  list<array{device: string, model: string}>  $requests
+     * @return array<string, array> device id => state result; failed reads are absent
+     */
+    public function states(array $requests): array
+    {
+        if ($requests === []) {
+            return [];
+        }
+
+        $timeout = (int) config('lighting.request_timeout', 10);
+        $apiKey = (string) config('lighting.govee.api_key');
+
+        $responses = Http::pool(fn ($pool): array => array_map(
+            fn (array $request) => $pool->as($request['device'])
+                ->timeout($timeout)
+                ->withHeaders(['Govee-API-Key' => $apiKey])
+                ->get(self::BASE.'/v1/devices/state', ['device' => $request['device'], 'model' => $request['model']]),
+            $requests,
+        ));
+
+        $states = [];
+        foreach ($responses as $device => $response) {
+            try {
+                // Pool entries hold a Throwable on connection failure.
+                if ($response instanceof \Illuminate\Http\Client\Response) {
+                    $states[(string) $device] = $this->result($response);
+                }
+            } catch (Throwable) {
+                // Per-device isolation: a failed read just marks that lamp unreachable.
+            }
+        }
+
+        return $states;
+    }
+
     public function control(string $device, string $model, string $name, mixed $value): void
     {
         $attempts = max(1, (int) config('lighting.govee.control_retries', 2));

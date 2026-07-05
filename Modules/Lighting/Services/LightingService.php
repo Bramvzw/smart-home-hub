@@ -173,25 +173,14 @@ class LightingService
     {
         // Always apply the preset's values rather than skipping when the (possibly
         // stale, cached) current value already matches — selecting a preset should
-        // deterministically overwrite the lamp's state.
-        if (! $preset->power) {
-            $provider->setPower($light->id, false);
-
-            return;
-        }
-
-        $provider->setPower($light->id, true);
-
-        // Colour before brightness: setColor switches the lamp into colour mode,
-        // then setBrightness writes the V channel within that mode. The reverse
-        // order would let a white->colour switch reset brightness to full.
-        if ($preset->color !== null && $light->supportsColor) {
-            $provider->setColor($light->id, $preset->color);
-        }
-
-        if ($preset->brightness !== null) {
-            $provider->setBrightness($light->id, $preset->brightness);
-        }
+        // deterministically overwrite the lamp's state. The target state is fully
+        // known, so providers can batch it into as few calls as possible.
+        $provider->applyState(
+            $light->id,
+            $preset->power,
+            $preset->brightness,
+            $light->supportsColor ? $preset->color : null,
+        );
     }
 
     /**

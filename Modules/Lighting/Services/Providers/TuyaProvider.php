@@ -93,6 +93,41 @@ class TuyaProvider implements LightProvider
         ]);
     }
 
+    public function applyState(string $id, bool $power, ?int $brightness, ?string $color): void
+    {
+        if (! $power) {
+            $this->setPower($id, false);
+
+            return;
+        }
+
+        // Full target state known: one batched command instead of power/colour/
+        // brightness round-trips with status reads in between. The V channel is
+        // set directly from the requested brightness (colour before brightness
+        // semantics collapse into a single colour_data_v2 write).
+        if ($color !== null && $brightness !== null) {
+            $hsv = Color::hexToTuyaHsv($color);
+            $hsv['v'] = max(10, min(1000, (int) round($brightness * 10)));
+
+            $this->command($id, [
+                ['code' => 'switch_led', 'value' => true],
+                ['code' => 'work_mode', 'value' => 'colour'],
+                ['code' => 'colour_data_v2', 'value' => $hsv],
+            ]);
+
+            return;
+        }
+
+        // Partial state: fall back to the read-preserving single setters.
+        $this->setPower($id, true);
+        if ($color !== null) {
+            $this->setColor($id, $color);
+        }
+        if ($brightness !== null) {
+            $this->setBrightness($id, $brightness);
+        }
+    }
+
     private function command(string $id, array $commands): void
     {
         $this->client->post("/v1.0/devices/{$id}/commands", ['commands' => $commands], $this->token->accessToken());

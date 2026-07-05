@@ -38,6 +38,8 @@ Format: date · decision · rationale · revisit-when.
 
 | 2026-07-05 | **Weather reuses the PhonePing ntfy topic as fallback** (`WEATHER_NTFY_* ?: PHONE_PING_NTFY_*`), and `NTFY_DRY_RUN=true` on dev machines logs pushes instead of sending them. | One configured topic covers the whole hub (owner convenience); the dry-run flag exists because a dev `.env` with real topics once pushed test notifications to a real phone. | Generalization: make the topic explicit per module in settings. |
 
+| 2026-07-05 | **Lighting performance model**: presets go through `LightProvider::applyState()` (full target state, no status reads; Tuya batches into one command write), Govee state reads are pooled concurrently, but **Govee control calls stay sequential** with the 160ms pause (`GOVEE_COMMAND_PAUSE_MS`) — their API rate-limits per-device control. The kiosk gets a `?lowpower=1` mode (persisted in localStorage) that disables backdrop-blur and ambient animations. | Preset on N lamps went from ~3-4 sequential round-trips per lamp to 1 (Tuya); the Pi GPU no longer composites blur/infinite animations every frame. | Govee ships an API v2 with better rate limits → revisit the pause. |
+
 ## Deployment & operations
 
 | Date | Decision | Rationale | Revisit when |

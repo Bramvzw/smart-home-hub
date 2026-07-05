@@ -193,9 +193,16 @@ class LightControlTest extends TestCase
             && $request['commands'][0]['code'] === 'switch_led'
             && $request['commands'][0]['value'] === true);
 
-        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1.0/devices/calex-1/commands')
-            && $request['commands'][0]['code'] === 'bright_value_v2'
-            && $request['commands'][0]['value'] === 1000);
+        // Presets batch the full target state into one command write; the V
+        // channel carries the brightness inside colour_data_v2.
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
+            if (! str_contains($request->url(), '/v1.0/devices/calex-1/commands')) {
+                return false;
+            }
+            $codes = collect((array) $request['commands'])->keyBy('code');
+
+            return $codes->has('colour_data_v2') && (int) $codes->get('colour_data_v2')['value']['v'] === 1000;
+        });
 
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'govee-1'

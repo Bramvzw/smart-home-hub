@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
 use Modules\Lighting\Support\Color;
-use RuntimeException;
 
 class GoveeProvider implements LightProvider
 {
@@ -35,12 +34,23 @@ class GoveeProvider implements LightProvider
     public function lights(): array
     {
         $devices = $this->client->devices()['devices'] ?? [];
-        $this->models = $this->modelsFromDevices(is_array($devices) ? $devices : []);
+        $devices = is_array($devices) ? $devices : [];
+        $this->models = $this->modelsFromDevices($devices);
         Cache::put($this->modelCacheKey(), $this->models, (int) config('lighting.govee.model_cache_ttl', 300));
 
+        // One concurrent burst instead of a sequential read per lamp.
+        $requests = [];
+        foreach ($devices as $device) {
+            $requests[] = [
+                'device' => (string) ($device['device'] ?? ''),
+                'model' => (string) ($device['model'] ?? ''),
+            ];
+        }
+        $states = $this->client->states($requests);
+
         $lights = [];
-        foreach (is_array($devices) ? $devices : [] as $device) {
-            $lights[] = $this->map($device);
+        foreach ($devices as $device) {
+            $lights[] = $this->map($device, $states[(string) ($device['device'] ?? '')] ?? null);
         }
 
         return $lights;
@@ -62,22 +72,41 @@ class GoveeProvider implements LightProvider
         $this->client->control($id, $this->modelFor($id), 'color', ['r' => $r, 'g' => $g, 'b' => $b]);
     }
 
-    private function map(array $device): Light
+    public function applyState(string $id, bool $power, ?int $brightness, ?string $color): void
+    {
+        // Govee's API takes one command per call; keep the colour-before-
+        // brightness order and skip the state reads presets don't need.
+        if (! $power) {
+            $this->setPower($id, false);
+
+            return;
+        }
+
+        $this->setPower($id, true);
+        if ($color !== null) {
+            $this->setColor($id, $color);
+        }
+        if ($brightness !== null) {
+            $this->setBrightness($id, $brightness);
+        }
+    }
+
+    private function map(array $device, ?array $state): Light
     {
         $id = (string) ($device['device'] ?? '');
         $supportCmds = (array) ($device['supportCmds'] ?? []);
         $supportsColor = in_array('color', $supportCmds, true);
 
-        // Per-device isolation: a failing state read marks only this light unreachable.
-        try {
-            $props = $this->flatten($this->client->state($id, (string) ($device['model'] ?? ''))['properties'] ?? []);
+        // Per-device isolation: a missing state read marks only this light unreachable.
+        if ($state !== null) {
+            $props = $this->flatten($state['properties'] ?? []);
             $reachable = (bool) ($props['online'] ?? false) && (bool) ($device['controllable'] ?? false);
             $on = ($props['powerState'] ?? null) === 'on';
             $brightness = (int) ($props['brightness'] ?? 0);
             $color = isset($props['color']['r'])
                 ? Color::rgbToHex((int) $props['color']['r'], (int) $props['color']['g'], (int) $props['color']['b'])
                 : null;
-        } catch (RuntimeException) {
+        } else {
             $reachable = false;
             $on = false;
             $brightness = 0;
