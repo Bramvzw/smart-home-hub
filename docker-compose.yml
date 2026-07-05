@@ -1,6 +1,7 @@
 services:
   hub:
-    image: webdevops/php-nginx:8.3-alpine
+    # PHP version must track composer.lock (symfony 8.1 needs >= 8.4) and CI.
+    image: webdevops/php-nginx:8.4-alpine
     restart: unless-stopped
     ports:
       # Bind address is configurable: keep the default for LAN access (kiosk),
