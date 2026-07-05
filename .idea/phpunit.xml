@@ -5,11 +5,16 @@
       <list>
         <option value="$PROJECT_DIR$/tests" />
         <option value="$PROJECT_DIR$/Modules/News/tests" />
+        <option value="$PROJECT_DIR$/Modules/Deals/tests" />
         <option value="$PROJECT_DIR$/Modules/Tasks/tests" />
+        <option value="$PROJECT_DIR$/Modules/Printer/tests" />
+        <option value="$PROJECT_DIR$/Modules/Recipes/tests" />
         <option value="$PROJECT_DIR$/Modules/Weather/tests" />
+        <option value="$PROJECT_DIR$/Modules/Briefing/tests" />
         <option value="$PROJECT_DIR$/Modules/Calendar/tests" />
         <option value="$PROJECT_DIR$/Modules/Lighting/tests" />
         <option value="$PROJECT_DIR$/Modules/PhonePing/tests" />
+        <option value="$PROJECT_DIR$/Modules/Entertainment/tests" />
       </list>
     </option>
   </component>
