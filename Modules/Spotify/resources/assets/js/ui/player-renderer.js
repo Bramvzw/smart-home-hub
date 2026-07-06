@@ -41,12 +41,25 @@ export function updatePlayerUI(state, elements, data, updateState, formatTime) {
         return state;
     }
 
+    // Spotify's progress_ms wobbles a few hundred ms between polls; re-anchoring
+    // on every poll makes the bar visibly jump back and forth, especially on the
+    // slow kiosk. Keep the local anchor while the same track keeps playing and
+    // the drift stays small; seeks, buffering or state changes re-anchor.
+    const localProgressMs = state.progressAt !== null
+        ? state.progressMs + (Date.now() - state.progressAt)
+        : state.progressMs;
+    const keepLocalAnchor = !trackChanged
+        && isPlaying
+        && state.isPlaying
+        && state.progressAt !== null
+        && Math.abs(apiProgressMs - localProgressMs) < 1500;
+
     state = updateState(state, {
         isPlaying,
         currentTrackId: newTrackId,
         durationMs,
-        progressMs: apiProgressMs,
-        progressAt: isPlaying ? Date.now() : null,
+        progressMs: keepLocalAnchor ? state.progressMs : apiProgressMs,
+        progressAt: isPlaying ? (keepLocalAnchor ? state.progressAt : Date.now()) : null,
         skipPending: false,
     });
 
