@@ -59,4 +59,32 @@ class OfferAggregatorTest extends TestCase
             'week_key' => '2026-W26',
         ]);
     }
+
+    public function test_aggregator_skips_stores_outside_the_configured_list(): void
+    {
+        config(['recipes.stores' => ['ah']]);
+
+        $skipped = new class implements OfferProvider
+        {
+            public bool $fetched = false;
+
+            public function store(): string
+            {
+                return 'lidl';
+            }
+
+            public function fetch(): array
+            {
+                $this->fetched = true;
+
+                return [];
+            }
+        };
+
+        $result = (new OfferAggregator([$skipped]))->fetch(CarbonImmutable::parse('2026-06-26'));
+
+        $this->assertFalse($skipped->fetched);
+        $this->assertSame([], $result->storesFetched);
+        $this->assertSame([], $result->storesFailed);
+    }
 }
