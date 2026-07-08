@@ -7,6 +7,27 @@ on:
     branches: [main]
 
 jobs:
+  commits:
+    name: Commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: lint commit messages in push range
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="origin/${{ github.base_ref }}..HEAD"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ] && git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            range="${{ github.event.before }}..HEAD"
+          else
+            range="HEAD~1..HEAD"
+          fi
+          git log --format='%s' "$range" | while IFS= read -r subject; do
+            printf '%s\n' "$subject" | bin/lint-commit-message.sh -
+            echo "ok: $subject"
+          done
+
   php:
     name: PHP — Pint, PHPUnit, audit
     runs-on: ubuntu-latest

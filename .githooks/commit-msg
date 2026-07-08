@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Enforces the commit message convention locally. Installed automatically via
+# composer install (core.hooksPath). See bin/lint-commit-message.sh for rules.
+exec "$(git rev-parse --show-toplevel)/bin/lint-commit-message.sh" "$1"

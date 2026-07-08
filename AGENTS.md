@@ -168,6 +168,21 @@ Do not leave docs describing an older architecture after changing boundaries, re
 
 ---
 
+## Commits & Releases
+
+- Commit messages: `PREFIX: imperative English description` — allowed prefixes
+  `FEAT FIX CHORE DOCS OPS CI SECURITY REFACTOR PERF UI STYLE`. Enforced by the
+  tracked `commit-msg` hook (`.githooks/`, installed via `composer install`)
+  and by the `commits` CI job; both call `bin/lint-commit-message.sh`.
+- One concern per commit (atomic). Add a body when the why is not obvious from
+  the subject.
+- Every user-visible FEAT/FIX gets a line under `## [Unreleased]` in
+  `CHANGELOG.md` in the same commit.
+- Releases go through `make release`: it rolls Unreleased into a new minor
+  version, creates the `vX.Y.0` tag, pushes it and (when `gh` is available)
+  publishes a GitHub Release with the changelog section as notes. Do not tag
+  manually.
+
 ## Verification
 
 Run the cheapest relevant check before finishing:
