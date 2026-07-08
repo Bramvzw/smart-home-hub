@@ -75,6 +75,6 @@ class SpotifyServiceProvider extends ModuleServiceProvider
 
     public function getDashboardWidget(): ?string
     {
-        return null;
+        return 'Playback, queue and playlists.';
     }
 }

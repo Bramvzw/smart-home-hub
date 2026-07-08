@@ -60,15 +60,7 @@
                                 <div class="min-w-0 flex-1">
                                     <h3 class="truncate text-[15px] font-bold text-[var(--hub-text)]">{{ $module->getModuleName() }}</h3>
                                     <p class="mt-1 text-sm text-[var(--hub-dim)]">
-                                        @if($widget !== null)
-                                            {{ $widget }}
-                                        @elseif($module->getModuleSlug() === 'spotify')
-                                            Playback, queue and playlists.
-                                        @elseif($module->getModuleSlug() === 'tasks')
-                                            Boards, labels and todos.
-                                        @else
-                                            Open module.
-                                        @endif
+                                        {{ $widget ?? 'Open module.' }}
                                     </p>
                                 </div>
                                 <span class="text-[var(--hub-dim)] transition-colors group-hover:text-[var(--hub-text)]">→</span>

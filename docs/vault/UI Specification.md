@@ -261,3 +261,15 @@ Behavior:
 - `GET/POST/PATCH/DELETE /planner/intentions` manages active planning intentions.
 - `GET /planner` returns `connected`, the latest `plan` and `intentions`.
 - Unplaceable items have null `start_at`/`end_at`, status `unplaceable` and an explanatory reason.
+
+### Settings
+
+Per-module configuration plus module visibility and ordering, at `/settings`.
+
+Behavior:
+- The **Modules** pane lists every registered module (disabled ones included, from `ModuleRegistry::allModules()`), each row with an order number input (0–99) and an enabled checkbox; disabled module names render dimmed.
+- `PUT /settings/modules` saves all rows at once; unknown slugs are ignored, out-of-range order values return validation errors under the fields. Success shows the shared "Module settings saved." status card.
+- Disabling a module hides it from the sidebar, the dashboard grid and the settings panes, and skips its scheduled jobs — it does not unload routes or bindings, so deep links keep working.
+- Order numbers are relative: rows are re-sorted by the stored numbers on the next render, with registration order as tie-breaker.
+- Settings panes below the Modules pane are rendered per module implementing `ProvidesSettings` (currently Printer and Phone Ping); each pane is its own form posting to `PUT /settings/{module}` with validation from the module's `settingsSchema()`.
+- Empty state ("No configurable modules") only appears when no enabled module provides settings.

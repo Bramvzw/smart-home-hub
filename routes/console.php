@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Health\ModuleHealthSweep;
+use App\Services\ModuleState;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -23,6 +24,10 @@ use Modules\Weather\Actions\SendDailyWeatherSummary;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Scheduled jobs of a disabled module are skipped; evaluated at run time so a
+// toggle on /settings takes effect without redeploying.
+$moduleEnabled = fn (string $slug): Closure => fn (): bool => app(ModuleState::class)->isEnabled($slug);
 
 Artisan::command('weather:check-rain', function () {
     try {
@@ -243,33 +248,40 @@ if ((bool) config('lighting.weather_presets.enabled', false)) {
 
     Schedule::command('lighting:apply-weather-presets')
         ->everyFifteenMinutes()
+        ->when($moduleEnabled('lighting'))
         ->withoutOverlapping();
 }
 
 Schedule::command('weather:check-rain')
     ->everyThirtyMinutes()
     ->between('7:00', '23:00')
+    ->when($moduleEnabled('weather'))
     ->withoutOverlapping();
 
 Schedule::command('weather:check-wind')
     ->everyThirtyMinutes()
     ->between('7:00', '23:00')
+    ->when($moduleEnabled('weather'))
     ->withoutOverlapping();
 
 Schedule::command('weather:daily-summary')
     ->dailyAt((string) config('weather.daily_summary.time', '07:15'))
+    ->when($moduleEnabled('weather'))
     ->withoutOverlapping();
 
 Schedule::command('news:refresh')
     ->cron(sprintf('*/%d * * * *', max(1, min(59, (int) config('news.refresh_minutes', 30)))))
+    ->when($moduleEnabled('news'))
     ->withoutOverlapping();
 
 Schedule::command('briefing:generate')
     ->dailyAt((string) config('briefing.time', '08:00'))
+    ->when($moduleEnabled('briefing'))
     ->withoutOverlapping();
 
 Schedule::command('tasks:recurrences-due')
     ->dailyAt('07:00')
+    ->when($moduleEnabled('tasks'))
     ->withoutOverlapping();
 
 Schedule::command('recipes:generate')
@@ -282,26 +294,32 @@ Schedule::command('recipes:generate')
         'friday' => 5,
         'saturday' => 6,
     ][mb_strtolower((string) config('recipes.generate_day', 'friday'))] ?? 5, (string) config('recipes.generate_time', '18:00'))
+    ->when($moduleEnabled('recipes'))
     ->withoutOverlapping();
 
 Schedule::command('deals:check-prices')
     ->cron((string) config('deals.check_cron', '0 */3 * * *'))
+    ->when($moduleEnabled('deals'))
     ->withoutOverlapping();
 
 Schedule::command('entertainment:refresh-films')
     ->weeklyOn(1, (string) config('entertainment.check_time', '09:00'))
+    ->when($moduleEnabled('entertainment'))
     ->withoutOverlapping();
 
 Schedule::command('entertainment:refresh-concerts')
     ->dailyAt((string) config('entertainment.check_time', '09:00'))
+    ->when($moduleEnabled('entertainment'))
     ->withoutOverlapping();
 
 Schedule::command('entertainment:refresh-music')
     ->dailyAt((string) config('entertainment.check_time', '09:00'))
+    ->when($moduleEnabled('entertainment'))
     ->withoutOverlapping();
 
 Schedule::command('entertainment:notify')
     ->dailyAt('09:15')
+    ->when($moduleEnabled('entertainment'))
     ->withoutOverlapping();
 
 Schedule::command('calendar:generate')
@@ -314,6 +332,7 @@ Schedule::command('calendar:generate')
         'friday' => 5,
         'saturday' => 6,
     ][mb_strtolower((string) config('calendar.generate.day', 'sunday'))] ?? 0, (string) config('calendar.generate.time', '19:00'))
+    ->when($moduleEnabled('calendar'))
     ->withoutOverlapping();
 
 Artisan::command('health:sweep', function () {

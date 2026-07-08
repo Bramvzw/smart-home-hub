@@ -1,0 +1,11 @@
+{
+    "name": "PhonePing",
+    "alias": "phoneping",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PhonePing\\Providers\\PhonePingServiceProvider"
+    ],
+    "files": []
+}

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\ModuleRegistry;
 use App\Services\Ntfy\HubNotifier;
+use App\Services\Settings\SettingsStore;
 use Illuminate\Support\ServiceProvider;
 
 class DashboardServiceProvider extends ServiceProvider
@@ -13,6 +14,7 @@ class DashboardServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(config_path('ntfy.php'), 'ntfy');
 
         $this->app->singleton(ModuleRegistry::class);
+        $this->app->singleton(SettingsStore::class);
         $this->app->singleton(HubNotifier::class, fn (): \App\Services\Ntfy\HubNotifier => new HubNotifier(
             url: rtrim((string) config('ntfy.url', 'https://ntfy.sh'), '/'),
             topic: (string) config('ntfy.topic', ''),

@@ -10,7 +10,10 @@ Inventory of app and module classes that define the architecture. Update this wh
 |---|---|
 | `App\Contracts\ModuleContract` | Contract implemented by module service providers for dashboard registration. |
 | `App\Contracts\BriefingSource` | Shared contract for modules that contribute sections to the daily briefing. |
-| `App\Services\ModuleRegistry` | Collects module metadata and navigation entries. |
+| `App\Services\ModuleRegistry` | Collects module metadata and navigation entries; filters and orders them by the persisted module state. |
+| `App\Services\ModuleState` | Visibility and ordering state for modules, stored through the SettingsStore. |
+| `App\Services\Settings\SettingsStore` | Reads and writes UI-editable settings, overlaying stored values on config/env defaults. |
+| `App\Http\Requests\UpdateModuleStatesRequest` | Validates the module visibility/ordering form on the settings page. |
 | `App\Services\Ntfy\HubNotifier` | Shared ntfy transport for new hub-level notifications. |
 | `App\Support\Briefing\BriefingSection` | Shared DTO for a contributed briefing section. |
 | `App\Providers\ModuleServiceProvider` | Base provider for modules. |

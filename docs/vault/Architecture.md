@@ -39,6 +39,10 @@ Dependency flow should stay one-way: controllers delegate inward, services do no
 | Resources | JSON shape for model responses. Do not return raw models from new JSON endpoints. |
 | Controllers | Validate, delegate to Actions/ViewModels, return views/resources. |
 
+## Module Visibility & Ordering
+
+`bootstrap/providers.php` remains the single source of truth for which modules are loaded, in which registration order. On top of that, `App\Services\ModuleState` persists per-module visibility and ordering (SettingsStore keys `modules.{slug}.enabled` / `modules.{slug}.order`), editable from `/settings`. `ModuleRegistry` applies that state: `getModules()` returns enabled modules in configured order (navigation, dashboard and settings panes all derive from it), `allModules()` includes disabled ones for the management UI. Scheduled jobs in `routes/console.php` carry `->when(...)` gates so a disabled module's jobs are skipped at run time. Disabled modules stay fully registered — routes, bindings, briefing sources and cross-module contracts keep working.
+
 ---
 
 ## Current Modules

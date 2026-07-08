@@ -13,6 +13,46 @@
                 </div>
             @endif
 
+            <div class="hub-card mb-4 p-5">
+                <h3 class="text-[15px] font-bold text-[var(--hub-text)]">Modules</h3>
+                <p class="mt-1 text-xs text-[var(--hub-dim)]">Toggle visibility and set the order of the sidebar and dashboard. Disabled modules keep running in the background but are hidden and skip their scheduled jobs.</p>
+
+                <form method="POST" action="{{ route('settings.modules.update') }}" class="mt-4">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-2">
+                        @foreach($moduleStates as $moduleState)
+                            <div class="flex items-center gap-3 rounded-[8px] px-2 py-1.5 hover:bg-[var(--hub-accent-soft)]">
+                                <input type="number" min="0" max="99"
+                                       name="modules[{{ $moduleState['slug'] }}][order]"
+                                       value="{{ old('modules.' . $moduleState['slug'] . '.order', $loop->index) }}"
+                                       aria-label="Order of {{ $moduleState['name'] }}"
+                                       class="hub-input h-8 w-16 px-2 text-center text-sm" />
+                                <label class="flex flex-1 cursor-pointer items-center gap-3">
+                                    <input type="hidden" name="modules[{{ $moduleState['slug'] }}][enabled]" value="0" />
+                                    <input type="checkbox" name="modules[{{ $moduleState['slug'] }}][enabled]" value="1"
+                                           @checked((bool) old('modules.' . $moduleState['slug'] . '.enabled', $moduleState['enabled']))
+                                           class="h-4 w-4 rounded border-[var(--hub-line)]" />
+                                    <span class="text-sm font-semibold {{ $moduleState['enabled'] ? 'text-[var(--hub-text)]' : 'text-[var(--hub-dim)]' }}">{{ $moduleState['name'] }}</span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @error('modules')
+                        <p class="mt-2 text-xs text-[#e0575c]">{{ $message }}</p>
+                    @enderror
+                    @error('modules.*.order')
+                        <p class="mt-2 text-xs text-[#e0575c]">{{ $message }}</p>
+                    @enderror
+
+                    <div class="pt-4">
+                        <button type="submit" class="hub-action">Save</button>
+                    </div>
+                </form>
+            </div>
+
             @forelse($panes as $pane)
                 <div class="hub-card mb-4 p-5">
                     <h3 class="text-[15px] font-bold text-[var(--hub-text)]">{{ $pane['name'] }}</h3>

@@ -41,6 +41,6 @@ class TasksServiceProvider extends ModuleServiceProvider
 
     public function getDashboardWidget(): ?string
     {
-        return null;
+        return 'Boards, labels and todos.';
     }
 }

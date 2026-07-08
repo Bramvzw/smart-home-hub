@@ -6,6 +6,7 @@ use App\Contracts\ModuleContract;
 use App\Contracts\ReportsHealth;
 use App\Services\Health\ModuleHealthSweep;
 use App\Services\ModuleRegistry;
+use App\Services\ModuleState;
 use App\Services\Ntfy\HubNotifier;
 use App\Support\Health\ModuleHealth;
 use Illuminate\Support\Facades\Cache;
@@ -25,7 +26,7 @@ class ModuleHealthSweepTest extends TestCase
 
         Cache::forget('health:sweep:statuses');
 
-        $this->registry = new ModuleRegistry;
+        $this->registry = new ModuleRegistry(app(ModuleState::class));
         $this->notifier = new FakeSweepNotifier;
         $this->module = new FakeHealthModule('lighting', ModuleHealth::ok());
         $this->registry->register($this->module);
