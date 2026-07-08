@@ -10,8 +10,8 @@
     "isEntry": true
   },
   "Modules/Calendar/resources/assets/css/habits.css": {
-    "file": "assets/maintenance-4cRjcNQj.css",
-    "src": "Modules/Tasks/resources/assets/css/maintenance.css",
+    "file": "assets/habits-4cRjcNQj.css",
+    "src": "Modules/Calendar/resources/assets/css/habits.css",
     "isEntry": true
   },
   "Modules/Calendar/resources/assets/js/calendar-plan.js": {
@@ -110,8 +110,8 @@
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/maintenance.css": {
-    "file": "assets/maintenance-4cRjcNQj.css",
-    "src": "Modules/Tasks/resources/assets/css/maintenance.css",
+    "file": "assets/habits-4cRjcNQj.css",
+    "src": "Modules/Calendar/resources/assets/css/habits.css",
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/tasks.css": {
@@ -126,10 +126,13 @@
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/js/tasks-board.js": {
-    "file": "assets/tasks-board-DfLuK9pd.js",
+    "file": "assets/tasks-board-CGEy7PfF.js",
     "name": "tasks-board",
     "src": "Modules/Tasks/resources/assets/js/tasks-board.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
   },
   "Modules/Weather/resources/assets/css/weather.css": {
     "file": "assets/weather-BL2r1Roh.css",
@@ -142,15 +145,28 @@
     "src": "Modules/Weather/resources/assets/js/weather.js",
     "isEntry": true
   },
+  "_sortable.esm-D-EvzYhP.js": {
+    "file": "assets/sortable.esm-D-EvzYhP.js",
+    "name": "sortable.esm"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-DTMJphEv.css",
+    "file": "assets/app-DIxDuC-I.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DZNA7hHr.js",
+    "file": "assets/app-CZN6CN6_.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
+  },
+  "resources/js/module-order.js": {
+    "file": "assets/module-order-Chwb_HAI.js",
+    "name": "module-order",
+    "src": "resources/js/module-order.js",
+    "isEntry": true,
+    "imports": [
+      "_sortable.esm-D-EvzYhP.js"
+    ]
   }
 }

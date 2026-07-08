@@ -1,4 +1,8 @@
 <x-dashboard.layout title="Settings">
+    <x-slot:scripts>
+        @vite('resources/js/module-order.js')
+    </x-slot:scripts>
+
     <div class="h-full p-4 md:p-5">
         <section class="mx-auto w-full max-w-3xl">
             <div class="mb-5">
@@ -15,20 +19,26 @@
 
             <div class="hub-card mb-4 p-5">
                 <h3 class="text-[15px] font-bold text-[var(--hub-text)]">Modules</h3>
-                <p class="mt-1 text-xs text-[var(--hub-dim)]">Toggle visibility and set the order of the sidebar and dashboard. Disabled modules keep running in the background but are hidden and skip their scheduled jobs.</p>
+                <p class="mt-1 text-xs text-[var(--hub-dim)]">Drag to reorder the sidebar and dashboard, and toggle visibility. Disabled modules keep running in the background but are hidden and skip their scheduled jobs.</p>
 
                 <form method="POST" action="{{ route('settings.modules.update') }}" class="mt-4">
                     @csrf
                     @method('PUT')
 
-                    <div class="space-y-2">
+                    <div class="space-y-2" data-module-order>
                         @foreach($moduleStates as $moduleState)
-                            <div class="flex items-center gap-3 rounded-[8px] px-2 py-1.5 hover:bg-[var(--hub-accent-soft)]">
-                                <input type="number" min="0" max="99"
+                            <div class="flex items-center gap-3 rounded-[8px] px-2 py-1.5 hover:bg-[var(--hub-accent-soft)]"
+                                 data-module-row data-slug="{{ $moduleState['slug'] }}">
+                                <button type="button" class="module-grip" aria-label="Drag to reorder {{ $moduleState['name'] }}">
+                                    <svg viewBox="0 0 10 16" width="10" height="16" fill="currentColor" aria-hidden="true">
+                                        <circle cx="2" cy="3" r="1.5" /><circle cx="8" cy="3" r="1.5" />
+                                        <circle cx="2" cy="8" r="1.5" /><circle cx="8" cy="8" r="1.5" />
+                                        <circle cx="2" cy="13" r="1.5" /><circle cx="8" cy="13" r="1.5" />
+                                    </svg>
+                                </button>
+                                <input type="hidden" data-order-input
                                        name="modules[{{ $moduleState['slug'] }}][order]"
-                                       value="{{ old('modules.' . $moduleState['slug'] . '.order', $loop->index) }}"
-                                       aria-label="Order of {{ $moduleState['name'] }}"
-                                       class="hub-input h-8 w-16 px-2 text-center text-sm" />
+                                       value="{{ old('modules.' . $moduleState['slug'] . '.order', $loop->index) }}" />
                                 <label class="flex flex-1 cursor-pointer items-center gap-3">
                                     <input type="hidden" name="modules[{{ $moduleState['slug'] }}][enabled]" value="0" />
                                     <input type="checkbox" name="modules[{{ $moduleState['slug'] }}][enabled]" value="1"

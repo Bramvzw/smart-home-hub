@@ -708,3 +708,27 @@ html.low-power *::after {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
 }
+
+/* Module ordering (settings page): drag handle + sortable ghost. */
+.module-grip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    color: var(--hub-dim);
+    cursor: grab;
+    border-radius: 6px;
+}
+
+.module-grip:hover {
+    color: var(--hub-text);
+    background: var(--hub-accent-soft);
+}
+
+.module-grip:active {
+    cursor: grabbing;
+}
+
+[data-module-order] .drag-ghost {
+    opacity: 0.45;
+}

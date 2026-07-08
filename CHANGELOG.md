@@ -9,6 +9,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Modules are reordered by dragging on the settings page instead of typing order numbers.
+
 - News feeds, topics and keywords are now generic by default and
   configurable per install via `NEWS_KEYWORDS` and a `NEWS_FEEDS_FILE`
   JSON override, instead of shipping personal defaults.
