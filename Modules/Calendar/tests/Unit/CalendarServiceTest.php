@@ -16,6 +16,8 @@ class CalendarServiceTest extends TestCase
 
     private const EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars/*';
 
+    private const CALENDAR_LIST_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,7 +53,12 @@ class CalendarServiceTest extends TestCase
     /** @param  list<array<string, mixed>>  $items */
     private function fakeEvents(array $items): void
     {
-        Http::fake([self::EVENTS_URL => Http::response(['items' => $items], 200)]);
+        Http::fake([
+            self::CALENDAR_LIST_URL => Http::response(['items' => [
+                ['id' => 'primary', 'summary' => 'Google Calendar', 'selected' => true, 'primary' => true, 'backgroundColor' => '#6aa6ff'],
+            ]], 200),
+            self::EVENTS_URL => Http::response(['items' => $items], 200),
+        ]);
     }
 
     public function test_maps_google_events_and_respects_timezone(): void
@@ -147,18 +154,22 @@ class CalendarServiceTest extends TestCase
 
         $service = $this->service();
 
+        // One call lists the calendars, one reads the (single) calendar's events.
         $service->feed(7, $this->now());
-        Http::assertSentCount(1);
+        Http::assertSentCount(2);
 
-        // A second call inside the TTL is served from cache — no extra request.
+        // A second call inside the TTL is served from cache — no extra requests.
         $service->feed(7, $this->now());
-        Http::assertSentCount(1);
+        Http::assertSentCount(2);
     }
 
     public function test_failed_fetch_falls_back_to_stale_cache(): void
     {
         $this->connect();
         Http::fake([
+            self::CALENDAR_LIST_URL => Http::response(['items' => [
+                ['id' => 'primary', 'summary' => 'Google Calendar', 'selected' => true, 'primary' => true, 'backgroundColor' => '#6aa6ff'],
+            ]], 200),
             self::EVENTS_URL => Http::sequence()
                 ->push(['items' => [
                     ['id' => 'a', 'summary' => 'Tandarts', 'start' => ['dateTime' => '2026-06-09T08:00:00+02:00'], 'end' => ['dateTime' => '2026-06-09T08:30:00+02:00']],
@@ -182,5 +193,41 @@ class CalendarServiceTest extends TestCase
         $this->assertSame(['Google Calendar'], $stale->staleFeeds);
         // The page still shows the last known-good events.
         $this->assertCount(1, $stale->events);
+    }
+
+    public function test_merges_events_from_every_selected_calendar(): void
+    {
+        $this->connect();
+
+        Http::fake([
+            self::CALENDAR_LIST_URL => Http::response(['items' => [
+                ['id' => 'primary', 'summary' => 'Bram', 'selected' => true, 'primary' => true, 'backgroundColor' => '#111111'],
+                ['id' => 'family@group.calendar.google.com', 'summary' => 'Familie', 'selected' => true, 'backgroundColor' => '#222222'],
+                ['id' => 'hidden@group.calendar.google.com', 'summary' => 'Verborgen', 'selected' => false, 'backgroundColor' => '#333333'],
+            ]], 200),
+            'https://www.googleapis.com/calendar/v3/calendars/primary/events*' => Http::response(['items' => [
+                ['id' => 'p1', 'summary' => 'Tandarts', 'start' => ['dateTime' => '2026-06-09T08:00:00+02:00'], 'end' => ['dateTime' => '2026-06-09T09:00:00+02:00']],
+            ]], 200),
+            'https://www.googleapis.com/calendar/v3/calendars/family*' => Http::response(['items' => [
+                ['id' => 'f1', 'summary' => 'Verjaardag', 'start' => ['dateTime' => '2026-06-09T18:00:00+02:00'], 'end' => ['dateTime' => '2026-06-09T20:00:00+02:00']],
+            ]], 200),
+            // The unselected calendar must never be queried.
+            'https://www.googleapis.com/calendar/v3/calendars/hidden*' => Http::response(['items' => [
+                ['id' => 'h1', 'summary' => 'Geheim', 'start' => ['dateTime' => '2026-06-09T12:00:00+02:00'], 'end' => ['dateTime' => '2026-06-09T13:00:00+02:00']],
+            ]], 200),
+        ]);
+
+        $feed = $this->service()->feed(7, $this->now());
+
+        $summaries = array_map(fn (\Modules\Calendar\Data\CalendarEvent $event): string => $event->summary, $feed->events);
+        $this->assertSame(['Tandarts', 'Verjaardag'], $summaries);
+
+        // Each event carries its own calendar's label and colour.
+        $this->assertSame('Bram', $feed->events[0]->calendarLabel);
+        $this->assertSame('#111111', $feed->events[0]->calendarColor);
+        $this->assertSame('Familie', $feed->events[1]->calendarLabel);
+        $this->assertSame('#222222', $feed->events[1]->calendarColor);
+
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/calendars/hidden'));
     }
 }

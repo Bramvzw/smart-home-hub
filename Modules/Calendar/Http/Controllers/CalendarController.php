@@ -112,7 +112,7 @@ class CalendarController
 
         return $date
             ? CarbonImmutable::parse((string) $date)->startOfDay()
-            : CarbonImmutable::now((string) config('app.timezone', 'UTC'))->startOfDay();
+            : CarbonImmutable::now((string) config('calendar.timezone', 'Europe/Amsterdam'))->startOfDay();
     }
 
     public function connect(GoogleCalendarTokenService $tokens): RedirectResponse

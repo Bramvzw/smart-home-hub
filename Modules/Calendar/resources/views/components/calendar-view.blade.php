@@ -1,5 +1,5 @@
 @php
-    $tz = config('app.timezone', 'UTC');
+    $tz = config('calendar.timezone', 'Europe/Amsterdam');
     $multiFeed = count($sources ?? []) > 1;
 @endphp
 

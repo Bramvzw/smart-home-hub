@@ -3,6 +3,10 @@
 return [
     'name' => 'Calendar',
 
+    // Display timezone for the agenda. The app runs in UTC (see config/app.php);
+    // like the other modules, Calendar renders in local time via its own key.
+    'timezone' => env('CALENDAR_TIMEZONE', 'Europe/Amsterdam'),
+
     'window_days' => (int) env('CALENDAR_WINDOW_DAYS', 7),
     'cache_ttl' => (int) env('CALENDAR_CACHE_TTL', 300),
     'request_timeout' => (int) env('CALENDAR_REQUEST_TIMEOUT', 10),

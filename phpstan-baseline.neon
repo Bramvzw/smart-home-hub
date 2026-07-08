@@ -144,17 +144,7 @@ parameters:
 			count: 2
 			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
 
-		-
-			message: '#^Method Modules\\Calendar\\Services\\Google\\GoogleCalendarClient\:\:busyTimes\(\) should return list\<Modules\\Calendar\\Data\\BusyTime\> but returns array\<int, Modules\\Calendar\\Data\\BusyTime\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
 
-		-
-			message: '#^Method Modules\\Calendar\\Services\\Google\\GoogleCalendarClient\:\:events\(\) should return list\<Modules\\Calendar\\Data\\CalendarEvent\> but returns array\<int, Modules\\Calendar\\Data\\CalendarEvent\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Modules/Calendar/Services/Google/GoogleCalendarClient.php
 
 		-
 			message: '#^Parameter \#1 \$date of static method Carbon\\CarbonImmutable\:\:instance\(\) expects DateTimeInterface, Carbon\\CarbonInterface\|null given\.$#'

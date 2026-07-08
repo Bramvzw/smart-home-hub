@@ -25,7 +25,7 @@ class CalendarViewModel
         $days = (int) config('calendar.window_days', 7);
         $feed = $this->service->feed($days);
         $plan = CalendarPlan::latestGenerated()->first();
-        $today = CarbonImmutable::now((string) config('app.timezone', 'UTC'))->startOfDay();
+        $today = CarbonImmutable::now((string) config('calendar.timezone', 'Europe/Amsterdam'))->startOfDay();
 
         return [
             'connected' => $connected,
@@ -64,7 +64,7 @@ class CalendarViewModel
      */
     private function dayBuckets(int $days): array
     {
-        $today = CarbonImmutable::now((string) config('app.timezone', 'UTC'))->startOfDay();
+        $today = CarbonImmutable::now((string) config('calendar.timezone', 'Europe/Amsterdam'))->startOfDay();
         $buckets = [];
 
         for ($offset = 0; $offset < $days; $offset++) {

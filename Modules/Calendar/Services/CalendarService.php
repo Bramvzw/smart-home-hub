@@ -36,7 +36,7 @@ class CalendarService
             return new CalendarFeed([], stale: false, failed: false);
         }
 
-        $timezone = (string) config('app.timezone', 'UTC');
+        $timezone = (string) config('calendar.timezone', 'Europe/Amsterdam');
         $days ??= (int) config('calendar.window_days', 7);
         $now = ($now ?? CarbonImmutable::now($timezone))->setTimezone($timezone);
 
