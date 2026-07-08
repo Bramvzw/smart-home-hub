@@ -7,7 +7,7 @@ return [
     'servings' => env('RECIPES_SERVINGS', 2),
     'language' => env('RECIPES_LANGUAGE', 'nl'),
     // Dutch supermarket offer sources; a fresh install can trim this via RECIPES_STORES.
-    'stores' => array_values(array_filter(array_map('trim', explode(',', (string) env('RECIPES_STORES', 'ah,lidl'))))),
+    'stores' => array_values(array_filter(array_map(trim(...), explode(',', (string) env('RECIPES_STORES', 'ah,lidl'))))),
     'request_timeout' => env('RECIPES_TIMEOUT', 15),
     'ai' => [
         'model' => env('RECIPES_MODEL', env('BRIEFING_MODEL', 'claude-sonnet-4-6')),
