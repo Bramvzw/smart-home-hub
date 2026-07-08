@@ -20,12 +20,12 @@ class NewsConfigTest extends TestCase
 
     public function test_keywords_come_from_a_comma_separated_env(): void
     {
-        putenv('NEWS_KEYWORDS=Alpha, Beta ,, Gamma');
+        $this->setEnv('NEWS_KEYWORDS', 'Alpha, Beta ,, Gamma');
 
         try {
             $config = $this->loadConfig();
         } finally {
-            putenv('NEWS_KEYWORDS');
+            $this->clearEnv('NEWS_KEYWORDS');
         }
 
         $this->assertSame(['Alpha', 'Beta', 'Gamma'], $config['keywords']);
@@ -38,12 +38,12 @@ class NewsConfigTest extends TestCase
             'topics' => ['home' => 'Home lab'],
             'feeds' => [['key' => 'mine', 'topic' => 'home', 'label' => 'Mine', 'url' => 'https://example.test/rss']],
         ]));
-        putenv('NEWS_FEEDS_FILE='.$path);
+        $this->setEnv('NEWS_FEEDS_FILE', $path);
 
         try {
             $config = $this->loadConfig();
         } finally {
-            putenv('NEWS_FEEDS_FILE');
+            $this->clearEnv('NEWS_FEEDS_FILE');
             @unlink($path);
         }
 
@@ -55,12 +55,12 @@ class NewsConfigTest extends TestCase
 
     public function test_an_invalid_feeds_file_falls_back_to_the_defaults(): void
     {
-        putenv('NEWS_FEEDS_FILE=/does/not/exist.json');
+        $this->setEnv('NEWS_FEEDS_FILE', '/does/not/exist.json');
 
         try {
             $config = $this->loadConfig();
         } finally {
-            putenv('NEWS_FEEDS_FILE');
+            $this->clearEnv('NEWS_FEEDS_FILE');
         }
 
         $topics = $config['topics'];
@@ -77,5 +77,22 @@ class NewsConfigTest extends TestCase
         $this->assertIsArray($config);
 
         return $config;
+    }
+
+    /**
+     * Set an env var across all channels env() reads, so the test behaves the
+     * same whether or not putenv is disabled (config is cached in CI).
+     */
+    private function setEnv(string $key, string $value): void
+    {
+        putenv("{$key}={$value}");
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+    }
+
+    private function clearEnv(string $key): void
+    {
+        putenv($key);
+        unset($_ENV[$key], $_SERVER[$key]);
     }
 }
