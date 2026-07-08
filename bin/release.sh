@@ -35,10 +35,23 @@ cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 step() { printf '\n\033[36m==> %s\033[0m\n' "$1"; }
 
-step "1/6  Building front-end assets"
+# ---- semantic version: bump the minor of the latest v* tag ----------------
+LAST_TAG="$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo v0.0.0)"
+VERSION="$(printf '%s' "$LAST_TAG" | awk -F. '{sub(/^v/, "", $1); printf "v%d.%d.0", $1, $2 + 1}')"
+
+step "1/7  Building front-end assets"
 npm run build
 
-step "2/6  Committing"
+step "2/7  Rolling CHANGELOG.md into $VERSION"
+if awk '/^## \[Unreleased\]/{found=1; next} /^## \[/{exit} found && NF {exit 42}' CHANGELOG.md; then
+  echo "    WARNING: no entries under [Unreleased] — release notes will be empty"
+else
+  perl -0pi -e "s/^## \[Unreleased\]/## [Unreleased]\n\n## [${VERSION#v}] - $(date '+%Y-%m-%d')/m" CHANGELOG.md
+  perl -0pi -e "s{^\[Unreleased\]: (.*)/compare/.*\.\.\.HEAD$}{[Unreleased]: \$1/compare/$VERSION...HEAD\n[${VERSION#v}]: \$1/compare/$LAST_TAG...$VERSION}m" CHANGELOG.md
+  echo "    CHANGELOG rolled to ${VERSION#v}"
+fi
+
+step "3/7  Committing"
 git add -A
 if git diff --cached --quiet; then
   echo "    no changes to commit"
@@ -46,19 +59,25 @@ else
   git commit -m "$MSG"
 fi
 
-step "3/6  Pushing to GitHub (main)"
-git push origin main
+step "4/7  Tagging $VERSION and pushing to GitHub (main)"
+git tag -a "$VERSION" -m "$MSG"
+git push origin main "$VERSION"
 
-step "4/6  NAS: pull + migrate + optimize (in container)"
+if command -v gh >/dev/null 2>&1; then
+  notes="$(awk "/^## \[${VERSION#v}\]/{found=1; next} found && /^## \[/{exit} found" CHANGELOG.md)"
+  gh release create "$VERSION" --title "$VERSION" --notes "$notes" || echo "    WARNING: gh release failed (continuing)"
+fi
+
+step "5/7  NAS: pull + migrate + optimize (in container)"
 # Synology sprinkles @eaDir metadata dirs across the volume, incl. .git/refs,
 # which makes git choke on "bad object refs/heads/@eaDir/...". Strip them first.
 ssh -i "$NAS_KEY" "$NAS_SSH" \
   "sudo $DC exec -T hub sh -c 'cd /app && (git config --global --get-all safe.directory 2>/dev/null | grep -qx /app || git config --global --add safe.directory /app) && find .git -name @eaDir -prune -exec rm -rf {} + 2>/dev/null; git checkout -- docker-compose.yml 2>/dev/null; git pull --ff-only origin main && composer install --no-dev --optimize-autoloader --no-interaction && php artisan migrate --force && php artisan optimize'"
 
-step "5/6  NAS: restart container (reset opcache)"
+step "6/7  NAS: restart container (reset opcache)"
 ssh -i "$NAS_KEY" "$NAS_SSH" "sudo $DC restart hub"
 
-step "6/6  Health check"
+step "7/7  Health check"
 sleep 3
 code="$(curl -s -o /dev/null -m 20 -w '%{http_code}' "$HEALTH_URL" || echo 000)"
 if [ "$code" = "200" ]; then
