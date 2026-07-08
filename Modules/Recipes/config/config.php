@@ -5,6 +5,7 @@ return [
     'generate_time' => env('RECIPES_TIME', '18:00'),
     'recipe_count' => env('RECIPES_COUNT', 5),
     'servings' => env('RECIPES_SERVINGS', 2),
+    'language' => env('RECIPES_LANGUAGE', 'nl'),
     'stores' => ['ah', 'lidl'],
     'request_timeout' => env('RECIPES_TIMEOUT', 15),
     'ai' => [
