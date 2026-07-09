@@ -4,6 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![Laravel 12](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
+![Status: actively developed](https://img.shields.io/badge/status-actively%20developed-F59E0B)
+
+> 🚧 **Work in progress** — this is an actively developed personal project; modules and APIs are still evolving.
 
 **The self-hosted dashboard that actually does things.**
 
