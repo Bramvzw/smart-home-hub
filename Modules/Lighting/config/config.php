@@ -74,10 +74,16 @@ return [
     // Light-state cache lifetime in seconds (polling + cache, no realtime push).
     'cache_ttl' => (int) env('LIGHTING_CACHE_TTL', 120),
 
+    // How often an open Lighting page re-reads light state, in seconds (only
+    // while visible). 120 s ≈ 720 Tuya calls/day, inside the 26k/month quota.
+    'poll_seconds' => (int) env('LIGHTING_POLL_SECONDS', 120),
+
     // Network timeout per provider request, in seconds.
     'request_timeout' => (int) env('LIGHTING_REQUEST_TIMEOUT', 10),
 
-    // Serialise writes so quick UI actions cannot interleave provider commands.
+    // Serialise writes so quick UI actions cannot interleave provider commands:
+    // one lock per light for single-light writes, one shared lock for presets
+    // and group writes.
     'control_lock_ttl' => (int) env('LIGHTING_CONTROL_LOCK_TTL', 20),
     'control_lock_wait' => (int) env('LIGHTING_CONTROL_LOCK_WAIT', 8),
 

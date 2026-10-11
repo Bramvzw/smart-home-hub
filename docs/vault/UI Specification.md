@@ -102,9 +102,12 @@ Behavior:
 - The active preset button uses `data-active="true"`, `aria-pressed="true"` and an `Actief` badge. Manual power, brightness or colour changes recalculate this state immediately.
 - Presets skip unchanged power, brightness and colour commands from the current snapshot to reduce cloud latency, especially for Govee LED strips.
 - Govee commands are paced and transient failures are retried so quick preset changes are less likely to drop a brightness or colour command.
-- While a Lighting action is running, reachable switches, sliders, colour inputs and preset buttons are disabled so commands cannot overlap from the same browser.
-- The backend serialises all Lighting write requests with a short cache lock. If another device submits during an active action, the JSON endpoint returns `409` with a busy message instead of interleaving commands.
-- Control changes call the per-light JSON endpoint and optimistically update the UI; a failed update marks the card with the danger ring.
+- Controls are never disabled while a command runs. Each lamp has its own queue: one request in flight at a time, and slider/colour changes made meanwhile coalesce into one queued request that carries only the newest values (latest wins). Other lamps and presets stay usable. A lamp with a pending command shows a subtle pulse on its swatch and percentage.
+- A preset tapped while another preset is running is queued; only the newest queued preset runs after the current one.
+- Control changes update the UI optimistically. If a command fails, the lamp rolls back to its last confirmed state, gets the danger ring and a short toast ("Couldn't reach Calex").
+- The backend locks per light for single-light writes (`lighting:control:{provider}:{id}`), so commands for different lamps never wait on each other. Presets and group writes take the shared lock. A busy lock returns `409`; the page retries a `409` once after 500 ms before treating it as a failure.
+- The page re-reads `GET /lighting/state` every `LIGHTING_POLL_SECONDS` (default 120 s) while it is visible, and once when it becomes visible again, so changes made in the Smart Life or Govee apps appear without a reload. Lamps with a pending or newer local command are skipped. Hidden tabs do not poll.
+- `PUT /lighting/lights` applies one change set (`power`, `brightness`, `color` or `color_temp`) to several lamps: `200` with `{data: {applied, failed}}` (partial failures listed by name), `502` when nothing could be applied, `422` for an unknown lamp. Calex lamps in one group request are written concurrently.
 - Secrets and provider tokens are never rendered.
 
 ### Weather

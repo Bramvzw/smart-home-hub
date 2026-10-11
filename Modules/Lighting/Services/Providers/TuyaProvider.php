@@ -162,6 +162,58 @@ class TuyaProvider implements LightProvider
         }
     }
 
+    public function applyToLights(array $lights, array $changes): array
+    {
+        // One signed command per device, all sent concurrently.
+        $requests = [];
+        foreach ($lights as $light) {
+            $requests[$light->id] = [
+                'path' => "/v1.0/devices/{$light->id}/commands",
+                'body' => ['commands' => $this->groupCommands($light, $changes)],
+            ];
+        }
+
+        return $this->client->postConcurrently($requests, $this->token->accessToken());
+    }
+
+    /**
+     * Full command batch for a group change, using the cached snapshot for the
+     * current mode/colour/brightness instead of a status read per device.
+     *
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     * @return list<array{code: string, value: mixed}>
+     */
+    private function groupCommands(Light $light, array $changes): array
+    {
+        if (! ($changes['power'] ?? true)) {
+            return [['code' => 'switch_led', 'value' => false]];
+        }
+
+        $commands = [['code' => 'switch_led', 'value' => true]];
+        $brightness = $changes['brightness'] ?? null;
+
+        if (isset($changes['color_temp']) && $light->supportsColorTemp) {
+            $commands[] = ['code' => 'work_mode', 'value' => 'white'];
+            $commands[] = ['code' => 'temp_value_v2', 'value' => $this->tempValue($changes['color_temp'])];
+            $commands[] = ['code' => 'bright_value_v2', 'value' => $this->brightnessValue($brightness ?? $light->brightness)];
+        } elseif (isset($changes['color']) && $light->supportsColor) {
+            $hsv = Color::hexToTuyaHsv($changes['color']);
+            $hsv['v'] = $this->brightnessValue($brightness ?? $light->brightness);
+            $commands[] = ['code' => 'work_mode', 'value' => 'colour'];
+            $commands[] = ['code' => 'colour_data_v2', 'value' => $hsv];
+        } elseif ($brightness !== null && $light->mode === LightMode::Colour && $light->color !== null) {
+            // Same rule as setBrightness(): in colour mode brightness is the V channel.
+            $hsv = Color::hexToTuyaHsv($light->color);
+            $hsv['v'] = $this->brightnessValue($brightness);
+            $commands[] = ['code' => 'work_mode', 'value' => 'colour'];
+            $commands[] = ['code' => 'colour_data_v2', 'value' => $hsv];
+        } elseif ($brightness !== null) {
+            $commands[] = ['code' => 'bright_value_v2', 'value' => $this->brightnessValue($brightness)];
+        }
+
+        return $commands;
+    }
+
     private function command(string $id, array $commands): void
     {
         $this->client->post("/v1.0/devices/{$id}/commands", ['commands' => $commands], $this->token->accessToken());

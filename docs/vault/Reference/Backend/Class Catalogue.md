@@ -47,21 +47,25 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | Class | Responsibility |
 |---|---|
 | `Modules\Lighting\Providers\LightingServiceProvider` | Registers Lighting module metadata, routes and dashboard navigation. |
-| `Modules\Lighting\Http\Controllers\LightingController` | Thin HTTP boundary for the Lighting page and per-light JSON updates. |
+| `Modules\Lighting\Http\Controllers\LightingController` | Thin HTTP boundary for the Lighting page, per-light and group JSON updates and the live state endpoint. |
 | `Modules\Lighting\Http\Requests\UpdateLightRequest` | Validation and colour normalisation for per-light update requests. |
 | `Modules\Lighting\Actions\ControlLight` | Write action for dispatching validated light changes to the owning provider. |
+| `Modules\Lighting\Actions\ControlLights` | Write action for applying one change set to several lights (group writes). |
+| `Modules\Lighting\Http\Requests\ControlLightsRequest` | Validation and colour normalisation for group light writes. |
 | `Modules\Lighting\Actions\ApplyLightingPreset` | Write action for applying configured presets across reachable provider lights. |
 | `Modules\Lighting\Contracts\LightProvider` | Shared provider contract for listing and controlling lights. |
 | `Modules\Lighting\Data\Light` | Shared light DTO used by providers, views and JSON resources, including mode and colour temperature. |
 | `Modules\Lighting\Enums\LightMode` | Whether a lamp drives its white (tunable CCT) LEDs or its RGB LEDs. |
 | `Modules\Lighting\Data\LightPreset` | Typed preset definition used by the service, view model and JSON preset response. |
 | `Modules\Lighting\Data\LightingPresetResult` | Typed result for applied, skipped and failed preset targets. |
+| `Modules\Lighting\Data\LightingGroupResult` | Typed result for applied and failed group-write targets. |
 | `Modules\Lighting\Data\LightingSnapshot` | Aggregated light list plus unreachable provider labels. |
-| `Modules\Lighting\Exceptions\LightingControlBusy` | Exception for write requests that cannot enter the Lighting control queue in time. |
+| `Modules\Lighting\Exceptions\LightingControlBusy` | Exception for write requests that cannot take their per-light or group control lock in time. |
 | `Modules\Lighting\Exceptions\UnknownLightingPreset` | Exception for unknown configured preset keys. |
-| `Modules\Lighting\Http\Resources\LightResource` | Stable JSON transformer for light update responses. |
+| `Modules\Lighting\Exceptions\UnknownLight` | Exception for group-write targets that are not in the current light snapshot. |
+| `Modules\Lighting\Http\Resources\LightResource` | Stable JSON transformer for light update and state responses. |
 | `Modules\Lighting\Services\LightingService` | Aggregates configured providers, caches snapshots and isolates failures. |
-| `Modules\Lighting\Services\Providers\TuyaApiClient` | Signed Tuya Cloud OpenAPI transport. |
+| `Modules\Lighting\Services\Providers\TuyaApiClient` | Signed Tuya Cloud OpenAPI transport, including concurrent (pooled) command posts. |
 | `Modules\Lighting\Services\Providers\TuyaTokenService` | Tuya access token caching and refresh. |
 | `Modules\Lighting\Services\Providers\TuyaProvider` | Calex/Tuya provider mapping for power, brightness, colour and white mode/colour temperature. |
 | `Modules\Lighting\Services\Providers\GoveeApiClient` | Govee Developer API transport with API-key headers. |

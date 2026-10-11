@@ -84,7 +84,10 @@
             class="lighting-console"
             data-lighting
             data-preset-url-template="{{ $presetUrlTemplate }}"
+            data-state-url="{{ $stateUrl }}"
+            data-poll-seconds="{{ $pollSeconds }}"
         >
+            <div class="lighting-console__toast" data-lighting-toast role="status" aria-live="polite" hidden></div>
             <aside class="lighting-console__rail">
                 <div class="lighting-console__brand">
                     <div class="lighting-console__brand-mark">

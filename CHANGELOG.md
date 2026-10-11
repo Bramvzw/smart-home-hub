@@ -12,6 +12,15 @@ All notable changes to this project are documented here. The format follows
 - Lighting: real white light with adjustable colour temperature for Calex and
   Govee lamps; the Bright, Cozy and Night presets now use warm or cool white
   instead of a bluish RGB imitation.
+- Lighting: group endpoint `PUT /lighting/lights` to change several lamps at
+  once, and `GET /lighting/state` for the live light state.
+
+### Changed
+
+- Lighting: lamps stay usable while a command runs. Rapid slider moves are
+  coalesced per lamp, failed commands roll back with a short notice, and the
+  page picks up changes made in the Smart Life or Govee apps every two minutes
+  without a reload.
 
 ## [0.3.0] - 2026-10-11
 

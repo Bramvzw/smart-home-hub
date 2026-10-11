@@ -8,12 +8,14 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
+use Modules\Lighting\Data\LightingGroupResult;
 use Modules\Lighting\Data\LightingPresetResult;
 use Modules\Lighting\Data\LightingSnapshot;
 use Modules\Lighting\Data\LightPreset;
 use Modules\Lighting\Data\WeatherPresetTrigger;
 use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Exceptions\LightingControlBusy;
+use Modules\Lighting\Exceptions\UnknownLight;
 use Modules\Lighting\Exceptions\UnknownLightingPreset;
 use Modules\Lighting\Services\Providers\GoveeProvider;
 use Modules\Lighting\Services\Providers\TuyaProvider;
@@ -22,6 +24,9 @@ use Throwable;
 
 class LightingService
 {
+    /** Lock for writes that touch several lamps (presets, group writes). */
+    private const GROUP_LOCK = 'lighting:control';
+
     /** @var list<LightProvider> */
     private readonly array $providers;
 
@@ -64,7 +69,8 @@ class LightingService
      */
     public function control(string $providerKey, string $id, array $changes): Light
     {
-        return $this->withControlLock(function () use ($providerKey, $id, $changes): Light {
+        // Per-light lock: a command for one lamp never queues behind another lamp.
+        return $this->withControlLock(self::GROUP_LOCK.':'.$providerKey.':'.$id, function () use ($providerKey, $id, $changes): Light {
             $provider = $this->providerByKey($providerKey);
 
             if (array_key_exists('power', $changes)) {
@@ -102,7 +108,7 @@ class LightingService
 
     public function applyPreset(string $key): LightingPresetResult
     {
-        return $this->withControlLock(function () use ($key): LightingPresetResult {
+        return $this->withControlLock(self::GROUP_LOCK, function () use ($key): LightingPresetResult {
             $preset = $this->presetByKey($key);
             $applied = 0;
             $skipped = 0;
@@ -142,6 +148,83 @@ class LightingService
             }
 
             return new LightingPresetResult($preset, $applied, $skipped, array_values(array_unique($failed)));
+        });
+    }
+
+    /**
+     * Apply one change set to several lights at once. Every target is resolved
+     * against the cached snapshot first, so an unknown light rejects the whole
+     * request before anything is written.
+     *
+     * @param  list<array{provider: string, id: string}>  $targets
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     *
+     * @throws UnknownLight
+     */
+    public function controlLights(array $targets, array $changes): LightingGroupResult
+    {
+        return $this->withControlLock(self::GROUP_LOCK, function () use ($targets, $changes): LightingGroupResult {
+            $failed = [];
+            $batches = [];
+
+            foreach ($this->idsByProvider($targets) as $providerKey => $ids) {
+                $provider = $this->configuredProviderByKey($providerKey);
+                if ($provider === null) {
+                    throw UnknownLight::forTarget($providerKey, $ids[0]);
+                }
+
+                try {
+                    $lights = $this->cachedLights($provider);
+                } catch (Throwable) {
+                    $failed[] = $provider->label();
+
+                    continue;
+                }
+
+                $byId = [];
+                foreach ($lights as $light) {
+                    $byId[$light->id] = $light;
+                }
+
+                $reachable = [];
+                foreach ($ids as $id) {
+                    $light = $byId[$id] ?? throw UnknownLight::forTarget($providerKey, $id);
+
+                    if ($light->reachable) {
+                        $reachable[] = $light;
+                    } else {
+                        $failed[] = $light->name;
+                    }
+                }
+
+                $batches[] = [$provider, $reachable];
+            }
+
+            $applied = 0;
+            foreach ($batches as [$provider, $lights]) {
+                if ($lights === []) {
+                    continue;
+                }
+
+                try {
+                    $failedIds = $provider->applyToLights($lights, $changes);
+                } catch (Throwable) {
+                    // Provider-wide failure (e.g. token refresh): every lamp of it failed.
+                    $failedIds = array_map(static fn (Light $light): string => $light->id, $lights);
+                }
+
+                foreach ($lights as $light) {
+                    if (in_array($light->id, $failedIds, true)) {
+                        $failed[] = $light->name;
+                    } else {
+                        $applied++;
+                    }
+                }
+
+                Cache::forget($this->cacheKey($provider));
+            }
+
+            return new LightingGroupResult($applied, array_values(array_unique($failed)));
         });
     }
 
@@ -198,11 +281,11 @@ class LightingService
      * @param  Closure(): TReturn  $callback
      * @return TReturn
      */
-    private function withControlLock(Closure $callback): mixed
+    private function withControlLock(string $lock, Closure $callback): mixed
     {
         try {
             return Cache::lock(
-                'lighting:control',
+                $lock,
                 max(1, (int) config('lighting.control_lock_ttl', 20)),
             )->block(
                 max(0, (int) config('lighting.control_lock_wait', 8)),
@@ -279,13 +362,37 @@ class LightingService
 
     private function providerByKey(string $key): LightProvider
     {
+        return $this->configuredProviderByKey($key)
+            ?? throw new RuntimeException('Unknown or unconfigured lighting provider.');
+    }
+
+    private function configuredProviderByKey(string $key): ?LightProvider
+    {
         foreach ($this->configuredProviders() as $provider) {
             if ($provider->key() === $key) {
                 return $provider;
             }
         }
 
-        throw new RuntimeException('Unknown or unconfigured lighting provider.');
+        return null;
+    }
+
+    /**
+     * Group targets per provider, dropping duplicates.
+     *
+     * @param  list<array{provider: string, id: string}>  $targets
+     * @return array<string, non-empty-list<string>>
+     */
+    private function idsByProvider(array $targets): array
+    {
+        $grouped = [];
+        foreach ($targets as $target) {
+            if (! in_array($target['id'], $grouped[$target['provider']] ?? [], true)) {
+                $grouped[$target['provider']][] = $target['id'];
+            }
+        }
+
+        return $grouped;
     }
 
     private function cacheKey(LightProvider $provider): string

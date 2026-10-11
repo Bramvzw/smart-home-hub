@@ -2,8 +2,12 @@
 
 namespace Modules\Lighting\Services\Providers;
 
+use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Modules\Lighting\Services\Providers\Concerns\HandlesProviderResponse;
+use RuntimeException;
+use Throwable;
 
 /**
  * Low-level signed transport for the Tuya Cloud OpenAPI. Handles request
@@ -37,7 +41,7 @@ class TuyaApiClient
 
     public function post(string $path, array $body, string $accessToken): array
     {
-        $json = json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $json = $this->encode($body);
 
         return $this->result(
             Http::timeout($this->timeout())
@@ -45,6 +49,56 @@ class TuyaApiClient
                 ->withBody($json, 'application/json')
                 ->post($this->baseUrl().$path)
         );
+    }
+
+    /**
+     * Send several signed POSTs concurrently (group writes to multiple devices).
+     * Each request is signed on its own; one failing never affects the others.
+     *
+     * @param  array<string, array{path: string, body: array}>  $requests  keyed by the caller's id
+     * @return list<string> keys whose request failed
+     */
+    public function postConcurrently(array $requests, string $accessToken): array
+    {
+        if ($requests === []) {
+            return [];
+        }
+
+        $responses = Http::pool(function (Pool $pool) use ($requests, $accessToken): array {
+            $pending = [];
+            foreach ($requests as $key => $request) {
+                $json = $this->encode($request['body']);
+                $pending[] = $pool->as((string) $key)
+                    ->timeout($this->timeout())
+                    ->withHeaders($this->headers('POST', $request['path'], $json, $accessToken) + ['Content-Type' => 'application/json'])
+                    ->withBody($json, 'application/json')
+                    ->post($this->baseUrl().$request['path']);
+            }
+
+            return $pending;
+        });
+
+        $failed = [];
+        foreach (array_keys($requests) as $key) {
+            $response = $responses[(string) $key] ?? null;
+
+            try {
+                // Pool entries hold a Throwable on connection failure.
+                if (! $response instanceof Response) {
+                    throw new RuntimeException('Tuya API request failed.');
+                }
+                $this->result($response);
+            } catch (Throwable) {
+                $failed[] = (string) $key;
+            }
+        }
+
+        return $failed;
+    }
+
+    private function encode(array $body): string
+    {
+        return (string) json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     private function baseUrl(): string

@@ -49,4 +49,16 @@ interface LightProvider
      * @param  int|null  $colorTemp  0 (warm) - 100 (cool)
      */
     public function applyState(string $id, bool $power, ?int $brightness, ?string $color, ?int $colorTemp = null): void;
+
+    /**
+     * Apply one change set to several of this provider's lights (group
+     * writes). The cached Light snapshots carry the current mode, colour and
+     * brightness, so providers can build full commands without status reads.
+     * A missing `power` means "on". Failures are isolated per light.
+     *
+     * @param  list<Light>  $lights
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     * @return list<string> ids of the lights that could not be updated
+     */
+    public function applyToLights(array $lights, array $changes): array;
 }

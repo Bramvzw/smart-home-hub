@@ -56,6 +56,7 @@ The Lighting screen uses a module-local console stylesheet at `Modules/Lighting/
 
 - Use the `lighting-console*` classes for the Variant B master-detail layout, lamp rail, scene buttons, stage glow, switches and colour ring.
 - Active preset display uses `lighting-console__scene[data-active="true"]` and `lighting-console__scene-active`.
+- A lamp with a command in flight carries `data-pending="true"` on its row and stage: only the swatch / percentage pulses (a static dim under `html.low-power`); controls are never disabled for it. Failed commands use the `ring-[var(--hub-danger)]` danger ring plus the `lighting-console__toast` status message.
 - Runtime lamp values may be injected as inline CSS variables such as `--light-color` and `--light-brightness`.
 - Keep provider/action behavior in `Modules/Lighting/resources/assets/js/lighting.js`; CSS should only describe presentation and responsive structure.
 

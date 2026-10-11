@@ -50,6 +50,73 @@ class LightingControllerTest extends TestCase
         $response->assertSee('Cozy');
         $response->assertSee('Night light');
         $response->assertSeeHtml('data-preset-url-template');
+        $response->assertSeeHtml('data-state-url="'.route('lighting.state').'"');
+        $response->assertSeeHtml('data-poll-seconds="120"');
+    }
+
+    public function test_state_endpoint_returns_lights_and_unreachable_providers(): void
+    {
+        $this->fakeGovee();
+
+        $response = $this->getJson(route('lighting.state'));
+
+        $response->assertStatus(200);
+        $response->assertExactJson([
+            'data' => [[
+                'provider' => 'govee',
+                'id' => 'DEV1',
+                'name' => 'Strip',
+                'on' => true,
+                'brightness' => 60,
+                'color' => '#0000ff',
+                'reachable' => true,
+                'supports_color' => true,
+                'mode' => 'colour',
+                'color_temp' => null,
+                'supports_color_temp' => true,
+            ]],
+            'unreachable_providers' => [],
+        ]);
+    }
+
+    public function test_state_endpoint_reports_unreachable_providers(): void
+    {
+        config(['lighting.govee' => ['api_key' => 'gkey']]);
+        Http::fake(['*' => Http::response(['code' => 500], 500)]);
+
+        $this->getJson(route('lighting.state'))
+            ->assertStatus(200)
+            ->assertJsonPath('data', [])
+            ->assertJsonPath('unreachable_providers', ['Govee']);
+    }
+
+    public function test_single_light_writes_only_lock_their_own_light(): void
+    {
+        $this->fakeGovee();
+        config([
+            'lighting.control_lock_ttl' => 10,
+            'lighting.control_lock_wait' => 0,
+        ]);
+
+        $other = Cache::lock('lighting:control:govee:OTHER', 10);
+        $this->assertTrue($other->get());
+
+        try {
+            $this->putJson(route('lighting.lights.update', ['provider' => 'govee', 'id' => 'DEV1']), ['power' => true])
+                ->assertStatus(200);
+        } finally {
+            $other->release();
+        }
+
+        $own = Cache::lock('lighting:control:govee:DEV1', 10);
+        $this->assertTrue($own->get());
+
+        try {
+            $this->putJson(route('lighting.lights.update', ['provider' => 'govee', 'id' => 'DEV1']), ['power' => true])
+                ->assertStatus(409);
+        } finally {
+            $own->release();
+        }
     }
 
     public function test_index_shows_no_credentials_state(): void

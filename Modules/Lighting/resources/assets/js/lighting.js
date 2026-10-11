@@ -23,8 +23,50 @@ const markDanger = (element, failed) => {
     element.classList.toggle('ring-[var(--hub-danger)]', failed);
 };
 
+const wait = (ms) => new Promise((resolve) => {
+    setTimeout(resolve, ms);
+});
+
+// A busy server lock (409) is usually gone within moments: retry once.
+const requestWithRetry = async (url, method, payload = null) => {
+    const attempt = async () => {
+        try {
+            return await request(url, method, payload);
+        } catch {
+            return null;
+        }
+    };
+
+    let response = await attempt();
+    if (response?.status === 409) {
+        await wait(500);
+        response = await attempt();
+    }
+
+    return response;
+};
+
 const cardsForKey = (root, key) => [...root.querySelectorAll('[data-light]')]
     .filter((card) => card.dataset.lightKey === key);
+
+// The row and the detail panel of one lamp share a key; act on both.
+const cardsForLight = (root, card) => (card.dataset.lightKey ? cardsForKey(root, card.dataset.lightKey) : [card]);
+
+let toastTimer = null;
+
+const showToast = (root, message) => {
+    const toast = root.querySelector('[data-lighting-toast]');
+    if (! toast) {
+        return;
+    }
+
+    toast.textContent = message;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        toast.hidden = true;
+    }, 3500);
+};
 
 const lightStateFromCard = (card) => ({
     power: (card.querySelector('[data-action="power"]')?.getAttribute('aria-checked') ?? card.dataset.on) === 'true',
@@ -184,52 +226,118 @@ const selectLight = (root, key) => {
     }
 };
 
-const isCommandBusy = (root) => root?.dataset.commandBusy === 'true';
+// Per-light command queues, keyed by control URL. Each lamp has at most one
+// request in flight; changes made meanwhile coalesce into one queued payload
+// (latest value per field wins). `confirmed` is the last state the server
+// accepted, used to roll back on failure.
+const lightQueues = new Map();
 
-const setControlsBusy = (root, busy) => {
-    if (! root) {
-        return;
+const presetQueue = { inFlight: false, next: null };
+
+const queueFor = (url) => {
+    if (! lightQueues.has(url)) {
+        lightQueues.set(url, { inFlight: false, next: null, confirmed: null, touchedAt: 0 });
     }
 
-    if (busy) {
-        root.dataset.commandBusy = 'true';
-    } else {
-        delete root.dataset.commandBusy;
+    return lightQueues.get(url);
+};
+
+const isLightPending = (url) => {
+    const queue = lightQueues.get(url);
+
+    return Boolean(queue && (queue.inFlight || queue.next));
+};
+
+const confirmedStateFromCard = (card) => {
+    const { power, brightness, color, mode, colorTemp } = lightStateFromCard(card);
+
+    return { power, brightness, color, mode, colorTemp };
+};
+
+// Translate a sent payload into the state fields the server has now confirmed.
+const confirmedPatch = (payload) => {
+    const patch = {};
+    if ('power' in payload) {
+        patch.power = payload.power;
+    }
+    if ('brightness' in payload) {
+        patch.brightness = payload.brightness;
+    }
+    if ('color' in payload) {
+        patch.color = payload.color;
+        patch.mode = 'colour';
+    }
+    if ('color_temp' in payload) {
+        patch.colorTemp = payload.color_temp;
+        patch.mode = 'white';
     }
 
-    root.querySelectorAll('[data-preset]').forEach((button) => {
-        button.disabled = busy;
-    });
+    return patch;
+};
 
-    root.querySelectorAll('[data-light]').forEach((card) => {
-        const disabled = busy || card.dataset.reachable !== 'true';
-        card.querySelectorAll('[data-action]').forEach((control) => {
-            control.disabled = disabled;
-        });
+const setPending = (root, card, pending) => {
+    cardsForLight(root, card).forEach((element) => {
+        if (pending) {
+            element.dataset.pending = 'true';
+        } else {
+            delete element.dataset.pending;
+        }
     });
 };
 
 const send = async (card, payload) => {
     const url = card.dataset.url;
     const root = card.closest('[data-lighting]');
-    if (! url || isCommandBusy(root)) {
+    if (! url || ! root) {
         return;
     }
 
-    card.dataset.busy = 'true';
-    setControlsBusy(root, true);
-    try {
-        const response = await request(url, 'PUT', payload);
+    const queue = queueFor(url);
+    queue.touchedAt = Date.now();
+    queue.confirmed ??= confirmedStateFromCard(card);
 
-        if (! response.ok) {
-            markDanger(card, true);
-            return;
+    if (queue.inFlight) {
+        const queued = { ...(queue.next ?? {}) };
+        // Colour and colour temperature are mutually exclusive: the newer wins.
+        if ('color' in payload) {
+            delete queued.color_temp;
         }
+        if ('color_temp' in payload) {
+            delete queued.color;
+        }
+        queue.next = { ...queued, ...payload };
+        return;
+    }
 
-        markDanger(card, false);
+    queue.inFlight = true;
+    setPending(root, card, true);
+
+    try {
+        let current = payload;
+        while (current) {
+            const response = await requestWithRetry(url, 'PUT', current);
+
+            if (! response?.ok) {
+                // Drop anything queued on top of the failed state and restore
+                // what the lamp last confirmed.
+                queue.next = null;
+                syncLight(root, card, queue.confirmed);
+                updateActivePreset(root);
+                cardsForLight(root, card).forEach((element) => markDanger(element, true));
+                showToast(root, `Couldn't reach ${card.dataset.providerLabel || card.dataset.lightName || 'the light'}`);
+                return;
+            }
+
+            queue.confirmed = { ...queue.confirmed, ...confirmedPatch(current) };
+            cardsForLight(root, card).forEach((element) => markDanger(element, false));
+
+            current = queue.next;
+            queue.next = null;
+        }
     } finally {
-        delete card.dataset.busy;
-        setControlsBusy(root, false);
+        queue.inFlight = false;
+        queue.touchedAt = Date.now();
+        setPending(root, card, false);
     }
 };
 
@@ -473,34 +581,149 @@ const applyPresetToCard = (card, preset) => {
 const applyPreset = async (root, button) => {
     const template = root.dataset.presetUrlTemplate;
     const preset = presetFromButton(button);
-    if (! template || ! preset.key || isCommandBusy(root)) {
+    if (! template || ! preset.key) {
         return;
     }
 
+    // Latest wins: a preset tapped while another is running replaces any
+    // queued one and runs right after it.
+    if (presetQueue.inFlight) {
+        presetQueue.next = button;
+        return;
+    }
+
+    presetQueue.inFlight = true;
     root.dataset.busyPreset = preset.key;
-    setControlsBusy(root, true);
 
     try {
-        const response = await request(
+        const response = await requestWithRetry(
             template.replace('__PRESET__', encodeURIComponent(preset.key)),
             'POST',
         );
-        const body = await readJson(response);
+        const body = response ? await readJson(response) : {};
 
-        if (! response.ok) {
+        if (! response?.ok) {
             markDanger(button, true);
+            showToast(root, `Couldn't apply ${preset.label || 'the preset'}`);
             return;
         }
 
         const appliedPreset = normalisePreset({ ...preset, ...(body.data?.preset ?? {}) });
-        root.querySelectorAll('[data-light]').forEach((card) => applyPresetToCard(card, appliedPreset));
+        root.querySelectorAll('[data-light]').forEach((card) => {
+            applyPresetToCard(card, appliedPreset);
+            if (card.dataset.url && card.dataset.reachable === 'true' && presetTargetsCard(card, appliedPreset)) {
+                queueFor(card.dataset.url).confirmed = confirmedStateFromCard(card);
+            }
+        });
         updateSummary(root);
         updateActivePreset(root, appliedPreset.key);
         markDanger(button, Array.isArray(body.data?.failed_lights) && body.data.failed_lights.length > 0);
     } finally {
         delete root.dataset.busyPreset;
-        setControlsBusy(root, false);
+        presetQueue.inFlight = false;
+
+        const next = presetQueue.next;
+        presetQueue.next = null;
+        if (next) {
+            applyPreset(root, next);
+        }
     }
+};
+
+const setReachable = (card, reachable) => {
+    card.dataset.reachable = String(reachable);
+    card.querySelectorAll('[data-action], [data-color-wheel]').forEach((control) => {
+        control.disabled = ! reachable;
+    });
+};
+
+// Apply one light from GET /lighting/state, unless the lamp has a command
+// pending or was touched after the refresh started (its local state is newer).
+const applyServerLight = (root, light, startedAt) => {
+    const cards = cardsForKey(root, `${light.provider}::${light.id}`);
+    if (cards.length === 0) {
+        return;
+    }
+
+    const url = cards[0].dataset.url;
+    if (url && (isLightPending(url) || (lightQueues.get(url)?.touchedAt ?? 0) >= startedAt)) {
+        return;
+    }
+
+    const state = {
+        power: Boolean(light.on),
+        brightness: Number(light.brightness ?? 0),
+        color: light.color ?? null,
+        mode: light.mode === 'colour' ? 'colour' : 'white',
+        colorTemp: nullableNumber(light.color_temp),
+    };
+
+    cards.forEach((card) => setReachable(card, Boolean(light.reachable)));
+    syncLight(root, cards[0], state);
+
+    if (url) {
+        queueFor(url).confirmed = { ...queueFor(url).confirmed, ...state, color: state.color ?? cards[0].dataset.color };
+    }
+};
+
+const refreshState = async (root) => {
+    const url = root.dataset.stateUrl;
+    if (! url || presetQueue.inFlight) {
+        return;
+    }
+
+    const startedAt = Date.now();
+    let response;
+    try {
+        response = await request(url, 'GET');
+    } catch {
+        return;
+    }
+
+    if (! response.ok || presetQueue.inFlight) {
+        return;
+    }
+
+    const body = await readJson(response);
+    (Array.isArray(body.data) ? body.data : []).forEach((light) => applyServerLight(root, light, startedAt));
+    updateSummary(root);
+    updateActivePreset(root);
+};
+
+let pollTimer = null;
+let visibilityHandler = null;
+
+// Re-read state every data-poll-seconds while the page is visible, plus once
+// when it becomes visible again. Changes made in the vendor apps show up
+// without a reload; hidden kiosk tabs cost no provider calls.
+const startPolling = (root) => {
+    clearInterval(pollTimer);
+    if (visibilityHandler) {
+        document.removeEventListener('visibilitychange', visibilityHandler);
+        visibilityHandler = null;
+    }
+
+    const seconds = Number(root.dataset.pollSeconds ?? 0);
+    if (! root.dataset.stateUrl || ! (seconds > 0)) {
+        return;
+    }
+
+    pollTimer = setInterval(() => {
+        if (! root.isConnected) {
+            clearInterval(pollTimer);
+            return;
+        }
+        if (document.visibilityState === 'visible') {
+            refreshState(root);
+        }
+    }, seconds * 1000);
+
+    visibilityHandler = () => {
+        if (document.visibilityState === 'visible' && root.isConnected) {
+            refreshState(root);
+        }
+    };
+    document.addEventListener('visibilitychange', visibilityHandler);
 };
 
 // Make the big colour wheel interactive: tap/drag picks a hue from the angle
@@ -517,7 +740,7 @@ const setupColorWheel = (root, card) => {
     let dragging = false;
 
     const pick = (clientX, clientY) => {
-        if (surface.disabled || isCommandBusy(root)) {
+        if (surface.disabled) {
             return;
         }
 
@@ -563,6 +786,9 @@ export const initLighting = () => {
         return;
     }
     root.dataset.lightingReady = 'true';
+    lightQueues.clear();
+    presetQueue.inFlight = false;
+    presetQueue.next = null;
 
     root.querySelectorAll('[data-preset]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -578,10 +804,6 @@ export const initLighting = () => {
 
     root.querySelectorAll('[data-light]').forEach((card) => {
         card.querySelectorAll('[data-action="power"]').forEach((power) => power.addEventListener('click', () => {
-            if (isCommandBusy(root)) {
-                return;
-            }
-
             const next = power.getAttribute('aria-checked') !== 'true';
             syncLight(root, card, { power: next });
             updateActivePreset(root);
@@ -605,10 +827,14 @@ export const initLighting = () => {
         setupColorWheel(root, card);
 
         updateCardVisual(card);
+        if (card.dataset.url) {
+            queueFor(card.dataset.url).confirmed ??= confirmedStateFromCard(card);
+        }
     });
 
     updateSummary(root);
     updateActivePreset(root);
+    startPolling(root);
 };
 
 if (document.readyState === 'loading') {

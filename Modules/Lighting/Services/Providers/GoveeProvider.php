@@ -7,6 +7,7 @@ use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
 use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Support\Color;
+use Throwable;
 
 class GoveeProvider implements LightProvider
 {
@@ -102,6 +103,28 @@ class GoveeProvider implements LightProvider
         if ($brightness !== null) {
             $this->setBrightness($id, $brightness);
         }
+    }
+
+    public function applyToLights(array $lights, array $changes): array
+    {
+        // Govee control calls stay sequential: the client paces them to respect
+        // the per-device rate limit (GOVEE_COMMAND_PAUSE_MS).
+        $failed = [];
+        foreach ($lights as $light) {
+            try {
+                $this->applyState(
+                    $light->id,
+                    $changes['power'] ?? true,
+                    $changes['brightness'] ?? null,
+                    $light->supportsColor ? ($changes['color'] ?? null) : null,
+                    $light->supportsColorTemp ? ($changes['color_temp'] ?? null) : null,
+                );
+            } catch (Throwable) {
+                $failed[] = $light->id;
+            }
+        }
+
+        return $failed;
     }
 
     private function map(array $device, ?array $state): Light

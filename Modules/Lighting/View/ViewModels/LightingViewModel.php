@@ -22,6 +22,8 @@ class LightingViewModel
             'configured' => $this->service->isConfigured(),
             'controlUrlTemplate' => url('/lighting/lights/__PROVIDER__/__ID__'),
             'presetUrlTemplate' => url('/lighting/presets/__PRESET__'),
+            'stateUrl' => route('lighting.state'),
+            'pollSeconds' => max(0, (int) config('lighting.poll_seconds', 120)),
             'presets' => $this->service->presets(),
         ];
     }

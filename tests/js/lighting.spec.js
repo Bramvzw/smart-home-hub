@@ -181,12 +181,13 @@ describe('lighting controls', () => {
         expect(document.querySelector('[data-preset="night_light"]').dataset.active).toBe('true');
     });
 
-    it('ignores preset clicks while a lighting action is already running', async () => {
+    it('keeps controls usable and runs the latest preset after the running one', async () => {
         const pending = deferred();
         document.body.innerHTML = `
             <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
                 <button type="button" data-preset="cozy" data-preset-power="true">Cozy</button>
                 <button type="button" data-preset="movie" data-preset-power="true">Movie</button>
+                <button type="button" data-preset="night" data-preset-power="true">Night</button>
                 <article data-light data-reachable="true" data-supports-color="false">
                     <button type="button" data-action="power" aria-checked="false"></button>
                     <input type="range" data-action="brightness" value="10">
@@ -194,35 +195,26 @@ describe('lighting controls', () => {
             </div>
         `;
 
-        fetch.mockReturnValueOnce(pending.promise);
+        const ok = { ok: true, json: async () => ({ data: { preset: { power: true, brightness: null, color: null }, failed_lights: [] } }) };
+        fetch.mockReturnValueOnce(pending.promise).mockResolvedValue(ok);
 
         initLighting();
         document.querySelector('[data-preset="cozy"]').click();
         document.querySelector('[data-preset="movie"]').click();
+        document.querySelector('[data-preset="night"]').click();
 
         expect(fetch).toHaveBeenCalledTimes(1);
         expect(fetch.mock.calls[0][0]).toBe('/lighting/presets/cozy');
-        expect(document.querySelector('[data-preset="movie"]').disabled).toBe(true);
-        expect(document.querySelector('[data-action="brightness"]').disabled).toBe(true);
-
-        pending.resolve({
-            ok: true,
-            json: async () => ({
-                data: {
-                    preset: {
-                        key: 'cozy',
-                        power: true,
-                        brightness: null,
-                        color: null,
-                    },
-                    failed_lights: [],
-                },
-            }),
-        });
-        await flushPromises();
-
         expect(document.querySelector('[data-preset="movie"]').disabled).toBe(false);
         expect(document.querySelector('[data-action="brightness"]').disabled).toBe(false);
+
+        pending.resolve(ok);
+        await flushPromises();
+        await flushPromises();
+
+        // Movie was superseded by Night while Cozy was running.
+        expect(fetch).toHaveBeenCalledTimes(2);
+        expect(fetch.mock.calls[1][0]).toBe('/lighting/presets/night');
     });
 
     it('switches the focused light detail panel from the lamp list', () => {
@@ -317,5 +309,192 @@ describe('lighting controls', () => {
         expect(card.dataset.color).toBe('#ff0000');
         expect(card.querySelector('[data-light-state]').textContent).toBe('100% · white');
         expect(document.querySelector('[data-preset="bright"]').dataset.active).toBe('true');
+    });
+
+    describe('per-light command pipeline', () => {
+        const lampMarkup = (key, url, extra = '') => `
+            <article data-light data-light-row data-light-key="${key}" data-light-name="${key}" data-provider-label="Calex" data-url="${url}" data-reachable="true" data-supports-color="true" data-on="true" data-brightness="10" ${extra}>
+                <button type="button" data-action="power" aria-checked="true"></button>
+                <input type="range" data-action="brightness" value="10">
+            </article>
+        `;
+
+        const slide = (input, value) => {
+            input.value = String(value);
+            input.dispatchEvent(new Event('input'));
+        };
+
+        const okResponse = () => ({ ok: true, status: 200, json: async () => ({}) });
+
+        afterEach(() => {
+            delete document.visibilityState;
+        });
+
+        it('coalesces slider moves while a command is in flight (latest wins)', async () => {
+            jest.useFakeTimers();
+            const first = deferred();
+            document.body.innerHTML = `
+                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
+                    <div data-lighting-toast hidden></div>
+                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
+                    ${lampMarkup('tuya::2', '/lighting/lights/tuya/2')}
+                </div>
+            `;
+            fetch.mockReturnValueOnce(first.promise).mockResolvedValue(okResponse());
+
+            initLighting();
+            const [lamp, other] = document.querySelectorAll('[data-light]');
+            const slider = lamp.querySelector('[data-action="brightness"]');
+
+            slide(slider, 20);
+            jest.advanceTimersByTime(250);
+            slide(slider, 30);
+            jest.advanceTimersByTime(250);
+            slide(slider, 40);
+            jest.advanceTimersByTime(250);
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(lamp.dataset.pending).toBe('true');
+            expect(slider.disabled).toBe(false);
+
+            // Another lamp is not blocked by the pending one.
+            other.querySelector('[data-action="power"]').click();
+            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(fetch.mock.calls[1][0]).toBe('/lighting/lights/tuya/2');
+
+            first.resolve(okResponse());
+            await flushPromises();
+            await flushPromises();
+
+            const lampCalls = fetch.mock.calls.filter(([url]) => url === '/lighting/lights/tuya/1');
+            expect(lampCalls).toHaveLength(2);
+            expect(JSON.parse(lampCalls[0][1].body)).toEqual({ power: true, brightness: 20 });
+            expect(JSON.parse(lampCalls[1][1].body)).toEqual({ power: true, brightness: 40 });
+            expect(lamp.dataset.pending).toBeUndefined();
+        });
+
+        it('rolls back to the last confirmed state and flags the lamp on failure', async () => {
+            document.body.innerHTML = `
+                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
+                    <div data-lighting-toast hidden></div>
+                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
+                </div>
+            `;
+            fetch.mockResolvedValueOnce({ ok: false, status: 502, json: async () => ({}) });
+
+            initLighting();
+            const lamp = document.querySelector('[data-light]');
+            const power = lamp.querySelector('[data-action="power"]');
+
+            power.click();
+            expect(power.getAttribute('aria-checked')).toBe('false');
+
+            await flushPromises();
+            await flushPromises();
+
+            expect(power.getAttribute('aria-checked')).toBe('true');
+            expect(lamp.dataset.on).toBe('true');
+            expect(lamp.classList.contains('ring-[var(--hub-danger)]')).toBe(true);
+            const toast = document.querySelector('[data-lighting-toast]');
+            expect(toast.hidden).toBe(false);
+            expect(toast.textContent).toBe("Couldn't reach Calex");
+            expect(lamp.dataset.pending).toBeUndefined();
+        });
+
+        it('retries a 409 busy response once after 500 ms', async () => {
+            jest.useFakeTimers();
+            document.body.innerHTML = `
+                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
+                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
+                </div>
+            `;
+            fetch
+                .mockResolvedValueOnce({ ok: false, status: 409, json: async () => ({}) })
+                .mockResolvedValueOnce(okResponse());
+
+            initLighting();
+            const power = document.querySelector('[data-action="power"]');
+            power.click();
+            await flushPromises();
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            jest.advanceTimersByTime(500);
+            await flushPromises();
+            await flushPromises();
+
+            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(power.getAttribute('aria-checked')).toBe('false');
+            expect(document.querySelector('[data-light]').classList.contains('ring-[var(--hub-danger)]')).toBe(false);
+        });
+
+        it('polls state only while visible and skips lamps with a pending command', async () => {
+            jest.useFakeTimers();
+            let visibility = 'hidden';
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => visibility });
+
+            document.body.innerHTML = `
+                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__" data-state-url="/lighting/state" data-poll-seconds="120">
+                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
+                    ${lampMarkup('tuya::2', '/lighting/lights/tuya/2')}
+                </div>
+            `;
+
+            initLighting();
+            jest.advanceTimersByTime(120000);
+            expect(fetch).not.toHaveBeenCalled();
+
+            // Lamp 1 gets a command that stays in flight.
+            const pendingCommand = deferred();
+            fetch.mockReturnValueOnce(pendingCommand.promise);
+            document.querySelectorAll('[data-light]')[0].querySelector('[data-action="power"]').click();
+            expect(fetch).toHaveBeenCalledTimes(1);
+
+            fetch.mockResolvedValueOnce({
+                ok: true,
+                status: 200,
+                json: async () => ({
+                    data: [
+                        { provider: 'tuya', id: '1', on: true, brightness: 90, color: null, reachable: true, mode: 'white', color_temp: 50 },
+                        { provider: 'tuya', id: '2', on: false, brightness: 55, color: null, reachable: true, mode: 'white', color_temp: 0 },
+                    ],
+                    unreachable_providers: [],
+                }),
+            });
+
+            jest.setSystemTime(Date.now() + 1000);
+            visibility = 'visible';
+            jest.advanceTimersByTime(120000);
+            await flushPromises();
+            await flushPromises();
+
+            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(fetch.mock.calls[1][0]).toBe('/lighting/state');
+            expect(fetch.mock.calls[1][1].method).toBe('GET');
+
+            const [pendingLamp, idleLamp] = document.querySelectorAll('[data-light]');
+            expect(pendingLamp.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
+            expect(pendingLamp.querySelector('[data-action="brightness"]').value).toBe('10');
+            expect(idleLamp.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
+            expect(idleLamp.querySelector('[data-action="brightness"]').value).toBe('55');
+            expect(idleLamp.dataset.colorTemp).toBe('0');
+        });
+
+        it('refreshes once when the page becomes visible again', async () => {
+            let visibility = 'hidden';
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => visibility });
+            document.body.innerHTML = `
+                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__" data-state-url="/lighting/state" data-poll-seconds="120">
+                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
+                </div>
+            `;
+            fetch.mockResolvedValue({ ok: true, status: 200, json: async () => ({ data: [], unreachable_providers: [] }) });
+
+            initLighting();
+            visibility = 'visible';
+            document.dispatchEvent(new Event('visibilitychange'));
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/state');
+        });
     });
 });

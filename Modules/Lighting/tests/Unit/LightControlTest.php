@@ -330,7 +330,7 @@ class LightControlTest extends TestCase
             'lighting.control_lock_wait' => 0,
         ]);
 
-        $lock = Cache::lock('lighting:control', 10);
+        $lock = Cache::lock('lighting:control:govee:AA:BB', 10);
         $this->assertTrue($lock->get());
 
         try {
@@ -340,5 +340,34 @@ class LightControlTest extends TestCase
         } finally {
             $lock->release();
         }
+    }
+
+    public function test_a_busy_light_does_not_block_a_different_light(): void
+    {
+        config([
+            'lighting.control_lock_ttl' => 10,
+            'lighting.control_lock_wait' => 0,
+        ]);
+
+        Http::fake([
+            '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
+                ['device' => 'AA:BB', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn']],
+                ['device' => 'CC:DD', 'model' => 'H6008', 'deviceName' => 'Bulb', 'controllable' => true, 'supportCmds' => ['turn']],
+            ]]]),
+            '*/v1/devices/control' => Http::response(['code' => 200, 'data' => []]),
+        ]);
+
+        $lock = Cache::lock('lighting:control:govee:AA:BB', 10);
+        $this->assertTrue($lock->get());
+
+        try {
+            $light = app(LightingService::class)->control('govee', 'CC:DD', ['power' => true]);
+        } finally {
+            $lock->release();
+        }
+
+        $this->assertSame('CC:DD', $light->id);
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['device'] === 'CC:DD');
     }
 }

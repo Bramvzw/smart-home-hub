@@ -603,18 +603,6 @@ parameters:
 			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
 
 		-
-			message: '#^Parameter \#1 \$content of method Illuminate\\Http\\Client\\PendingRequest\<false\>\:\:withBody\(\) expects Psr\\Http\\Message\\StreamInterface\|string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
-
-		-
-			message: '#^Parameter \#3 \$body of method Modules\\Lighting\\Services\\Providers\\TuyaApiClient\:\:headers\(\) expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: Modules/Lighting/Services/Providers/TuyaApiClient.php
-
-		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1

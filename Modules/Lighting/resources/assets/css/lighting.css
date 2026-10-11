@@ -657,13 +657,37 @@
     --switch-h: 22px;
 }
 
-.lighting-console[data-command-busy="true"] {
-    cursor: wait;
+/* A lamp with a command in flight stays usable; only its swatch/glow pulses. */
+.lighting-console__row[data-pending="true"] .lighting-console__swatch,
+.lighting-console__stage[data-pending="true"] .lighting-console__ring-percent {
+    animation: lighting-pending 1s ease-in-out infinite alternate;
 }
 
-.lighting-console[data-command-busy="true"] .lighting-console__stage,
-.lighting-console[data-command-busy="true"] .lighting-console__row {
-    opacity: 0.72;
+@keyframes lighting-pending {
+    from { opacity: 1; }
+    to { opacity: 0.45; }
+}
+
+/* Low-power mode stops animations, so show pending as a static dim instead. */
+html.low-power .lighting-console__row[data-pending="true"] .lighting-console__swatch,
+html.low-power .lighting-console__stage[data-pending="true"] .lighting-console__ring-percent {
+    opacity: 0.55;
+}
+
+.lighting-console__toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 50;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 32px);
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: var(--hub-danger-soft);
+    color: var(--hub-danger);
+    box-shadow: 0 0 0 1px var(--hub-danger);
+    font-size: 13px;
+    font-weight: 600;
 }
 
 @media (max-width: 1280px) {
