@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-11
+
 ### Changed
 
 - Modules are reordered by dragging on the settings page instead of typing order numbers.
@@ -43,6 +45,7 @@ First tagged release — the hub as it runs on the NAS:
   baseline, PHPat architecture rules and the PHPUnit suite.
 - Kiosk-oriented dashboard with a low-power mode for wall displays.
 
-[Unreleased]: https://github.com/Bramvzw/smart-home-hub/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Bramvzw/smart-home-hub/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Bramvzw/smart-home-hub/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Bramvzw/smart-home-hub/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Bramvzw/smart-home-hub/releases/tag/v0.1.0
