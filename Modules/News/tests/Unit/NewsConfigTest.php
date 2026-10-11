@@ -8,7 +8,16 @@ class NewsConfigTest extends TestCase
 {
     public function test_default_topics_and_keywords_are_generic(): void
     {
-        $config = $this->loadConfig();
+        // A local .env may carry personal curation; the defaults must not depend on it.
+        $saved = $this->snapshotEnv(['NEWS_KEYWORDS', 'NEWS_FEEDS_FILE']);
+        $this->setEnv('NEWS_KEYWORDS', '');
+        $this->setEnv('NEWS_FEEDS_FILE', '');
+
+        try {
+            $config = $this->loadConfig();
+        } finally {
+            $this->restoreEnv($saved);
+        }
 
         $this->assertSame([], $config['keywords']);
         $topics = $config['topics'];
@@ -94,5 +103,30 @@ class NewsConfigTest extends TestCase
     {
         putenv($key);
         unset($_ENV[$key], $_SERVER[$key]);
+    }
+
+    /**
+     * @param  list<string>  $keys
+     * @return array<string, string|null>
+     */
+    private function snapshotEnv(array $keys): array
+    {
+        $saved = [];
+        foreach ($keys as $key) {
+            $value = $_ENV[$key] ?? getenv($key);
+            $saved[$key] = is_string($value) ? $value : null;
+        }
+
+        return $saved;
+    }
+
+    /**
+     * @param  array<string, string|null>  $saved
+     */
+    private function restoreEnv(array $saved): void
+    {
+        foreach ($saved as $key => $value) {
+            $value === null ? $this->clearEnv($key) : $this->setEnv($key, $value);
+        }
     }
 }
