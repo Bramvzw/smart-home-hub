@@ -250,6 +250,112 @@ ingepland (lege week).
 
 ---
 
+## 9. Verlichting — kiosk-redesign (Lighting)
+
+Hoort bij [Lighting-verbetering](Lighting-verbetering.md) (fase 3 + 4).
+Let op: de hub-UI migreert naar **Engels**, dus deze prompt vraagt Engelse
+microcopy en overschrijft daarmee die regel uit het House style-blok.
+
+```
+Ontwerp de "Lighting"-pagina opnieuw, primair voor een WANDSCHERM (groot
+touchscherm, ~1280×800 landscape, bediend met de vinger, geen hover). Het moet
+ook netjes schalen naar telefoon (2 kolommen) en desktop.
+UI-microcopy in het ENGELS (dit overschrijft de NL-regel uit de house style).
+
+Probleem met het huidige ontwerp: je kiest eerst een lamp in een lijst links,
+en bedient hem daarna in een apart detailpaneel rechts. Dat voelt omslachtig:
+je ziet niet goed welke lamp geselecteerd is en je kunt maar één lamp tegelijk
+bedienen. Doel: de meest voorkomende actie (lamp aan/uit) kost ÉÉN tik, en
+meerdere lampen tegelijk bedienen voelt natuurlijk.
+
+Layout:
+- Bovenaan een header: "Lighting", een samenvatting ("3 of 5 on"), een knop
+  "Select" (multi-select-modus) en een grote "All off"-knop.
+- Daaronder een horizontale strook met SCÈNES als grote knoppen (kleurstip +
+  naam + korte subtitel). Ingebouwde scènes eerst, daarna eigen scènes, en als
+  laatste een "+ Save scene"-knop. De actieve scène krijgt een duidelijke
+  "Active"-markering. GEEN zichtbare scrollbalk: je veegt horizontaal, en een
+  zachte fade aan de rechterrand laat zien dat er meer scènes zijn.
+- Het hoofdgebied is een raster van grote LAMPTEGELS (min. ~160×140px). Elke
+  tegel toont:
+  · lampnaam + klein merk-label (Calex / Govee)
+  · een zachte gloed/vulling in de huidige kleur of wittint (warm wit =
+    amber-achtig, koel wit = blauwig wit); uit = donker en neutraal
+  · een helderheidsbalk over de volle breedte onderaan de tegel (gevuld tot
+    het percentage), die je met je vinger direct kunt verslepen; staat de
+    lamp uit, dan is de balk gedimd (slepen zet de lamp aan op die waarde)
+  · een statusregel: "60% · Warm white", "40% · Colour", "Off"
+  · een duidelijk "⋯"-knopje rechtsboven (min. 44px raakvlak)
+
+Interactie (laat dit zien met annotaties of meerdere frames):
+- Tik op de tegel → lamp aan/uit (direct visueel, optimistisch).
+- Sleep over de balk onderaan → helderheid.
+- Tik op "⋯" (of lang indrukken) → BEDIENINGSPANEEL voor die lamp.
+- "Select"-modus: tegels krijgen een vinkje-cirkel; tikken selecteert. Een
+  zwevende balk onderaan toont "3 lamps selected · Adjust · Cancel"; Adjust
+  opent hetzelfde bedieningspaneel voor de hele selectie.
+
+Bedieningspaneel (bottom sheet, ~60% schermhoogte op het wandscherm, volledig
+scherm op telefoon):
+- Kop: lampnaam of "3 lamps", plus een grote aan/uit-schakelaar.
+- Brightness: grote slider met een dikke duim, waarde in % (tabular-nums).
+- Gesegmenteerde keuze "White | Colour":
+  · White: een horizontale slider met een gradiënt van warm (amber, ~2700K)
+    naar koel (blauwig wit, ~6500K), met snelkeuze-chips "Warm",
+    "Neutral" en "Cool".
+  · Colour: een kleurwiel (hue-ring), met daaronder een saturatie-slider
+    (pastel ↔ verzadigd). Toon een groot voorbeeld van de gekozen kleur.
+  · Ondersteunt een lamp geen kleurtemperatuur, verberg dan "White". Is
+    het puur wit licht, verberg dan "Colour".
+- Onderaan: "Save as scene…".
+- Bij een gemengde selectie starten de sliders op het gemiddelde; toon dat
+  subtiel ("mixed").
+
+Scène opslaan (klein dialoogje of sheet): naamveld, 6–8 accentkleur-stipjes,
+een lijst met lampen die meegaan (standaard aangevinkt: lampen die aan staan
+of geselecteerd zijn) en de knoppen "Save" en "Cancel". Bij een eigen scène
+opent "⋯" of lang indrukken een menu: Rename / Update to current / Delete.
+
+Feedback zonder blokkeren:
+- Een commando naar de cloud duurt 1–2 seconden. Blokkeer NIET de hele
+  pagina; toon alleen op de betreffende tegel een subtiele "pending"-indicator
+  (bijv. een dunne pulserende rand of een klein spinnertje in de hoek).
+- Mislukt het: de tegel springt terug naar de vorige stand, krijgt kort een
+  rode rand en er verschijnt een toast: "Couldn't reach Calex".
+- Onbereikbare lamp: tegel gedempt, badge "Offline", geen acties mogelijk.
+- Een melding bovenaan als een hele provider onbereikbaar is:
+  "Calex is unreachable — showing last known state".
+
+Mock-data (gebruik precies deze lampen):
+- Calex: "Living room spot 1" (on, 70%, warm white),
+  "Living room spot 2" (on, 70%, warm white),
+  "Desk spot" (on, 100%, cool white),
+  "Hallway spot" (offline)
+- Govee: "LED strip" (on, 40%, colour #7f96ff)
+Ingebouwde scènes: Bright (cool white 100%), Cozy (warm white 70%),
+Movie (blue #7f96ff 42%), Night (warm white 1%), Night light (strip only),
+All off. Eigen scènes: "Dinner" (accent #e0a44e), "Gaming" (accent #b06bff).
+
+Kiosk-eisen: raakvlakken minimaal 56px, geen hover-afhankelijke UI, grote
+cijfers, hoog contrast op afstand leesbaar. Er bestaat een low-power-modus
+zonder blur of geanimeerde gloed: ontwerp de gloed zó dat een statische
+kleurvulling ook goed oogt.
+
+States om te tonen:
+1. Normaal (mock-data hierboven, scène "Cozy" niet actief vanwege handmatige
+   wijzigingen)
+2. Select-modus met 3 tegels geselecteerd + zwevende balk
+3. Bedieningspaneel open op tab White (één lamp)
+4. Bedieningspaneel open op tab Colour (selectie, "mixed")
+5. Scène-opslaan-dialoog
+6. Pending + fout-toast op één tegel
+7. Geen lampen geconfigureerd (lege staat met uitleg over TUYA_* /
+   GOVEE_API_KEY)
+8. Laden (skeleton-tegels)
+```
+
+---
+
 ## Na het ontwerpen
 
 Per module: importeer het ontwerp (zoals we met de Weather-pagina deden) en laat

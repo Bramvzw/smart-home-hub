@@ -26,6 +26,7 @@ Claude Design); plans cover behaviour, data model and the JSON contract.
 | [Dealtracker](Plans/Dealtracker.md) | Deals | implemented |
 | [AI agenda-planner](Plans/AI-agenda-planner.md) | Planner (AI) | implemented |
 | [Moestuin](Plans/Moestuin.md) | Garden (AI) | spec signed off — fase 1 nu, fase 2 via ESP32 |
+| [Lighting-verbetering](Plans/Lighting-verbetering.md) | Lighting (extension) | spec signed off |
 
 **Cross-cutting decisions** (apply to all plans): one shared hub ntfy topic via an
 app-level `HubNotifier`; AI modules use **Prism** with one shared hub Anthropic
