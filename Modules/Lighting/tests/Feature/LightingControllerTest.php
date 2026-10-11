@@ -46,7 +46,7 @@ class LightingControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Strip');
         $response->assertSee('Brightness');
-        $response->assertSee('Presets');
+        $response->assertSeeHtml('aria-label="Scenes"');
         $response->assertSee('Cozy');
         $response->assertSee('Night light');
         $response->assertSeeHtml('data-preset-url-template');

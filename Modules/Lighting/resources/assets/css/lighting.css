@@ -1,754 +1,1119 @@
-.lighting-console {
-    --lighting-accent: oklch(0.82 0.13 62);
-    --lighting-accent-soft: oklch(0.82 0.13 62 / 0.16);
-    --lighting-ink: #f4efe8;
-    --lighting-ink-2: #cbc4ba;
-    --lighting-muted: #9a948b;
-    --lighting-muted-2: #6c675f;
-    --lighting-glass: rgba(255, 255, 255, 0.055);
-    --lighting-glass-2: rgba(255, 255, 255, 0.09);
-    --lighting-glass-line: rgba(255, 255, 255, 0.1);
-    --lighting-line: rgba(255, 255, 255, 0.07);
-    --lighting-bg: #0d0c0b;
-    --lighting-font: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+@import url("https://fonts.bunny.net/css?family=hanken-grotesk:400,500,600,700&family=space-grotesk:500,600,700");
 
+/*
+ * Lighting kiosk: header, scene strip, lamp tile grid, control sheet and
+ * dialogs. Surfaces, text, lines and the accent come from the shared --hub-*
+ * tokens; only lamp colours (set by lighting.js as runtime variables) and a
+ * few danger/neutral tints are local.
+ */
+.lighting {
+    --lighting-display: "Space Grotesk", "Hanken Grotesk", system-ui, sans-serif;
+    --lighting-danger-ink: #ff8a8e;
+    --lighting-neutral: #8a8d99;
+    --lighting-soft-ink: #c9cbd3;
+    --lighting-scrim: rgba(5, 6, 9, 0.62);
+    --lighting-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+
+    position: relative;
     display: flex;
-    min-height: 0;
+    flex-direction: column;
+    gap: 22px;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
     height: 100%;
+    min-height: 0;
     overflow: hidden;
-    color: var(--lighting-ink);
-    font-family: var(--lighting-font);
-    background:
-        radial-gradient(120% 100% at 100% 0%, oklch(0.22 0.035 285 / 0.5), transparent 58%),
-        var(--lighting-bg);
+    padding: 28px 32px;
+    background: var(--hub-bg);
+    color: var(--hub-text);
 }
 
-.lighting-console button,
-.lighting-console input {
+/* Flex children must not grow to their content width (the scene strip). */
+.lighting > * {
+    min-width: 0;
+}
+
+.lighting button,
+.lighting input {
     font: inherit;
-}
-
-.lighting-console button {
     color: inherit;
 }
 
-.lighting-console__rail {
-    flex: 0 0 392px;
+.lighting [hidden] {
+    display: none !important;
+}
+
+/* Header ---------------------------------------------------------------- */
+
+.lighting__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.lighting__heading {
     display: flex;
     min-width: 0;
     flex-direction: column;
-    padding: 22px 24px 20px;
-    border-right: 1px solid var(--lighting-line);
-    background: linear-gradient(180deg, oklch(0.2 0.02 60 / 0.4), transparent 40%);
+    gap: 2px;
+    margin-right: auto;
 }
 
-.lighting-console__brand {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-}
-
-.lighting-console__brand-mark {
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    flex: none;
-    border: 1px solid var(--lighting-glass-line);
-    border-radius: 12px;
-    color: var(--lighting-accent);
-    background: var(--lighting-accent-soft);
-}
-
-.lighting-console__title {
-    font-size: 17px;
-    font-weight: 750;
+.lighting__title {
+    margin: 0;
+    font-family: var(--lighting-display);
+    font-size: 30px;
+    font-weight: 600;
     letter-spacing: -0.01em;
 }
 
-.lighting-console__subtitle,
-.lighting-console__meta {
-    font-size: 12px;
-    color: var(--lighting-muted);
+.lighting__sub {
+    margin: 0;
+    color: var(--hub-muted);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
 }
 
-.lighting-console__master {
+.lighting__actions {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
-    margin-top: 16px;
-    padding: 11px 14px 11px 16px;
-    border: 1px solid var(--lighting-glass-line);
-    border-radius: 14px;
-    background: var(--lighting-glass);
 }
 
-.lighting-console__master-main {
-    min-width: 0;
-    flex: 1;
+.lighting__notice {
+    margin: -10px 0 0;
+    color: var(--lighting-danger-ink);
+    font-size: 14px;
 }
 
-.lighting-console__master-title {
-    font-size: 13.5px;
-    font-weight: 650;
-}
+/* Buttons --------------------------------------------------------------- */
 
-.lighting-console__master-sub {
-    margin-top: 1px;
-    font-size: 11.5px;
-    color: var(--lighting-muted);
-}
-
-.lighting-console__list {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 14px;
-    overflow-y: auto;
-    padding-right: 2px;
-}
-
-.lighting-console__group {
-    padding: 7px 6px 3px;
-    color: var(--lighting-muted-2);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-.lighting-console__row {
-    display: grid;
-    grid-template-columns: 1fr auto;
+.lighting-button {
+    display: inline-flex;
+    height: 56px;
     align-items: center;
-    gap: 9px;
-    border: 1px solid transparent;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 22px;
+    border: 1px solid var(--hub-line-strong);
     border-radius: 14px;
-    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    background: var(--hub-card);
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
-.lighting-console__row[data-reachable="false"] {
-    opacity: 0.48;
-}
-
-.lighting-console__row[data-selected="true"] {
-    border-color: var(--lighting-glass-line);
-    background: var(--lighting-glass-2);
-}
-
-.lighting-console__row:hover {
-    background: var(--lighting-glass);
-}
-
-.lighting-console__row-select {
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: 13px;
-    padding: 8px 0 8px 12px;
-    border: 0;
+.lighting-button--ghost {
     background: transparent;
-    text-align: left;
 }
 
-.lighting-console__row-select:focus-visible,
-.lighting-console__scene:focus-visible,
-.lighting-console__switch:focus-visible,
-.lighting-console__icon-button:focus-visible {
-    outline: 2px solid color-mix(in srgb, var(--lighting-accent) 72%, transparent);
+.lighting-button--toggle[aria-pressed="true"] {
+    border-color: var(--hub-accent);
+    background: var(--hub-accent-soft);
+}
+
+.lighting-button--primary {
+    border: 0;
+    background: var(--hub-accent);
+    color: var(--hub-accent-ink) !important;
+    font-weight: 700;
+}
+
+.lighting-button--primary:disabled {
+    background: #3a3c45;
+    color: var(--hub-muted) !important;
+    cursor: default;
+}
+
+.lighting-button--wide {
+    padding: 0 32px;
+}
+
+.lighting-button--danger {
+    border: 0;
+    background: var(--hub-danger-soft);
+    color: var(--lighting-danger-ink) !important;
+}
+
+.lighting-icon-button {
+    display: grid;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--hub-muted) !important;
+    cursor: pointer;
+}
+
+.lighting-icon-button--outlined {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--hub-line-strong);
+    border-radius: 14px;
+    color: var(--hub-text) !important;
+}
+
+.lighting button:focus-visible,
+.lighting input:focus-visible {
+    outline: 2px solid var(--hub-accent);
     outline-offset: 2px;
 }
 
-.lighting-console__row-power {
-    padding-right: 13px;
+.lighting-slider__input:focus-visible {
+    outline: none;
 }
 
-.lighting-console__swatch {
-    position: relative;
-    display: grid;
-    width: 30px;
-    height: 30px;
-    place-items: center;
-    flex: none;
-    border-radius: 10px;
-    background: #26221e;
-    transition: background 0.25s ease, box-shadow 0.3s ease;
+.lighting-slider:has(.lighting-slider__input:focus-visible) .lighting-slider__thumb {
+    outline: 2px solid var(--hub-accent);
+    outline-offset: 3px;
 }
 
-[data-on="true"] .lighting-console__swatch {
-    background: var(--light-color, #ffc26b);
-    box-shadow: 0 0 16px color-mix(in srgb, var(--light-color, #ffc26b) 65%, transparent);
-}
+/* Scene strip: horizontal scroll without a visible scrollbar ------------- */
 
-.lighting-console__swatch::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: inherit;
-}
-
-.lighting-console__row-copy {
-    min-width: 0;
-}
-
-.lighting-console__row-name {
-    display: block;
+.lighting-strip {
+    flex: 0 0 auto;
+    height: 72px;
     overflow: hidden;
-    color: var(--lighting-ink);
-    font-size: 14.5px;
-    font-weight: 650;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 72px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 72px), transparent 100%);
+}
+
+.lighting-strip__scroller {
+    display: flex;
+    box-sizing: border-box;
+    height: 112px;
+    align-items: flex-start;
+    gap: 12px;
+    padding-right: 56px;
+    padding-bottom: 40px; /* pushes any overlay scrollbar out of the clipped strip */
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+.lighting-strip__scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.lighting-scene {
+    --scene-dot: var(--hub-muted);
+
+    display: flex;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    min-width: 172px;
+    height: 72px;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px 0 18px;
+    border: 1px solid var(--hub-line);
+    border-radius: 16px;
+    background: var(--hub-card);
+    text-align: left;
+    cursor: pointer;
+}
+
+.lighting-scene[aria-pressed="true"],
+.lighting-scene:has([aria-pressed="true"]) {
+    border-color: var(--hub-accent);
+    background: var(--hub-accent-soft);
+}
+
+.lighting-scene[data-failed="true"] {
+    border-color: var(--hub-danger);
+}
+
+.lighting-scene__dot {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--scene-dot);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--scene-dot) 18%, transparent);
+}
+
+.lighting-scene__copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.lighting-scene__name {
+    font-family: var(--lighting-display);
+    font-size: 17px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.lighting-scene__sub {
+    color: var(--hub-muted);
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.lighting-scene__active {
+    display: none;
+    margin-left: auto;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--hub-accent);
+    color: var(--hub-accent-ink);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lighting-scene[aria-pressed="true"] .lighting-scene__active,
+[aria-pressed="true"] > .lighting-scene__active {
+    display: inline-block;
+}
+
+/* Lamp tile grid -------------------------------------------------------- */
+
+.lighting-grid {
+    display: grid;
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-content: start;
+    gap: 16px;
+    overflow-y: auto;
+    padding-bottom: 96px; /* room for the floating selection bar */
+}
+
+/*
+ * lighting.js sets --tile-rgb ("r g b"), --tile-alpha and --tile-flat-alpha
+ * from the lamp's colour or white temperature and brightness.
+ */
+.lighting-tile {
+    --tile-rgb: 255 236 210;
+    --tile-alpha: 0.4;
+    --tile-flat-alpha: 0.2;
+    --tile-color: rgb(var(--tile-rgb));
+
+    position: relative;
+    box-sizing: border-box;
+    height: 214px;
+    overflow: hidden;
+    border: 1px solid var(--hub-line);
+    border-radius: 20px;
+    background: #16171d;
+}
+
+.lighting-tile[data-on="true"] {
+    background:
+        radial-gradient(130% 110% at 18% 0%, rgb(var(--tile-rgb) / var(--tile-alpha)) 0%, rgb(var(--tile-rgb) / calc(var(--tile-alpha) * 0.28)) 48%, transparent 78%),
+        var(--hub-card);
+}
+
+.lighting-tile[data-reachable="false"] {
+    background: #14151a;
+    opacity: 0.6;
+}
+
+.lighting-tile[data-pending="true"] {
+    border: 1px dashed color-mix(in srgb, var(--hub-accent) 70%, transparent);
+}
+
+.lighting[data-mode="select"] .lighting-tile[data-selected="true"] {
+    border: 2px solid var(--hub-accent);
+    box-shadow: 0 0 0 4px var(--hub-accent-soft);
+}
+
+.lighting-tile[data-failed="true"] {
+    border: 2px solid var(--hub-danger);
+    box-shadow: 0 0 0 4px var(--hub-danger-soft);
+}
+
+.lighting-tile__toggle {
+    position: absolute;
+    inset: 0 0 54px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px 18px 4px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.lighting-tile[data-reachable="false"] .lighting-tile__toggle,
+.lighting[data-mode="select"] .lighting-tile__toggle {
+    bottom: 0;
+    padding-bottom: 18px;
+}
+
+.lighting-tile__toggle:disabled {
+    cursor: default;
+}
+
+.lighting-tile__icon {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--lighting-neutral);
+}
+
+.lighting-tile[data-on="true"][data-reachable="true"] .lighting-tile__icon {
+    background: rgb(var(--tile-rgb) / 0.22);
+    color: var(--tile-color);
+}
+
+.lighting-tile__copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: auto;
+}
+
+.lighting-tile__provider {
+    color: var(--hub-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.lighting-tile__name {
+    overflow: hidden;
+    font-family: var(--lighting-display);
+    font-size: 20px;
+    font-weight: 600;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.lighting-console__row-state {
-    display: block;
-    margin-top: 1px;
-    color: var(--lighting-muted);
-    font-size: 11.5px;
+.lighting-tile__state {
+    color: var(--hub-muted);
+    font-size: 15px;
+    font-weight: 500;
     font-variant-numeric: tabular-nums;
 }
 
-.lighting-console__main {
-    display: flex;
-    min-width: 0;
-    flex: 1;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 30px 38px 34px;
+.lighting-tile[data-on="true"][data-reachable="true"] .lighting-tile__state {
+    color: #d9dbe2;
 }
 
-.lighting-console__top {
+.lighting-tile__more {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 14px;
+    background: rgba(13, 14, 18, 0.35);
+    cursor: pointer;
+}
+
+.lighting-tile__check {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: none;
+    box-sizing: border-box;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    background: rgba(13, 14, 18, 0.4);
+    color: transparent;
+}
+
+.lighting[data-mode="select"] .lighting-tile__check {
+    display: grid;
+}
+
+.lighting-tile[data-selected="true"] .lighting-tile__check {
+    border-color: var(--hub-accent);
+    background: var(--hub-accent);
+    color: var(--hub-accent-ink);
+}
+
+.lighting[data-mode="select"] .lighting-tile__more,
+.lighting[data-mode="select"] .lighting-tile__bar {
+    display: none;
+}
+
+.lighting-tile__pending {
+    position: absolute;
+    top: 22px;
+    right: 66px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 11px 5px 9px;
+    border-radius: 999px;
+    background: rgba(13, 14, 18, 0.6);
+    color: #f0c789;
+    font-size: 13px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.lighting[data-mode="select"] .lighting-tile__pending {
+    right: 60px;
+}
+
+.lighting-tile[data-pending="true"] .lighting-tile__pending {
+    display: flex;
+}
+
+.lighting-tile__pending-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--hub-accent);
+    box-shadow: 0 0 0 4px var(--hub-accent-soft);
+    animation: lighting-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes lighting-pulse {
+    50% { opacity: 0.35; }
+}
+
+/* Offline lamps stay visible but offer no actions; reachable ones hide the badge. */
+.lighting-tile[data-reachable="false"] .lighting-tile__more,
+.lighting-tile[data-reachable="false"] .lighting-tile__bar,
+.lighting-tile[data-reachable="false"] .lighting-tile__check,
+.lighting-tile[data-reachable="false"] .lighting-tile__pending,
+.lighting-tile[data-reachable="true"] .lighting-tile__offline {
+    display: none !important;
+}
+
+.lighting-tile__offline {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--lighting-soft-ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.lighting-tile__bar {
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    left: 16px;
+}
+
+.lighting-tile[data-on="true"] .lighting-tile__bar .lighting-slider {
+    --slider-fill: var(--tile-color);
+    --slider-ring: var(--tile-color);
+}
+
+/* Off: the brightness bar stays usable (dragging turns the lamp on) but dims. */
+.lighting-tile[data-on="false"] .lighting-tile__bar .lighting-slider {
+    --slider-fill: rgba(255, 255, 255, 0.28);
+    --slider-ring: var(--lighting-neutral);
+
+    opacity: 0.4;
+}
+
+/*
+ * Slider primitive: a custom visual track/fill/thumb over a transparent native
+ * range input (keeps keyboard, touch and screen-reader behaviour). lighting.js
+ * sets --slider-pct (0-100) and, where needed, --slider-fill/--slider-ring and
+ * --slider-track.
+ */
+.lighting-slider {
+    --slider-h: 34px;
+    --slider-track-h: 8px;
+    --slider-thumb: 24px;
+    --slider-border: 3px;
+    --slider-pct: 50;
+    --slider-fill: transparent;
+    --slider-ring: var(--hub-accent);
+    --slider-track: rgba(255, 255, 255, 0.1);
+
+    position: relative;
+    height: var(--slider-h);
+    margin: 0 calc(var(--slider-thumb) / 2);
+    touch-action: pan-y;
+}
+
+.lighting-slider--big {
+    --slider-h: 56px;
+    --slider-track-h: 14px;
+    --slider-thumb: 36px;
+    --slider-border: 4px;
+}
+
+.lighting-slider__track,
+.lighting-slider__fill {
+    position: absolute;
+    top: calc((var(--slider-h) - var(--slider-track-h)) / 2);
+    left: calc(var(--slider-thumb) / -2);
+    height: var(--slider-track-h);
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.lighting-slider__track {
+    right: calc(var(--slider-thumb) / -2);
+    background: var(--slider-track);
+}
+
+.lighting-slider__track--temp {
+    background: linear-gradient(90deg, rgb(255 168 82), rgb(255 236 210), rgb(214 228 255));
+}
+
+.lighting-slider__fill {
+    width: calc(var(--slider-pct) * 1% + var(--slider-thumb) / 2);
+    background: var(--slider-fill);
+}
+
+.lighting-slider__thumb {
+    position: absolute;
+    top: calc((var(--slider-h) - var(--slider-thumb)) / 2);
+    left: calc(var(--slider-pct) * 1% - var(--slider-thumb) / 2);
+    box-sizing: border-box;
+    width: var(--slider-thumb);
+    height: var(--slider-thumb);
+    border: var(--slider-border) solid var(--slider-ring);
+    border-radius: 50%;
+    background: #f4f5f8;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+}
+
+.lighting-slider__input {
+    position: absolute;
+    top: 0;
+    left: calc(var(--slider-thumb) / -2);
+    width: calc(100% + var(--slider-thumb));
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Floating selection bar and toast -------------------------------------- */
+
+.lighting-selbar {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    z-index: 20;
+    display: flex;
+    box-sizing: border-box;
+    max-width: calc(100% - 32px);
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px 10px 18px;
+    border: 1px solid var(--hub-line-strong);
+    border-radius: 20px;
+    background: var(--hub-card-hover);
+    box-shadow: var(--lighting-shadow);
+    transform: translateX(-50%);
+}
+
+.lighting-selbar .lighting-button {
+    height: 52px;
+}
+
+.lighting-selbar__label {
+    padding: 0 8px;
+    font-size: 17px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.lighting-toast {
+    position: absolute;
+    bottom: 28px;
+    left: 32px;
+    z-index: 40;
+    display: flex;
+    box-sizing: border-box;
+    max-width: 520px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 10px 12px 14px;
+    border: 1px solid rgba(224, 87, 92, 0.55);
+    border-radius: 16px;
+    background: var(--hub-card-hover);
+    box-shadow: var(--lighting-shadow);
+}
+
+.lighting-toast__icon {
+    display: grid;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(224, 87, 92, 0.18);
+    color: var(--lighting-danger-ink);
+}
+
+.lighting-toast__text {
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+/* Overlays: bottom sheet and dialogs ------------------------------------ */
+
+.lighting-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+}
+
+.lighting-overlay__backdrop {
+    position: absolute;
+    inset: 0;
+    padding: 0;
+    border: 0;
+    background: var(--lighting-scrim);
+    cursor: pointer;
+}
+
+.lighting-sheet {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    box-sizing: border-box;
+    height: 548px;
+    max-height: calc(100% - 36px);
+    flex-direction: column;
+    gap: 18px;
+    padding: 14px 36px 26px;
+    border-top: 1px solid var(--hub-line-strong);
+    border-radius: 28px 28px 0 0;
+    background: var(--hub-elevated);
+    box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.lighting-sheet__grabber {
+    width: 48px;
+    height: 5px;
+    flex: 0 0 auto;
+    align-self: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.lighting-sheet__head {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-.lighting-console__eyebrow {
-    color: var(--lighting-accent);
-    font-size: 11.5px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-}
-
-.lighting-console__heading {
-    margin-top: 5px;
-    color: var(--lighting-ink);
-    font-size: 30px;
-    font-weight: 760;
-    letter-spacing: -0.02em;
-}
-
-.lighting-console__top-spacer {
-    flex: 1;
-}
-
-.lighting-console__icon-button {
-    display: grid;
-    width: 40px;
-    height: 40px;
-    place-items: center;
-    border: 1px solid var(--lighting-glass-line);
-    border-radius: 12px;
-    color: var(--lighting-muted);
-    background: var(--lighting-glass);
-}
-
-.lighting-console__scenes {
+.lighting-sheet__heading {
     display: flex;
-    flex-direction: row;
-    flex: none;
-    gap: 12px;
-    margin-top: 26px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-}
-
-.lighting-console__scenes::-webkit-scrollbar {
-    display: none;
-}
-
-.lighting-console__scene {
-    position: relative;
-    display: flex;
-    flex: none;
-    width: 152px;
-    min-height: 106px;
+    min-width: 0;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 3px;
+    margin-right: auto;
+}
+
+.lighting-sheet__title {
+    margin: 0;
+    font-family: var(--lighting-display);
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.lighting-sheet__sub {
+    margin: 0;
     overflow: hidden;
-    padding: 16px;
-    border: 1px solid var(--lighting-glass-line);
-    border-radius: 18px;
-    background: var(--lighting-glass);
-    text-align: left;
-    scroll-snap-align: start;
-    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
-}
-
-.lighting-console__scene:hover {
-    transform: translateY(-3px);
-    border-color: var(--lighting-glass-2);
-    background: var(--lighting-glass-2);
-}
-
-.lighting-console__scene[data-active="true"] {
-    border-color: color-mix(in srgb, var(--scene-color, #ffc26b) 58%, var(--lighting-glass-line));
-    background:
-        linear-gradient(180deg, color-mix(in srgb, var(--scene-color, #ffc26b) 16%, transparent), transparent 72%),
-        var(--lighting-glass-2);
-}
-
-.lighting-console__scene[data-active="true"]::before {
-    opacity: 0.8;
-}
-
-.lighting-console__scene::before {
-    content: "";
-    position: absolute;
-    top: -28px;
-    right: -28px;
-    width: 92px;
-    height: 92px;
-    border-radius: 50%;
-    background: var(--scene-color, #ffc26b);
-    opacity: 0.42;
-    filter: blur(26px);
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-}
-
-.lighting-console__scene:hover::before {
-    opacity: 0.7;
-}
-
-.lighting-console__scene-dot {
-    position: relative;
-    z-index: 1;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--scene-color, #ffc26b) 22%, rgba(255, 255, 255, 0.04));
-}
-
-.lighting-console__scene-name {
-    position: relative;
-    z-index: 1;
-    display: block;
-    color: var(--lighting-ink);
-    font-size: 14px;
-    font-weight: 700;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-.lighting-console__scene-sub {
-    position: relative;
-    z-index: 1;
-    display: block;
-    margin-top: 2px;
-    color: var(--lighting-muted);
-    font-size: 11.5px;
-}
-
-.lighting-console__scene-active {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
-    display: none;
-    min-height: 24px;
-    align-items: center;
-    border: 1px solid color-mix(in srgb, var(--scene-color, #ffc26b) 42%, var(--lighting-glass-line));
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--scene-color, #ffc26b) 18%, rgba(10, 10, 10, 0.35));
-    color: var(--lighting-ink);
-    font-size: 11px;
-    font-weight: 760;
-    padding: 0 9px;
-}
-
-.lighting-console__scene[data-active="true"] .lighting-console__scene-active {
-    display: inline-flex;
-}
-
-.lighting-console__stage {
-    position: relative;
-    /* Flex column that fills the height the main panel leaves after the title and
-       presets: the wheel takes the free space and the brightness sits beneath it.
-       The wheel scales to its own slot (see ring-wrap) so the card always fits —
-       no inner scrollbar, and the presets above are never squeezed. */
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    gap: 18px;
-    margin-top: 24px;
-    overflow: hidden;
-    padding: 26px 30px;
-    border: 1px solid var(--lighting-glass-line);
-    border-radius: 24px;
-    background: var(--lighting-glass);
-}
-
-.lighting-console__stage[hidden] {
-    display: none;
-}
-
-.lighting-console__stage-glow {
-    position: absolute;
-    top: 50%;
-    left: 130px;
-    width: 320px;
-    height: 320px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--light-color, #ffc26b) 60%, transparent);
-    opacity: 0.12;
-    filter: blur(80px);
-    transform: translateY(-50%);
-    pointer-events: none;
-    transition: background 0.35s ease, opacity 0.3s ease;
-}
-
-.lighting-console__stage[data-on="true"] .lighting-console__stage-glow {
-    opacity: 0.5;
-}
-
-.lighting-console__ring-wrap {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    flex: 1;
-    min-height: 0;
-    /* Size container for the wheel: the ring fills the smaller of this slot's
-       width/height so it always fits whatever space the flex column leaves. */
-    container-type: size;
-}
-
-.lighting-console__ring {
-    /* Fill the smaller of the ring-wrap's width/height (leaving 4% for the
-       handle), capped at 272px on large screens. The wrap is sized by the flex
-       column, so the wheel always fits the space left after the brightness. */
-    --ring-size: min(96cqw, 96cqh, 272px);
-    --ring-width: 20px;
-    position: relative;
-    display: grid;
-    width: var(--ring-size);
-    height: var(--ring-size);
-    place-items: center;
-    border-radius: 50%;
-    /* Linear hue wheel: angle maps directly to the picked hue (0deg = up). */
-    background: conic-gradient(
-        from 0deg,
-        hsl(0 85% 58%),
-        hsl(60 85% 58%),
-        hsl(120 85% 58%),
-        hsl(180 85% 58%),
-        hsl(240 85% 58%),
-        hsl(300 85% 58%),
-        hsl(360 85% 58%)
-    );
-}
-
-.lighting-console__ring::after {
-    content: "";
-    position: absolute;
-    inset: var(--ring-width);
-    border-radius: 50%;
-    background:
-        radial-gradient(circle at 50% 38%, var(--light-color, #ffc26b), color-mix(in srgb, var(--light-color, #ffc26b) 45%, #1a1714));
-    box-shadow:
-        inset 0 0 30px color-mix(in srgb, var(--light-color, #ffc26b) 50%, transparent),
-        0 0 52px color-mix(in srgb, var(--light-color, #ffc26b) 55%, transparent);
-    opacity: 0.38;
-    transition: opacity 0.2s ease, box-shadow 0.2s ease;
-}
-
-.lighting-console__stage[data-on="true"] .lighting-console__ring::after {
-    opacity: 1;
-}
-
-/* Transparent surface over the wheel that captures tap/drag to pick a hue. */
-.lighting-console__ring-surface {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.lighting-console__ring-surface:disabled {
-    cursor: default;
-}
-
-/* Marker for the currently selected hue; positioned on the rim via JS. */
-.lighting-console__ring-handle {
-    position: absolute;
-    z-index: 4;
-    left: var(--handle-x, 50%);
-    top: var(--handle-y, 0%);
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 3px solid #fff;
-    background: var(--light-color, #fff);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.45);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    transition: left 0.12s ease, top 0.12s ease, background 0.12s ease;
-}
-
-.lighting-console__ring-center {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.86);
-    font-weight: 700;
-}
-
-.lighting-console__ring-percent {
+    color: var(--hub-muted);
     font-size: 15px;
-    font-variant-numeric: tabular-nums;
-}
-
-.lighting-console__controls {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex: none;
-    min-width: 0;
-    flex-direction: column;
-    gap: 24px;
-}
-
-.lighting-console__detail-head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.lighting-console__status {
-    width: 9px;
-    height: 9px;
-    flex: none;
-    border-radius: 50%;
-    background: var(--lighting-muted-2);
-}
-
-[data-on="true"] .lighting-console__status {
-    background: oklch(0.78 0.13 150);
-    box-shadow: 0 0 9px oklch(0.78 0.13 150 / 0.7);
-}
-
-.lighting-console__detail-name {
-    min-width: 0;
-    flex: 1;
-    overflow: hidden;
-    font-size: 22px;
-    font-weight: 720;
-    letter-spacing: -0.01em;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.lighting-console__control-block {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-}
-
-.lighting-console__label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--lighting-muted);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.lighting-console__value {
-    color: var(--lighting-ink-2);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0;
-    text-transform: none;
-}
-
-.lighting-console__range {
-    width: 100%;
-    accent-color: var(--light-color, var(--lighting-accent));
-}
-
-.lighting-console__color-inline {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.lighting-console__native-color {
-    width: 48px;
-    height: 34px;
+.lighting-switch {
+    display: grid;
+    width: 76px;
+    height: 48px;
+    place-items: center;
     padding: 0;
-    border: 1px solid var(--lighting-glass-line);
-    border-radius: 10px;
+    border: 0;
     background: transparent;
     cursor: pointer;
 }
 
-.lighting-console__switch {
-    --switch-w: 46px;
-    --switch-h: 27px;
+.lighting-switch__track {
     position: relative;
-    width: var(--switch-w);
-    height: var(--switch-h);
-    flex: none;
-    border: 0;
+    display: block;
+    width: 68px;
+    height: 40px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    transition: background 0.22s ease, opacity 0.15s ease;
+    background: #2f313a;
 }
 
-.lighting-console__switch[aria-checked="true"] {
-    background: var(--lighting-accent);
-}
-
-.lighting-console__switch[disabled] {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.lighting-console__switch-dot {
+.lighting-switch__dot {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: calc(var(--switch-h) - 6px);
-    height: calc(var(--switch-h) - 6px);
+    top: 4px;
+    left: 4px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
-    transition: transform 0.22s ease;
+    background: var(--hub-muted);
+    transition: left 120ms ease;
 }
 
-.lighting-console__switch[aria-checked="true"] .lighting-console__switch-dot {
-    transform: translateX(calc(var(--switch-w) - var(--switch-h)));
+.lighting-switch[aria-pressed="true"] .lighting-switch__track {
+    background: var(--hub-accent);
 }
 
-.lighting-console__switch--small {
-    --switch-w: 38px;
-    --switch-h: 22px;
+.lighting-switch[aria-pressed="true"] .lighting-switch__dot {
+    left: 32px;
+    background: var(--hub-accent-ink);
 }
 
-/* A lamp with a command in flight stays usable; only its swatch/glow pulses. */
-.lighting-console__row[data-pending="true"] .lighting-console__swatch,
-.lighting-console__stage[data-pending="true"] .lighting-console__ring-percent {
-    animation: lighting-pending 1s ease-in-out infinite alternate;
+.lighting-sheet__body {
+    display: grid;
+    min-height: 0;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: center;
+    gap: 48px;
 }
 
-@keyframes lighting-pending {
-    from { opacity: 1; }
-    to { opacity: 0.45; }
+.lighting-sheet__controls {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 22px;
 }
 
-/* Low-power mode stops animations, so show pending as a static dim instead. */
-html.low-power .lighting-console__row[data-pending="true"] .lighting-console__swatch,
-html.low-power .lighting-console__stage[data-pending="true"] .lighting-console__ring-percent {
-    opacity: 0.55;
+.lighting-sheet__group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.lighting-console__toast {
-    position: fixed;
-    left: 50%;
-    bottom: 24px;
-    z-index: 50;
-    transform: translateX(-50%);
-    max-width: calc(100vw - 32px);
-    padding: 10px 16px;
-    border-radius: 10px;
-    background: var(--hub-danger-soft);
-    color: var(--hub-danger);
-    box-shadow: 0 0 0 1px var(--hub-danger);
-    font-size: 13px;
+.lighting-sheet__label-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.lighting-sheet__label {
+    color: var(--hub-muted);
+    font-size: 15px;
     font-weight: 600;
 }
 
-@media (max-width: 1280px) {
-    .lighting-console__rail {
-        flex: 0 0 300px;
-    }
+.lighting-sheet__value {
+    font-family: var(--lighting-display);
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 980px) {
-    .lighting-console {
-        flex-direction: column;
-        overflow-y: auto;
-    }
+.lighting-sheet__mixed {
+    padding: 2px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    color: var(--lighting-soft-ink);
+    font-size: 12px;
+    font-weight: 600;
+}
 
-    .lighting-console__rail {
-        flex: none;
-        width: auto;
-        max-height: 330px;
-        border-right: 0;
-        border-bottom: 1px solid var(--lighting-line);
-    }
+.lighting-sheet__ends {
+    display: flex;
+    justify-content: space-between;
+    color: var(--hub-muted);
+    font-size: 15px;
+    font-weight: 600;
+}
 
-    /* Column layout has no fixed panel height, so let the whole console scroll
-       (not the panel) and size the wheel from the viewport width instead of the
-       now-indefinite slot height. The card takes its natural height. */
-    .lighting-console__main {
-        min-height: 0;
-        overflow: visible;
-    }
+.lighting-sheet__hint {
+    margin: 0;
+    color: var(--hub-muted);
+    font-size: 14px;
+}
 
-    .lighting-console__top {
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
+.lighting-segmented {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--hub-line);
+    border-radius: 16px;
+    background: var(--hub-bg);
+}
 
-    .lighting-console__top-spacer {
-        display: none;
-    }
+.lighting-segmented__option {
+    height: 48px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--hub-muted) !important;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
 
-    .lighting-console__stage {
-        flex: none;
-    }
+.lighting-segmented__option[aria-pressed="true"] {
+    background: #2a2c35;
+    color: var(--hub-text) !important;
+}
 
-    .lighting-console__ring-wrap {
-        container-type: normal;
-        min-height: 0;
-        height: auto;
-    }
+.lighting-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
-    .lighting-console__ring {
-        --ring-size: min(260px, 72vw);
+.lighting-chip {
+    display: flex;
+    height: 48px;
+    align-items: center;
+    gap: 9px;
+    padding: 0 18px;
+    border: 1px solid var(--hub-line-strong);
+    border-radius: 999px;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.lighting-chip[aria-pressed="true"] {
+    border-color: var(--hub-accent);
+    background: var(--hub-accent-soft);
+}
+
+.lighting-chip__dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+.lighting-sheet__preview {
+    --preview-rgb: 255 236 210;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.lighting-sheet__preview-label {
+    font-family: var(--lighting-display);
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.lighting-ring {
+    --ring-size: 250px;
+    --handle-x: 50%;
+    --handle-y: 7%;
+    --handle-color: hsl(0 100% 55%);
+
+    position: relative;
+    width: var(--ring-size);
+    height: var(--ring-size);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, hsl(0, 100%, 60%), hsl(60, 100%, 58%), hsl(120, 85%, 52%), hsl(180, 90%, 52%), hsl(240, 100%, 66%), hsl(300, 90%, 62%), hsl(360, 100%, 60%));
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.lighting-ring__hole {
+    position: absolute;
+    inset: 14%;
+    border-radius: 50%;
+    background: var(--hub-elevated);
+    pointer-events: none;
+}
+
+.lighting-ring__preview {
+    position: absolute;
+    inset: 24%;
+    border-radius: 50%;
+    background: rgb(var(--preview-rgb));
+    box-shadow: 0 0 60px rgb(var(--preview-rgb) / 0.55);
+    pointer-events: none;
+}
+
+.lighting-ring__handle {
+    position: absolute;
+    top: calc(var(--handle-y) - 17px);
+    left: calc(var(--handle-x) - 17px);
+    box-sizing: border-box;
+    width: 34px;
+    height: 34px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: var(--handle-color);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+}
+
+.lighting-disc {
+    display: block;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #fff 0%, rgb(var(--preview-rgb)) 55%, rgb(var(--preview-rgb) / 0.85) 100%);
+    box-shadow: 0 0 70px rgb(var(--preview-rgb) / 0.45);
+}
+
+.lighting-sheet__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Empty state ----------------------------------------------------------- */
+
+.lighting-empty {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.lighting-empty__icon {
+    display: grid;
+    width: 80px;
+    height: 80px;
+    place-items: center;
+    border: 1px solid var(--hub-line);
+    border-radius: 24px;
+    background: var(--hub-card);
+    color: var(--hub-muted);
+}
+
+.lighting-empty__title {
+    margin: 4px 0 0;
+    font-family: var(--lighting-display);
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.lighting-empty__text {
+    max-width: 460px;
+    margin: 0;
+    color: var(--hub-muted);
+    font-size: 17px;
+    line-height: 1.55;
+}
+
+.lighting-empty__text code {
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: var(--hub-card);
+    color: var(--hub-text);
+    font-size: 15px;
+}
+
+/* Responsive ------------------------------------------------------------ */
+
+@media (max-width: 1000px) {
+    .lighting-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 640px) {
-    .lighting-console__rail,
-    .lighting-console__main {
-        padding: 20px;
+    .lighting {
+        gap: 16px;
+        padding: 20px 16px;
     }
 
-    .lighting-console__stage {
-        padding: 22px;
+    .lighting-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
     }
+
+    .lighting-tile {
+        height: 176px;
+    }
+
+    .lighting-scene {
+        min-width: 150px;
+    }
+
+    .lighting-selbar {
+        bottom: 16px;
+    }
+
+    .lighting-toast {
+        right: 16px;
+        bottom: 16px;
+        left: 16px;
+    }
+
+    /* Phone: the sheet goes (nearly) full height and stacks its columns. */
+    .lighting-sheet {
+        height: calc(100% - 36px);
+        gap: 16px;
+        padding: 12px 18px 18px;
+    }
+
+    .lighting-sheet__body {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: auto;
+    }
+
+    .lighting-sheet__preview {
+        order: -1;
+    }
+
+    .lighting-ring {
+        --ring-size: 210px;
+    }
+
+    .lighting-disc {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+/* Low-power kiosk mode: no glow or blur, static fills. */
+html.low-power .lighting-tile[data-on="true"] {
+    background:
+        linear-gradient(rgb(var(--tile-rgb) / var(--tile-flat-alpha)), rgb(var(--tile-rgb) / var(--tile-flat-alpha))),
+        var(--hub-card);
+}
+
+html.low-power .lighting-ring__preview,
+html.low-power .lighting-disc {
+    box-shadow: none;
+}
+
+html.low-power .lighting-tile__pending-dot {
+    animation: none;
 }

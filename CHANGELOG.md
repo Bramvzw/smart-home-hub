@@ -17,6 +17,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Lighting: the page is redesigned for the wall kiosk as a grid of lamp tiles.
+  Tap a tile to switch it, drag its bottom bar to dim it, and open a control
+  sheet with `⋯` for brightness, warm-to-cool white or colour with saturation.
+  `Select` controls several lamps at once.
 - Lighting: lamps stay usable while a command runs. Rapid slider moves are
   coalesced per lamp, failed commands roll back with a short notice, and the
   page picks up changes made in the Smart Life or Govee apps every two minutes

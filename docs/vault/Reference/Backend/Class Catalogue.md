@@ -71,7 +71,7 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Services\Providers\GoveeApiClient` | Govee Developer API transport with API-key headers. |
 | `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness, RGB colour and Kelvin colour temperature. |
 | `Modules\Lighting\Support\Color` | Colour conversion helpers for shared hex, Govee RGB and Tuya HSV. |
-| `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data assembly for the Lighting screen. |
+| `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data for the Lighting kiosk: lamp tiles with state lines, the scene strip (built-in presets minus All off) and the active scene. |
 
 ## Calendar Module
 

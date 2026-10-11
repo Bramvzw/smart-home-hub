@@ -80,34 +80,48 @@ Interaction behavior:
 
 ### Lighting
 
-Controls configured Tuya/Calex and Govee lights through `Modules/Lighting`.
+Controls configured Tuya/Calex and Govee lights through `Modules/Lighting`. The page is designed for the wall-mounted kiosk: the most common action takes one tap. Visual reference: the signed-off "Lighting kiosk redesign" prototype (see `docs/vault/Plans/Lighting-verbetering.md`). All copy is English.
 
 Layout:
-- Lighting uses the handoff's Variant B console layout: a left rail with provider-grouped lamps and a right master-detail stage for the selected lamp.
-- The left rail shows the product mark, total on/off state, a master toggle and compact lamp rows grouped by provider label.
-- Preset scene buttons sit above the detail stage and apply a shared scene to all reachable lights.
-- The detail stage shows one selected lamp with a large colour/glow ring, power switch, brightness slider and colour controls when supported.
-- On narrower screens the rail stacks above the detail stage.
+- The page hides the shared hub header and renders its own: the title `Lighting`, a summary line `N of M on` (reachable lamps that are on, out of all lamps), and two 56 px buttons, `Select` and `All off`. `All off` lives only in the header, never in the scene strip; it is highlighted (`aria-pressed="true"`) while every reachable lamp is off.
+- Below the header a scene strip lists the built-in presets as 72 px buttons with a colour dot, name and subtitle (e.g. `Cool white · 100%`). The strip scrolls horizontally without a visible scrollbar; its right edge fades out. The active scene carries an `Active` badge and `aria-pressed="true"`.
+- The main area is a grid of lamp tiles: 4 columns on the kiosk, 3 on medium widths, 2 at phone width (≤ 640 px). A tile is 214 px high (176 px on a phone) and shows an icon, the provider label (`CALEX`, `GOVEE`), the lamp name and a state line: `70% · Warm white`, `40% · Colour`, `Off` or `Offline`.
+- A tile that is on glows in its current colour (colour mode) or white temperature (white mode); the glow strength follows the brightness. Along the bottom edge a brightness bar (custom track/fill/thumb over a transparent native range input) shows the brightness; it is dimmed while the lamp is off.
+- Each reachable tile has a 48 px `⋯` button (top right) that opens the control sheet.
+- Unreachable lamps stay visible, muted, with an `Offline` badge and no actions (no `⋯`, no bar, toggle disabled).
+- Unreachable providers are named in a short notice under the header; the other providers keep rendering.
+
+Gestures:
+- Tap a tile: toggle the lamp on/off. A lamp stored at 0 % comes on at 60 %.
+- Drag the tile's bottom bar: set the brightness directly (this also turns the lamp on).
+- Tap `⋯`, or long-press the tile (shortcut, ~0.55 s): open the control sheet for that lamp.
+- `Select` enters select mode: the title becomes `Select lamps`, the summary `N selected`, the header shows `Select all` and `Cancel`, tiles show a check circle instead of `⋯`/bar, and tapping a tile selects it. A floating bar `N lamps selected · Adjust · Cancel` appears at the bottom; `Adjust` (disabled with nothing selected) opens the control sheet for the whole selection.
+- No UI depends on hover. Escape closes the sheet; focus styles stay for keyboard use.
+
+Control sheet (bottom sheet, 548 px high on the kiosk, nearly full height on a phone):
+- Header: the lamp name (or `3 lamps` with the selected names below), a power switch (`aria-pressed`) and a close button.
+- `Brightness` slider with the percentage; a `mixed` badge appears when the selected lamps differ in brightness or mode.
+- A `White | Colour` segmented control, shown only when every lamp in the sheet supports both. Otherwise only the supported panel shows; a dimmable-only lamp gets brightness and power only.
+- White: a warm→cool gradient slider (`color_temp` 0–100) plus `Warm` / `Neutral` / `Cool` chips (0 / 50 / 100; a chip is active within ±8). The preview disc shows the white and a label like `≈ 3,300 K · Warm white`.
+- Colour: a hue ring (tap or drag; 0° at the top, clockwise) and a `Pastel ↔ Saturated` saturation slider, so pastel colours are possible. The preview label reads `Hue 229° · 100% saturation`.
+- For a selection, brightness and colour temperature start at the average of the lamps (off lamps count as 0 % brightness), the mode starts at the majority (ties go to white), and the power switch is on when any lamp is on.
+- `Done` closes the sheet. The scrim behind it closes it too.
 
 Behavior:
-- No configured credentials shows the empty setup state with `TUYA_*` and `GOVEE_API_KEY` hints.
-- Provider failures show a warning naming the unreachable provider while other providers continue rendering.
-- Unreadable lights remain visible but disabled and visually muted.
-- Clicking a lamp row changes the focused detail panel without a full page reload.
-- Presets include bright, cozy, movie, night, night light and all-off scenes. They call the preset JSON endpoint, temporarily disable the clicked preset button, update reachable light cards optimistically and skip unreachable lights.
-- Bright, Cozy and Night use the lamps' real white LEDs (colour temperature) instead of an RGB fake-white: Bright is cool white at 100 %, Cozy warm white at 70 %, Night warm white at 1 %. Lamps without tunable white only get the power and brightness of those presets. Movie and Night light keep their colours.
-- A lamp's state line reads `white` or `color` from the mode the provider reports (white LEDs vs RGB), not from whether the lamp can do colour.
+- No configured credentials shows the empty state `No lights connected` with the `TUYA_*` / `GOVEE_API_KEY` hint; configured providers without lamps show `No lights found`.
+- Built-in presets come from config. Bright, Cozy and Night use the lamps' real white LEDs: Bright is cool white at 100 %, Cozy warm white at 70 %, Night warm white at 1 %. Lamps without tunable white only get the power and brightness. Movie and Night light keep their colours; Night light only targets lamps whose name contains `strip`.
+- A tile's state line reads the mode the provider reports (white LEDs vs RGB), not whether the lamp can do colour.
+- Every change updates the UI optimistically. Controls are never disabled while a command runs. Each lamp has its own queue: one request in flight at a time, and changes made meanwhile coalesce into one queued request that carries only the newest values (latest wins). A lamp with a pending command shows a `Sending…` pill and a dashed border; other lamps and scenes stay usable.
+- Sheet changes for one lamp go through that lamp's queue; for a selection they go out as one `PUT /lighting/lights` group request, coalesced the same way. Slider moves are sent after 250 ms of rest.
+- The sheet sends colours as hex built from the hue and saturation at full value (HSV v = 100), which maps 1:1 onto the lamps' own saturation.
+- If a command fails, the lamp rolls back to its last confirmed state, gets a red ring and a toast such as `Couldn't reach Calex — Living room spot was set back to its last known state.` (with a dismiss button). In a group request only the lamps listed in `failed` roll back.
+- A scene tapped while another is running is queued; only the newest queued scene runs after the current one.
+- The active scene is recalculated after every manual change.
+- The backend locks per light for single-light writes (`lighting:control:{provider}:{id}`); presets and group writes take the shared lock. A busy lock returns `409`; the page retries a `409` once after 500 ms before treating it as a failure.
+- The page re-reads `GET /lighting/state` every `LIGHTING_POLL_SECONDS` (default 120 s) while it is visible, and once when it becomes visible again, so changes made in the Smart Life or Govee apps appear without a reload (including a lamp going offline). Lamps with a pending or newer local command are skipped. Hidden tabs do not poll.
 - The per-light endpoint accepts `color_temp` (0 warm – 100 cool) next to `power`, `brightness` and `color`; `color` and `color_temp` together are rejected with `422`. Light JSON includes `mode` (`white`/`colour`), `color_temp` and `supports_color_temp`.
-- Presets may define target name filters. The Night light preset targets lights whose name contains `strip`, so it only turns the LED strip on softly and leaves other reachable lights unchanged.
-- The active preset button uses `data-active="true"`, `aria-pressed="true"` and an `Actief` badge. Manual power, brightness or colour changes recalculate this state immediately.
-- Presets skip unchanged power, brightness and colour commands from the current snapshot to reduce cloud latency, especially for Govee LED strips.
-- Govee commands are paced and transient failures are retried so quick preset changes are less likely to drop a brightness or colour command.
-- Controls are never disabled while a command runs. Each lamp has its own queue: one request in flight at a time, and slider/colour changes made meanwhile coalesce into one queued request that carries only the newest values (latest wins). Other lamps and presets stay usable. A lamp with a pending command shows a subtle pulse on its swatch and percentage.
-- A preset tapped while another preset is running is queued; only the newest queued preset runs after the current one.
-- Control changes update the UI optimistically. If a command fails, the lamp rolls back to its last confirmed state, gets the danger ring and a short toast ("Couldn't reach Calex").
-- The backend locks per light for single-light writes (`lighting:control:{provider}:{id}`), so commands for different lamps never wait on each other. Presets and group writes take the shared lock. A busy lock returns `409`; the page retries a `409` once after 500 ms before treating it as a failure.
-- The page re-reads `GET /lighting/state` every `LIGHTING_POLL_SECONDS` (default 120 s) while it is visible, and once when it becomes visible again, so changes made in the Smart Life or Govee apps appear without a reload. Lamps with a pending or newer local command are skipped. Hidden tabs do not poll.
-- `PUT /lighting/lights` applies one change set (`power`, `brightness`, `color` or `color_temp`) to several lamps: `200` with `{data: {applied, failed}}` (partial failures listed by name), `502` when nothing could be applied, `422` for an unknown lamp. Calex lamps in one group request are written concurrently.
+- `PUT /lighting/lights` applies one change set to several lamps: `200` with `{data: {applied, failed}}` (partial failures listed by name), `502` when nothing could be applied, `422` for an unknown lamp. Calex lamps in one group request are written concurrently.
+- Low-power mode (`?lowpower=1`, persisted per device): no glow, blur or pulse; tiles that are on get a static colour fill and the sheet preview has no halo.
 - Secrets and provider tokens are never rendered.
 
 ### Weather

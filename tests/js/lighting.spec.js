@@ -1,10 +1,9 @@
 import { initLighting } from '../../Modules/Lighting/resources/assets/js/lighting.js';
 
 async function flushPromises() {
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    for (let i = 0; i < 6; i++) {
+        await Promise.resolve();
+    }
 }
 
 function deferred() {
@@ -16,316 +15,414 @@ function deferred() {
     return { promise, resolve };
 }
 
-describe('lighting controls', () => {
+const okResponse = (body = {}) => ({ ok: true, status: 200, json: async () => body });
+
+// One lamp tile, mirroring index.blade.php.
+const tile = ({
+    provider = 'tuya',
+    id = '1',
+    name = `Lamp ${id}`,
+    providerLabel = 'Calex',
+    on = true,
+    brightness = 10,
+    color = '#ff0000',
+    mode = 'white',
+    colorTemp = 50,
+    reachable = true,
+    supportsColor = true,
+    supportsColorTemp = true,
+} = {}) => `
+    <article class="lighting-tile" data-light
+        data-light-key="${provider}::${id}" data-provider="${provider}" data-light-id="${id}"
+        data-light-name="${name}" data-provider-label="${providerLabel}"
+        data-url="/lighting/lights/${provider}/${id}"
+        data-on="${on}" data-brightness="${brightness}" data-color="${color}" data-mode="${mode}"
+        data-color-temp="${colorTemp ?? ''}" data-reachable="${reachable}"
+        data-supports-color="${supportsColor}" data-supports-color-temp="${supportsColorTemp}" data-selected="false">
+        <button type="button" data-tile-toggle aria-pressed="${on}"><span data-light-state></span></button>
+        <button type="button" data-tile-more></button>
+        <div data-slider><input type="range" min="1" max="100" value="${Math.max(1, brightness)}" data-action="brightness"></div>
+    </article>
+`;
+
+const sheetMarkup = `
+    <div data-sheet-overlay hidden>
+        <section data-sheet>
+            <h2 data-sheet-title></h2><p data-sheet-sub></p>
+            <button type="button" data-sheet-power aria-pressed="false"></button>
+            <button type="button" data-sheet-close></button>
+            <span data-sheet-brightness-label></span><span data-sheet-mixed hidden></span>
+            <div data-slider data-sheet-brightness-slider><input type="range" min="1" max="100" value="50" data-sheet-brightness></div>
+            <div data-sheet-tabs>
+                <button type="button" data-sheet-tab="white"></button>
+                <button type="button" data-sheet-tab="colour"></button>
+            </div>
+            <div data-sheet-panel="white">
+                <div data-slider data-sheet-temp-slider><input type="range" min="0" max="100" value="50" data-sheet-temp></div>
+                <button type="button" data-sheet-chip="0"><span data-chip-dot></span></button>
+                <button type="button" data-sheet-chip="50"><span data-chip-dot></span></button>
+                <button type="button" data-sheet-chip="100"><span data-chip-dot></span></button>
+            </div>
+            <div data-sheet-panel="colour" hidden>
+                <div data-slider data-sheet-sat-slider><input type="range" min="0" max="100" value="100" data-sheet-sat></div>
+            </div>
+            <div class="lighting-sheet__preview">
+                <button type="button" data-sheet-ring hidden></button>
+                <span data-sheet-disc></span>
+                <span data-sheet-preview-label></span>
+            </div>
+        </section>
+    </div>
+`;
+
+const page = (tiles, { presets = '', attrs = '' } = {}) => `
+    <div data-lighting data-mode="normal"
+        data-preset-url-template="/lighting/presets/__PRESET__"
+        data-group-url="/lighting/lights" ${attrs}>
+        <h1 data-lighting-title>Lighting</h1>
+        <p data-lighting-summary></p>
+        <div data-normal-only><button type="button" data-select-start>Select</button></div>
+        <div data-select-only hidden>
+            <button type="button" data-select-all>Select all</button>
+            <button type="button" data-select-cancel>Cancel</button>
+        </div>
+        ${presets}
+        ${tiles}
+        <div data-selbar hidden>
+            <span data-selbar-label></span>
+            <button type="button" data-selbar-adjust disabled>Adjust</button>
+        </div>
+        <div data-lighting-toast hidden><span data-lighting-toast-text></span></div>
+        ${sheetMarkup}
+    </div>
+`;
+
+const slide = (input, value) => {
+    input.value = String(value);
+    input.dispatchEvent(new Event('input'));
+};
+
+const bodyOf = (call) => JSON.parse(call[1].body);
+
+describe('lighting kiosk', () => {
     beforeEach(() => {
         document.head.innerHTML = '<meta name="csrf-token" content="csrf-test-token">';
     });
 
-    it('posts presets and updates reachable light cards optimistically', async () => {
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button
-                    type="button"
-                    data-preset="cozy"
-                    data-preset-label="Cozy"
-                    data-preset-power="true"
-                    data-preset-brightness="45"
-                    data-preset-color="#ff9f4a"
-                >Cozy</button>
+    describe('tiles', () => {
+        it('renders the state line and the header summary', () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', on: true, brightness: 70, colorTemp: 10 })
+                + tile({ id: '2', on: true, brightness: 40, mode: 'colour' })
+                + tile({ id: '3', on: false })
+                + tile({ id: '4', reachable: false }),
+            );
 
-                <article data-light data-reachable="true" data-supports-color="true">
-                    <button type="button" data-action="power" aria-checked="false"></button>
-                    <input type="range" data-action="brightness" value="10">
-                    <input type="color" data-action="color" value="#ffffff">
-                </article>
+            initLighting();
 
-                <article data-light data-reachable="false" data-supports-color="true">
-                    <button type="button" data-action="power" aria-checked="false"></button>
-                    <input type="range" data-action="brightness" value="10">
-                    <input type="color" data-action="color" value="#ffffff">
-                </article>
-            </div>
-        `;
+            const states = [...document.querySelectorAll('[data-light-state]')].map((el) => el.textContent);
+            expect(states).toEqual(['70% · Warm white', '40% · Colour', 'Off', 'Offline']);
+            expect(document.querySelector('[data-lighting-summary]').textContent).toBe('2 of 4 on');
+            expect(document.querySelectorAll('[data-tile-toggle]')[3].disabled).toBe(true);
+        });
 
-        fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                data: {
-                    preset: {
-                        key: 'cozy',
-                        power: true,
-                        brightness: 45,
-                        color: '#ff9f4a',
-                    },
-                    failed_lights: [],
+        it('toggles a lamp with one tap', async () => {
+            document.body.innerHTML = page(tile({ id: '1', on: false, brightness: 0 }));
+            fetch.mockResolvedValue(okResponse());
+
+            initLighting();
+            const card = document.querySelector('[data-light]');
+            card.querySelector('[data-tile-toggle]').click();
+
+            expect(card.dataset.on).toBe('true');
+            expect(card.querySelector('[data-tile-toggle]').getAttribute('aria-pressed')).toBe('true');
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/lights/tuya/1');
+            expect(fetch.mock.calls[0][1].method).toBe('PUT');
+            // A lamp stored at 0 % comes on at 60 %.
+            expect(bodyOf(fetch.mock.calls[0])).toEqual({ power: true, brightness: 60 });
+            await flushPromises();
+        });
+
+        it('sets brightness by dragging the tile bar', () => {
+            jest.useFakeTimers();
+            document.body.innerHTML = page(tile({ id: '1', on: false, brightness: 30 }));
+            fetch.mockResolvedValue(okResponse());
+
+            initLighting();
+            const card = document.querySelector('[data-light]');
+            const bar = card.querySelector('[data-action="brightness"]');
+            slide(bar, 55);
+            slide(bar, 80);
+
+            expect(card.dataset.brightness).toBe('80');
+            expect(card.dataset.on).toBe('true');
+            expect(card.querySelector('[data-slider]').style.getPropertyValue('--slider-pct')).not.toBe('');
+            expect(fetch).not.toHaveBeenCalled();
+
+            jest.advanceTimersByTime(250);
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(bodyOf(fetch.mock.calls[0])).toEqual({ power: true, brightness: 80 });
+        });
+
+        it('opens the control sheet from the more button', () => {
+            document.body.innerHTML = page(tile({ id: '1', name: 'Desk spot', brightness: 70, colorTemp: 95 }));
+
+            initLighting();
+            document.querySelector('[data-tile-more]').click();
+
+            expect(document.querySelector('[data-sheet-overlay]').hidden).toBe(false);
+            expect(document.querySelector('[data-sheet-title]').textContent).toBe('Desk spot');
+            expect(document.querySelector('[data-sheet-sub]').textContent).toBe('Calex · 70% · Cool white');
+            expect(document.querySelector('[data-sheet-preview-label]').textContent).toBe('≈ 6,300 K · Cool white');
+        });
+    });
+
+    describe('select mode', () => {
+        it('selects tiles instead of toggling them and sends one group request', () => {
+            jest.useFakeTimers();
+            document.body.innerHTML = page(
+                tile({ id: '1', name: 'Spot 1' })
+                + tile({ provider: 'govee', id: 'DEV1', name: 'Strip', providerLabel: 'Govee' })
+                + tile({ id: '3', name: 'Spot 3' }),
+            );
+            fetch.mockResolvedValue(okResponse({ data: { applied: 2, failed: [] } }));
+
+            initLighting();
+            document.querySelector('[data-select-start]').click();
+            const root = document.querySelector('[data-lighting]');
+            expect(root.dataset.mode).toBe('select');
+            expect(document.querySelector('[data-lighting-title]').textContent).toBe('Select lamps');
+
+            const [one, strip] = document.querySelectorAll('[data-light]');
+            one.querySelector('[data-tile-toggle]').click();
+            strip.querySelector('[data-tile-toggle]').click();
+
+            expect(fetch).not.toHaveBeenCalled();
+            expect(one.dataset.selected).toBe('true');
+            expect(document.querySelector('[data-selbar]').hidden).toBe(false);
+            expect(document.querySelector('[data-selbar-label]').textContent).toBe('2 lamps selected');
+
+            document.querySelector('[data-selbar-adjust]').click();
+            expect(document.querySelector('[data-sheet-title]').textContent).toBe('2 lamps');
+
+            slide(document.querySelector('[data-sheet-brightness]'), 35);
+            document.querySelector('[data-sheet-chip="0"]').click();
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/lights');
+            expect(bodyOf(fetch.mock.calls[0])).toEqual({
+                lights: [{ provider: 'tuya', id: '1' }, { provider: 'govee', id: 'DEV1' }],
+                changes: { power: true, brightness: 35, color_temp: 0 },
+            });
+        });
+
+        it('rolls back lamps the group request names as failed', async () => {
+            document.body.innerHTML = page(tile({ id: '1', name: 'Spot 1', on: true }) + tile({ id: '2', name: 'Spot 2', on: true }));
+            fetch.mockResolvedValue(okResponse({ data: { applied: 1, failed: ['Spot 2'] } }));
+
+            initLighting();
+            document.querySelector('[data-select-start]').click();
+            document.querySelector('[data-select-all]').click();
+            document.querySelector('[data-selbar-adjust]').click();
+            document.querySelector('[data-sheet-power]').click();
+            await flushPromises();
+            await flushPromises();
+
+            const [one, two] = document.querySelectorAll('[data-light]');
+            expect(one.dataset.on).toBe('false');
+            expect(two.dataset.on).toBe('true');
+            expect(two.dataset.failed).toBe('true');
+            expect(document.querySelector('[data-lighting-toast]').hidden).toBe(false);
+        });
+    });
+
+    describe('control sheet', () => {
+        it('hides controls a lamp does not support', () => {
+            document.body.innerHTML = page(tile({ id: '1', supportsColor: true, supportsColorTemp: false, mode: 'colour', color: '#00ff00' }));
+
+            initLighting();
+            document.querySelector('[data-tile-more]').click();
+
+            expect(document.querySelector('[data-sheet-tabs]').hidden).toBe(true);
+            expect(document.querySelector('[data-sheet-panel="white"]').hidden).toBe(true);
+            expect(document.querySelector('[data-sheet-panel="colour"]').hidden).toBe(false);
+            expect(document.querySelector('[data-sheet-ring]').hidden).toBe(false);
+        });
+
+        it('hides both colour panels for a dimmable-only lamp', () => {
+            document.body.innerHTML = page(tile({ id: '1', supportsColor: false, supportsColorTemp: false, colorTemp: null }));
+
+            initLighting();
+            document.querySelector('[data-tile-more]').click();
+
+            expect(document.querySelector('[data-sheet-tabs]').hidden).toBe(true);
+            expect(document.querySelector('[data-sheet-panel="white"]').hidden).toBe(true);
+            expect(document.querySelector('[data-sheet-panel="colour"]').hidden).toBe(true);
+        });
+
+        it('starts a mixed selection at the average brightness and the majority mode', () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', brightness: 70, mode: 'white', colorTemp: 10 })
+                + tile({ id: '2', brightness: 40, mode: 'white', colorTemp: 30 })
+                + tile({ id: '3', brightness: 100, mode: 'colour', color: '#0000ff' })
+                + tile({ id: '4', on: false, brightness: 50 }),
+            );
+
+            initLighting();
+            document.querySelector('[data-select-start]').click();
+            document.querySelector('[data-select-all]').click();
+            document.querySelector('[data-selbar-adjust]').click();
+
+            // (70 + 40 + 100 + 0) / 4 = 52.5 -> 53; three white lamps vs one colour.
+            expect(document.querySelector('[data-sheet-brightness-label]').textContent).toBe('53%');
+            expect(document.querySelector('[data-sheet-brightness]').value).toBe('53');
+            expect(document.querySelector('[data-sheet-mixed]').hidden).toBe(false);
+            expect(document.querySelector('[data-sheet-tab="white"]').getAttribute('aria-pressed')).toBe('true');
+            // Colour temperature averages over the lamps that report one: (10 + 30 + 50 + 50) / 4 = 35.
+            expect(document.querySelector('[data-sheet-temp]').value).toBe('35');
+            expect(document.querySelector('[data-sheet-power]').getAttribute('aria-pressed')).toBe('true');
+        });
+
+        it('sends colour as a hex built from hue and saturation', () => {
+            jest.useFakeTimers();
+            document.body.innerHTML = page(tile({ id: '1', mode: 'colour', color: '#ff0000' }));
+            fetch.mockResolvedValue(okResponse());
+
+            initLighting();
+            document.querySelector('[data-tile-more]').click();
+            slide(document.querySelector('[data-sheet-sat]'), 50);
+            jest.advanceTimersByTime(250);
+
+            expect(bodyOf(fetch.mock.calls[0])).toEqual({ power: true, color: '#ff8080' });
+            expect(document.querySelector('[data-light]').dataset.mode).toBe('colour');
+        });
+    });
+
+    describe('presets', () => {
+        const preset = (key, attrs) => `<button type="button" data-preset="${key}" data-preset-label="${key}" ${attrs}>${key}</button>`;
+
+        it('posts presets and updates reachable tiles optimistically', async () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', on: false, brightness: 10, mode: 'white' })
+                + tile({ id: '2', on: false, brightness: 10, reachable: false }),
+                { presets: preset('movie', 'data-preset-power="true" data-preset-brightness="42" data-preset-color="#7f96ff"') },
+            );
+            fetch.mockResolvedValueOnce(okResponse({ data: { preset: { key: 'movie', power: true, brightness: 42, color: '#7f96ff' }, failed_lights: [] } }));
+
+            initLighting();
+            document.querySelector('[data-preset="movie"]').click();
+            await flushPromises();
+
+            expect(fetch).toHaveBeenCalledWith('/lighting/presets/movie', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': 'csrf-test-token',
                 },
-            }),
+                body: null,
+            });
+
+            const [reachable, unreachable] = document.querySelectorAll('[data-light]');
+            expect(reachable.dataset.on).toBe('true');
+            expect(reachable.dataset.brightness).toBe('42');
+            expect(reachable.dataset.color).toBe('#7f96ff');
+            expect(reachable.dataset.mode).toBe('colour');
+            expect(unreachable.dataset.on).toBe('false');
+            expect(document.querySelector('[data-preset="movie"]').getAttribute('aria-pressed')).toBe('true');
         });
 
-        initLighting();
-        document.querySelector('[data-preset="cozy"]').click();
-        await flushPromises();
+        it('turns lamps off without changing brightness', async () => {
+            document.body.innerHTML = page(tile({ id: '1', on: true, brightness: 80 }), { presets: preset('off', 'data-preset-power="false"') });
+            fetch.mockResolvedValueOnce(okResponse({ data: { preset: { key: 'off', power: false }, failed_lights: [] } }));
 
-        expect(fetch).toHaveBeenCalledWith('/lighting/presets/cozy', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': 'csrf-test-token',
-            },
-            body: null,
+            initLighting();
+            document.querySelector('[data-preset="off"]').click();
+            await flushPromises();
+
+            const card = document.querySelector('[data-light]');
+            expect(card.dataset.on).toBe('false');
+            expect(card.dataset.brightness).toBe('80');
+            expect(document.querySelector('[data-lighting-summary]').textContent).toBe('0 of 1 on');
         });
 
-        const [reachable, unreachable] = document.querySelectorAll('[data-light]');
-        expect(reachable.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('true');
-        expect(reachable.querySelector('[data-action="brightness"]').value).toBe('45');
-        expect(reachable.querySelector('[data-action="color"]').value).toBe('#ff9f4a');
+        it('applies targeted presets only to matching lamps', async () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', name: 'LED Strip', on: false }) + tile({ id: '2', name: 'Desk lamp', on: false }),
+                { presets: preset('night_light', 'data-preset-power="true" data-preset-brightness="1" data-preset-color="#ff8559" data-preset-target-name-contains="strip"') },
+            );
+            fetch.mockResolvedValueOnce(okResponse({ data: { preset: { key: 'night_light', power: true, brightness: 1, color: '#ff8559', target_name_contains: ['strip'] }, failed_lights: [] } }));
 
-        expect(unreachable.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
-        expect(unreachable.querySelector('[data-action="brightness"]').value).toBe('10');
-        expect(unreachable.querySelector('[data-action="color"]').value).toBe('#ffffff');
-        expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('true');
-    });
+            initLighting();
+            document.querySelector('[data-preset="night_light"]').click();
+            await flushPromises();
 
-    it('turns reachable lights off without changing brightness', async () => {
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button type="button" data-preset="off" data-preset-power="false">All off</button>
-                <article data-light data-reachable="true" data-supports-color="false">
-                    <button type="button" data-action="power" aria-checked="true"></button>
-                    <input type="range" data-action="brightness" value="80">
-                </article>
-            </div>
-        `;
-
-        fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                data: {
-                    preset: {
-                        key: 'off',
-                        power: false,
-                        brightness: null,
-                        color: null,
-                    },
-                    failed_lights: [],
-                },
-            }),
+            const [strip, lamp] = document.querySelectorAll('[data-light]');
+            expect(strip.dataset.on).toBe('true');
+            expect(strip.dataset.color).toBe('#ff8559');
+            expect(lamp.dataset.on).toBe('false');
+            expect(document.querySelector('[data-preset="night_light"]').dataset.active).toBe('true');
         });
 
-        initLighting();
-        document.querySelector('[data-preset="off"]').click();
-        await flushPromises();
+        it('applies colour-temperature presets as white mode', async () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', on: false, mode: 'colour', color: '#ff0000' }),
+                { presets: preset('bright', 'data-preset-power="true" data-preset-brightness="100" data-preset-color-temp="100"') },
+            );
+            fetch.mockResolvedValueOnce(okResponse({ data: { preset: { key: 'bright', power: true, brightness: 100, color: null, color_temp: 100 }, failed_lights: [] } }));
 
-        const card = document.querySelector('[data-light]');
-        expect(card.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
-        expect(card.querySelector('[data-action="brightness"]').value).toBe('80');
-    });
+            initLighting();
+            document.querySelector('[data-preset="bright"]').click();
+            await flushPromises();
 
-    it('applies targeted presets only to matching light cards', async () => {
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button
-                    type="button"
-                    data-preset="night_light"
-                    data-preset-label="Night light"
-                    data-preset-power="true"
-                    data-preset-brightness="1"
-                    data-preset-color="#ff8559"
-                    data-preset-target-name-contains="strip"
-                >Night light</button>
-
-                <article data-light data-light-row data-light-name="LED Strip" data-reachable="true" data-supports-color="true">
-                    <button type="button" data-action="power" aria-checked="false"></button>
-                    <input type="range" data-action="brightness" value="45">
-                    <input type="color" data-action="color" value="#ffffff">
-                </article>
-
-                <article data-light data-light-row data-light-name="Desk lamp" data-reachable="true" data-supports-color="true">
-                    <button type="button" data-action="power" aria-checked="false"></button>
-                    <input type="range" data-action="brightness" value="45">
-                    <input type="color" data-action="color" value="#ffffff">
-                </article>
-            </div>
-        `;
-
-        fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                data: {
-                    preset: {
-                        key: 'night_light',
-                        label: 'Night light',
-                        power: true,
-                        brightness: 1,
-                        color: '#ff8559',
-                        target_name_contains: ['strip'],
-                    },
-                    failed_lights: [],
-                },
-            }),
+            const card = document.querySelector('[data-light]');
+            expect(card.dataset.mode).toBe('white');
+            expect(card.dataset.colorTemp).toBe('100');
+            expect(card.dataset.color).toBe('#ff0000');
+            expect(card.querySelector('[data-light-state]').textContent).toBe('100% · Cool white');
         });
 
-        initLighting();
-        document.querySelector('[data-preset="night_light"]').click();
-        await flushPromises();
+        it('keeps controls usable and runs the latest preset after the running one', async () => {
+            const pending = deferred();
+            document.body.innerHTML = page(tile({ id: '1' }), {
+                presets: preset('cozy', 'data-preset-power="true"') + preset('movie', 'data-preset-power="true"') + preset('night', 'data-preset-power="true"'),
+            });
+            const ok = okResponse({ data: { preset: { power: true }, failed_lights: [] } });
+            fetch.mockReturnValueOnce(pending.promise).mockResolvedValue(ok);
 
-        const [strip, lamp] = document.querySelectorAll('[data-light]');
-        expect(strip.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('true');
-        expect(strip.querySelector('[data-action="brightness"]').value).toBe('1');
-        expect(strip.querySelector('[data-action="color"]').value).toBe('#ff8559');
+            initLighting();
+            document.querySelector('[data-preset="cozy"]').click();
+            document.querySelector('[data-preset="movie"]').click();
+            document.querySelector('[data-preset="night"]').click();
 
-        expect(lamp.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
-        expect(lamp.querySelector('[data-action="brightness"]').value).toBe('45');
-        expect(lamp.querySelector('[data-action="color"]').value).toBe('#ffffff');
-        expect(document.querySelector('[data-preset="night_light"]').dataset.active).toBe('true');
-    });
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(document.querySelector('[data-tile-toggle]').disabled).toBe(false);
 
-    it('keeps controls usable and runs the latest preset after the running one', async () => {
-        const pending = deferred();
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button type="button" data-preset="cozy" data-preset-power="true">Cozy</button>
-                <button type="button" data-preset="movie" data-preset-power="true">Movie</button>
-                <button type="button" data-preset="night" data-preset-power="true">Night</button>
-                <article data-light data-reachable="true" data-supports-color="false">
-                    <button type="button" data-action="power" aria-checked="false"></button>
-                    <input type="range" data-action="brightness" value="10">
-                </article>
-            </div>
-        `;
+            pending.resolve(ok);
+            await flushPromises();
+            await flushPromises();
 
-        const ok = { ok: true, json: async () => ({ data: { preset: { power: true, brightness: null, color: null }, failed_lights: [] } }) };
-        fetch.mockReturnValueOnce(pending.promise).mockResolvedValue(ok);
-
-        initLighting();
-        document.querySelector('[data-preset="cozy"]').click();
-        document.querySelector('[data-preset="movie"]').click();
-        document.querySelector('[data-preset="night"]').click();
-
-        expect(fetch).toHaveBeenCalledTimes(1);
-        expect(fetch.mock.calls[0][0]).toBe('/lighting/presets/cozy');
-        expect(document.querySelector('[data-preset="movie"]').disabled).toBe(false);
-        expect(document.querySelector('[data-action="brightness"]').disabled).toBe(false);
-
-        pending.resolve(ok);
-        await flushPromises();
-        await flushPromises();
-
-        // Movie was superseded by Night while Cozy was running.
-        expect(fetch).toHaveBeenCalledTimes(2);
-        expect(fetch.mock.calls[1][0]).toBe('/lighting/presets/night');
-    });
-
-    it('switches the focused light detail panel from the lamp list', () => {
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <span data-selected-provider>Calex</span>
-                <span data-selected-name>Spot 1</span>
-
-                <article data-light data-light-row data-light-key="tuya::1" data-light-name="Spot 1" data-provider-label="Calex" data-on="true" data-brightness="40" data-color="#ffc26b" data-reachable="true" data-supports-color="true">
-                    <button type="button" data-light-select data-light-key="tuya::1" aria-selected="true"></button>
-                    <button type="button" data-action="power" aria-checked="true"></button>
-                </article>
-                <article data-light data-light-row data-light-key="govee::1" data-light-name="LED Strip" data-provider-label="Govee" data-on="true" data-brightness="72" data-color="#7f96ff" data-reachable="true" data-supports-color="true">
-                    <button type="button" data-light-select data-light-key="govee::1" aria-selected="false"></button>
-                    <button type="button" data-action="power" aria-checked="true"></button>
-                </article>
-
-                <section data-light data-light-panel data-light-key="tuya::1" data-on="true" data-brightness="40" data-color="#ffc26b" data-reachable="true" data-supports-color="true"></section>
-                <section data-light data-light-panel data-light-key="govee::1" data-on="true" data-brightness="72" data-color="#7f96ff" data-reachable="true" data-supports-color="true" hidden></section>
-            </div>
-        `;
-
-        initLighting();
-        document.querySelector('[data-light-key="govee::1"][data-light-select]').click();
-
-        expect(document.querySelector('[data-selected-provider]').textContent).toBe('Govee');
-        expect(document.querySelector('[data-selected-name]').textContent).toBe('LED Strip');
-        expect(document.querySelector('[data-light-row][data-light-key="tuya::1"]').dataset.selected).toBe('false');
-        expect(document.querySelector('[data-light-row][data-light-key="govee::1"]').dataset.selected).toBe('true');
-        expect(document.querySelector('[data-light-panel][data-light-key="tuya::1"]').hidden).toBe(true);
-        expect(document.querySelector('[data-light-panel][data-light-key="govee::1"]').hidden).toBe(false);
-    });
-
-    it('detects active presets and clears them after a custom change', () => {
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button
-                    type="button"
-                    data-preset="cozy"
-                    data-preset-label="Cozy"
-                    data-preset-power="true"
-                    data-preset-brightness="45"
-                    data-preset-color="#ff9f4a"
-                >Cozy</button>
-
-                <article data-light data-light-row data-light-key="tuya::1" data-reachable="true" data-supports-color="true">
-                    <button type="button" data-action="power" aria-checked="true"></button>
-                    <input type="range" data-action="brightness" value="45">
-                    <input type="color" data-action="color" value="#ff9f4a">
-                </article>
-            </div>
-        `;
-
-        fetch.mockResolvedValue({
-            ok: true,
-            json: async () => ({}),
+            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(fetch.mock.calls[1][0]).toBe('/lighting/presets/night');
         });
 
-        initLighting();
+        it('detects the active preset and clears it after a manual change', () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', on: true, brightness: 70, mode: 'white', colorTemp: 0 }),
+                { presets: preset('cozy', 'data-preset-power="true" data-preset-brightness="70" data-preset-color-temp="0"') },
+            );
+            fetch.mockResolvedValue(okResponse());
 
-        expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('true');
+            initLighting();
+            expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('true');
 
-        document.querySelector('[data-action="power"]').click();
-
-        expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('false');
-    });
-
-    it('applies colour-temperature presets as white mode on lamps that support it', async () => {
-        document.body.innerHTML = `
-            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                <button type="button" data-preset="bright" data-preset-label="Bright" data-preset-power="true" data-preset-brightness="100" data-preset-color-temp="100">Bright</button>
-                <article data-light data-light-row data-light-key="tuya::1" data-reachable="true" data-supports-color="true" data-supports-color-temp="true" data-mode="colour" data-color="#ff0000">
-                    <button type="button" data-action="power" aria-checked="false"></button>
-                    <input type="range" data-action="brightness" value="10">
-                    <span data-light-state></span>
-                </article>
-            </div>
-        `;
-
-        fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ data: { preset: { key: 'bright', power: true, brightness: 100, color: null, color_temp: 100 }, failed_lights: [] } }),
+            document.querySelector('[data-tile-toggle]').click();
+            expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('false');
         });
-
-        initLighting();
-        document.querySelector('[data-preset="bright"]').click();
-        await flushPromises();
-
-        const card = document.querySelector('[data-light]');
-        expect(card.dataset.mode).toBe('white');
-        expect(card.dataset.colorTemp).toBe('100');
-        expect(card.dataset.color).toBe('#ff0000');
-        expect(card.querySelector('[data-light-state]').textContent).toBe('100% · white');
-        expect(document.querySelector('[data-preset="bright"]').dataset.active).toBe('true');
     });
 
     describe('per-light command pipeline', () => {
-        const lampMarkup = (key, url, extra = '') => `
-            <article data-light data-light-row data-light-key="${key}" data-light-name="${key}" data-provider-label="Calex" data-url="${url}" data-reachable="true" data-supports-color="true" data-on="true" data-brightness="10" ${extra}>
-                <button type="button" data-action="power" aria-checked="true"></button>
-                <input type="range" data-action="brightness" value="10">
-            </article>
-        `;
-
-        const slide = (input, value) => {
-            input.value = String(value);
-            input.dispatchEvent(new Event('input'));
-        };
-
-        const okResponse = () => ({ ok: true, status: 200, json: async () => ({}) });
-
         afterEach(() => {
             delete document.visibilityState;
         });
@@ -333,13 +430,7 @@ describe('lighting controls', () => {
         it('coalesces slider moves while a command is in flight (latest wins)', async () => {
             jest.useFakeTimers();
             const first = deferred();
-            document.body.innerHTML = `
-                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                    <div data-lighting-toast hidden></div>
-                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
-                    ${lampMarkup('tuya::2', '/lighting/lights/tuya/2')}
-                </div>
-            `;
+            document.body.innerHTML = page(tile({ id: '1' }) + tile({ id: '2' }));
             fetch.mockReturnValueOnce(first.promise).mockResolvedValue(okResponse());
 
             initLighting();
@@ -358,7 +449,7 @@ describe('lighting controls', () => {
             expect(slider.disabled).toBe(false);
 
             // Another lamp is not blocked by the pending one.
-            other.querySelector('[data-action="power"]').click();
+            other.querySelector('[data-tile-toggle]').click();
             expect(fetch).toHaveBeenCalledTimes(2);
             expect(fetch.mock.calls[1][0]).toBe('/lighting/lights/tuya/2');
 
@@ -368,53 +459,40 @@ describe('lighting controls', () => {
 
             const lampCalls = fetch.mock.calls.filter(([url]) => url === '/lighting/lights/tuya/1');
             expect(lampCalls).toHaveLength(2);
-            expect(JSON.parse(lampCalls[0][1].body)).toEqual({ power: true, brightness: 20 });
-            expect(JSON.parse(lampCalls[1][1].body)).toEqual({ power: true, brightness: 40 });
+            expect(bodyOf(lampCalls[0])).toEqual({ power: true, brightness: 20 });
+            expect(bodyOf(lampCalls[1])).toEqual({ power: true, brightness: 40 });
             expect(lamp.dataset.pending).toBeUndefined();
         });
 
         it('rolls back to the last confirmed state and flags the lamp on failure', async () => {
-            document.body.innerHTML = `
-                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                    <div data-lighting-toast hidden></div>
-                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
-                </div>
-            `;
+            document.body.innerHTML = page(tile({ id: '1', name: 'Spot 1', on: true }));
             fetch.mockResolvedValueOnce({ ok: false, status: 502, json: async () => ({}) });
 
             initLighting();
             const lamp = document.querySelector('[data-light]');
-            const power = lamp.querySelector('[data-action="power"]');
-
-            power.click();
-            expect(power.getAttribute('aria-checked')).toBe('false');
+            lamp.querySelector('[data-tile-toggle]').click();
+            expect(lamp.dataset.on).toBe('false');
 
             await flushPromises();
             await flushPromises();
 
-            expect(power.getAttribute('aria-checked')).toBe('true');
             expect(lamp.dataset.on).toBe('true');
-            expect(lamp.classList.contains('ring-[var(--hub-danger)]')).toBe(true);
+            expect(lamp.dataset.failed).toBe('true');
             const toast = document.querySelector('[data-lighting-toast]');
             expect(toast.hidden).toBe(false);
-            expect(toast.textContent).toBe("Couldn't reach Calex");
+            expect(toast.textContent).toBe("Couldn't reach Calex — Spot 1 was set back to its last known state.");
             expect(lamp.dataset.pending).toBeUndefined();
         });
 
         it('retries a 409 busy response once after 500 ms', async () => {
             jest.useFakeTimers();
-            document.body.innerHTML = `
-                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
-                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
-                </div>
-            `;
+            document.body.innerHTML = page(tile({ id: '1', on: true }));
             fetch
                 .mockResolvedValueOnce({ ok: false, status: 409, json: async () => ({}) })
                 .mockResolvedValueOnce(okResponse());
 
             initLighting();
-            const power = document.querySelector('[data-action="power"]');
-            power.click();
+            document.querySelector('[data-tile-toggle]').click();
             await flushPromises();
 
             expect(fetch).toHaveBeenCalledTimes(1);
@@ -423,43 +501,35 @@ describe('lighting controls', () => {
             await flushPromises();
 
             expect(fetch).toHaveBeenCalledTimes(2);
-            expect(power.getAttribute('aria-checked')).toBe('false');
-            expect(document.querySelector('[data-light]').classList.contains('ring-[var(--hub-danger)]')).toBe(false);
+            const lamp = document.querySelector('[data-light]');
+            expect(lamp.dataset.on).toBe('false');
+            expect(lamp.dataset.failed).toBeUndefined();
         });
 
         it('polls state only while visible and skips lamps with a pending command', async () => {
             jest.useFakeTimers();
             let visibility = 'hidden';
             Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => visibility });
-
-            document.body.innerHTML = `
-                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__" data-state-url="/lighting/state" data-poll-seconds="120">
-                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
-                    ${lampMarkup('tuya::2', '/lighting/lights/tuya/2')}
-                </div>
-            `;
+            document.body.innerHTML = page(tile({ id: '1', on: true }) + tile({ id: '2', on: true }), {
+                attrs: 'data-state-url="/lighting/state" data-poll-seconds="120"',
+            });
 
             initLighting();
             jest.advanceTimersByTime(120000);
             expect(fetch).not.toHaveBeenCalled();
 
-            // Lamp 1 gets a command that stays in flight.
             const pendingCommand = deferred();
             fetch.mockReturnValueOnce(pendingCommand.promise);
-            document.querySelectorAll('[data-light]')[0].querySelector('[data-action="power"]').click();
+            document.querySelector('[data-tile-toggle]').click();
             expect(fetch).toHaveBeenCalledTimes(1);
 
-            fetch.mockResolvedValueOnce({
-                ok: true,
-                status: 200,
-                json: async () => ({
-                    data: [
-                        { provider: 'tuya', id: '1', on: true, brightness: 90, color: null, reachable: true, mode: 'white', color_temp: 50 },
-                        { provider: 'tuya', id: '2', on: false, brightness: 55, color: null, reachable: true, mode: 'white', color_temp: 0 },
-                    ],
-                    unreachable_providers: [],
-                }),
-            });
+            fetch.mockResolvedValueOnce(okResponse({
+                data: [
+                    { provider: 'tuya', id: '1', on: true, brightness: 90, color: null, reachable: true, mode: 'white', color_temp: 50 },
+                    { provider: 'tuya', id: '2', on: false, brightness: 55, color: null, reachable: false, mode: 'white', color_temp: 0 },
+                ],
+                unreachable_providers: [],
+            }));
 
             jest.setSystemTime(Date.now() + 1000);
             visibility = 'visible';
@@ -472,22 +542,20 @@ describe('lighting controls', () => {
             expect(fetch.mock.calls[1][1].method).toBe('GET');
 
             const [pendingLamp, idleLamp] = document.querySelectorAll('[data-light]');
-            expect(pendingLamp.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
-            expect(pendingLamp.querySelector('[data-action="brightness"]').value).toBe('10');
-            expect(idleLamp.querySelector('[data-action="power"]').getAttribute('aria-checked')).toBe('false');
-            expect(idleLamp.querySelector('[data-action="brightness"]').value).toBe('55');
+            expect(pendingLamp.dataset.on).toBe('false');
+            expect(pendingLamp.dataset.brightness).toBe('10');
+            expect(idleLamp.dataset.on).toBe('false');
+            expect(idleLamp.dataset.brightness).toBe('55');
             expect(idleLamp.dataset.colorTemp).toBe('0');
+            expect(idleLamp.dataset.reachable).toBe('false');
+            expect(idleLamp.querySelector('[data-light-state]').textContent).toBe('Offline');
         });
 
-        it('refreshes once when the page becomes visible again', async () => {
+        it('refreshes once when the page becomes visible again', () => {
             let visibility = 'hidden';
             Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => visibility });
-            document.body.innerHTML = `
-                <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__" data-state-url="/lighting/state" data-poll-seconds="120">
-                    ${lampMarkup('tuya::1', '/lighting/lights/tuya/1')}
-                </div>
-            `;
-            fetch.mockResolvedValue({ ok: true, status: 200, json: async () => ({ data: [], unreachable_providers: [] }) });
+            document.body.innerHTML = page(tile({ id: '1' }), { attrs: 'data-state-url="/lighting/state" data-poll-seconds="120"' });
+            fetch.mockResolvedValue(okResponse({ data: [], unreachable_providers: [] }));
 
             initLighting();
             visibility = 'visible';

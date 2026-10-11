@@ -52,13 +52,17 @@ The active task UI is the local Kanban board in `Modules/Tasks`. Keep task styli
 
 ## Lighting
 
-The Lighting screen uses a module-local console stylesheet at `Modules/Lighting/resources/assets/css/lighting.css`.
+The Lighting kiosk uses a module-local stylesheet at `Modules/Lighting/resources/assets/css/lighting.css`. Surfaces, text, lines and the accent come from the `--hub-*` tokens; only lamp colours and a few danger/neutral tints are local. Headings use Space Grotesk (`--lighting-display`), loaded like the other kiosk modules.
 
-- Use the `lighting-console*` classes for the Variant B master-detail layout, lamp rail, scene buttons, stage glow, switches and colour ring.
-- Active preset display uses `lighting-console__scene[data-active="true"]` and `lighting-console__scene-active`.
-- A lamp with a command in flight carries `data-pending="true"` on its row and stage: only the swatch / percentage pulses (a static dim under `html.low-power`); controls are never disabled for it. Failed commands use the `ring-[var(--hub-danger)]` danger ring plus the `lighting-console__toast` status message.
-- Runtime lamp values may be injected as inline CSS variables such as `--light-color` and `--light-brightness`.
-- Keep provider/action behavior in `Modules/Lighting/resources/assets/js/lighting.js`; CSS should only describe presentation and responsive structure.
+- `lighting`, `lighting__header`, `lighting-button` (`--ghost`, `--toggle`, `--primary`, `--danger`, `--wide`) and `lighting-icon-button` form the page chrome. Buttons and touch targets are 48–56 px high.
+- **Hidden-scrollbar strip:** `lighting-strip` clips a taller `lighting-strip__scroller` (extra bottom padding pushes any overlay scrollbar out of view, `scrollbar-width: none` plus `::-webkit-scrollbar { display: none }`) and fades its right edge with a `mask-image` gradient. Scene buttons are `lighting-scene`; the dot colour is the runtime variable `--scene-dot`, the active state is `aria-pressed="true"`.
+- **Tile:** `lighting-tile` inside `lighting-grid`. `lighting.js` sets `--tile-rgb` (`"r g b"`), `--tile-alpha` and `--tile-flat-alpha` from the lamp colour/white temperature and brightness; CSS turns them into the radial glow (`data-on="true"`) or, under `html.low-power`, a flat fill. State variants are data attributes: `data-on`, `data-reachable`, `data-pending`, `data-failed`, `data-selected`, and `.lighting[data-mode="select"]` for select mode. Every tile renders all of its parts (⋯, check, pending pill, bar, offline badge); CSS shows the right ones per state, so a lamp that changes reachability on a poll repaints without new markup.
+- **Slider primitive:** `lighting-slider` (`--big` for the sheet) is a visual track/fill/thumb over a transparent native `range` input, so touch, keyboard and screen readers keep native behaviour. JS sets `--slider-pct`, and where needed `--slider-fill`, `--slider-ring` and `--slider-track`. The tile's brightness bar dims (`opacity: 0.4`) while the lamp is off.
+- **Gradient slider:** `lighting-slider--gradient` with `lighting-slider__track--temp` (warm `rgb(255 168 82)` → neutral → cool `rgb(214 228 255)`) for colour temperature; the saturation slider gets its hue gradient through `--slider-track`.
+- **Bottom sheet:** `lighting-overlay` (scrim button + panel) holds `lighting-sheet`: 548 px high with 28 px top radius on the kiosk, nearly full height on a phone (where the body stacks and scrolls). Inside: `lighting-switch`, `lighting-segmented`, `lighting-chip`, the conic `lighting-ring` (handle position via `--handle-x/--handle-y`, preview colour via `--preview-rgb`) and the white `lighting-disc`.
+- `lighting-selbar` (floating selection bar), `lighting-toast` (error toast with dismiss) and `lighting-empty` (empty states) complete the set.
+- Pending is a `Sending…` pill plus a dashed border; its dot pulses except under `html.low-power`. Failures use `data-failed="true"` (red ring) and the toast.
+- Keep provider/action behaviour in `Modules/Lighting/resources/assets/js/lighting.js`; CSS only describes presentation and responsive structure.
 
 ## Weather
 

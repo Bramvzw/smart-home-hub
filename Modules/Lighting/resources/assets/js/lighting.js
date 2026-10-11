@@ -1,4 +1,6 @@
-// Lighting module: wire the controls to the JSON endpoints.
+// Lighting module: kiosk tile grid, control sheet and scene strip, wired to
+// the JSON endpoints. Lamp state lives in each tile's data-* attributes; the
+// tile, the sheet and the header are repainted from it.
 export const csrf = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
 
 const request = (url, method, payload = null) => fetch(url, {
@@ -17,10 +19,6 @@ const readJson = async (response) => {
     } catch {
         return {};
     }
-};
-
-const markDanger = (element, failed) => {
-    element.classList.toggle('ring-[var(--hub-danger)]', failed);
 };
 
 const wait = (ms) => new Promise((resolve) => {
@@ -46,11 +44,142 @@ const requestWithRetry = async (url, method, payload = null) => {
     return response;
 };
 
+const nullableNumber = (value) => (value === undefined || value === null || value === '' ? null : Number(value));
+
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+const debounce = (fn, ms) => {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), ms);
+    };
+};
+
+// --- Colour helpers -------------------------------------------------------
+
+// HSL (0-360, 0-100, 0-100) -> [r, g, b]. Used for on-screen colours.
+const hslRgb = (h, s, l) => {
+    s /= 100;
+    l /= 100;
+    const k = (n) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n) => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))));
+
+    return [f(0), f(8), f(4)];
+};
+
+// HSV (0-360, 0-100, 0-100) -> #rrggbb. The colour sent to the lamps: with
+// v = 100 the saturation maps 1:1 onto Tuya's colour_data_v2 `s`, and the
+// providers report colours back the same way.
+const hsvToHex = (h, s, v = 100) => {
+    const sf = s / 100;
+    const vf = v / 100;
+    const f = (n) => {
+        const k = (n + h / 60) % 6;
+        const value = vf - vf * sf * Math.max(0, Math.min(k, 4 - k, 1));
+        return Math.round(value * 255).toString(16).padStart(2, '0');
+    };
+
+    return `#${f(5)}${f(3)}${f(1)}`;
+};
+
+// #rrggbb -> { h: 0-360, s: 0-100, v: 0-100 }.
+const hexToHsv = (hex) => {
+    const value = String(hex ?? '').replace('#', '');
+    if (value.length < 6) {
+        return { h: 30, s: 80, v: 100 };
+    }
+
+    const r = parseInt(value.slice(0, 2), 16) / 255;
+    const g = parseInt(value.slice(2, 4), 16) / 255;
+    const b = parseInt(value.slice(4, 6), 16) / 255;
+    const max = Math.max(r, g, b);
+    const delta = max - Math.min(r, g, b);
+
+    let hue = 0;
+    if (delta !== 0) {
+        if (max === r) {
+            hue = ((g - b) / delta) % 6;
+        } else if (max === g) {
+            hue = (b - r) / delta + 2;
+        } else {
+            hue = (r - g) / delta + 4;
+        }
+    }
+
+    return {
+        h: (Math.round(hue * 60) + 360) % 360,
+        s: max === 0 ? 0 : Math.round((delta / max) * 100),
+        v: Math.round(max * 100),
+    };
+};
+
+// Colour temperature (0 warm - 100 cool) -> [r, g, b] for the on-screen glow.
+const tempRgb = (t) => {
+    const warm = [255, 168, 82];
+    const mid = [255, 236, 210];
+    const cool = [214, 228, 255];
+    const lerp = (a, b, x) => a.map((v, i) => Math.round(v + (b[i] - v) * x));
+
+    return t <= 50 ? lerp(warm, mid, t / 50) : lerp(mid, cool, (t - 50) / 50);
+};
+
+const rgbCss = (rgb, alpha = null) => (alpha === null ? `rgb(${rgb.join(' ')})` : `rgb(${rgb.join(' ')} / ${alpha})`);
+
+const tempName = (t) => {
+    if (t === null || t === undefined) {
+        return 'White';
+    }
+
+    return t < 34 ? 'Warm white' : (t < 67 ? 'Neutral white' : 'Cool white');
+};
+
+const kelvin = (t) => `${(Math.round((2700 + t * 38) / 100) * 100).toLocaleString('en-US')} K`;
+
+// --- Lamp state -----------------------------------------------------------
+
+const lightStateFromCard = (card) => ({
+    power: card.dataset.on === 'true',
+    brightness: Number(card.dataset.brightness ?? 0),
+    color: card.dataset.color || null,
+    reachable: card.dataset.reachable === 'true',
+    supportsColor: card.dataset.supportsColor === 'true',
+    mode: card.dataset.mode === 'colour' ? 'colour' : 'white',
+    colorTemp: nullableNumber(card.dataset.colorTemp),
+    supportsColorTemp: card.dataset.supportsColorTemp === 'true',
+});
+
+// What the lamp looks like: white temperature, or the hue/saturation of its colour.
+const displayRgb = (state) => {
+    if (state.mode === 'colour' && state.color) {
+        const { h, s } = hexToHsv(state.color);
+        return hslRgb(h, s, 62);
+    }
+
+    return tempRgb(state.colorTemp ?? 30);
+};
+
+const stateLabel = (state) => {
+    if (! state.reachable) {
+        return 'Offline';
+    }
+
+    if (! state.power) {
+        return 'Off';
+    }
+
+    return `${state.brightness}% · ${state.mode === 'colour' ? 'Colour' : tempName(state.colorTemp)}`;
+};
+
+const lightKey = (card) => card.dataset.lightKey;
+
 const cardsForKey = (root, key) => [...root.querySelectorAll('[data-light]')]
     .filter((card) => card.dataset.lightKey === key);
 
-// The row and the detail panel of one lamp share a key; act on both.
-const cardsForLight = (root, card) => (card.dataset.lightKey ? cardsForKey(root, card.dataset.lightKey) : [card]);
+const allCards = (root) => [...root.querySelectorAll('[data-light]')];
+
+const rootOf = (card) => card.closest('[data-lighting]');
 
 let toastTimer = null;
 
@@ -60,179 +189,132 @@ const showToast = (root, message) => {
         return;
     }
 
-    toast.textContent = message;
+    const text = toast.querySelector('[data-lighting-toast-text]') ?? toast;
+    text.textContent = message;
     toast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
         toast.hidden = true;
-    }, 3500);
+    }, 6000);
 };
 
-const lightStateFromCard = (card) => ({
-    power: (card.querySelector('[data-action="power"]')?.getAttribute('aria-checked') ?? card.dataset.on) === 'true',
-    brightness: Number(card.querySelector('[data-action="brightness"]')?.value ?? card.dataset.brightness ?? 0),
-    color: card.querySelector('[data-action="color"]')?.value ?? card.dataset.color ?? '#ffc26b',
-    reachable: card.dataset.reachable === 'true',
-    supportsColor: card.dataset.supportsColor === 'true',
-    mode: card.dataset.mode === 'colour' ? 'colour' : 'white',
-    colorTemp: nullableNumber(card.dataset.colorTemp),
-    supportsColorTemp: card.dataset.supportsColorTemp === 'true',
-});
-
-const stateLabel = (state) => {
-    if (! state.reachable) {
-        return 'unreachable';
+const setFailed = (element, failed) => {
+    if (failed) {
+        element.dataset.failed = 'true';
+    } else {
+        delete element.dataset.failed;
     }
-
-    if (! state.power) {
-        return 'off';
-    }
-
-    return `${state.brightness}% · ${state.mode === 'colour' ? 'color' : 'white'}`;
 };
+
+// Paint a slider primitive (custom track/fill/thumb over a native range).
+const paintSlider = (slider, value, { fill = null, ring = null, track = null } = {}) => {
+    if (! slider) {
+        return;
+    }
+
+    const input = slider.querySelector('input[type="range"]');
+    const min = Number(input?.min ?? 0);
+    const max = Number(input?.max ?? 100);
+    if (input && document.activeElement !== input) {
+        input.value = String(value);
+    }
+
+    const pct = max === min ? 0 : clamp(((value - min) / (max - min)) * 100, 0, 100);
+    slider.style.setProperty('--slider-pct', String(pct));
+    if (fill) {
+        slider.style.setProperty('--slider-fill', fill);
+    }
+    if (ring) {
+        slider.style.setProperty('--slider-ring', ring);
+    }
+    if (track) {
+        slider.style.setProperty('--slider-track', track);
+    }
+};
+
+const isSelecting = (root) => root?.dataset.mode === 'select';
+
+const selection = new Set();
 
 const updateCardVisual = (card) => {
+    const root = rootOf(card);
     const state = lightStateFromCard(card);
+    const rgb = displayRgb(state);
+    const label = stateLabel(state);
+    const selected = selection.has(lightKey(card));
 
-    card.dataset.on = String(state.power);
-    card.dataset.brightness = String(state.brightness);
-    card.dataset.color = state.color;
-    card.style.setProperty('--light-color', state.color);
-    card.style.setProperty('--light-brightness', `${state.brightness}%`);
-
-    // Move the colour-wheel handle to the current hue (rim position, 0deg = up).
-    if (state.supportsColor) {
-        const handle = card.querySelector('[data-color-handle]');
-        if (handle) {
-            const rad = (hexToHue(state.color) * Math.PI) / 180;
-            // ~45% from centre places the handle on the coloured hue rim.
-            handle.style.setProperty('--handle-x', `${50 + Math.sin(rad) * 45}%`);
-            handle.style.setProperty('--handle-y', `${50 - Math.cos(rad) * 45}%`);
-        }
-    }
+    card.style.setProperty('--tile-rgb', rgb.join(' '));
+    card.style.setProperty('--tile-alpha', String(0.2 + (0.42 * state.brightness) / 100));
+    card.style.setProperty('--tile-flat-alpha', String(0.1 + (0.22 * state.brightness) / 100));
+    card.dataset.selected = String(isSelecting(root) && selected);
 
     card.querySelectorAll('[data-light-state]').forEach((element) => {
-        element.textContent = stateLabel(state);
+        element.textContent = label;
     });
-    card.querySelectorAll('[data-light-percent]').forEach((element) => {
-        element.textContent = state.power ? `${state.brightness}%` : 'off';
-    });
-    card.querySelectorAll('[data-light-brightness-value]').forEach((element) => {
-        element.textContent = `${state.brightness}%`;
-    });
+
+    const toggle = card.querySelector('[data-tile-toggle]');
+    if (toggle) {
+        toggle.disabled = ! state.reachable;
+        toggle.setAttribute('aria-pressed', String(isSelecting(root) ? selected : state.power));
+        const name = card.dataset.lightName ?? '';
+        toggle.setAttribute('aria-label', `${name}, ${label}${isSelecting(root) ? (selected ? ', selected' : ', not selected') : ''}`);
+    }
+
+    const bar = card.querySelector('[data-action="brightness"]')?.closest('[data-slider]');
+    paintSlider(bar, Math.max(1, state.brightness));
 };
 
 const updateSummary = (root) => {
-    const rows = [...root.querySelectorAll('[data-light-row]')];
-    if (rows.length === 0) {
+    const cards = allCards(root);
+    if (cards.length === 0 || isSelecting(root)) {
         return;
     }
 
-    const onCount = rows.filter((row) => row.dataset.on === 'true').length;
+    const onCount = cards.filter((card) => card.dataset.reachable === 'true' && card.dataset.on === 'true').length;
     root.querySelectorAll('[data-lighting-summary]').forEach((element) => {
-        element.textContent = `${onCount} of ${rows.length} on`;
+        element.textContent = `${onCount} of ${cards.length} on`;
     });
-
-    const master = root.querySelector('[data-master-toggle]');
-    if (! master) {
-        return;
-    }
-
-    const nextPreset = onCount > 0 ? 'off' : 'bright';
-    const source = root.querySelector(`[data-preset="${nextPreset}"]:not([data-master-toggle])`);
-
-    master.setAttribute('aria-checked', String(onCount > 0));
-    master.querySelector('.lighting-console__switch')?.setAttribute('aria-checked', String(onCount > 0));
-
-    if (source) {
-        master.dataset.preset = source.dataset.preset;
-        master.dataset.presetPower = source.dataset.presetPower;
-        master.dataset.presetBrightness = source.dataset.presetBrightness ?? '';
-        master.dataset.presetColor = source.dataset.presetColor ?? '';
-        master.dataset.presetColorTemp = source.dataset.presetColorTemp ?? '';
-        master.dataset.presetTargetNameContains = source.dataset.presetTargetNameContains ?? '';
-    }
 };
 
+// Write a state patch onto a lamp's tile(s) and repaint everything that shows it.
 const syncLight = (root, sourceCard, patch = {}) => {
-    const key = sourceCard.dataset.lightKey;
-    const source = { ...lightStateFromCard(sourceCard), ...patch };
+    const key = lightKey(sourceCard);
+    const targets = key ? cardsForKey(root, key) : [sourceCard];
 
-    if (! key) {
-        updateCardVisual(sourceCard);
-        updateSummary(root);
-        return;
-    }
-
-    cardsForKey(root, key).forEach((card) => {
-        card.querySelectorAll('[data-action="power"]').forEach((power) => {
-            power.setAttribute('aria-checked', String(source.power));
-        });
-        card.querySelectorAll('[data-action="brightness"]').forEach((brightness) => {
-            if (source.brightness !== null && source.brightness !== undefined) {
-                brightness.value = String(source.brightness);
-            }
-        });
-        card.querySelectorAll('[data-action="color"]').forEach((color) => {
-            if (source.color) {
-                color.value = source.color;
-            }
-        });
-
-        // Cards without those inputs (e.g. the sidebar row has no colour wheel or
-        // brightness slider) read their state from data-* attributes. Keep those
-        // in sync too, otherwise their preview only catches up after a reload.
-        card.dataset.on = String(source.power);
-        if (source.brightness !== null && source.brightness !== undefined) {
-            card.dataset.brightness = String(source.brightness);
+    targets.forEach((card) => {
+        if ('power' in patch && patch.power !== undefined) {
+            card.dataset.on = String(Boolean(patch.power));
         }
-        if (source.color) {
-            card.dataset.color = source.color;
+        if (patch.brightness !== null && patch.brightness !== undefined) {
+            card.dataset.brightness = String(patch.brightness);
         }
-        if (source.mode) {
-            card.dataset.mode = source.mode;
+        if (patch.color) {
+            card.dataset.color = patch.color;
         }
-        if (source.colorTemp !== null && source.colorTemp !== undefined) {
-            card.dataset.colorTemp = String(source.colorTemp);
+        if (patch.mode) {
+            card.dataset.mode = patch.mode;
+        }
+        if (patch.colorTemp !== null && patch.colorTemp !== undefined) {
+            card.dataset.colorTemp = String(patch.colorTemp);
         }
 
         updateCardVisual(card);
     });
 
     updateSummary(root);
+    renderSheet(root);
 };
 
-const selectLight = (root, key) => {
-    const selectedRow = [...root.querySelectorAll('[data-light-row]')]
-        .find((row) => row.dataset.lightKey === key);
+// --- Per-light command queues --------------------------------------------
 
-    root.querySelectorAll('[data-light-row]').forEach((row) => {
-        const selected = row.dataset.lightKey === key;
-        row.dataset.selected = String(selected);
-        row.querySelector('[data-light-select]')?.setAttribute('aria-selected', String(selected));
-    });
-
-    root.querySelectorAll('[data-light-panel]').forEach((panel) => {
-        panel.hidden = panel.dataset.lightKey !== key;
-    });
-
-    if (selectedRow) {
-        root.querySelectorAll('[data-selected-provider]').forEach((element) => {
-            element.textContent = selectedRow.dataset.providerLabel ?? '';
-        });
-        root.querySelectorAll('[data-selected-name]').forEach((element) => {
-            element.textContent = selectedRow.dataset.lightName ?? '';
-        });
-    }
-};
-
-// Per-light command queues, keyed by control URL. Each lamp has at most one
-// request in flight; changes made meanwhile coalesce into one queued payload
-// (latest value per field wins). `confirmed` is the last state the server
-// accepted, used to roll back on failure.
+// Keyed by control URL. Each lamp has at most one request in flight; changes
+// made meanwhile coalesce into one queued payload (latest value per field
+// wins). `confirmed` is the last state the server accepted (rollback target).
 const lightQueues = new Map();
 
 const presetQueue = { inFlight: false, next: null };
+
+const groupQueue = { inFlight: false, next: null, cards: [] };
 
 const queueFor = (url) => {
     if (! lightQueues.has(url)) {
@@ -275,8 +357,22 @@ const confirmedPatch = (payload) => {
     return patch;
 };
 
+// Merge a newer payload onto a queued one. Colour and colour temperature are
+// different LED channels: the newer of the two wins.
+const mergePayload = (queued, payload) => {
+    const merged = { ...(queued ?? {}) };
+    if ('color' in payload) {
+        delete merged.color_temp;
+    }
+    if ('color_temp' in payload) {
+        delete merged.color;
+    }
+
+    return { ...merged, ...payload };
+};
+
 const setPending = (root, card, pending) => {
-    cardsForLight(root, card).forEach((element) => {
+    cardsForKey(root, lightKey(card) ?? '').concat(lightKey(card) ? [] : [card]).forEach((element) => {
         if (pending) {
             element.dataset.pending = 'true';
         } else {
@@ -285,9 +381,18 @@ const setPending = (root, card, pending) => {
     });
 };
 
+const failureMessage = (card) => {
+    const provider = card.dataset.providerLabel || 'the light';
+    const name = card.dataset.lightName;
+
+    return name
+        ? `Couldn't reach ${provider} — ${name} was set back to its last known state.`
+        : `Couldn't reach ${provider}.`;
+};
+
 const send = async (card, payload) => {
     const url = card.dataset.url;
-    const root = card.closest('[data-lighting]');
+    const root = rootOf(card);
     if (! url || ! root) {
         return;
     }
@@ -297,15 +402,7 @@ const send = async (card, payload) => {
     queue.confirmed ??= confirmedStateFromCard(card);
 
     if (queue.inFlight) {
-        const queued = { ...(queue.next ?? {}) };
-        // Colour and colour temperature are mutually exclusive: the newer wins.
-        if ('color' in payload) {
-            delete queued.color_temp;
-        }
-        if ('color_temp' in payload) {
-            delete queued.color;
-        }
-        queue.next = { ...queued, ...payload };
+        queue.next = mergePayload(queue.next, payload);
         return;
     }
 
@@ -323,13 +420,13 @@ const send = async (card, payload) => {
                 queue.next = null;
                 syncLight(root, card, queue.confirmed);
                 updateActivePreset(root);
-                cardsForLight(root, card).forEach((element) => markDanger(element, true));
-                showToast(root, `Couldn't reach ${card.dataset.providerLabel || card.dataset.lightName || 'the light'}`);
+                setFailed(card, true);
+                showToast(root, failureMessage(card));
                 return;
             }
 
             queue.confirmed = { ...queue.confirmed, ...confirmedPatch(current) };
-            cardsForLight(root, card).forEach((element) => markDanger(element, false));
+            setFailed(card, false);
 
             current = queue.next;
             queue.next = null;
@@ -341,85 +438,88 @@ const send = async (card, payload) => {
     }
 };
 
-const debounce = (fn, wait) => {
-    let timer;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), wait);
-    };
-};
-
-// HSL -> #rrggbb. Used to turn a hue picked off the colour wheel into a hex.
-const hslToHex = (h, s, l) => {
-    s /= 100;
-    l /= 100;
-    const k = (n) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const channel = (n) => {
-        const value = l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
-        return Math.round(255 * value).toString(16).padStart(2, '0');
-    };
-
-    return `#${channel(0)}${channel(8)}${channel(4)}`;
-};
-
-// #rrggbb -> hue in degrees (0 for greys). Used to place the wheel handle.
-const hexToHue = (hex) => {
-    const value = String(hex).replace('#', '');
-    if (value.length < 6) {
-        return 0;
+// One change set for several lamps (multi-select): PUT /lighting/lights.
+// Latest wins like the per-light queue; a lamp named in `failed` rolls back.
+const sendGroup = async (root, cards, payload) => {
+    const url = root.dataset.groupUrl;
+    if (! url || cards.length === 0) {
+        return;
     }
 
-    const r = parseInt(value.slice(0, 2), 16) / 255;
-    const g = parseInt(value.slice(2, 4), 16) / 255;
-    const b = parseInt(value.slice(4, 6), 16) / 255;
-    const max = Math.max(r, g, b);
-    const delta = max - Math.min(r, g, b);
-    if (delta === 0) {
-        return 0;
+    cards.forEach((card) => {
+        const queue = queueFor(card.dataset.url ?? lightKey(card));
+        queue.touchedAt = Date.now();
+        queue.confirmed ??= confirmedStateFromCard(card);
+    });
+
+    if (groupQueue.inFlight) {
+        groupQueue.next = mergePayload(groupQueue.next, payload);
+        groupQueue.cards = cards;
+        return;
     }
 
-    let hue;
-    if (max === r) {
-        hue = ((g - b) / delta) % 6;
-    } else if (max === g) {
-        hue = (b - r) / delta + 2;
-    } else {
-        hue = (r - g) / delta + 4;
-    }
+    groupQueue.inFlight = true;
+    let current = payload;
+    let targets = cards;
 
-    return (Math.round(hue * 60) + 360) % 360;
+    try {
+        while (current) {
+            targets.forEach((card) => setPending(root, card, true));
+            const response = await requestWithRetry(url, 'PUT', {
+                lights: targets.map((card) => ({ provider: card.dataset.provider, id: card.dataset.lightId })),
+                changes: current,
+            });
+            const body = response ? await readJson(response) : {};
+            const failedNames = response?.ok && Array.isArray(body.data?.failed) ? body.data.failed : null;
+            const failedCards = failedNames === null
+                ? targets
+                : targets.filter((card) => failedNames.includes(card.dataset.lightName));
+
+            targets.forEach((card) => {
+                const queue = queueFor(card.dataset.url ?? lightKey(card));
+                if (failedCards.includes(card)) {
+                    syncLight(root, card, queue.confirmed);
+                    setFailed(card, true);
+                } else {
+                    queue.confirmed = { ...queue.confirmed, ...confirmedPatch(current) };
+                    setFailed(card, false);
+                }
+                setPending(root, card, false);
+            });
+
+            if (failedCards.length > 0) {
+                groupQueue.next = null;
+                updateActivePreset(root);
+                showToast(root, `Couldn't reach ${failedCards.map((card) => card.dataset.lightName).join(', ')} — set back to the last known state.`);
+                return;
+            }
+
+            current = groupQueue.next;
+            targets = groupQueue.cards.length ? groupQueue.cards : targets;
+            groupQueue.next = null;
+        }
+    } finally {
+        groupQueue.inFlight = false;
+        groupQueue.cards = [];
+        targets.forEach((card) => {
+            setPending(root, card, false);
+            queueFor(card.dataset.url ?? lightKey(card)).touchedAt = Date.now();
+        });
+    }
 };
 
-const nullableNumber = (value) => (value === undefined || value === null || value === '' ? null : Number(value));
+// --- Presets (built-in, config-driven) -----------------------------------
 
 const listFromValue = (value) => {
     if (Array.isArray(value)) {
         return value.map((entry) => String(entry).trim().toLowerCase()).filter(Boolean);
     }
 
-    if (typeof value !== 'string') {
+    if (typeof value !== 'string' || value.trim() === '') {
         return [];
     }
 
-    const trimmed = value.trim();
-    if (trimmed === '') {
-        return [];
-    }
-
-    if (trimmed.startsWith('[')) {
-        try {
-            const decoded = JSON.parse(trimmed);
-
-            if (Array.isArray(decoded)) {
-                return listFromValue(decoded);
-            }
-        } catch {
-            return [];
-        }
-    }
-
-    return trimmed.split(',').map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+    return value.split(',').map((entry) => entry.trim().toLowerCase()).filter(Boolean);
 };
 
 const normaliseColor = (value) => {
@@ -463,15 +563,7 @@ const presetTargetsCard = (card, preset) => {
 };
 
 const presetMatchesCard = (card, preset) => {
-    if (! presetTargetsCard(card, preset)) {
-        return true;
-    }
-
     const state = lightStateFromCard(card);
-
-    if (! state.reachable) {
-        return true;
-    }
 
     if (! preset.power) {
         return ! state.power;
@@ -496,43 +588,37 @@ const presetMatchesCard = (card, preset) => {
     return true;
 };
 
-const detectActivePreset = (root) => {
-    const reachableLights = [...root.querySelectorAll('[data-light-row]')]
-        .filter((card) => card.dataset.reachable === 'true');
+const presetButtons = (root) => [...root.querySelectorAll('[data-preset]')];
 
-    if (reachableLights.length === 0) {
-        return null;
-    }
+// Every activatable scene button with a matcher: built-in presets first.
+const sceneEntries = (root) => presetButtons(root).map((button) => {
+    const preset = presetFromButton(button);
+    const reachable = allCards(root).filter((card) => card.dataset.reachable === 'true');
 
-    return [...root.querySelectorAll('[data-preset]:not([data-master-toggle])')]
-        .map((button) => ({ button, preset: presetFromButton(button) }))
-        .find(({ preset }) => {
-            const targetedLights = reachableLights.filter((card) => presetTargetsCard(card, preset));
+    return {
+        key: preset.key,
+        label: preset.label,
+        button,
+        matches: () => {
+            const targeted = reachable.filter((card) => presetTargetsCard(card, preset));
 
-            return targetedLights.length > 0 && targetedLights.every((card) => presetMatchesCard(card, preset));
-        }) ?? null;
-};
+            return targeted.length > 0 && targeted.every((card) => presetMatchesCard(card, preset));
+        },
+    };
+});
 
 const updateActivePreset = (root, activeKey = null) => {
-    const detected = activeKey
-        ? [...root.querySelectorAll('[data-preset]:not([data-master-toggle])')]
-            .map((button) => ({ button, preset: presetFromButton(button) }))
-            .find(({ preset }) => preset.key === activeKey)
-        : detectActivePreset(root);
-    const activePreset = detected?.preset ?? null;
+    const entries = sceneEntries(root);
+    const active = activeKey
+        ? entries.find((entry) => entry.key === activeKey)
+        : entries.find((entry) => entry.matches());
 
-    root.dataset.activePreset = activePreset?.key ?? 'manual';
+    root.dataset.activePreset = active?.key ?? 'manual';
 
-    root.querySelectorAll('[data-preset]:not([data-master-toggle])').forEach((button) => {
-        const active = activePreset?.key === button.dataset.preset;
-        button.dataset.active = String(active);
-        button.setAttribute('aria-pressed', String(active));
-    });
-
-    root.querySelectorAll('[data-active-preset-label]').forEach((element) => {
-        const label = activePreset?.label ?? element.dataset.manualLabel ?? 'Manual';
-        const labelTarget = element.querySelector('.lighting-console__active-preset-name') ?? element;
-        labelTarget.textContent = label;
+    entries.forEach((entry) => {
+        const isActive = active?.key === entry.key;
+        entry.button.dataset.active = String(isActive);
+        entry.button.setAttribute('aria-pressed', String(isActive));
     });
 };
 
@@ -541,51 +627,54 @@ const applyPresetToCard = (card, preset) => {
         return;
     }
 
-    const powerControls = card.querySelectorAll('[data-action="power"]');
-    const brightnessControls = card.querySelectorAll('[data-action="brightness"]');
-    const colorControls = card.querySelectorAll('[data-action="color"]');
-
-    powerControls.forEach((power) => power.setAttribute('aria-checked', String(preset.power)));
-    // Mirror onto the data-* attributes so cards without those inputs (the
-    // sidebar row, and the detail card now that the colour input is gone) reflect
-    // the preset in their preview immediately.
     card.dataset.on = String(preset.power);
 
-    if (! preset.power) {
-        updateCardVisual(card);
-        return;
-    }
+    if (preset.power) {
+        if (preset.brightness !== null) {
+            card.dataset.brightness = String(preset.brightness);
+        }
 
-    if (preset.brightness !== null) {
-        brightnessControls.forEach((brightness) => {
-            brightness.value = String(preset.brightness);
-        });
-        card.dataset.brightness = String(preset.brightness);
-    }
-
-    // A colour temperature wins over a colour, like on the backend.
-    if (preset.colorTemp !== null && card.dataset.supportsColorTemp === 'true') {
-        card.dataset.mode = 'white';
-        card.dataset.colorTemp = String(preset.colorTemp);
-    } else if (preset.color && card.dataset.supportsColor === 'true') {
-        colorControls.forEach((color) => {
-            color.value = preset.color;
-        });
-        card.dataset.color = preset.color;
-        card.dataset.mode = 'colour';
+        // A colour temperature wins over a colour, like on the backend.
+        if (preset.colorTemp !== null && card.dataset.supportsColorTemp === 'true') {
+            card.dataset.mode = 'white';
+            card.dataset.colorTemp = String(preset.colorTemp);
+        } else if (preset.color && card.dataset.supportsColor === 'true') {
+            card.dataset.color = preset.color;
+            card.dataset.mode = 'colour';
+        }
     }
 
     updateCardVisual(card);
 };
 
-const applyPreset = async (root, button) => {
+// How a scene-strip button is applied: its endpoint and the optimistic update.
+const bulkActionFor = (root, button) => {
     const template = root.dataset.presetUrlTemplate;
     const preset = presetFromButton(button);
     if (! template || ! preset.key) {
+        return null;
+    }
+
+    return {
+        key: preset.key,
+        label: preset.label,
+        url: template.replace('__PRESET__', encodeURIComponent(preset.key)),
+        apply: (body) => {
+            const applied = normalisePreset({ ...preset, ...(body.data?.preset ?? {}) });
+            allCards(root).forEach((card) => applyPresetToCard(card, applied));
+
+            return { activeKey: applied.key, failed: body.data?.failed_lights ?? [] };
+        },
+    };
+};
+
+const applyPreset = async (root, button) => {
+    const action = bulkActionFor(root, button);
+    if (! action) {
         return;
     }
 
-    // Latest wins: a preset tapped while another is running replaces any
+    // Latest wins: a scene tapped while another is running replaces any
     // queued one and runs right after it.
     if (presetQueue.inFlight) {
         presetQueue.next = button;
@@ -593,31 +682,32 @@ const applyPreset = async (root, button) => {
     }
 
     presetQueue.inFlight = true;
-    root.dataset.busyPreset = preset.key;
+    root.dataset.busyPreset = action.key;
 
     try {
-        const response = await requestWithRetry(
-            template.replace('__PRESET__', encodeURIComponent(preset.key)),
-            'POST',
-        );
+        const response = await requestWithRetry(action.url, 'POST');
         const body = response ? await readJson(response) : {};
 
         if (! response?.ok) {
-            markDanger(button, true);
-            showToast(root, `Couldn't apply ${preset.label || 'the preset'}`);
+            setFailed(button, true);
+            showToast(root, `Couldn't apply ${action.label || 'the scene'}.`);
             return;
         }
 
-        const appliedPreset = normalisePreset({ ...preset, ...(body.data?.preset ?? {}) });
-        root.querySelectorAll('[data-light]').forEach((card) => {
-            applyPresetToCard(card, appliedPreset);
-            if (card.dataset.url && card.dataset.reachable === 'true' && presetTargetsCard(card, appliedPreset)) {
+        const { activeKey, failed } = action.apply(body);
+        allCards(root).forEach((card) => {
+            if (card.dataset.url && card.dataset.reachable === 'true') {
                 queueFor(card.dataset.url).confirmed = confirmedStateFromCard(card);
             }
         });
         updateSummary(root);
-        updateActivePreset(root, appliedPreset.key);
-        markDanger(button, Array.isArray(body.data?.failed_lights) && body.data.failed_lights.length > 0);
+        renderSheet(root);
+        updateActivePreset(root, activeKey);
+        const failedList = Array.isArray(failed) ? failed : [];
+        setFailed(button, failedList.length > 0);
+        if (failedList.length > 0) {
+            showToast(root, `Couldn't reach ${failedList.join(', ')}.`);
+        }
     } finally {
         delete root.dataset.busyPreset;
         presetQueue.inFlight = false;
@@ -630,11 +720,10 @@ const applyPreset = async (root, button) => {
     }
 };
 
+// --- Live state polling ---------------------------------------------------
+
 const setReachable = (card, reachable) => {
     card.dataset.reachable = String(reachable);
-    card.querySelectorAll('[data-action], [data-color-wheel]').forEach((control) => {
-        control.disabled = ! reachable;
-    });
 };
 
 // Apply one light from GET /lighting/state, unless the lamp has a command
@@ -646,7 +735,8 @@ const applyServerLight = (root, light, startedAt) => {
     }
 
     const url = cards[0].dataset.url;
-    if (url && (isLightPending(url) || (lightQueues.get(url)?.touchedAt ?? 0) >= startedAt)) {
+    if (cards[0].dataset.pending === 'true'
+        || (url && (isLightPending(url) || (lightQueues.get(url)?.touchedAt ?? 0) >= startedAt))) {
         return;
     }
 
@@ -694,8 +784,7 @@ let pollTimer = null;
 let visibilityHandler = null;
 
 // Re-read state every data-poll-seconds while the page is visible, plus once
-// when it becomes visible again. Changes made in the vendor apps show up
-// without a reload; hidden kiosk tabs cost no provider calls.
+// when it becomes visible again. Hidden kiosk tabs cost no provider calls.
 const startPolling = (root) => {
     clearInterval(pollTimer);
     if (visibilityHandler) {
@@ -726,58 +815,397 @@ const startPolling = (root) => {
     document.addEventListener('visibilitychange', visibilityHandler);
 };
 
-// Make the big colour wheel interactive: tap/drag picks a hue from the angle
-// to the centre, applies it optimistically and pushes it to the provider. No
-// native colour picker — the small swatch in the detail panel stays as fallback.
-const setupColorWheel = (root, card) => {
-    const surface = card.querySelector('[data-color-wheel]');
-    if (! surface) {
+// --- Select mode ----------------------------------------------------------
+
+const renderSelection = (root) => {
+    const selecting = isSelecting(root);
+    root.querySelectorAll('[data-normal-only]').forEach((element) => {
+        element.hidden = selecting;
+    });
+    root.querySelectorAll('[data-select-only]').forEach((element) => {
+        element.hidden = ! selecting;
+    });
+
+    const title = root.querySelector('[data-lighting-title]');
+    if (title) {
+        title.textContent = selecting ? 'Select lamps' : 'Lighting';
+    }
+    if (selecting) {
+        root.querySelectorAll('[data-lighting-summary]').forEach((element) => {
+            element.textContent = `${selection.size} selected`;
+        });
+    }
+
+    const bar = root.querySelector('[data-selbar]');
+    if (bar) {
+        bar.hidden = ! selecting || sheet.open || isDialogOpen(root);
+        const label = bar.querySelector('[data-selbar-label]');
+        if (label) {
+            label.textContent = selection.size === 1 ? '1 lamp selected' : `${selection.size} lamps selected`;
+        }
+        const adjust = bar.querySelector('[data-selbar-adjust]');
+        if (adjust) {
+            adjust.disabled = selection.size === 0;
+        }
+    }
+
+    allCards(root).forEach(updateCardVisual);
+    updateSummary(root);
+};
+
+const setMode = (root, mode) => {
+    root.dataset.mode = mode;
+    selection.clear();
+    renderSelection(root);
+};
+
+const toggleSelected = (root, card) => {
+    const key = lightKey(card);
+    if (selection.has(key)) {
+        selection.delete(key);
+    } else {
+        selection.add(key);
+    }
+    renderSelection(root);
+};
+
+// --- Control sheet ----------------------------------------------------------
+
+const sheet = { open: false, keys: [], tab: 'white' };
+
+// Placeholder until scenes register their dialogs.
+let isDialogOpen = () => false;
+
+const sheetCards = (root) => sheet.keys
+    .flatMap((key) => cardsForKey(root, key).slice(0, 1))
+    .filter((card) => card.dataset.reachable === 'true');
+
+// Initial values for one lamp or a mixed selection: brightness and colour
+// temperature average, the mode follows the majority (ties go to white).
+const sheetModel = (root) => {
+    const cards = sheetCards(root);
+    const states = cards.map(lightStateFromCard);
+    const n = states.length || 1;
+    const brightnesses = states.map((state) => (state.power ? state.brightness : 0));
+    const temps = states.map((state) => state.colorTemp).filter((value) => value !== null);
+    const colourState = states.find((state) => state.mode === 'colour' && state.color) ?? states.find((state) => state.color);
+    const { h: hue, s: sat } = colourState ? hexToHsv(colourState.color) : { h: 30, s: 80 };
+    const allTemp = states.length > 0 && states.every((state) => state.supportsColorTemp);
+    const allColour = states.length > 0 && states.every((state) => state.supportsColor);
+    let tab = null;
+    if (allTemp && allColour) {
+        tab = sheet.tab;
+    } else if (allColour) {
+        tab = 'colour';
+    } else if (allTemp) {
+        tab = 'white';
+    }
+
+    return {
+        cards,
+        states,
+        brightness: Math.round(brightnesses.reduce((sum, value) => sum + value, 0) / n),
+        mixed: states.length > 1
+            && (brightnesses.some((value) => value !== brightnesses[0]) || states.some((state) => state.mode !== states[0].mode)),
+        temp: temps.length ? Math.round(temps.reduce((sum, value) => sum + value, 0) / temps.length) : 50,
+        hue,
+        sat,
+        power: states.some((state) => state.power),
+        showTabs: allTemp && allColour,
+        tab,
+    };
+};
+
+const renderSheet = (root) => {
+    const overlay = root?.querySelector('[data-sheet-overlay]');
+    if (! overlay || ! sheet.open) {
         return;
     }
 
-    const native = card.querySelector('[data-action="color"]');
-    const sendColor = debounce((payload) => send(card, payload), 250);
-    let dragging = false;
+    const model = sheetModel(root);
+    if (model.cards.length === 0) {
+        closeSheet(root);
+        return;
+    }
 
-    const pick = (clientX, clientY) => {
-        if (surface.disabled) {
-            return;
-        }
+    const isWhite = model.tab !== 'colour';
+    const preview = isWhite ? tempRgb(model.temp) : hslRgb(model.hue, model.sat, 62);
+    const single = model.cards.length === 1;
+    const q = (selector) => overlay.querySelector(selector);
 
-        const rect = surface.getBoundingClientRect();
-        const dx = clientX - (rect.left + rect.width / 2);
-        const dy = clientY - (rect.top + rect.height / 2);
-        // atan2(dx, -dy): 0deg points up, increasing clockwise — matches the
-        // conic-gradient and the handle positioning in updateCardVisual.
-        const hue = (Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360;
-        // Full saturation: RGBCCT lamps mix in their white channels at lower
-        // saturation, washing the hue, so a picked colour renders truer at 100%.
-        const hex = hslToHex(hue, 100, 50);
+    q('[data-sheet-title]').textContent = single ? model.cards[0].dataset.lightName : `${model.cards.length} lamps`;
+    q('[data-sheet-sub]').textContent = single
+        ? `${model.cards[0].dataset.providerLabel} · ${stateLabel(model.states[0])}`
+        : model.cards.map((card) => card.dataset.lightName).join(', ');
+    q('[data-sheet-power]').setAttribute('aria-pressed', String(model.power));
+    q('[data-sheet-brightness-label]').textContent = `${model.brightness}%`;
+    q('[data-sheet-mixed]').hidden = ! model.mixed;
+    paintSlider(q('[data-sheet-brightness-slider]'), Math.max(1, model.brightness), { fill: rgbCss(preview), ring: rgbCss(preview) });
 
-        if (native) {
-            native.value = hex;
-        }
-        syncLight(root, card, { color: hex, power: true, mode: 'colour' });
-        updateActivePreset(root);
-        sendColor({ power: true, color: hex });
+    q('[data-sheet-tabs]').hidden = ! model.showTabs;
+    overlay.querySelectorAll('[data-sheet-tab]').forEach((tab) => {
+        tab.setAttribute('aria-pressed', String(tab.dataset.sheetTab === model.tab));
+    });
+    q('[data-sheet-panel="white"]').hidden = model.tab !== 'white';
+    q('[data-sheet-panel="colour"]').hidden = model.tab !== 'colour';
+
+    paintSlider(q('[data-sheet-temp-slider]'), model.temp, { ring: rgbCss(tempRgb(model.temp)) });
+    overlay.querySelectorAll('[data-sheet-chip]').forEach((chip) => {
+        const value = Number(chip.dataset.sheetChip);
+        chip.setAttribute('aria-pressed', String(model.tab === 'white' && Math.abs(model.temp - value) <= 8));
+        chip.querySelector('[data-chip-dot]')?.style.setProperty('background', rgbCss(tempRgb(value)));
+    });
+
+    paintSlider(q('[data-sheet-sat-slider]'), model.sat, {
+        ring: rgbCss(hslRgb(model.hue, model.sat, 62)),
+        track: `linear-gradient(90deg, ${rgbCss(hslRgb(model.hue, 0, 62))}, ${rgbCss(hslRgb(model.hue, 100, 62))})`,
+    });
+
+    const ring = q('[data-sheet-ring]');
+    ring.hidden = model.tab !== 'colour';
+    const rad = (model.hue * Math.PI) / 180;
+    ring.style.setProperty('--handle-x', `${50 + Math.sin(rad) * 43}%`);
+    ring.style.setProperty('--handle-y', `${50 - Math.cos(rad) * 43}%`);
+    ring.style.setProperty('--handle-color', rgbCss(hslRgb(model.hue, 100, 55)));
+    q('[data-sheet-disc]').hidden = model.tab === 'colour';
+    q('.lighting-sheet__preview')?.style.setProperty('--preview-rgb', preview.join(' '));
+    q('[data-sheet-preview-label]').textContent = isWhite
+        ? (model.tab === 'white' ? `≈ ${kelvin(model.temp)} · ${tempName(model.temp)}` : 'White')
+        : `Hue ${model.hue}° · ${model.sat}% saturation`;
+};
+
+const openSheet = (root, cards) => {
+    const reachable = cards.filter((card) => card.dataset.reachable === 'true');
+    if (reachable.length === 0) {
+        return;
+    }
+
+    const whites = reachable.filter((card) => card.dataset.mode !== 'colour').length;
+    sheet.open = true;
+    sheet.keys = reachable.map(lightKey);
+    sheet.tab = whites >= reachable.length - whites ? 'white' : 'colour';
+    root.querySelector('[data-sheet-overlay]').hidden = false;
+    renderSheet(root);
+    renderSelection(root);
+    root.querySelector('[data-sheet] [data-sheet-close]')?.focus();
+};
+
+const closeSheet = (root) => {
+    sheet.open = false;
+    sheet.keys = [];
+    const overlay = root.querySelector('[data-sheet-overlay]');
+    if (overlay) {
+        overlay.hidden = true;
+    }
+    renderSelection(root);
+};
+
+// Sheet changes coalesce for 250 ms (slider drags), then go out as one
+// per-light command, or one group request for a multi-lamp selection.
+let sheetPayload = null;
+let sheetTargets = [];
+
+const flushSheet = (root) => {
+    const payload = sheetPayload;
+    const cards = sheetTargets;
+    sheetPayload = null;
+    sheetTargets = [];
+    if (! payload || cards.length === 0) {
+        return;
+    }
+
+    if (cards.length === 1) {
+        send(cards[0], payload);
+    } else {
+        sendGroup(root, cards, payload);
+    }
+};
+
+const flushSheetDebounced = debounce(flushSheet, 250);
+
+const sheetChange = (root, patch, payload, immediate = false) => {
+    const cards = sheetCards(root);
+    cards.forEach((card) => syncLight(root, card, patch));
+    updateActivePreset(root);
+    sheetPayload = mergePayload(sheetPayload, payload);
+    sheetTargets = cards;
+
+    if (immediate) {
+        flushSheet(root);
+    } else {
+        flushSheetDebounced(root);
+    }
+};
+
+const setupSheet = (root) => {
+    const overlay = root.querySelector('[data-sheet-overlay]');
+    if (! overlay) {
+        return;
+    }
+
+    overlay.querySelectorAll('[data-sheet-close]').forEach((button) => button.addEventListener('click', () => closeSheet(root)));
+
+    overlay.querySelector('[data-sheet-power]')?.addEventListener('click', () => {
+        const next = ! sheetModel(root).power;
+        sheetChange(root, { power: next }, { power: next }, true);
+    });
+
+    overlay.querySelector('[data-sheet-brightness]')?.addEventListener('input', (event) => {
+        const value = Number(event.target.value);
+        sheetChange(root, { power: true, brightness: value }, { power: true, brightness: value });
+    });
+
+    overlay.querySelectorAll('[data-sheet-tab]').forEach((tab) => tab.addEventListener('click', () => {
+        sheet.tab = tab.dataset.sheetTab;
+        renderSheet(root);
+    }));
+
+    const setTemp = (value, immediate) => sheetChange(
+        root,
+        { power: true, mode: 'white', colorTemp: value },
+        { power: true, color_temp: value },
+        immediate,
+    );
+    overlay.querySelector('[data-sheet-temp]')?.addEventListener('input', (event) => setTemp(Number(event.target.value), false));
+    overlay.querySelectorAll('[data-sheet-chip]').forEach((chip) => chip.addEventListener('click', () => setTemp(Number(chip.dataset.sheetChip), true)));
+
+    const setColour = (hue, sat) => {
+        const hex = hsvToHex(hue, sat, 100);
+        sheetChange(root, { power: true, mode: 'colour', color: hex }, { power: true, color: hex });
     };
+    overlay.querySelector('[data-sheet-sat]')?.addEventListener('input', (event) => {
+        setColour(sheetModel(root).hue, Number(event.target.value));
+    });
 
-    surface.addEventListener('pointerdown', (event) => {
-        if (surface.disabled) {
+    const ring = overlay.querySelector('[data-sheet-ring]');
+    let dragging = false;
+    const pickHue = (event) => {
+        const rect = ring.getBoundingClientRect();
+        const dx = event.clientX - (rect.left + rect.width / 2);
+        const dy = event.clientY - (rect.top + rect.height / 2);
+        // atan2(dx, -dy): 0deg points up, clockwise — matches the conic-gradient.
+        const hue = Math.round((Math.atan2(dx, -dy) * 180 / Math.PI + 360) % 360);
+        setColour(hue, sheetModel(root).sat);
+    };
+    ring?.addEventListener('pointerdown', (event) => {
+        dragging = true;
+        ring.setPointerCapture?.(event.pointerId);
+        pickHue(event);
+    });
+    ring?.addEventListener('pointermove', (event) => {
+        if (dragging) {
+            pickHue(event);
+        }
+    });
+    const stop = () => {
+        dragging = false;
+    };
+    ring?.addEventListener('pointerup', stop);
+    ring?.addEventListener('pointercancel', stop);
+};
+
+// --- Tiles -------------------------------------------------------------------
+
+const LONG_PRESS_MS = 550;
+
+const setupTile = (root, card) => {
+    const toggle = card.querySelector('[data-tile-toggle]');
+    let pressTimer = null;
+    let suppressClick = false;
+
+    toggle?.addEventListener('click', () => {
+        if (suppressClick) {
+            suppressClick = false;
             return;
         }
-        dragging = true;
-        surface.setPointerCapture?.(event.pointerId);
-        pick(event.clientX, event.clientY);
+        if (card.dataset.reachable !== 'true') {
+            return;
+        }
+        if (isSelecting(root)) {
+            toggleSelected(root, card);
+            return;
+        }
+
+        // Tap = toggle. Turning on a lamp stored at 0 % brings it to 60 %.
+        const state = lightStateFromCard(card);
+        const payload = { power: ! state.power };
+        if (! state.power && state.brightness < 1) {
+            payload.brightness = 60;
+        }
+        syncLight(root, card, payload);
+        updateActivePreset(root);
+        send(card, payload);
     });
-    surface.addEventListener('pointermove', (event) => {
-        if (dragging) {
-            pick(event.clientX, event.clientY);
+
+    // Long-press is a shortcut for the visible ⋯ button.
+    const cancelPress = () => clearTimeout(pressTimer);
+    toggle?.addEventListener('pointerdown', () => {
+        if (isSelecting(root) || card.dataset.reachable !== 'true') {
+            return;
+        }
+        pressTimer = setTimeout(() => {
+            suppressClick = true;
+            openSheet(root, [card]);
+        }, LONG_PRESS_MS);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((type) => toggle?.addEventListener(type, cancelPress));
+    toggle?.addEventListener('contextmenu', (event) => event.preventDefault());
+
+    card.querySelector('[data-tile-more]')?.addEventListener('click', () => openSheet(root, [card]));
+
+    // Dragging the bottom bar sets the brightness directly (and turns the lamp on).
+    const sendBrightness = debounce((value) => send(card, { power: true, brightness: value }), 250);
+    card.querySelectorAll('[data-action="brightness"]').forEach((input) => input.addEventListener('input', (event) => {
+        const value = Number(event.target.value);
+        syncLight(root, card, { brightness: value, power: true });
+        updateActivePreset(root);
+        sendBrightness(value);
+    }));
+
+    updateCardVisual(card);
+    if (card.dataset.url) {
+        queueFor(card.dataset.url).confirmed ??= confirmedStateFromCard(card);
+    }
+};
+
+const paintPresetDots = (root) => {
+    presetButtons(root).forEach((button) => {
+        const preset = presetFromButton(button);
+        let color = null;
+        if (preset.colorTemp !== null) {
+            color = rgbCss(tempRgb(preset.colorTemp));
+        } else if (preset.color) {
+            color = preset.color;
+        }
+        if (color) {
+            button.style.setProperty('--scene-dot', color);
         }
     });
-    const stop = () => { dragging = false; };
-    surface.addEventListener('pointerup', stop);
-    surface.addEventListener('pointercancel', stop);
+};
+
+const setupChrome = (root) => {
+    root.querySelectorAll('[data-preset]').forEach((button) => {
+        button.addEventListener('click', () => applyPreset(root, button));
+    });
+    root.querySelectorAll('[data-select-start]').forEach((button) => button.addEventListener('click', () => setMode(root, 'select')));
+    root.querySelectorAll('[data-select-cancel]').forEach((button) => button.addEventListener('click', () => setMode(root, 'normal')));
+    root.querySelectorAll('[data-select-all]').forEach((button) => button.addEventListener('click', () => {
+        allCards(root).filter((card) => card.dataset.reachable === 'true').forEach((card) => selection.add(lightKey(card)));
+        renderSelection(root);
+    }));
+    root.querySelector('[data-selbar-adjust]')?.addEventListener('click', () => {
+        const cards = allCards(root).filter((card) => selection.has(lightKey(card)));
+        openSheet(root, cards);
+    });
+    root.querySelector('[data-toast-close]')?.addEventListener('click', () => {
+        root.querySelector('[data-lighting-toast]').hidden = true;
+    });
+
+    root.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && sheet.open) {
+            closeSheet(root);
+        }
+    });
 };
 
 export const initLighting = () => {
@@ -786,51 +1214,22 @@ export const initLighting = () => {
         return;
     }
     root.dataset.lightingReady = 'true';
+    root.dataset.mode ??= 'normal';
     lightQueues.clear();
+    selection.clear();
     presetQueue.inFlight = false;
     presetQueue.next = null;
+    groupQueue.inFlight = false;
+    groupQueue.next = null;
+    sheet.open = false;
+    sheet.keys = [];
+    sheetPayload = null;
+    sheetTargets = [];
 
-    root.querySelectorAll('[data-preset]').forEach((button) => {
-        button.addEventListener('click', () => {
-            applyPreset(root, button);
-        });
-    });
-
-    root.querySelectorAll('[data-light-select]').forEach((button) => {
-        button.addEventListener('click', () => {
-            selectLight(root, button.dataset.lightKey);
-        });
-    });
-
-    root.querySelectorAll('[data-light]').forEach((card) => {
-        card.querySelectorAll('[data-action="power"]').forEach((power) => power.addEventListener('click', () => {
-            const next = power.getAttribute('aria-checked') !== 'true';
-            syncLight(root, card, { power: next });
-            updateActivePreset(root);
-            send(card, { power: next });
-        }));
-
-        card.querySelectorAll('[data-action="brightness"]').forEach((brightness) => brightness.addEventListener('input', debounce((event) => {
-            const value = Number(event.target.value);
-            syncLight(root, card, { brightness: value, power: true });
-            updateActivePreset(root);
-            send(card, { power: true, brightness: value });
-        }, 250)));
-
-        // 'input' fires live while dragging the picker; debounce so we don't flood the API.
-        card.querySelectorAll('[data-action="color"]').forEach((color) => color.addEventListener('input', debounce((event) => {
-            syncLight(root, card, { color: event.target.value, power: true, mode: 'colour' });
-            updateActivePreset(root);
-            send(card, { power: true, color: event.target.value });
-        }, 250)));
-
-        setupColorWheel(root, card);
-
-        updateCardVisual(card);
-        if (card.dataset.url) {
-            queueFor(card.dataset.url).confirmed ??= confirmedStateFromCard(card);
-        }
-    });
+    setupChrome(root);
+    setupSheet(root);
+    allCards(root).forEach((card) => setupTile(root, card));
+    paintPresetDots(root);
 
     updateSummary(root);
     updateActivePreset(root);
