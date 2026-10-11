@@ -4,6 +4,7 @@ namespace Modules\Lighting\Tests\Unit;
 
 use Illuminate\Support\Facades\Http;
 use Modules\Lighting\Data\Light;
+use Modules\Lighting\Http\Resources\LightResource;
 use Modules\Lighting\Services\Providers\TuyaProvider;
 use Tests\TestCase;
 use Throwable;
@@ -31,9 +32,10 @@ class SecretNotLeakedTest extends TestCase
     {
         $light = new Light('govee', 'AA:BB', 'Strip', true, 80, '#ff0000', true, true);
 
+        // Asserted on the public JSON resource, which is what leaves the app.
         $this->assertSame(
-            ['provider', 'id', 'name', 'on', 'brightness', 'color', 'reachable', 'supports_color'],
-            array_keys($light->toArray()),
+            ['provider', 'id', 'name', 'on', 'brightness', 'color', 'reachable', 'supports_color', 'mode', 'color_temp', 'supports_color_temp'],
+            array_keys(LightResource::make($light)->resolve()),
         );
     }
 }

@@ -17,13 +17,15 @@ class UpdateLightRequest extends FormRequest
             'power' => ['sometimes', 'boolean'],
             'brightness' => ['sometimes', 'integer', 'min:0', 'max:100'],
             'color' => ['sometimes', 'string', 'regex:/^#?[0-9a-fA-F]{6}$/'],
+            // White (colour temperature) and colour are different LED channels; one at a time.
+            'color_temp' => ['sometimes', 'integer', 'min:0', 'max:100', 'prohibits:color'],
         ];
     }
 
     /**
      * The validated changes, with the colour normalised to a leading-hash hex.
      *
-     * @return array{power?: bool, brightness?: int, color?: string}
+     * @return array{power?: bool, brightness?: int, color?: string, color_temp?: int}
      */
     public function changes(): array
     {

@@ -12,6 +12,7 @@ use Modules\Lighting\Data\LightingPresetResult;
 use Modules\Lighting\Data\LightingSnapshot;
 use Modules\Lighting\Data\LightPreset;
 use Modules\Lighting\Data\WeatherPresetTrigger;
+use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Exceptions\LightingControlBusy;
 use Modules\Lighting\Exceptions\UnknownLightingPreset;
 use Modules\Lighting\Services\Providers\GoveeProvider;
@@ -59,7 +60,7 @@ class LightingService
     /**
      * Apply changes to one light and return its refreshed state.
      *
-     * @param  array{power?: bool, brightness?: int, color?: string}  $changes
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
      */
     public function control(string $providerKey, string $id, array $changes): Light
     {
@@ -68,6 +69,10 @@ class LightingService
 
             if (array_key_exists('power', $changes)) {
                 $provider->setPower($id, $changes['power']);
+            }
+            // Before brightness, so the brightness lands on the white LEDs.
+            if (array_key_exists('color_temp', $changes)) {
+                $provider->setColorTemp($id, $changes['color_temp']);
             }
             if (array_key_exists('brightness', $changes)) {
                 $provider->setBrightness($id, $changes['brightness']);
@@ -88,6 +93,9 @@ class LightingService
                 color: $changes['color'] ?? null,
                 reachable: true,
                 supportsColor: array_key_exists('color', $changes),
+                mode: array_key_exists('color', $changes) ? LightMode::Colour : LightMode::White,
+                colorTemp: $changes['color_temp'] ?? null,
+                supportsColorTemp: array_key_exists('color_temp', $changes),
             );
         });
     }
@@ -180,6 +188,7 @@ class LightingService
             $preset->power,
             $preset->brightness,
             $light->supportsColor ? $preset->color : null,
+            $light->supportsColorTemp ? $preset->colorTemp : null,
         );
     }
 
@@ -232,6 +241,7 @@ class LightingService
             color: $color,
             targetNameContains: $this->targetNameContains($preset),
             weatherTrigger: $this->weatherTrigger($preset),
+            colorTemp: isset($preset['color_temp']) ? max(0, min(100, (int) $preset['color_temp'])) : null,
         );
     }
 

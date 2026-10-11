@@ -60,4 +60,29 @@ class PresetBatchingTest extends TestCase
             return $codes->get('switch_led')['value'] === false && $codes->count() === 1;
         });
     }
+
+    public function test_a_colour_temperature_wins_over_colour_in_one_white_batch(): void
+    {
+        Http::fake([
+            '*/v1.0/token*' => Http::response(['success' => true, 'result' => ['access_token' => 't', 'expire_time' => 7200]]),
+            '*/v1.0/devices/d1/commands' => Http::response(['success' => true, 'result' => true]),
+        ]);
+
+        app(TuyaProvider::class)->applyState('d1', true, 70, '#ff0000', 0);
+
+        Http::assertSent(function (Request $request): bool {
+            if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
+                return false;
+            }
+
+            return $request['commands'] === [
+                ['code' => 'switch_led', 'value' => true],
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'temp_value_v2', 'value' => 0],
+                ['code' => 'bright_value_v2', 'value' => 700],
+            ];
+        });
+
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/status'));
+    }
 }

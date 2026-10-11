@@ -95,6 +95,9 @@ Behavior:
 - Unreadable lights remain visible but disabled and visually muted.
 - Clicking a lamp row changes the focused detail panel without a full page reload.
 - Presets include bright, cozy, movie, night, night light and all-off scenes. They call the preset JSON endpoint, temporarily disable the clicked preset button, update reachable light cards optimistically and skip unreachable lights.
+- Bright, Cozy and Night use the lamps' real white LEDs (colour temperature) instead of an RGB fake-white: Bright is cool white at 100 %, Cozy warm white at 70 %, Night warm white at 1 %. Lamps without tunable white only get the power and brightness of those presets. Movie and Night light keep their colours.
+- A lamp's state line reads `white` or `color` from the mode the provider reports (white LEDs vs RGB), not from whether the lamp can do colour.
+- The per-light endpoint accepts `color_temp` (0 warm – 100 cool) next to `power`, `brightness` and `color`; `color` and `color_temp` together are rejected with `422`. Light JSON includes `mode` (`white`/`colour`), `color_temp` and `supports_color_temp`.
 - Presets may define target name filters. The Night light preset targets lights whose name contains `strip`, so it only turns the LED strip on softly and leaves other reachable lights unchanged.
 - The active preset button uses `data-active="true"`, `aria-pressed="true"` and an `Actief` badge. Manual power, brightness or colour changes recalculate this state immediately.
 - Presets skip unchanged power, brightness and colour commands from the current snapshot to reduce cloud latency, especially for Govee LED strips.

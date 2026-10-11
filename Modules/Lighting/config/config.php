@@ -27,17 +27,19 @@ return [
             'label' => 'All off',
             'power' => false,
         ],
+        // color_temp (0 warm - 100 cool) drives the real white LEDs; lamps
+        // without tunable white only get the power and brightness.
         'bright' => [
             'label' => 'Bright',
             'power' => true,
             'brightness' => 100,
-            'color' => '#f5f7ff',
+            'color_temp' => 100,
         ],
         'cozy' => [
             'label' => 'Cozy',
             'power' => true,
-            'brightness' => 72,
-            'color' => '#ffc26b',
+            'brightness' => 70,
+            'color_temp' => 0,
             // Weather trigger is opt-in: disabled by default, applied automatically when enabled and all conditions match.
             'weather_trigger' => [
                 'enabled' => false,
@@ -58,7 +60,7 @@ return [
             'label' => 'Night',
             'power' => true,
             'brightness' => 1,
-            'color' => '#ff8559',
+            'color_temp' => 0,
         ],
         'night_light' => [
             'label' => 'Night light',

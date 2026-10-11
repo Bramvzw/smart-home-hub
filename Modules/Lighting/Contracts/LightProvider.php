@@ -32,11 +32,21 @@ interface LightProvider
     public function setColor(string $id, string $hex): void;
 
     /**
+     * Switch to the white LEDs at the given colour temperature.
+     *
+     * @param  int  $percent  0 (warmest) - 100 (coolest)
+     */
+    public function setColorTemp(string $id, int $percent): void;
+
+    /**
      * Apply a fully known target state (presets) in as few provider calls as
      * possible — the target is known up front, so no state reads are needed.
      *
+     * When both a colour and a colour temperature are given, white mode wins.
+     *
      * @param  int|null  $brightness  0-100
      * @param  string|null  $color  '#rrggbb'
+     * @param  int|null  $colorTemp  0 (warm) - 100 (cool)
      */
-    public function applyState(string $id, bool $power, ?int $brightness, ?string $color): void;
+    public function applyState(string $id, bool $power, ?int $brightness, ?string $color, ?int $colorTemp = null): void;
 }

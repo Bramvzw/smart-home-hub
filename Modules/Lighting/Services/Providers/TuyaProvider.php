@@ -4,6 +4,7 @@ namespace Modules\Lighting\Services\Providers;
 
 use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
+use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Support\Color;
 
 class TuyaProvider implements LightProvider
@@ -56,12 +57,12 @@ class TuyaProvider implements LightProvider
 
     public function setBrightness(string $id, int $percent): void
     {
-        $value = max(10, min(1000, (int) round(max(0, min(100, $percent)) * 10)));
+        $value = $this->brightnessValue($percent);
 
         // In colour mode brightness is the V channel of colour_data_v2; sending
         // bright_value_v2 would flip the lamp back to white. Keep the current hue
-        // and saturation, only move V.
-        $hsv = $this->currentColourHsv($id);
+        // and saturation, only move V. In white mode bright_value_v2 is the DP.
+        $hsv = $this->colourHsv($this->currentStatus($id));
         if ($hsv !== null) {
             $hsv['v'] = $value;
             $this->command($id, [
@@ -82,7 +83,7 @@ class TuyaProvider implements LightProvider
 
         // Preserve the lamp's current brightness (V) when only the colour changes,
         // otherwise picking a colour would jump the lamp back to full brightness.
-        $current = $this->currentColourHsv($id);
+        $current = $this->colourHsv($this->currentStatus($id));
         if ($current !== null) {
             $hsv['v'] = $current['v'];
         }
@@ -93,10 +94,43 @@ class TuyaProvider implements LightProvider
         ]);
     }
 
-    public function applyState(string $id, bool $power, ?int $brightness, ?string $color): void
+    public function setColorTemp(string $id, int $percent): void
+    {
+        $commands = [
+            ['code' => 'work_mode', 'value' => 'white'],
+            ['code' => 'temp_value_v2', 'value' => $this->tempValue($percent)],
+        ];
+
+        // Carry the current brightness over to the white LEDs, so leaving a dim
+        // colour does not jump to whatever white brightness was last stored.
+        $brightness = $this->currentBrightnessValue($this->currentStatus($id));
+        if ($brightness !== null) {
+            $commands[] = ['code' => 'bright_value_v2', 'value' => $brightness];
+        }
+
+        $this->command($id, $commands);
+    }
+
+    public function applyState(string $id, bool $power, ?int $brightness, ?string $color, ?int $colorTemp = null): void
     {
         if (! $power) {
             $this->setPower($id, false);
+
+            return;
+        }
+
+        // White mode wins over colour: one batch on the white LEDs, no reads.
+        if ($colorTemp !== null) {
+            $commands = [
+                ['code' => 'switch_led', 'value' => true],
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'temp_value_v2', 'value' => $this->tempValue($colorTemp)],
+            ];
+            if ($brightness !== null) {
+                $commands[] = ['code' => 'bright_value_v2', 'value' => $this->brightnessValue($brightness)];
+            }
+
+            $this->command($id, $commands);
 
             return;
         }
@@ -107,7 +141,7 @@ class TuyaProvider implements LightProvider
         // semantics collapse into a single colour_data_v2 write).
         if ($color !== null && $brightness !== null) {
             $hsv = Color::hexToTuyaHsv($color);
-            $hsv['v'] = max(10, min(1000, (int) round($brightness * 10)));
+            $hsv['v'] = $this->brightnessValue($brightness);
 
             $this->command($id, [
                 ['code' => 'switch_led', 'value' => true],
@@ -133,22 +167,42 @@ class TuyaProvider implements LightProvider
         $this->client->post("/v1.0/devices/{$id}/commands", ['commands' => $commands], $this->token->accessToken());
     }
 
+    /** 0-100 % onto Tuya's 10-1000 brightness scale (bright_value_v2 and the V channel). */
+    private function brightnessValue(int $percent): int
+    {
+        return max(10, min(1000, (int) round(max(0, min(100, $percent)) * 10)));
+    }
+
+    /** 0-100 % onto temp_value_v2 (0 warmest - 1000 coolest). */
+    private function tempValue(int $percent): int
+    {
+        return (int) round(max(0, min(100, $percent)) * 10);
+    }
+
     /**
-     * Current HSV when the lamp is actively in colour mode, otherwise null.
-     * A failed status read falls back to white-mode brightness rather than
-     * breaking the brightness control entirely.
+     * Live status map of one device. A failed read returns null so callers can
+     * fall back to white-mode behaviour rather than breaking the control.
      *
-     * @return array{h:int,s:int,v:int}|null
+     * @return array<string, mixed>|null
      */
-    private function currentColourHsv(string $id): ?array
+    private function currentStatus(string $id): ?array
     {
         try {
-            $status = $this->statusMap($this->client->get("/v1.0/devices/{$id}/status", $this->token->accessToken()));
+            return $this->statusMap($this->client->get("/v1.0/devices/{$id}/status", $this->token->accessToken()));
         } catch (\Throwable) {
             return null;
         }
+    }
 
-        if (($status['work_mode'] ?? null) !== 'colour') {
+    /**
+     * Current HSV when the lamp is actively in colour mode, otherwise null.
+     *
+     * @param  array<string, mixed>|null  $status
+     * @return array{h:int,s:int,v:int}|null
+     */
+    private function colourHsv(?array $status): ?array
+    {
+        if ($status === null || ($status['work_mode'] ?? null) !== 'colour') {
             return null;
         }
 
@@ -160,6 +214,26 @@ class TuyaProvider implements LightProvider
         }
 
         return ['h' => (int) $hsv['h'], 's' => (int) $hsv['s'], 'v' => (int) $hsv['v']];
+    }
+
+    /**
+     * The brightness the lamp currently shows, on the 10-1000 scale: V in
+     * colour mode, bright_value_v2 otherwise. Null when unknown.
+     *
+     * @param  array<string, mixed>|null  $status
+     */
+    private function currentBrightnessValue(?array $status): ?int
+    {
+        $hsv = $this->colourHsv($status);
+        if ($hsv !== null) {
+            return max(10, min(1000, $hsv['v']));
+        }
+
+        if ($status === null || ! isset($status['bright_value_v2'])) {
+            return null;
+        }
+
+        return max(10, min(1000, (int) $status['bright_value_v2']));
     }
 
     private function map(array $device, array $status): Light
@@ -185,6 +259,13 @@ class TuyaProvider implements LightProvider
             ? (int) round(((int) $hsv['v']) / 10)
             : (isset($status['bright_value_v2']) ? (int) round(((int) $status['bright_value_v2']) / 10) : 0);
 
+        // temp_value_v2 is the stored white temperature; it stays meaningful in
+        // colour mode as the value white mode returns to.
+        $supportsColorTemp = array_key_exists('temp_value_v2', $status);
+        $colorTemp = $supportsColorTemp && is_numeric($status['temp_value_v2'])
+            ? max(0, min(100, (int) round(((int) $status['temp_value_v2']) / 10)))
+            : null;
+
         return new Light(
             provider: $this->key(),
             id: (string) ($device['id'] ?? ''),
@@ -194,6 +275,9 @@ class TuyaProvider implements LightProvider
             color: $color,
             reachable: (bool) ($device['online'] ?? false),
             supportsColor: $supportsColor,
+            mode: $colourMode ? LightMode::Colour : LightMode::White,
+            colorTemp: $colorTemp,
+            supportsColorTemp: $supportsColorTemp,
         );
     }
 

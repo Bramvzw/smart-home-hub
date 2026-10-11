@@ -52,7 +52,8 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Actions\ControlLight` | Write action for dispatching validated light changes to the owning provider. |
 | `Modules\Lighting\Actions\ApplyLightingPreset` | Write action for applying configured presets across reachable provider lights. |
 | `Modules\Lighting\Contracts\LightProvider` | Shared provider contract for listing and controlling lights. |
-| `Modules\Lighting\Data\Light` | Shared light DTO used by providers, views and JSON resources. |
+| `Modules\Lighting\Data\Light` | Shared light DTO used by providers, views and JSON resources, including mode and colour temperature. |
+| `Modules\Lighting\Enums\LightMode` | Whether a lamp drives its white (tunable CCT) LEDs or its RGB LEDs. |
 | `Modules\Lighting\Data\LightPreset` | Typed preset definition used by the service, view model and JSON preset response. |
 | `Modules\Lighting\Data\LightingPresetResult` | Typed result for applied, skipped and failed preset targets. |
 | `Modules\Lighting\Data\LightingSnapshot` | Aggregated light list plus unreachable provider labels. |
@@ -62,9 +63,9 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Services\LightingService` | Aggregates configured providers, caches snapshots and isolates failures. |
 | `Modules\Lighting\Services\Providers\TuyaApiClient` | Signed Tuya Cloud OpenAPI transport. |
 | `Modules\Lighting\Services\Providers\TuyaTokenService` | Tuya access token caching and refresh. |
-| `Modules\Lighting\Services\Providers\TuyaProvider` | Calex/Tuya provider mapping for power, brightness and colour. |
+| `Modules\Lighting\Services\Providers\TuyaProvider` | Calex/Tuya provider mapping for power, brightness, colour and white mode/colour temperature. |
 | `Modules\Lighting\Services\Providers\GoveeApiClient` | Govee Developer API transport with API-key headers. |
-| `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness and RGB colour. |
+| `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness, RGB colour and Kelvin colour temperature. |
 | `Modules\Lighting\Support\Color` | Colour conversion helpers for shared hex, Govee RGB and Tuya HSV. |
 | `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data assembly for the Lighting screen. |
 

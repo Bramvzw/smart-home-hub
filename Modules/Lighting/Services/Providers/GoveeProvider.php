@@ -5,12 +5,18 @@ namespace Modules\Lighting\Services\Providers;
 use Illuminate\Support\Facades\Cache;
 use Modules\Lighting\Contracts\LightProvider;
 use Modules\Lighting\Data\Light;
+use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Support\Color;
 
 class GoveeProvider implements LightProvider
 {
-    /** @var array<string, string>|null  device id => model, memoised per request */
-    private ?array $models = null;
+    /** Kelvin range used when a device does not report its own colorTem range. */
+    private const KELVIN_MIN = 2000;
+
+    private const KELVIN_MAX = 9000;
+
+    /** @var array<string, array{model: string, kelvin_min: int, kelvin_max: int}>|null  device id => meta, memoised per request */
+    private ?array $devices = null;
 
     public function __construct(
         private readonly GoveeApiClient $client,
@@ -35,8 +41,8 @@ class GoveeProvider implements LightProvider
     {
         $devices = $this->client->devices()['devices'] ?? [];
         $devices = is_array($devices) ? $devices : [];
-        $this->models = $this->modelsFromDevices($devices);
-        Cache::put($this->modelCacheKey(), $this->models, (int) config('lighting.govee.model_cache_ttl', 300));
+        $this->devices = $this->metaFromDevices($devices);
+        Cache::put($this->metaCacheKey(), $this->devices, (int) config('lighting.govee.model_cache_ttl', 300));
 
         // One concurrent burst instead of a sequential read per lamp.
         $requests = [];
@@ -72,7 +78,12 @@ class GoveeProvider implements LightProvider
         $this->client->control($id, $this->modelFor($id), 'color', ['r' => $r, 'g' => $g, 'b' => $b]);
     }
 
-    public function applyState(string $id, bool $power, ?int $brightness, ?string $color): void
+    public function setColorTemp(string $id, int $percent): void
+    {
+        $this->client->control($id, $this->modelFor($id), 'colorTem', $this->percentToKelvin($percent, ...$this->kelvinRangeFor($id)));
+    }
+
+    public function applyState(string $id, bool $power, ?int $brightness, ?string $color, ?int $colorTemp = null): void
     {
         // Govee's API takes one command per call; keep the colour-before-
         // brightness order and skip the state reads presets don't need.
@@ -83,7 +94,9 @@ class GoveeProvider implements LightProvider
         }
 
         $this->setPower($id, true);
-        if ($color !== null) {
+        if ($colorTemp !== null) {
+            $this->setColorTemp($id, $colorTemp);
+        } elseif ($color !== null) {
             $this->setColor($id, $color);
         }
         if ($brightness !== null) {
@@ -96,6 +109,10 @@ class GoveeProvider implements LightProvider
         $id = (string) ($device['device'] ?? '');
         $supportCmds = (array) ($device['supportCmds'] ?? []);
         $supportsColor = in_array('color', $supportCmds, true);
+        $supportsColorTemp = in_array('colorTem', $supportCmds, true);
+        [$kelvinMin, $kelvinMax] = $this->kelvinRange($device);
+        $mode = $supportsColor ? LightMode::Colour : LightMode::White;
+        $colorTemp = null;
 
         // Per-device isolation: a missing state read marks only this light unreachable.
         if ($state !== null) {
@@ -106,6 +123,13 @@ class GoveeProvider implements LightProvider
             $color = isset($props['color']['r'])
                 ? Color::rgbToHex((int) $props['color']['r'], (int) $props['color']['g'], (int) $props['color']['b'])
                 : null;
+
+            // Govee reports a non-zero Kelvin value only while the white LEDs are active.
+            $kelvin = (int) ($props['colorTemInKelvin'] ?? $props['colorTem'] ?? 0);
+            if ($supportsColorTemp && $kelvin > 0) {
+                $mode = LightMode::White;
+                $colorTemp = $this->kelvinToPercent($kelvin, $kelvinMin, $kelvinMax);
+            }
         } else {
             $reachable = false;
             $on = false;
@@ -122,45 +146,98 @@ class GoveeProvider implements LightProvider
             color: $color,
             reachable: $reachable,
             supportsColor: $supportsColor,
+            mode: $mode,
+            colorTemp: $colorTemp,
+            supportsColorTemp: $supportsColorTemp,
         );
     }
 
     private function modelFor(string $id): string
     {
-        if ($this->models === null) {
-            $cached = Cache::get($this->modelCacheKey(), []);
+        return $this->metaFor($id)['model'] ?? '';
+    }
+
+    /**
+     * @return array{0: int, 1: int}
+     */
+    private function kelvinRangeFor(string $id): array
+    {
+        $meta = $this->metaFor($id);
+
+        return [$meta['kelvin_min'] ?? self::KELVIN_MIN, $meta['kelvin_max'] ?? self::KELVIN_MAX];
+    }
+
+    /**
+     * @return array{model: string, kelvin_min: int, kelvin_max: int}|null
+     */
+    private function metaFor(string $id): ?array
+    {
+        if ($this->devices === null) {
+            $cached = Cache::get($this->metaCacheKey(), []);
 
             if (is_array($cached) && isset($cached[$id])) {
-                $this->models = $cached;
+                $this->devices = $cached;
 
-                return (string) $this->models[$id];
+                return $this->devices[$id];
             }
 
             $devices = (array) ($this->client->devices()['devices'] ?? []);
-            $this->models = $this->modelsFromDevices($devices);
-            Cache::put($this->modelCacheKey(), $this->models, (int) config('lighting.govee.model_cache_ttl', 300));
+            $this->devices = $this->metaFromDevices($devices);
+            Cache::put($this->metaCacheKey(), $this->devices, (int) config('lighting.govee.model_cache_ttl', 300));
         }
 
-        return $this->models[$id] ?? '';
+        return $this->devices[$id] ?? null;
     }
 
     /**
      * @param  array<int, array<string, mixed>>  $devices
-     * @return array<string, string>
+     * @return array<string, array{model: string, kelvin_min: int, kelvin_max: int}>
      */
-    private function modelsFromDevices(array $devices): array
+    private function metaFromDevices(array $devices): array
     {
-        $models = [];
+        $meta = [];
         foreach ($devices as $device) {
-            $models[(string) ($device['device'] ?? '')] = (string) ($device['model'] ?? '');
+            [$kelvinMin, $kelvinMax] = $this->kelvinRange($device);
+            $meta[(string) ($device['device'] ?? '')] = [
+                'model' => (string) ($device['model'] ?? ''),
+                'kelvin_min' => $kelvinMin,
+                'kelvin_max' => $kelvinMax,
+            ];
         }
 
-        return $models;
+        return $meta;
     }
 
-    private function modelCacheKey(): string
+    /**
+     * The device's supported Kelvin range from properties.colorTem.range, or
+     * the generic fallback when it is missing or nonsensical.
+     *
+     * @param  array<string, mixed>  $device
+     * @return array{0: int, 1: int}
+     */
+    private function kelvinRange(array $device): array
     {
-        return 'lighting:govee:models';
+        $range = $device['properties']['colorTem']['range'] ?? null;
+        $min = is_array($range) && is_numeric($range['min'] ?? null) ? (int) $range['min'] : self::KELVIN_MIN;
+        $max = is_array($range) && is_numeric($range['max'] ?? null) ? (int) $range['max'] : self::KELVIN_MAX;
+
+        return $min > 0 && $max > $min ? [$min, $max] : [self::KELVIN_MIN, self::KELVIN_MAX];
+    }
+
+    /** 0 (warm) - 100 (cool) linearly onto the device's Kelvin range. */
+    private function percentToKelvin(int $percent, int $min, int $max): int
+    {
+        return (int) round($min + (max(0, min(100, $percent)) / 100) * ($max - $min));
+    }
+
+    private function kelvinToPercent(int $kelvin, int $min, int $max): int
+    {
+        return max(0, min(100, (int) round((($kelvin - $min) / ($max - $min)) * 100)));
+    }
+
+    private function metaCacheKey(): string
+    {
+        return 'lighting:govee:devices';
     }
 
     /**

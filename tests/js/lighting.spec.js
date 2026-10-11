@@ -289,4 +289,33 @@ describe('lighting controls', () => {
 
         expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('false');
     });
+
+    it('applies colour-temperature presets as white mode on lamps that support it', async () => {
+        document.body.innerHTML = `
+            <div data-lighting data-preset-url-template="/lighting/presets/__PRESET__">
+                <button type="button" data-preset="bright" data-preset-label="Bright" data-preset-power="true" data-preset-brightness="100" data-preset-color-temp="100">Bright</button>
+                <article data-light data-light-row data-light-key="tuya::1" data-reachable="true" data-supports-color="true" data-supports-color-temp="true" data-mode="colour" data-color="#ff0000">
+                    <button type="button" data-action="power" aria-checked="false"></button>
+                    <input type="range" data-action="brightness" value="10">
+                    <span data-light-state></span>
+                </article>
+            </div>
+        `;
+
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ data: { preset: { key: 'bright', power: true, brightness: 100, color: null, color_temp: 100 }, failed_lights: [] } }),
+        });
+
+        initLighting();
+        document.querySelector('[data-preset="bright"]').click();
+        await flushPromises();
+
+        const card = document.querySelector('[data-light]');
+        expect(card.dataset.mode).toBe('white');
+        expect(card.dataset.colorTemp).toBe('100');
+        expect(card.dataset.color).toBe('#ff0000');
+        expect(card.querySelector('[data-light-state]').textContent).toBe('100% · white');
+        expect(document.querySelector('[data-preset="bright"]').dataset.active).toBe('true');
+    });
 });

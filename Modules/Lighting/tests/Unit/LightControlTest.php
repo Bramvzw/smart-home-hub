@@ -159,6 +159,118 @@ class LightControlTest extends TestCase
             && $request['cmd']['value'] === 72);
     }
 
+    public function test_tuya_brightness_in_white_mode_writes_bright_value_v2(): void
+    {
+        Http::fake([
+            '*/v1.0/token*' => Http::response(['success' => true, 'result' => ['access_token' => 'tok', 'expire_time' => 7200]]),
+            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'bright_value_v2', 'value' => 800],
+                ['code' => 'temp_value_v2', 'value' => 300],
+            ]]),
+            '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
+        ]);
+
+        app(TuyaProvider::class)->setBrightness('d1', 30);
+
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
+            if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
+                return false;
+            }
+            $codes = collect((array) $request['commands'])->keyBy('code');
+
+            return $codes->count() === 1 && $codes['bright_value_v2']['value'] === 300;
+        });
+    }
+
+    public function test_tuya_colour_temperature_switches_to_white_and_keeps_white_brightness(): void
+    {
+        Http::fake([
+            '*/v1.0/token*' => Http::response(['success' => true, 'result' => ['access_token' => 'tok', 'expire_time' => 7200]]),
+            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'bright_value_v2', 'value' => 600],
+                ['code' => 'temp_value_v2', 'value' => 1000],
+            ]]),
+            '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
+        ]);
+
+        app(TuyaProvider::class)->setColorTemp('d1', 40);
+
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
+            if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
+                return false;
+            }
+
+            return $request['commands'] === [
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'temp_value_v2', 'value' => 400],
+                ['code' => 'bright_value_v2', 'value' => 600],
+            ];
+        });
+    }
+
+    public function test_tuya_colour_temperature_from_colour_mode_carries_the_v_channel_brightness(): void
+    {
+        Http::fake([
+            '*/v1.0/token*' => Http::response(['success' => true, 'result' => ['access_token' => 'tok', 'expire_time' => 7200]]),
+            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
+                ['code' => 'work_mode', 'value' => 'colour'],
+                ['code' => 'bright_value_v2', 'value' => 1000],
+                ['code' => 'colour_data_v2', 'value' => json_encode(['h' => 30, 's' => 1000, 'v' => 250])],
+            ]]),
+            '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
+        ]);
+
+        app(TuyaProvider::class)->setColorTemp('d1', 0);
+
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
+            if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
+                return false;
+            }
+            $codes = collect((array) $request['commands'])->keyBy('code');
+
+            return $codes['work_mode']['value'] === 'white'
+                && $codes['temp_value_v2']['value'] === 0
+                && $codes['bright_value_v2']['value'] === 250
+                && ! $codes->has('colour_data_v2');
+        });
+    }
+
+    public function test_govee_colour_temperature_maps_percent_onto_the_device_kelvin_range(): void
+    {
+        Http::fake([
+            '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
+                ['device' => 'AA:BB', 'model' => 'H6008', 'deviceName' => 'Bulb', 'controllable' => true, 'supportCmds' => ['turn', 'colorTem'],
+                    'properties' => ['colorTem' => ['range' => ['min' => 2700, 'max' => 6500]]]],
+            ]]]),
+            '*/v1/devices/control' => Http::response(['code' => 200, 'data' => []]),
+        ]);
+
+        app(GoveeProvider::class)->setColorTemp('AA:BB', 50);
+
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['model'] === 'H6008'
+            && $request['cmd']['name'] === 'colorTem'
+            && $request['cmd']['value'] === 4600);
+    }
+
+    public function test_govee_colour_temperature_falls_back_to_the_generic_kelvin_range(): void
+    {
+        Http::fake([
+            '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
+                ['device' => 'AA:BB', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn', 'colorTem']],
+            ]]]),
+            '*/v1/devices/control' => Http::response(['code' => 200, 'data' => []]),
+        ]);
+
+        app(GoveeProvider::class)->setColorTemp('AA:BB', 100);
+
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['cmd']['name'] === 'colorTem'
+            && $request['cmd']['value'] === 9000);
+    }
+
     public function test_lighting_preset_applies_to_all_reachable_provider_lights(): void
     {
         Http::fake([
@@ -166,16 +278,15 @@ class LightControlTest extends TestCase
             '*associated-users/devices*' => Http::response(['success' => true, 'result' => ['devices' => [
                 ['id' => 'calex-1', 'name' => 'Calex lamp', 'online' => true, 'status' => [
                     ['code' => 'switch_led', 'value' => false],
+                    ['code' => 'work_mode', 'value' => 'colour'],
                     ['code' => 'bright_value_v2', 'value' => 100],
+                    ['code' => 'temp_value_v2', 'value' => 0],
                     ['code' => 'colour_data_v2', 'value' => json_encode(['h' => 0, 's' => 0, 'v' => 1000])],
                 ]],
             ]]]),
-            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
-                ['code' => 'work_mode', 'value' => 'white'],
-            ]]),
             '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
             '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
-                ['device' => 'govee-1', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color']],
+                ['device' => 'govee-1', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color', 'colorTem']],
             ]]]),
             '*/v1/devices/state*' => Http::response(['code' => 200, 'data' => ['properties' => [
                 ['online' => true], ['powerState' => 'off'], ['brightness' => 10], ['color' => ['r' => 255, 'g' => 255, 'b' => 255]],
@@ -189,25 +300,27 @@ class LightControlTest extends TestCase
         $this->assertSame(0, $result->skipped);
         $this->assertSame([], $result->failedLights);
 
-        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1.0/devices/calex-1/commands')
-            && $request['commands'][0]['code'] === 'switch_led'
-            && $request['commands'][0]['value'] === true);
-
-        // Presets batch the full target state into one command write; the V
-        // channel carries the brightness inside colour_data_v2.
+        // Bright uses the real white LEDs: one batch with work_mode white, the
+        // coolest temperature and full brightness — no RGB fake-white.
         Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
             if (! str_contains($request->url(), '/v1.0/devices/calex-1/commands')) {
                 return false;
             }
-            $codes = collect((array) $request['commands'])->keyBy('code');
 
-            return $codes->has('colour_data_v2') && (int) $codes->get('colour_data_v2')['value']['v'] === 1000;
+            return $request['commands'] === [
+                ['code' => 'switch_led', 'value' => true],
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'temp_value_v2', 'value' => 1000],
+                ['code' => 'bright_value_v2', 'value' => 1000],
+            ];
         });
 
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'govee-1'
-            && $request['cmd']['name'] === 'color'
-            && $request['cmd']['value'] === ['r' => 245, 'g' => 247, 'b' => 255]);
+            && $request['cmd']['name'] === 'colorTem'
+            && $request['cmd']['value'] === 9000);
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['cmd']['name'] === 'color');
     }
 
     public function test_lighting_writes_fail_fast_when_the_control_queue_is_busy(): void

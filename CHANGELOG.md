@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Lighting: real white light with adjustable colour temperature for Calex and
+  Govee lamps; the Bright, Cozy and Night presets now use warm or cool white
+  instead of a bluish RGB imitation.
+
 ## [0.3.0] - 2026-10-11
 
 ### Changed

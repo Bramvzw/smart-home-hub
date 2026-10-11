@@ -16,9 +16,9 @@
         $masterPreset = $presetByKey->get($onCount > 0 ? 'off' : 'bright') ?? $presets[0] ?? null;
         $sceneSubtitles = [
             'bright' => 'Cool work light',
-            'cozy' => 'Warm and bright',
+            'cozy' => 'Warm white',
             'movie' => 'Dimmed blue',
-            'night' => 'Soft amber',
+            'night' => 'Warm and dim',
             'night_light' => 'Soft strip glow',
             'off' => 'Turn off',
         ];
@@ -48,6 +48,10 @@
 
                 if ($preset->brightness !== null && $light->brightness !== $preset->brightness) {
                     return false;
+                }
+
+                if ($preset->colorTemp !== null && $light->supportsColorTemp) {
+                    return $light->mode === \Modules\Lighting\Enums\LightMode::White && $light->colorTemp === $preset->colorTemp;
                 }
 
                 if ($preset->color !== null && $light->supportsColor && $normaliseColor($light->color) !== $normaliseColor($preset->color)) {
@@ -101,6 +105,7 @@
                         data-preset-power="{{ $masterPreset->power ? 'true' : 'false' }}"
                         data-preset-brightness="{{ $masterPreset->brightness }}"
                         data-preset-color="{{ $masterPreset->color }}"
+                        data-preset-color-temp="{{ $masterPreset->colorTemp }}"
                         data-preset-target-name-contains="{{ implode(',', $masterPreset->targetNameContains) }}"
                         data-master-toggle
                         class="lighting-console__master"
@@ -143,6 +148,12 @@
                                 data-selected="{{ $isSelected ? 'true' : 'false' }}"
                                 data-reachable="{{ $light->reachable ? 'true' : 'false' }}"
                                 data-supports-color="{{ $light->supportsColor ? 'true' : 'false' }}"
+                            data-mode="{{ $light->mode->value }}"
+                            data-color-temp="{{ $light->colorTemp }}"
+                            data-supports-color-temp="{{ $light->supportsColorTemp ? 'true' : 'false' }}"
+                                data-mode="{{ $light->mode->value }}"
+                                data-color-temp="{{ $light->colorTemp }}"
+                                data-supports-color-temp="{{ $light->supportsColorTemp ? 'true' : 'false' }}"
                                 data-url="{{ str_replace(['__PROVIDER__', '__ID__'], [$light->provider, rawurlencode($light->id)], $controlUrlTemplate) }}"
                                 style="--light-color: {{ $lightColor }}; --light-brightness: {{ $light->brightness }}%;"
                             >
@@ -158,7 +169,7 @@
                                         <span class="lighting-console__row-name">{{ $light->name }}</span>
                                         <span class="lighting-console__row-state" data-light-state>
                                             @if($light->reachable)
-                                                {{ $light->on ? $light->brightness.'% · '.($light->supportsColor ? 'color' : 'white') : 'off' }}
+                                                {{ $light->on ? $light->brightness.'% · '.($light->mode === \Modules\Lighting\Enums\LightMode::Colour ? 'color' : 'white') : 'off' }}
                                             @else
                                                 unreachable
                                             @endif
@@ -200,13 +211,14 @@
                             data-preset-power="{{ $preset->power ? 'true' : 'false' }}"
                             data-preset-brightness="{{ $preset->brightness }}"
                             data-preset-color="{{ $preset->color }}"
+                            data-preset-color-temp="{{ $preset->colorTemp }}"
                             data-preset-target-name-contains="{{ implode(',', $preset->targetNameContains) }}"
                             data-preset-label="{{ $preset->label }}"
                             data-active="{{ $activePreset?->key === $preset->key ? 'true' : 'false' }}"
                             aria-pressed="{{ $activePreset?->key === $preset->key ? 'true' : 'false' }}"
                             aria-label="Apply {{ $preset->label }}"
                             class="lighting-console__scene"
-                            style="--scene-color: {{ $preset->power ? ($preset->color ?? '#ffc26b') : '#7f7a72' }}"
+                            style="--scene-color: {{ $preset->power ? ($preset->color ?? ($preset->colorTemp !== null && $preset->colorTemp >= 50 ? '#f5f7ff' : '#ffc26b')) : '#7f7a72' }}"
                         >
                             <span class="lighting-console__scene-dot"></span>
                             <span>
@@ -237,6 +249,9 @@
                             data-color="{{ $lightColor }}"
                             data-reachable="{{ $light->reachable ? 'true' : 'false' }}"
                             data-supports-color="{{ $light->supportsColor ? 'true' : 'false' }}"
+                            data-mode="{{ $light->mode->value }}"
+                            data-color-temp="{{ $light->colorTemp }}"
+                            data-supports-color-temp="{{ $light->supportsColorTemp ? 'true' : 'false' }}"
                             data-url="{{ str_replace(['__PROVIDER__', '__ID__'], [$light->provider, rawurlencode($light->id)], $controlUrlTemplate) }}"
                             style="--light-color: {{ $lightColor }}; --light-brightness: {{ $light->brightness }}%;"
                             @if(! $isSelected) hidden @endif

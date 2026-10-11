@@ -12,7 +12,7 @@ class ControlLight
     ) {}
 
     /**
-     * @param  array{power?: bool, brightness?: int, color?: string}  $changes
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
      */
     public function __invoke(string $provider, string $id, array $changes): Light
     {

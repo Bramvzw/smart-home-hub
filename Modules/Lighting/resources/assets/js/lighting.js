@@ -32,6 +32,9 @@ const lightStateFromCard = (card) => ({
     color: card.querySelector('[data-action="color"]')?.value ?? card.dataset.color ?? '#ffc26b',
     reachable: card.dataset.reachable === 'true',
     supportsColor: card.dataset.supportsColor === 'true',
+    mode: card.dataset.mode === 'colour' ? 'colour' : 'white',
+    colorTemp: nullableNumber(card.dataset.colorTemp),
+    supportsColorTemp: card.dataset.supportsColorTemp === 'true',
 });
 
 const stateLabel = (state) => {
@@ -43,7 +46,7 @@ const stateLabel = (state) => {
         return 'off';
     }
 
-    return `${state.brightness}% · ${state.supportsColor ? 'color' : 'white'}`;
+    return `${state.brightness}% · ${state.mode === 'colour' ? 'color' : 'white'}`;
 };
 
 const updateCardVisual = (card) => {
@@ -104,6 +107,7 @@ const updateSummary = (root) => {
         master.dataset.presetPower = source.dataset.presetPower;
         master.dataset.presetBrightness = source.dataset.presetBrightness ?? '';
         master.dataset.presetColor = source.dataset.presetColor ?? '';
+        master.dataset.presetColorTemp = source.dataset.presetColorTemp ?? '';
         master.dataset.presetTargetNameContains = source.dataset.presetTargetNameContains ?? '';
     }
 };
@@ -142,6 +146,12 @@ const syncLight = (root, sourceCard, patch = {}) => {
         }
         if (source.color) {
             card.dataset.color = source.color;
+        }
+        if (source.mode) {
+            card.dataset.mode = source.mode;
+        }
+        if (source.colorTemp !== null && source.colorTemp !== undefined) {
+            card.dataset.colorTemp = String(source.colorTemp);
         }
 
         updateCardVisual(card);
@@ -320,6 +330,7 @@ const normalisePreset = (preset) => ({
     power: preset.power === true || preset.power === 'true',
     brightness: nullableNumber(preset.brightness),
     color: preset.color || null,
+    colorTemp: nullableNumber(preset.colorTemp ?? preset.color_temp),
     targetNameContains: listFromValue(preset.targetNameContains ?? preset.target_name_contains),
 });
 
@@ -329,6 +340,7 @@ const presetFromButton = (button) => normalisePreset({
     power: button.dataset.presetPower === 'true',
     brightness: button.dataset.presetBrightness,
     color: button.dataset.presetColor || null,
+    colorTemp: button.dataset.presetColorTemp,
     targetNameContains: button.dataset.presetTargetNameContains,
 });
 
@@ -363,6 +375,10 @@ const presetMatchesCard = (card, preset) => {
 
     if (preset.brightness !== null && state.brightness !== preset.brightness) {
         return false;
+    }
+
+    if (preset.colorTemp !== null && state.supportsColorTemp) {
+        return state.mode === 'white' && state.colorTemp === preset.colorTemp;
     }
 
     if (preset.color && state.supportsColor && normaliseColor(state.color) !== normaliseColor(preset.color)) {
@@ -439,11 +455,16 @@ const applyPresetToCard = (card, preset) => {
         card.dataset.brightness = String(preset.brightness);
     }
 
-    if (preset.color && card.dataset.supportsColor === 'true') {
+    // A colour temperature wins over a colour, like on the backend.
+    if (preset.colorTemp !== null && card.dataset.supportsColorTemp === 'true') {
+        card.dataset.mode = 'white';
+        card.dataset.colorTemp = String(preset.colorTemp);
+    } else if (preset.color && card.dataset.supportsColor === 'true') {
         colorControls.forEach((color) => {
             color.value = preset.color;
         });
         card.dataset.color = preset.color;
+        card.dataset.mode = 'colour';
     }
 
     updateCardVisual(card);
@@ -513,7 +534,7 @@ const setupColorWheel = (root, card) => {
         if (native) {
             native.value = hex;
         }
-        syncLight(root, card, { color: hex, power: true });
+        syncLight(root, card, { color: hex, power: true, mode: 'colour' });
         updateActivePreset(root);
         sendColor({ power: true, color: hex });
     };
@@ -576,7 +597,7 @@ export const initLighting = () => {
 
         // 'input' fires live while dragging the picker; debounce so we don't flood the API.
         card.querySelectorAll('[data-action="color"]').forEach((color) => color.addEventListener('input', debounce((event) => {
-            syncLight(root, card, { color: event.target.value, power: true });
+            syncLight(root, card, { color: event.target.value, power: true, mode: 'colour' });
             updateActivePreset(root);
             send(card, { power: true, color: event.target.value });
         }, 250)));

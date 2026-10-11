@@ -28,7 +28,7 @@ class LightingControllerTest extends TestCase
 
         Http::fake([
             '*developer-api.govee.com/v1/devices' => Http::response(['code' => 200, 'data' => ['devices' => [
-                ['device' => 'DEV1', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color']],
+                ['device' => 'DEV1', 'model' => 'H6159', 'deviceName' => 'Strip', 'controllable' => true, 'supportCmds' => ['turn', 'brightness', 'color', 'colorTem']],
             ]]]),
             '*/v1/devices/state*' => Http::response(['code' => 200, 'data' => ['properties' => [
                 ['online' => true], ['powerState' => 'on'], ['brightness' => 60], ['color' => ['r' => 0, 'g' => 0, 'b' => 255]],
@@ -112,12 +112,55 @@ class LightingControllerTest extends TestCase
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'DEV1'
             && $request['cmd']['name'] === 'brightness'
-            && $request['cmd']['value'] === 72);
+            && $request['cmd']['value'] === 70);
 
+        // Cozy is warm white: the warmest colour temperature, no RGB colour.
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'DEV1'
-            && $request['cmd']['name'] === 'color'
-            && $request['cmd']['value'] === ['r' => 255, 'g' => 194, 'b' => 107]);
+            && $request['cmd']['name'] === 'colorTem'
+            && $request['cmd']['value'] === 2000);
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['cmd']['name'] === 'color');
+    }
+
+    public function test_control_endpoint_sets_a_colour_temperature(): void
+    {
+        $this->fakeGovee();
+
+        $response = $this->putJson(route('lighting.lights.update', ['provider' => 'govee', 'id' => 'DEV1']), [
+            'color_temp' => 50,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.mode', 'white');
+        $response->assertJsonPath('data.color_temp', 50);
+        $response->assertJsonPath('data.supports_color_temp', true);
+        $response->assertJsonPath('data.supports_color', false);
+
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['cmd']['name'] === 'colorTem'
+            && $request['cmd']['value'] === 5500);
+    }
+
+    public function test_control_endpoint_rejects_colour_and_colour_temperature_together(): void
+    {
+        $this->fakeGovee();
+
+        $this->putJson(route('lighting.lights.update', ['provider' => 'govee', 'id' => 'DEV1']), [
+            'color' => '#ff0000',
+            'color_temp' => 50,
+        ])->assertStatus(422)->assertJsonValidationErrors('color_temp');
+
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control'));
+    }
+
+    public function test_control_endpoint_rejects_an_out_of_range_colour_temperature(): void
+    {
+        $this->fakeGovee();
+
+        $this->putJson(route('lighting.lights.update', ['provider' => 'govee', 'id' => 'DEV1']), [
+            'color_temp' => 101,
+        ])->assertStatus(422)->assertJsonValidationErrors('color_temp');
     }
 
     public function test_night_light_preset_only_targets_the_led_strip(): void
