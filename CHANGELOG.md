@@ -40,6 +40,9 @@ All notable changes to this project are documented here. The format follows
   on.
 - Lighting: the two-minute state refresh no longer snaps a slider or colour
   back while you are still dragging it.
+- Lighting: `Update to current` keeps the stored state of a lamp that is
+  offline at that moment instead of dropping it from the scene, and applying a
+  scene reports stored lamps that no longer exist (`missing_lights`).
 - Lighting: a scene, preset or group change that waits for a single-lamp
   change now builds its commands from the state that change left behind, and a
   state refresh that overlaps a change no longer caches the old state for two

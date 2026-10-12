@@ -217,6 +217,43 @@ class LightingSceneControllerTest extends TestCase
         $this->assertSame(2, LightingSceneLight::query()->where('lighting_scene_id', $scene->id)->count());
     }
 
+    public function test_update_to_current_keeps_the_stored_state_of_an_offline_lamp(): void
+    {
+        $this->fakeProviders();
+        $scene = $this->makeScene('Dinner', [
+            ['provider' => 'tuya', 'light_id' => 't1', 'power' => true, 'brightness' => 45, 'mode' => 'white', 'color_temp' => 8],
+            ['provider' => 'tuya', 'light_id' => 't4', 'power' => true, 'brightness' => 20, 'mode' => 'colour', 'color' => '#9900ff'],
+        ]);
+
+        $this->putJson(route('lighting.scenes.update', $scene), ['lights' => [['provider' => 'tuya', 'id' => 't1'], ['provider' => 'tuya', 'id' => 't4']]])
+            ->assertStatus(200)
+            ->assertJsonCount(2, 'data.lights')
+            ->assertJsonPath('data.lights.0.brightness', 70)
+            ->assertJsonPath('data.lights.1', ['provider' => 'tuya', 'id' => 't4', 'power' => true, 'brightness' => 20, 'mode' => 'colour', 'color' => '#9900ff', 'color_temp' => null]);
+    }
+
+    public function test_update_to_current_with_only_offline_lamps_is_rejected_and_keeps_the_scene(): void
+    {
+        $this->fakeProviders();
+        $scene = $this->makeScene('Hall', [['provider' => 'tuya', 'light_id' => 't4', 'power' => true, 'brightness' => 20, 'mode' => 'white']]);
+
+        $this->putJson(route('lighting.scenes.update', $scene), ['lights' => [['provider' => 'tuya', 'id' => 't4']]])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('lights');
+
+        $this->assertSame(1, LightingSceneLight::query()->where('lighting_scene_id', $scene->id)->count());
+    }
+
+    public function test_unknown_scene_ids_are_404(): void
+    {
+        $this->fakeProviders();
+
+        $this->putJson(route('lighting.scenes.update', ['scene' => 999]), ['name' => 'Ghost'])->assertNotFound();
+        $this->postJson(route('lighting.scenes.apply', ['scene' => 999]))->assertNotFound();
+        $this->deleteJson(route('lighting.scenes.destroy', ['scene' => 999]))->assertNotFound();
+        Http::assertNothingSent();
+    }
+
     public function test_update_validates_the_payload(): void
     {
         $scene = $this->makeScene('Dinner', [['provider' => 'tuya', 'light_id' => 't1', 'power' => false, 'mode' => 'white']]);
@@ -251,7 +288,7 @@ class LightingSceneControllerTest extends TestCase
         $response = $this->postJson(route('lighting.scenes.apply', $scene));
 
         $response->assertStatus(200);
-        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => ['Hallway'], 'skipped' => []]]);
+        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => ['Hallway'], 'skipped' => [], 'missing_lights' => [['provider' => 'tuya', 'id' => 'gone']]]]);
 
         Http::assertSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/t1/commands')
             && $request['commands'] === [['code' => 'switch_led', 'value' => false]]);
@@ -272,6 +309,24 @@ class LightingSceneControllerTest extends TestCase
         $this->postJson(route('lighting.scenes.apply', $scene))
             ->assertStatus(502)
             ->assertJsonPath('data.failed', ['Spot 1']);
+    }
+
+    public function test_apply_reports_lamps_that_are_gone_or_unconfigured(): void
+    {
+        $this->fakeProviders();
+        config(['lighting.govee.api_key' => '']);
+        $scene = $this->makeScene('Old', [
+            ['provider' => 'tuya', 'light_id' => 'gone', 'power' => false, 'mode' => 'white'],
+            ['provider' => 'govee', 'light_id' => 'DEV1', 'power' => false, 'mode' => 'white'],
+        ]);
+
+        $this->postJson(route('lighting.scenes.apply', $scene))
+            ->assertStatus(200)
+            ->assertJsonPath('data.applied', 0)
+            ->assertJsonPath('data.missing_lights', [['provider' => 'tuya', 'id' => 'gone'], ['provider' => 'govee', 'id' => 'DEV1']]);
+
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/commands')
+            || str_contains($request->url(), '/v1/devices/control'));
     }
 
     public function test_apply_returns_409_while_the_group_lock_is_held(): void

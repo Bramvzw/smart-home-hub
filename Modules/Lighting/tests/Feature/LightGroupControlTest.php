@@ -79,7 +79,7 @@ class LightGroupControlTest extends TestCase
         ], ['power' => true, 'brightness' => 60, 'color_temp' => 20]);
 
         $response->assertStatus(200);
-        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => [], 'skipped' => []]]);
+        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => [], 'skipped' => [], 'missing_lights' => []]]);
 
         foreach (['t1', 't2'] as $id) {
             Http::assertSent(fn (Request $request): bool => str_contains($request->url(), "/v1.0/devices/{$id}/commands")
@@ -252,7 +252,7 @@ class LightGroupControlTest extends TestCase
 
         $this->group($lights, ['power' => true, 'color' => '#00ff00'])
             ->assertStatus(200)
-            ->assertExactJson(['data' => ['applied' => 1, 'failed' => [], 'skipped' => ['Dimmer']]]);
+            ->assertExactJson(['data' => ['applied' => 1, 'failed' => [], 'skipped' => ['Dimmer'], 'missing_lights' => []]]);
         Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/w1/commands'));
 
         $this->group($lights, ['power' => true, 'color_temp' => 10])

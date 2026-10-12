@@ -19,7 +19,8 @@ class UpdateLightingScene
 
     /**
      * Rename / recolour a scene, and re-capture its lamps when given ("Update
-     * to current"). Re-capturing replaces every stored lamp state.
+     * to current"). Re-capturing replaces the stored state of every reachable
+     * lamp; a lamp that is offline right now keeps its stored state.
      *
      * @param  list<array{provider: string, id: string}>|null  $lights
      *
@@ -30,11 +31,14 @@ class UpdateLightingScene
     {
         $states = null;
         if ($lights !== null) {
-            $states = $this->capture->fromSnapshot($this->service->snapshot(), $lights);
+            $snapshot = $this->service->snapshot();
 
-            if ($states === []) {
+            if ($this->capture->fromSnapshot($snapshot, $lights) === []) {
                 throw ValidationException::withMessages(['lights' => 'None of the selected lamps is reachable right now.']);
             }
+
+            $scene->loadMissing('lights');
+            $states = $this->capture->fromSnapshot($snapshot, $lights, $scene->states());
         }
 
         return DB::transaction(function () use ($scene, $name, $accent, $states): LightingScene {

@@ -236,8 +236,8 @@ class LightingService
      * Bring several lamps into their own target states (user scenes). Lamps
      * that share a provider and an identical change set go out as one group
      * write, so Calex lamps are still written concurrently. Unreachable lamps
-     * are skipped and reported in `failed`; lamps that no longer exist are
-     * ignored.
+     * are skipped and reported in `failed`; lamps that no longer exist (or
+     * whose provider is not configured) are reported in `missingLights`.
      *
      * @param  list<SceneLightState>  $states
      */
@@ -249,6 +249,7 @@ class LightingService
         return $this->withControlLock(self::GROUP_LOCK, fn (): LightingGroupResult => $this->withLightLocks($lockKeys, function () use ($states): LightingGroupResult {
             $failed = [];
             $skipped = [];
+            $missing = [];
             $plan = [];
 
             $byProvider = [];
@@ -259,6 +260,10 @@ class LightingService
             foreach ($byProvider as $providerKey => $providerStates) {
                 $provider = $this->configuredProviderByKey($providerKey);
                 if ($provider === null) {
+                    foreach ($providerStates as $state) {
+                        $missing[] = ['provider' => $state->provider, 'id' => $state->id];
+                    }
+
                     continue;
                 }
 
@@ -280,6 +285,8 @@ class LightingService
                 foreach ($providerStates as $state) {
                     $light = $byId[$state->id] ?? null;
                     if ($light === null) {
+                        $missing[] = ['provider' => $state->provider, 'id' => $state->id];
+
                         continue;
                     }
                     if (! $light->reachable) {
@@ -305,7 +312,7 @@ class LightingService
 
             $applied = $this->writeBatches($plan, $failed);
 
-            return new LightingGroupResult($applied, array_values(array_unique($failed)), array_values(array_unique($skipped)));
+            return new LightingGroupResult($applied, array_values(array_unique($failed)), array_values(array_unique($skipped)), $missing);
         }));
     }
 
