@@ -6,11 +6,24 @@ use App\Services\ModuleRegistry;
 use App\Services\ModuleState;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class ModuleManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        // weather:check-rain is gated by between('7:00', '23:00'), and Laravel
+        // captures that window's "now" when routes/console.php defines the
+        // schedule during boot. Freeze the clock inside the window before the
+        // app boots, so only the module gate decides whether the filters pass.
+        // (The base TestCase clears the frozen clock in tearDown.)
+        Carbon::setTestNow(Carbon::today()->setTime(12, 0));
+
+        parent::setUp();
+    }
 
     public function test_settings_page_lists_every_module_in_the_modules_pane(): void
     {
