@@ -178,7 +178,9 @@ class LightingService
         // Lock first, then read and plan: see applyPreset().
         return $this->withControlLock(self::GROUP_LOCK, fn (): LightingGroupResult => $this->withLightLocks($lockKeys, function () use ($targets, $changes): LightingGroupResult {
             $failed = [];
+            $failedLights = [];
             $skipped = [];
+            $skippedLights = [];
             $plan = [];
 
             foreach ($this->idsByProvider($targets) as $providerKey => $ids) {
@@ -192,6 +194,10 @@ class LightingService
                 } catch (Throwable $e) {
                     $this->logWriteFailure($provider, $e);
                     $failed[] = $provider->label();
+                    // The lamp names are unknown without a snapshot: the provider label stands in.
+                    foreach ($ids as $id) {
+                        $failedLights[] = ['provider' => $providerKey, 'id' => $id, 'name' => $provider->label()];
+                    }
 
                     continue;
                 }
@@ -207,6 +213,7 @@ class LightingService
 
                     if (! $light->reachable) {
                         $failed[] = $light->name;
+                        $failedLights[] = $this->lightRef($light);
 
                         continue;
                     }
@@ -214,6 +221,7 @@ class LightingService
                     $supported = $this->supportedChanges($light, $changes);
                     if ($supported === null) {
                         $skipped[] = $light->name;
+                        $skippedLights[] = $this->lightRef($light);
 
                         continue;
                     }
@@ -226,9 +234,15 @@ class LightingService
                 $plan[] = [$provider, array_values($batches)];
             }
 
-            $applied = $this->writeBatches($plan, $failed);
+            $applied = $this->writeBatches($plan, $failed, $failedLights);
 
-            return new LightingGroupResult($applied, array_values(array_unique($failed)), array_values(array_unique($skipped)));
+            return new LightingGroupResult(
+                applied: $applied,
+                failed: array_values(array_unique($failed)),
+                skipped: array_values(array_unique($skipped)),
+                failedLights: $this->uniqueLightRefs($failedLights),
+                skippedLights: $this->uniqueLightRefs($skippedLights),
+            );
         }));
     }
 
@@ -248,7 +262,9 @@ class LightingService
         // Lock first, then read and plan: see applyPreset().
         return $this->withControlLock(self::GROUP_LOCK, fn (): LightingGroupResult => $this->withLightLocks($lockKeys, function () use ($states): LightingGroupResult {
             $failed = [];
+            $failedLights = [];
             $skipped = [];
+            $skippedLights = [];
             $missing = [];
             $plan = [];
 
@@ -272,6 +288,9 @@ class LightingService
                 } catch (Throwable $e) {
                     $this->logWriteFailure($provider, $e);
                     $failed[] = $provider->label();
+                    foreach ($providerStates as $state) {
+                        $failedLights[] = ['provider' => $state->provider, 'id' => $state->id, 'name' => $provider->label()];
+                    }
 
                     continue;
                 }
@@ -291,6 +310,7 @@ class LightingService
                     }
                     if (! $light->reachable) {
                         $failed[] = $light->name;
+                        $failedLights[] = $this->lightRef($light);
 
                         continue;
                     }
@@ -298,6 +318,7 @@ class LightingService
                     $changes = $this->supportedChanges($light, $state->changes());
                     if ($changes === null) {
                         $skipped[] = $light->name;
+                        $skippedLights[] = $this->lightRef($light);
 
                         continue;
                     }
@@ -310,9 +331,16 @@ class LightingService
                 $plan[] = [$provider, array_values($batches)];
             }
 
-            $applied = $this->writeBatches($plan, $failed);
+            $applied = $this->writeBatches($plan, $failed, $failedLights);
 
-            return new LightingGroupResult($applied, array_values(array_unique($failed)), array_values(array_unique($skipped)), $missing);
+            return new LightingGroupResult(
+                applied: $applied,
+                failed: array_values(array_unique($failed)),
+                skipped: array_values(array_unique($skipped)),
+                missingLights: $missing,
+                failedLights: $this->uniqueLightRefs($failedLights),
+                skippedLights: $this->uniqueLightRefs($skippedLights),
+            );
         }));
     }
 
@@ -514,12 +542,13 @@ class LightingService
      * Write planned group batches. Callers hold the per-light lock of every
      * lamp in them (taken before the plan was read), so a single-light write
      * on one of those lamps cannot interleave. Failed lamps are added to
-     * `$failed`; returns the applied count.
+     * `$failed` (names) and `$failedLights`; returns the applied count.
      *
      * @param  list<array{0: LightProvider, 1: list<array{changes: array{power?: bool, brightness?: int, color?: string, color_temp?: int}, lights: list<Light>}>}>  $plan
      * @param  list<string>  $failed
+     * @param  list<array{provider: string, id: string, name: string}>  $failedLights
      */
-    private function writeBatches(array $plan, array &$failed): int
+    private function writeBatches(array $plan, array &$failed, array &$failedLights): int
     {
         $applied = 0;
         foreach ($plan as [$provider, $batches]) {
@@ -543,6 +572,7 @@ class LightingService
                 foreach ($batch['lights'] as $light) {
                     if (in_array($light->id, $failedIds, true)) {
                         $failed[] = $light->name;
+                        $failedLights[] = $this->lightRef($light);
                     } else {
                         $written[] = $light->withChanges(['power' => $batch['changes']['power'] ?? true] + $batch['changes']);
                         $applied++;
@@ -623,6 +653,28 @@ class LightingService
                 $lock->release();
             }
         }
+    }
+
+    /**
+     * @return array{provider: string, id: string, name: string}
+     */
+    private function lightRef(Light $light): array
+    {
+        return ['provider' => $light->provider, 'id' => $light->id, 'name' => $light->name];
+    }
+
+    /**
+     * @param  list<array{provider: string, id: string, name: string}>  $refs
+     * @return list<array{provider: string, id: string, name: string}>
+     */
+    private function uniqueLightRefs(array $refs): array
+    {
+        $unique = [];
+        foreach ($refs as $ref) {
+            $unique[$ref['provider'].'::'.$ref['id']] ??= $ref;
+        }
+
+        return array_values($unique);
     }
 
     private function lightLockKey(string $providerKey, string $id): string

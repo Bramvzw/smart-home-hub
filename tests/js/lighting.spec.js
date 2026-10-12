@@ -256,9 +256,14 @@ describe('lighting kiosk', () => {
             });
         });
 
-        it('rolls back lamps the group request names as failed', async () => {
-            document.body.innerHTML = page(tile({ id: '1', name: 'Spot 1', on: true }) + tile({ id: '2', name: 'Spot 2', on: true }));
-            fetch.mockResolvedValue(okResponse({ data: { applied: 1, failed: ['Spot 2'] } }));
+        it('rolls back lamps the group request names as failed, matched by key not name', async () => {
+            // Tuya's default names repeat: only the lamp in failed_lights rolls back.
+            document.body.innerHTML = page(tile({ id: '1', name: 'Smart bulb', on: true }) + tile({ id: '2', name: 'Smart bulb', on: true }));
+            fetch.mockResolvedValue(okResponse({ data: {
+                applied: 1,
+                failed: ['Smart bulb'],
+                failed_lights: [{ provider: 'tuya', id: '2', name: 'Smart bulb' }],
+            } }));
 
             initLighting();
             document.querySelector('[data-select-start]').click();
@@ -270,9 +275,90 @@ describe('lighting kiosk', () => {
 
             const [one, two] = document.querySelectorAll('[data-light]');
             expect(one.dataset.on).toBe('false');
+            expect(one.dataset.failed).toBeUndefined();
             expect(two.dataset.on).toBe('true');
             expect(two.dataset.failed).toBe('true');
             expect(document.querySelector('[data-lighting-toast]').hidden).toBe(false);
+        });
+
+        it('rolls back every lamp of a provider that failed as a whole', async () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', name: 'Spot 1', on: true })
+                + tile({ id: '2', name: 'Spot 2', on: true })
+                + tile({ provider: 'govee', id: 'DEV1', name: 'Strip', providerLabel: 'Govee', on: true }),
+            );
+            fetch.mockResolvedValue(okResponse({ data: {
+                applied: 1,
+                failed: ['Calex'],
+                failed_lights: [{ provider: 'tuya', id: '1', name: 'Calex' }, { provider: 'tuya', id: '2', name: 'Calex' }],
+            } }));
+
+            initLighting();
+            document.querySelector('[data-select-start]').click();
+            document.querySelector('[data-select-all]').click();
+            document.querySelector('[data-selbar-adjust]').click();
+            document.querySelector('[data-sheet-power]').click();
+            await flushPromises();
+            await flushPromises();
+
+            expect([...document.querySelectorAll('[data-light]')].map((card) => card.dataset.on)).toEqual(['true', 'true', 'false']);
+        });
+
+        it('names skipped lamps in a toast', async () => {
+            document.body.innerHTML = page(tile({ id: '1', name: 'Spot 1' }) + tile({ id: '2', name: 'Dimmer', supportsColor: false, supportsColorTemp: false }));
+            fetch.mockResolvedValue(okResponse({ data: {
+                applied: 1,
+                failed: [],
+                failed_lights: [],
+                skipped: ['Dimmer'],
+                skipped_lights: [{ provider: 'tuya', id: '2', name: 'Dimmer' }],
+            } }));
+
+            initLighting();
+            document.querySelector('[data-select-start]').click();
+            document.querySelector('[data-select-all]').click();
+            document.querySelector('[data-selbar-adjust]').click();
+            document.querySelector('[data-sheet-power]').click();
+            await flushPromises();
+            await flushPromises();
+
+            expect(document.querySelector('[data-lighting-toast]').hidden).toBe(false);
+            expect(document.querySelector('[data-lighting-toast-text]').textContent).toBe("Dimmer can't show that colour — left unchanged.");
+        });
+
+        it('keeps queued changes for a different selection as their own request', async () => {
+            const first = deferred();
+            document.body.innerHTML = page(tile({ id: '1' }) + tile({ id: '2' }) + tile({ id: '3' }) + tile({ id: '4' }));
+            fetch.mockReturnValueOnce(first.promise).mockResolvedValue(okResponse({ data: { applied: 2, failed: [], failed_lights: [] } }));
+
+            initLighting();
+            const toggles = document.querySelectorAll('[data-tile-toggle]');
+            const adjust = (indexes) => {
+                document.querySelector('[data-sheet-close]')?.click();
+                document.querySelector('[data-select-cancel]').click();
+                document.querySelector('[data-select-start]').click();
+                indexes.forEach((index) => toggles[index].click());
+                document.querySelector('[data-selbar-adjust]').click();
+            };
+
+            adjust([0, 1]);
+            document.querySelector('[data-sheet-chip="0"]').click();
+            document.querySelector('[data-sheet-chip="50"]').click();
+            adjust([2, 3]);
+            document.querySelector('[data-sheet-chip="100"]').click();
+            expect(fetch).toHaveBeenCalledTimes(1);
+
+            first.resolve(okResponse({ data: { applied: 2, failed: [], failed_lights: [] } }));
+            for (let i = 0; i < 4; i++) {
+                await flushPromises();
+            }
+
+            expect(fetch.mock.calls.map(bodyOf)).toEqual([
+                { lights: [{ provider: 'tuya', id: '1' }, { provider: 'tuya', id: '2' }], changes: { power: true, color_temp: 0 } },
+                { lights: [{ provider: 'tuya', id: '1' }, { provider: 'tuya', id: '2' }], changes: { power: true, color_temp: 50 } },
+                { lights: [{ provider: 'tuya', id: '3' }, { provider: 'tuya', id: '4' }], changes: { power: true, color_temp: 100 } },
+            ]);
+            expect([...document.querySelectorAll('[data-light]')].map((card) => card.dataset.colorTemp)).toEqual(['50', '50', '100', '100']);
         });
     });
 
@@ -561,6 +647,67 @@ describe('lighting kiosk', () => {
             expect(button.getAttribute('aria-pressed')).toBe('true');
         });
 
+        it('applies a scene only to lamps it did not report as failed or skipped, by key', async () => {
+            const lights = [
+                { provider: 'tuya', id: '1', power: false, brightness: null, mode: 'white', color: null, color_temp: null },
+                { provider: 'tuya', id: '2', power: false, brightness: null, mode: 'white', color: null, color_temp: null },
+                { provider: 'tuya', id: '3', power: false, brightness: null, mode: 'white', color: null, color_temp: null },
+            ];
+            document.body.innerHTML = page(
+                tile({ id: '1', name: 'Smart bulb', on: true }) + tile({ id: '2', name: 'Smart bulb', on: true }) + tile({ id: '3', name: 'Dimmer', on: true }),
+                { scenes: userScene({ id: '5', name: 'Off', lights }) },
+            );
+            fetch.mockResolvedValueOnce(okResponse({ data: {
+                applied: 1,
+                failed: ['Smart bulb'],
+                failed_lights: [{ provider: 'tuya', id: '2', name: 'Smart bulb' }],
+                skipped: ['Dimmer'],
+                skipped_lights: [{ provider: 'tuya', id: '3', name: 'Dimmer' }],
+                missing_lights: [],
+            } }));
+
+            initLighting();
+            document.querySelector('[data-scene="5"]').click();
+            await flushPromises();
+
+            expect([...document.querySelectorAll('[data-light]')].map((card) => card.dataset.on)).toEqual(['false', 'true', 'true']);
+            expect(document.querySelector('[data-lighting-toast-text]').textContent).toBe("Couldn't reach Smart bulb.");
+        });
+
+        it('names skipped lamps after a scene is applied', async () => {
+            const lights = [{ provider: 'tuya', id: '1', power: true, brightness: 30, mode: 'colour', color: '#9900ff', color_temp: null }];
+            document.body.innerHTML = page(tile({ id: '1', name: 'Dimmer', supportsColor: false }) + tile({ id: '2' }), {
+                scenes: userScene({ id: '5', name: 'Purple', lights: [...lights, { ...lights[0], id: '2' }] }),
+            });
+            fetch.mockResolvedValueOnce(okResponse({ data: {
+                applied: 1, failed: [], failed_lights: [], skipped: ['Dimmer'], skipped_lights: [{ provider: 'tuya', id: '1', name: 'Dimmer' }], missing_lights: [],
+            } }));
+
+            initLighting();
+            document.querySelector('[data-scene="5"]').click();
+            await flushPromises();
+
+            expect(document.querySelector('[data-lighting-toast-text]').textContent).toBe("Dimmer can't show that colour — left unchanged.");
+        });
+
+        it('does not mark a scene active when nothing was applied', async () => {
+            const lights = [{ provider: 'tuya', id: 'gone', power: false, brightness: null, mode: 'white', color: null, color_temp: null }];
+            document.body.innerHTML = page(tile({ id: '1', on: true }), { scenes: userScene({ id: '5', name: 'Old', lights }) });
+            fetch.mockResolvedValueOnce(okResponse({ data: {
+                applied: 0, failed: [], failed_lights: [], skipped: [], skipped_lights: [], missing_lights: [{ provider: 'tuya', id: 'gone' }],
+            } }));
+
+            initLighting();
+            const button = document.querySelector('[data-scene="5"]');
+            button.click();
+            await flushPromises();
+
+            expect(button.getAttribute('aria-pressed')).toBe('false');
+            expect(document.querySelector('[data-lighting]').dataset.activePreset).toBe('manual');
+            expect(document.querySelector('[data-lighting-toast]').hidden).toBe(false);
+            expect(document.querySelector('[data-lighting-toast-text]').textContent).toBe("Old changed nothing — its lamps are gone or can't be reached.");
+        });
+
         it('renames, re-captures and deletes a scene from its menu', async () => {
             const lights = [{ provider: 'tuya', id: '1', power: false, brightness: null, mode: 'white', color: null, color_temp: null }];
             document.body.innerHTML = page(tile({ id: '1', on: true }), { scenes: userScene({ id: '5', name: 'Dinner', accent: '#b06bff', lights }) });
@@ -803,6 +950,37 @@ describe('lighting kiosk', () => {
             expect(lamp.dataset.brightness).toBe('70');
             jest.advanceTimersByTime(150);
             expect(bodyOf(fetch.mock.calls[1])).toEqual({ power: true, brightness: 70 });
+        });
+
+        it('drops a poll that started before a scene was applied', async () => {
+            jest.useFakeTimers();
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
+            const lights = [{ provider: 'tuya', id: '1', power: true, brightness: 30, mode: 'colour', color: '#9900ff', color_temp: null }];
+            document.body.innerHTML = page(tile({ id: '1', on: false }), {
+                attrs: 'data-state-url="/lighting/state" data-poll-seconds="120"',
+                scenes: userScene({ id: '5', name: 'Purple', lights }),
+            });
+            const poll = deferred();
+            fetch.mockReturnValueOnce(poll.promise).mockResolvedValueOnce(okResponse({ data: { applied: 1, failed: [], failed_lights: [], skipped: [], skipped_lights: [] } }));
+
+            initLighting();
+            jest.advanceTimersByTime(120000);
+            jest.setSystemTime(Date.now() + 50);
+            const button = document.querySelector('[data-scene="5"]');
+            button.click();
+            await flushPromises();
+            expect(button.getAttribute('aria-pressed')).toBe('true');
+
+            // The poll read the lamps before the scene: it still reports the lamp as off.
+            jest.setSystemTime(Date.now() + 50);
+            poll.resolve(serverState({ on: false, brightness: 10 }));
+            await flushPromises();
+            await flushPromises();
+
+            const lamp = document.querySelector('[data-light]');
+            expect(lamp.dataset.on).toBe('true');
+            expect(lamp.dataset.color).toBe('#9900ff');
+            expect(button.getAttribute('aria-pressed')).toBe('true');
         });
 
         it('removes the visibility listener when the page is left via Livewire navigation', () => {

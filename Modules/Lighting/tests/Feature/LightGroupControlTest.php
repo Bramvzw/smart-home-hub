@@ -79,7 +79,7 @@ class LightGroupControlTest extends TestCase
         ], ['power' => true, 'brightness' => 60, 'color_temp' => 20]);
 
         $response->assertStatus(200);
-        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => [], 'skipped' => [], 'missing_lights' => []]]);
+        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => [], 'skipped' => [], 'failed_lights' => [], 'skipped_lights' => [], 'missing_lights' => []]]);
 
         foreach (['t1', 't2'] as $id) {
             Http::assertSent(fn (Request $request): bool => str_contains($request->url(), "/v1.0/devices/{$id}/commands")
@@ -133,6 +133,48 @@ class LightGroupControlTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonPath('data.applied', 1);
         $response->assertJsonPath('data.failed', ['Lamp 3', 'Lamp 2']);
+        $response->assertJsonPath('data.failed_lights', [
+            ['provider' => 'tuya', 'id' => 't3', 'name' => 'Lamp 3'],
+            ['provider' => 'tuya', 'id' => 't2', 'name' => 'Lamp 2'],
+        ]);
+    }
+
+    public function test_failed_lights_tell_lamps_with_the_same_name_apart(): void
+    {
+        $sameName = static fn (string $id): array => ['id' => $id, 'name' => 'Smart bulb', 'online' => true, 'status' => [
+            ['code' => 'switch_led', 'value' => true],
+            ['code' => 'bright_value_v2', 'value' => 500],
+        ]];
+        $this->fakeProviders([
+            '*associated-users/devices*' => Http::response(['success' => true, 'result' => ['devices' => [$sameName('b1'), $sameName('b2')]]]),
+            '*/v1.0/devices/b2/commands' => Http::response(['success' => false, 'code' => 2001]),
+        ]);
+
+        $this->group([['provider' => 'tuya', 'id' => 'b1'], ['provider' => 'tuya', 'id' => 'b2']], ['power' => false])
+            ->assertStatus(200)
+            ->assertJsonPath('data.applied', 1)
+            ->assertJsonPath('data.failed', ['Smart bulb'])
+            ->assertJsonPath('data.failed_lights', [['provider' => 'tuya', 'id' => 'b2', 'name' => 'Smart bulb']]);
+    }
+
+    public function test_a_provider_failure_in_a_mixed_group_lists_each_of_its_lamps(): void
+    {
+        $this->fakeProviders([
+            '*/v1.0/token*' => Http::response(['success' => false, 'msg' => 'bad token'], 500),
+        ]);
+
+        $this->group([
+            ['provider' => 'tuya', 'id' => 't1'],
+            ['provider' => 'tuya', 'id' => 't2'],
+            ['provider' => 'govee', 'id' => 'DEV1'],
+        ], ['power' => true])
+            ->assertStatus(200)
+            ->assertJsonPath('data.applied', 1)
+            ->assertJsonPath('data.failed', ['Calex'])
+            ->assertJsonPath('data.failed_lights', [
+                ['provider' => 'tuya', 'id' => 't1', 'name' => 'Calex'],
+                ['provider' => 'tuya', 'id' => 't2', 'name' => 'Calex'],
+            ]);
     }
 
     public function test_full_failure_returns_502(): void
@@ -252,7 +294,7 @@ class LightGroupControlTest extends TestCase
 
         $this->group($lights, ['power' => true, 'color' => '#00ff00'])
             ->assertStatus(200)
-            ->assertExactJson(['data' => ['applied' => 1, 'failed' => [], 'skipped' => ['Dimmer'], 'missing_lights' => []]]);
+            ->assertExactJson(['data' => ['applied' => 1, 'failed' => [], 'skipped' => ['Dimmer'], 'failed_lights' => [], 'skipped_lights' => [['provider' => 'tuya', 'id' => 'w1', 'name' => 'Dimmer']], 'missing_lights' => []]]);
         Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/w1/commands'));
 
         $this->group($lights, ['power' => true, 'color_temp' => 10])

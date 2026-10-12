@@ -317,7 +317,13 @@ const lightQueues = new Map();
 
 const presetQueue = { inFlight: false, next: null };
 
-const groupQueue = { inFlight: false, next: null, cards: [] };
+// Group requests run one at a time. Changes for the same set of lamps
+// coalesce into the last queued request; a different set queues its own.
+const groupQueue = { inFlight: false, queued: [] };
+
+// When the last preset, scene or group request completed: a poll that
+// started before it carries older state and is dropped.
+let lastBulkAt = 0;
 
 const queueFor = (url) => {
     if (! lightQueues.has(url)) {
@@ -393,6 +399,9 @@ const setPending = (root, card, pending) => {
     });
 };
 
+// Lamps the server left alone because they cannot show the colour or white asked for.
+const skippedMessage = (names) => `${names.join(', ')} can't show that colour — left unchanged.`;
+
 const failureMessage = (card) => {
     const provider = card.dataset.providerLabel || 'the light';
     const name = card.dataset.lightName;
@@ -450,8 +459,15 @@ const send = async (card, payload) => {
     }
 };
 
+// Keys of the lamps a response lists in `failed_lights` / `skipped_lights`.
+const lightKeysFrom = (list) => new Set((Array.isArray(list) ? list : [])
+    .map((light) => `${light?.provider}::${light?.id}`));
+
+const sameLamps = (a, b) => a.length === b.length && a.every((card) => b.some((other) => lightKey(other) === lightKey(card)));
+
 // One change set for several lamps (multi-select): PUT /lighting/lights.
-// Latest wins like the per-light queue; a lamp named in `failed` rolls back.
+// Latest wins per set of lamps like the per-light queue; a lamp listed in
+// `failed_lights` rolls back.
 const sendGroup = async (root, cards, payload) => {
     const url = root.dataset.groupUrl;
     if (! url || cards.length === 0) {
@@ -465,27 +481,36 @@ const sendGroup = async (root, cards, payload) => {
     });
 
     if (groupQueue.inFlight) {
-        groupQueue.next = mergePayload(groupQueue.next, payload);
-        groupQueue.cards = cards;
+        const last = groupQueue.queued[groupQueue.queued.length - 1];
+        if (last && sameLamps(last.cards, cards)) {
+            last.payload = mergePayload(last.payload, payload);
+        } else {
+            groupQueue.queued.push({ cards, payload });
+        }
         return;
     }
 
     groupQueue.inFlight = true;
-    let current = payload;
-    let targets = cards;
+    let job = { cards, payload };
+    const touched = new Set(cards);
 
     try {
-        while (current) {
-            targets.forEach((card) => setPending(root, card, true));
+        while (job) {
+            const { cards: targets, payload: current } = job;
+            targets.forEach((card) => {
+                touched.add(card);
+                setPending(root, card, true);
+            });
             const response = await requestWithRetry(url, 'PUT', {
                 lights: targets.map((card) => ({ provider: card.dataset.provider, id: card.dataset.lightId })),
                 changes: current,
             });
             const body = response ? await readJson(response) : {};
-            const failedNames = response?.ok && Array.isArray(body.data?.failed) ? body.data.failed : null;
-            const failedCards = failedNames === null
+            lastBulkAt = Date.now();
+            const failedKeys = response?.ok ? lightKeysFrom(body.data?.failed_lights) : null;
+            const failedCards = failedKeys === null
                 ? targets
-                : targets.filter((card) => failedNames.includes(card.dataset.lightName));
+                : targets.filter((card) => failedKeys.has(lightKey(card)));
 
             targets.forEach((card) => {
                 const queue = queueFor(card.dataset.url ?? lightKey(card));
@@ -500,20 +525,27 @@ const sendGroup = async (root, cards, payload) => {
             });
 
             if (failedCards.length > 0) {
-                groupQueue.next = null;
+                // Queued changes were shown optimistically but will not be sent: undo them too.
+                groupQueue.queued.forEach((entry) => entry.cards.forEach((card) => {
+                    syncLight(root, card, queueFor(card.dataset.url ?? lightKey(card)).confirmed);
+                }));
+                groupQueue.queued = [];
                 updateActivePreset(root);
                 showToast(root, `Couldn't reach ${failedCards.map((card) => card.dataset.lightName).join(', ')} — set back to the last known state.`);
                 return;
             }
 
-            current = groupQueue.next;
-            targets = groupQueue.cards.length ? groupQueue.cards : targets;
-            groupQueue.next = null;
+            const skipped = Array.isArray(body.data?.skipped) ? body.data.skipped : [];
+            if (skipped.length > 0) {
+                showToast(root, skippedMessage(skipped));
+            }
+
+            job = groupQueue.queued.shift() ?? null;
         }
     } finally {
         groupQueue.inFlight = false;
-        groupQueue.cards = [];
-        targets.forEach((card) => {
+        groupQueue.queued = [];
+        touched.forEach((card) => {
             setPending(root, card, false);
             queueFor(card.dataset.url ?? lightKey(card)).touchedAt = Date.now();
         });
@@ -755,15 +787,20 @@ const bulkActionFor = (root, button) => {
             label: button.dataset.sceneLabel,
             url: `${template.replace('__SCENE__', encodeURIComponent(button.dataset.scene))}/apply`,
             apply: (body) => {
-                const failed = Array.isArray(body.data?.failed) ? body.data.failed : [];
+                // Failed and skipped lamps were not changed: match them by key, names repeat.
+                const untouched = new Set([...lightKeysFrom(body.data?.failed_lights), ...lightKeysFrom(body.data?.skipped_lights)]);
                 sceneLights(button).forEach((stored) => {
                     const card = reachableCardFor(root, stored);
-                    if (card && ! failed.includes(card.dataset.lightName)) {
+                    if (card && ! untouched.has(lightKey(card))) {
                         applySceneStateToCard(card, stored);
                     }
                 });
 
-                return { activeKey: sceneKey(button.dataset.scene), failed };
+                return {
+                    activeKey: sceneKey(button.dataset.scene),
+                    failed: Array.isArray(body.data?.failed) ? body.data.failed : [],
+                    skipped: Array.isArray(body.data?.skipped) ? body.data.skipped : [],
+                };
             },
         };
     }
@@ -813,7 +850,7 @@ const applyPreset = async (root, button) => {
             return;
         }
 
-        const { activeKey, failed } = action.apply(body);
+        const { activeKey, failed, skipped = [] } = action.apply(body);
         allCards(root).forEach((card) => {
             if (card.dataset.url && card.dataset.reachable === 'true') {
                 queueFor(card.dataset.url).confirmed = confirmedStateFromCard(card);
@@ -821,13 +858,20 @@ const applyPreset = async (root, button) => {
         });
         updateSummary(root);
         renderSheet(root);
-        updateActivePreset(root, activeKey);
         const failedList = Array.isArray(failed) ? failed : [];
+        // Nothing changed (e.g. every stored lamp is gone): not active.
+        const nothingApplied = body.data?.applied === 0;
+        updateActivePreset(root, nothingApplied ? null : activeKey);
         setFailed(button, failedList.length > 0);
         if (failedList.length > 0) {
             showToast(root, `Couldn't reach ${failedList.join(', ')}.`);
+        } else if (nothingApplied) {
+            showToast(root, `${action.label || 'The scene'} changed nothing — its lamps are gone or can't be reached.`);
+        } else if (skipped.length > 0) {
+            showToast(root, skippedMessage(skipped));
         }
     } finally {
+        lastBulkAt = Date.now();
         delete root.dataset.busyPreset;
         presetQueue.inFlight = false;
 
@@ -890,7 +934,8 @@ const refreshState = async (root) => {
         return;
     }
 
-    if (! response.ok || presetQueue.inFlight) {
+    // A preset, scene or group request that completed meanwhile is newer than this answer.
+    if (! response.ok || presetQueue.inFlight || startedAt <= lastBulkAt) {
         return;
     }
 
@@ -1635,7 +1680,8 @@ export const initLighting = () => {
     presetQueue.inFlight = false;
     presetQueue.next = null;
     groupQueue.inFlight = false;
-    groupQueue.next = null;
+    groupQueue.queued = [];
+    lastBulkAt = 0;
     sheet.open = false;
     sheet.keys = [];
     sheetPayload = null;

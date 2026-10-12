@@ -40,6 +40,12 @@ All notable changes to this project are documented here. The format follows
   on.
 - Lighting: the two-minute state refresh no longer snaps a slider or colour
   back while you are still dragging it.
+- Lighting: a failed group or scene change rolls back exactly the lamps that
+  failed, also when several lamps share a name or a whole provider is
+  unreachable; quick changes for two different selections are both sent;
+  lamps that cannot show a colour are named in a notice; a scene that changed
+  nothing is no longer shown as active; and a state refresh that started
+  before a scene, preset or group change no longer overwrites it.
 - Lighting: `Update to current` keeps the stored state of a lamp that is
   offline at that moment instead of dropping it from the scene, and applying a
   scene reports stored lamps that no longer exist (`missing_lights`).
