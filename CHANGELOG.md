@@ -40,6 +40,10 @@ All notable changes to this project are documented here. The format follows
   on.
 - Lighting: the two-minute state refresh no longer snaps a slider or colour
   back while you are still dragging it.
+- Lighting: a scene, preset or group change that waits for a single-lamp
+  change now builds its commands from the state that change left behind, and a
+  state refresh that overlaps a change no longer caches the old state for two
+  minutes.
 
 ## [0.3.0] - 2026-10-11
 
