@@ -48,6 +48,9 @@ const nullableNumber = (value) => (value === undefined || value === null || valu
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+// Slider moves are sent after this much rest.
+const INPUT_DEBOUNCE_MS = 250;
+
 const debounce = (fn, ms) => {
     let timer;
     return (...args) => {
@@ -322,6 +325,15 @@ const queueFor = (url) => {
     }
 
     return lightQueues.get(url);
+};
+
+// Mark a lamp as changed locally right away, before its debounced command
+// goes out, so a state poll landing in the debounce window cannot overwrite
+// the value under the user's finger.
+const markTouched = (card) => {
+    if (card.dataset.url) {
+        queueFor(card.dataset.url).touchedAt = Date.now();
+    }
 };
 
 const isLightPending = (url) => {
@@ -834,7 +846,8 @@ const setReachable = (card, reachable) => {
 };
 
 // Apply one light from GET /lighting/state, unless the lamp has a command
-// pending or was touched after the refresh started (its local state is newer).
+// pending or was touched after (or within one debounce window before) the
+// refresh started: its local state is newer, or its command is still waiting.
 const applyServerLight = (root, light, startedAt) => {
     const cards = cardsForKey(root, `${light.provider}::${light.id}`);
     if (cards.length === 0) {
@@ -843,7 +856,7 @@ const applyServerLight = (root, light, startedAt) => {
 
     const url = cards[0].dataset.url;
     if (cards[0].dataset.pending === 'true'
-        || (url && (isLightPending(url) || (lightQueues.get(url)?.touchedAt ?? 0) >= startedAt))) {
+        || (url && (isLightPending(url) || (lightQueues.get(url)?.touchedAt ?? 0) >= startedAt - INPUT_DEBOUNCE_MS))) {
         return;
     }
 
@@ -890,14 +903,21 @@ const refreshState = async (root) => {
 let pollTimer = null;
 let visibilityHandler = null;
 
-// Re-read state every data-poll-seconds while the page is visible, plus once
-// when it becomes visible again. Hidden kiosk tabs cost no provider calls.
-const startPolling = (root) => {
+// Stop the poll timer and the document-level visibility listener (re-init,
+// or the page was left through Livewire navigation).
+const stopPolling = () => {
     clearInterval(pollTimer);
+    pollTimer = null;
     if (visibilityHandler) {
         document.removeEventListener('visibilitychange', visibilityHandler);
         visibilityHandler = null;
     }
+};
+
+// Re-read state every data-poll-seconds while the page is visible, plus once
+// when it becomes visible again. Hidden kiosk tabs cost no provider calls.
+const startPolling = (root) => {
+    stopPolling();
 
     const seconds = Number(root.dataset.pollSeconds ?? 0);
     if (! root.dataset.stateUrl || ! (seconds > 0)) {
@@ -906,7 +926,7 @@ const startPolling = (root) => {
 
     pollTimer = setInterval(() => {
         if (! root.isConnected) {
-            clearInterval(pollTimer);
+            stopPolling();
             return;
         }
         if (document.visibilityState === 'visible') {
@@ -915,7 +935,9 @@ const startPolling = (root) => {
     }, seconds * 1000);
 
     visibilityHandler = () => {
-        if (document.visibilityState === 'visible' && root.isConnected) {
+        if (! root.isConnected) {
+            stopPolling();
+        } else if (document.visibilityState === 'visible') {
             refreshState(root);
         }
     };
@@ -1128,11 +1150,14 @@ const flushSheet = (root) => {
     }
 };
 
-const flushSheetDebounced = debounce(flushSheet, 250);
+const flushSheetDebounced = debounce(flushSheet, INPUT_DEBOUNCE_MS);
 
 const sheetChange = (root, patch, payload, immediate = false) => {
     const cards = sheetCards(root);
-    cards.forEach((card) => syncLight(root, card, patch));
+    cards.forEach((card) => {
+        markTouched(card);
+        syncLight(root, card, patch);
+    });
     updateActivePreset(root);
     sheetPayload = mergePayload(sheetPayload, payload);
     sheetTargets = cards;
@@ -1531,9 +1556,10 @@ const setupTile = (root, card) => {
     card.querySelector('[data-tile-more]')?.addEventListener('click', () => openSheet(root, [card]));
 
     // Dragging the bottom bar sets the brightness directly (and turns the lamp on).
-    const sendBrightness = debounce((value) => send(card, { power: true, brightness: value }), 250);
+    const sendBrightness = debounce((value) => send(card, { power: true, brightness: value }), INPUT_DEBOUNCE_MS);
     card.querySelectorAll('[data-action="brightness"]').forEach((input) => input.addEventListener('input', (event) => {
         const value = Number(event.target.value);
+        markTouched(card);
         syncLight(root, card, { brightness: value, power: true });
         updateActivePreset(root);
         sendBrightness(value);
@@ -1594,7 +1620,12 @@ const setupChrome = (root) => {
 
 export const initLighting = () => {
     const root = document.querySelector('[data-lighting]');
-    if (! root || root.dataset.lightingReady === 'true') {
+    if (! root) {
+        // Navigated away from the Lighting page: drop its document listeners.
+        stopPolling();
+        return;
+    }
+    if (root.dataset.lightingReady === 'true') {
         return;
     }
     root.dataset.lightingReady = 'true';

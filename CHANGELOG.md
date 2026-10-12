@@ -38,6 +38,8 @@ All notable changes to this project are documented here. The format follows
   single-lamp change on the same lamp, and a group colour change skips lamps
   that cannot show colour (listed as `skipped`) instead of just switching them
   on.
+- Lighting: the two-minute state refresh no longer snaps a slider or colour
+  back while you are still dragging it.
 
 ## [0.3.0] - 2026-10-11
 

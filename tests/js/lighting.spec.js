@@ -749,5 +749,76 @@ describe('lighting kiosk', () => {
             expect(fetch).toHaveBeenCalledTimes(1);
             expect(fetch.mock.calls[0][0]).toBe('/lighting/state');
         });
+
+        const serverState = (overrides = {}) => okResponse({
+            data: [{ provider: 'tuya', id: '1', on: true, brightness: 90, color: null, reachable: true, mode: 'white', color_temp: 50, ...overrides }],
+            unreachable_providers: [],
+        });
+
+        it('keeps a slider value a poll returns during the debounce window', async () => {
+            jest.useFakeTimers();
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
+            document.body.innerHTML = page(tile({ id: '1', brightness: 10 }), {
+                attrs: 'data-state-url="/lighting/state" data-poll-seconds="120"',
+            });
+            const poll = deferred();
+            fetch.mockReturnValueOnce(poll.promise).mockResolvedValue(okResponse());
+
+            initLighting();
+            const lamp = document.querySelector('[data-light]');
+
+            // Poll goes out, then the user drags before it answers.
+            jest.advanceTimersByTime(120000);
+            jest.setSystemTime(Date.now() + 50);
+            slide(lamp.querySelector('[data-action="brightness"]'), 40);
+            poll.resolve(serverState());
+            await flushPromises();
+            await flushPromises();
+
+            expect(lamp.dataset.brightness).toBe('40');
+            jest.advanceTimersByTime(250);
+            expect(bodyOf(fetch.mock.calls[1])).toEqual({ power: true, brightness: 40 });
+        });
+
+        it('keeps a sheet value when a poll starts and returns inside the debounce window', async () => {
+            jest.useFakeTimers();
+            Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' });
+            document.body.innerHTML = page(tile({ id: '1', brightness: 10 }), {
+                attrs: 'data-state-url="/lighting/state" data-poll-seconds="120"',
+            });
+            fetch.mockResolvedValueOnce(serverState()).mockResolvedValue(okResponse());
+
+            initLighting();
+            const lamp = document.querySelector('[data-light]');
+            lamp.querySelector('[data-tile-more]').click();
+            jest.advanceTimersByTime(119900);
+            slide(document.querySelector('[data-sheet-brightness]'), 70);
+
+            // The poll fires 100 ms later and answers before the 250 ms debounce sends.
+            jest.advanceTimersByTime(100);
+            await flushPromises();
+            await flushPromises();
+
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/state');
+            expect(lamp.dataset.brightness).toBe('70');
+            jest.advanceTimersByTime(150);
+            expect(bodyOf(fetch.mock.calls[1])).toEqual({ power: true, brightness: 70 });
+        });
+
+        it('removes the visibility listener when the page is left via Livewire navigation', () => {
+            document.body.innerHTML = page(tile({ id: '1' }), { attrs: 'data-state-url="/lighting/state" data-poll-seconds="120"' });
+            const add = jest.spyOn(document, 'addEventListener');
+            const remove = jest.spyOn(document, 'removeEventListener');
+
+            initLighting();
+            const handler = add.mock.calls.find(([type]) => type === 'visibilitychange')[1];
+
+            document.body.innerHTML = '<main>Another page</main>';
+            document.dispatchEvent(new Event('livewire:navigated'));
+
+            expect(remove).toHaveBeenCalledWith('visibilitychange', handler);
+            add.mockRestore();
+            remove.mockRestore();
+        });
     });
 });
