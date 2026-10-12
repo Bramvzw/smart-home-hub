@@ -34,6 +34,10 @@ All notable changes to this project are documented here. The format follows
 - Lighting: picking a colour or moving a slider on a dimmed Calex lamp keeps
   its brightness instead of jumping to 100 %, and each change is sent as one
   command (fewer Tuya cloud calls).
+- Lighting: a scene, preset or group change no longer interleaves with a
+  single-lamp change on the same lamp, and a group colour change skips lamps
+  that cannot show colour (listed as `skipped`) instead of just switching them
+  on.
 
 ## [0.3.0] - 2026-10-11
 

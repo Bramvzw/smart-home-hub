@@ -251,7 +251,7 @@ class LightingSceneControllerTest extends TestCase
         $response = $this->postJson(route('lighting.scenes.apply', $scene));
 
         $response->assertStatus(200);
-        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => ['Hallway']]]);
+        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => ['Hallway'], 'skipped' => []]]);
 
         Http::assertSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/t1/commands')
             && $request['commands'] === [['code' => 'switch_led', 'value' => false]]);

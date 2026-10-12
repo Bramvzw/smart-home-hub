@@ -82,9 +82,15 @@ return [
     'request_timeout' => (int) env('LIGHTING_REQUEST_TIMEOUT', 10),
 
     // Serialise writes so quick UI actions cannot interleave provider commands:
-    // one lock per light for single-light writes, one shared lock for presets
-    // and group writes.
-    'control_lock_ttl' => (int) env('LIGHTING_CONTROL_LOCK_TTL', 20),
+    // one lock per light for single-light writes; presets, group writes and
+    // scenes take the shared lock plus the per-light lock of every target.
+    // Locks are released when the write ends; the TTL only bounds how long a
+    // crashed request can block. It must outlast the slowest healthy write:
+    // a Govee preset is up to 3 sequential commands per lamp, each with
+    // GOVEE_CONTROL_RETRIES attempts of LIGHTING_REQUEST_TIMEOUT (3 x 2 x 10 s
+    // = 60 s for one unresponsive lamp) plus a snapshot read, so 20 s could
+    // expire mid-write and let another write interleave.
+    'control_lock_ttl' => (int) env('LIGHTING_CONTROL_LOCK_TTL', 90),
     'control_lock_wait' => (int) env('LIGHTING_CONTROL_LOCK_WAIT', 8),
 
     // Weather-triggered presets (e.g. rain -> Cozy) are off by default; per-preset triggers are opt-in too.

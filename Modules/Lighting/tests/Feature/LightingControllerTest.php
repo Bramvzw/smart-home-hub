@@ -310,4 +310,17 @@ class LightingControllerTest extends TestCase
             $lock->release();
         }
     }
+
+    public function test_single_light_write_to_an_unknown_light_or_provider_returns_422(): void
+    {
+        $this->fakeGovee();
+
+        $this->putJson(route('lighting.lights.update', ['provider' => 'hue', 'id' => 'x']), ['power' => true])
+            ->assertStatus(422)
+            ->assertJsonPath('message', 'Unknown light.');
+        $this->putJson(route('lighting.lights.update', ['provider' => 'govee', 'id' => 'MISSING']), ['power' => true])
+            ->assertStatus(422);
+
+        Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control'));
+    }
 }

@@ -5,6 +5,7 @@ namespace Modules\Lighting\Tests\Feature;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class LightGroupControlTest extends TestCase
@@ -78,7 +79,7 @@ class LightGroupControlTest extends TestCase
         ], ['power' => true, 'brightness' => 60, 'color_temp' => 20]);
 
         $response->assertStatus(200);
-        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => []]]);
+        $response->assertExactJson(['data' => ['applied' => 3, 'failed' => [], 'skipped' => []]]);
 
         foreach (['t1', 't2'] as $id) {
             Http::assertSent(fn (Request $request): bool => str_contains($request->url(), "/v1.0/devices/{$id}/commands")
@@ -200,5 +201,102 @@ class LightGroupControlTest extends TestCase
         } finally {
             $lock->release();
         }
+    }
+
+    public function test_group_and_scene_writes_wait_for_a_running_single_light_write(): void
+    {
+        $this->fakeProviders();
+        config([
+            'lighting.control_lock_ttl' => 10,
+            'lighting.control_lock_wait' => 0,
+        ]);
+
+        // A single-light write on t1 is in progress.
+        $lock = Cache::lock('lighting:control:tuya:t1', 10);
+        $this->assertTrue($lock->get());
+
+        try {
+            $this->group([['provider' => 'tuya', 'id' => 't1'], ['provider' => 'tuya', 'id' => 't2']], ['power' => true])
+                ->assertStatus(409);
+            $this->postJson(route('lighting.presets.apply', ['preset' => 'off']))->assertStatus(409);
+
+            // Lamps that are not being written stay available.
+            $this->group([['provider' => 'tuya', 'id' => 't2']], ['power' => true])->assertStatus(200);
+        } finally {
+            $lock->release();
+        }
+
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/t1/commands'));
+        // The per-light locks are released after the group write.
+        $this->assertTrue(Cache::lock('lighting:control:tuya:t2', 10)->get());
+    }
+
+    public function test_lamps_without_colour_support_are_skipped_not_switched_on(): void
+    {
+        $this->fakeProviders([
+            '*associated-users/devices*' => Http::response(['success' => true, 'result' => ['devices' => [
+                ['id' => 't1', 'name' => 'Colour lamp', 'online' => true, 'status' => [
+                    ['code' => 'switch_led', 'value' => false],
+                    ['code' => 'work_mode', 'value' => 'white'],
+                    ['code' => 'bright_value_v2', 'value' => 500],
+                    ['code' => 'temp_value_v2', 'value' => 500],
+                    ['code' => 'colour_data_v2', 'value' => json_encode(['h' => 0, 's' => 1000, 'v' => 500])],
+                ]],
+                ['id' => 'w1', 'name' => 'Dimmer', 'online' => true, 'status' => [
+                    ['code' => 'switch_led', 'value' => false],
+                    ['code' => 'bright_value_v2', 'value' => 500],
+                ]],
+            ]]]),
+        ]);
+        $lights = [['provider' => 'tuya', 'id' => 't1'], ['provider' => 'tuya', 'id' => 'w1']];
+
+        $this->group($lights, ['power' => true, 'color' => '#00ff00'])
+            ->assertStatus(200)
+            ->assertExactJson(['data' => ['applied' => 1, 'failed' => [], 'skipped' => ['Dimmer']]]);
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/w1/commands'));
+
+        $this->group($lights, ['power' => true, 'color_temp' => 10])
+            ->assertStatus(200)
+            ->assertJsonPath('data.skipped', ['Dimmer']);
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/w1/commands'));
+
+        // With a brightness in the same change set the lamp still gets the part it can show.
+        $this->group($lights, ['power' => true, 'brightness' => 40, 'color' => '#00ff00'])
+            ->assertStatus(200)
+            ->assertJsonPath('data.applied', 2)
+            ->assertJsonPath('data.skipped', []);
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), '/v1.0/devices/w1/commands')
+            && $request['commands'] === [
+                ['code' => 'switch_led', 'value' => true],
+                ['code' => 'bright_value_v2', 'value' => 400],
+            ]);
+    }
+
+    public function test_group_write_failures_are_logged_without_provider_internals(): void
+    {
+        $log = Log::spy();
+        $this->fakeProviders([
+            '*/v1.0/devices/*/commands' => Http::response(['success' => false, 'code' => 2001, 'msg' => 'secret-internal-detail']),
+        ]);
+
+        $this->group([['provider' => 'tuya', 'id' => 't1']], ['power' => true])->assertStatus(502);
+
+        $log->shouldHaveReceived('warning')->withArgs(fn (string $message, array $context): bool => $context === ['provider' => 'Calex', 'lamps' => 1]);
+        $log->shouldNotHaveReceived('warning', [\Mockery::any(), \Mockery::on(fn (array $context): bool => str_contains((string) json_encode($context), 'secret-internal-detail'))]);
+    }
+
+    public function test_a_provider_wide_failure_logs_the_label_and_exception_class(): void
+    {
+        $log = Log::spy();
+        $this->fakeProviders([
+            '*/v1.0/token*' => Http::response(['success' => false, 'msg' => 'bad token'], 500),
+        ]);
+
+        $this->group([['provider' => 'tuya', 'id' => 't1']], ['power' => true])->assertStatus(502);
+
+        $log->shouldHaveReceived('warning')->withArgs(fn (string $message, array $context): bool => $message === 'Lighting write failed'
+            && $context['provider'] === 'Calex'
+            && is_string($context['exception'])
+            && class_exists($context['exception']));
     }
 }

@@ -343,6 +343,9 @@ class TuyaProvider implements LightProvider
             color: $color,
             reachable: (bool) ($device['online'] ?? false),
             supportsColor: $supportsColor,
+            // Only `colour` counts as colour mode; `scene` and `music` work modes are
+            // reported as White. Consequence: brightness writes then go to
+            // bright_value_v2, which switches such a lamp back to plain white.
             mode: $colourMode ? LightMode::Colour : LightMode::White,
             colorTemp: $colorTemp,
             supportsColorTemp: $supportsColorTemp,

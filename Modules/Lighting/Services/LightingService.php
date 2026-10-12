@@ -24,7 +24,7 @@ use Throwable;
 
 class LightingService
 {
-    /** Lock for writes that touch several lamps (presets, group writes). */
+    /** Shared lock for writes that touch several lamps (presets, group writes, scenes); per-light locks hang below it. */
     private const GROUP_LOCK = 'lighting:control';
 
     /** @var list<LightProvider> */
@@ -78,8 +78,8 @@ class LightingService
     public function control(string $providerKey, string $id, array $changes): Light
     {
         // Per-light lock: a command for one lamp never queues behind another lamp.
-        return $this->withControlLock(self::GROUP_LOCK.':'.$providerKey.':'.$id, function () use ($providerKey, $id, $changes): Light {
-            $provider = $this->providerByKey($providerKey);
+        return $this->withControlLock($this->lightLockKey($providerKey, $id), function () use ($providerKey, $id, $changes): Light {
+            $provider = $this->configuredProviderByKey($providerKey) ?? throw UnknownLight::forTarget($providerKey, $id);
             $light = $this->findLight($provider, $id) ?? throw UnknownLight::forTarget($providerKey, $id);
 
             $provider->applyChanges($light, $changes);
@@ -95,44 +95,54 @@ class LightingService
     {
         return $this->withControlLock(self::GROUP_LOCK, function () use ($key): LightingPresetResult {
             $preset = $this->presetByKey($key);
-            $applied = 0;
             $skipped = 0;
             $failed = [];
 
+            /** @var list<array{0: LightProvider, 1: list<Light>}> $targets */
+            $targets = [];
             foreach ($this->configuredProviders() as $provider) {
                 try {
                     $lights = $this->cachedLights($provider);
-                } catch (Throwable) {
+                } catch (Throwable $e) {
+                    $this->logWriteFailure($provider, $e);
                     $failed[] = $provider->label();
 
                     continue;
                 }
 
-                $written = [];
+                $reachable = [];
                 foreach ($lights as $light) {
-                    if (! $preset->targetsLight($light)) {
+                    if (! $preset->targetsLight($light) || ! $light->reachable) {
                         $skipped++;
-
-                        continue;
-                    }
-
-                    if (! $light->reachable) {
-                        $skipped++;
-
-                        continue;
-                    }
-
-                    try {
-                        $this->applyPresetToLight($provider, $light, $preset);
-                        $written[] = $light->withChanges($this->presetChanges($preset, $light));
-                        $applied++;
-                    } catch (Throwable) {
-                        $failed[] = $light->name;
+                    } else {
+                        $reachable[] = $light;
                     }
                 }
-
-                $this->rememberWrites($provider, $written);
+                $targets[] = [$provider, $reachable];
             }
+
+            $all = array_merge(...array_map(static fn (array $target): array => $target[1], $targets));
+
+            $applied = $this->withLightLocks($all, function () use ($targets, $preset, &$failed): int {
+                $applied = 0;
+                foreach ($targets as [$provider, $lights]) {
+                    $written = [];
+                    foreach ($lights as $light) {
+                        try {
+                            $this->applyPresetToLight($provider, $light, $preset);
+                            $written[] = $light->withChanges($this->presetChanges($preset, $light));
+                            $applied++;
+                        } catch (Throwable $e) {
+                            $this->logWriteFailure($provider, $e);
+                            $failed[] = $light->name;
+                        }
+                    }
+
+                    $this->rememberWrites($provider, $written);
+                }
+
+                return $applied;
+            });
 
             return new LightingPresetResult($preset, $applied, $skipped, array_values(array_unique($failed)));
         });
@@ -141,7 +151,9 @@ class LightingService
     /**
      * Apply one change set to several lights at once. Every target is resolved
      * against the cached snapshot first, so an unknown light rejects the whole
-     * request before anything is written.
+     * request before anything is written. Lamps that cannot show the requested
+     * colour or colour temperature get only the rest of the change set; when
+     * nothing else is left they are left untouched and listed in `skipped`.
      *
      * @param  list<array{provider: string, id: string}>  $targets
      * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
@@ -152,7 +164,8 @@ class LightingService
     {
         return $this->withControlLock(self::GROUP_LOCK, function () use ($targets, $changes): LightingGroupResult {
             $failed = [];
-            $batches = [];
+            $skipped = [];
+            $plan = [];
 
             foreach ($this->idsByProvider($targets) as $providerKey => $ids) {
                 $provider = $this->configuredProviderByKey($providerKey);
@@ -162,7 +175,8 @@ class LightingService
 
                 try {
                     $lights = $this->cachedLights($provider);
-                } catch (Throwable) {
+                } catch (Throwable $e) {
+                    $this->logWriteFailure($provider, $e);
                     $failed[] = $provider->label();
 
                     continue;
@@ -173,47 +187,34 @@ class LightingService
                     $byId[$light->id] = $light;
                 }
 
-                $reachable = [];
+                $batches = [];
                 foreach ($ids as $id) {
                     $light = $byId[$id] ?? throw UnknownLight::forTarget($providerKey, $id);
 
-                    if ($light->reachable) {
-                        $reachable[] = $light;
-                    } else {
+                    if (! $light->reachable) {
                         $failed[] = $light->name;
+
+                        continue;
                     }
+
+                    $supported = $this->supportedChanges($light, $changes);
+                    if ($supported === null) {
+                        $skipped[] = $light->name;
+
+                        continue;
+                    }
+
+                    $batchKey = (string) json_encode($supported);
+                    $batches[$batchKey]['changes'] = $supported;
+                    $batches[$batchKey]['lights'][] = $light;
                 }
 
-                $batches[] = [$provider, $reachable];
+                $plan[] = [$provider, array_values($batches)];
             }
 
-            $applied = 0;
-            foreach ($batches as [$provider, $lights]) {
-                if ($lights === []) {
-                    continue;
-                }
+            $applied = $this->writeBatches($plan, $failed);
 
-                try {
-                    $failedIds = $provider->applyToLights($lights, $changes);
-                } catch (Throwable) {
-                    // Provider-wide failure (e.g. token refresh): every lamp of it failed.
-                    $failedIds = array_map(static fn (Light $light): string => $light->id, $lights);
-                }
-
-                $written = [];
-                foreach ($lights as $light) {
-                    if (in_array($light->id, $failedIds, true)) {
-                        $failed[] = $light->name;
-                    } else {
-                        $written[] = $light->withChanges(['power' => $changes['power'] ?? true] + $changes);
-                        $applied++;
-                    }
-                }
-
-                $this->rememberWrites($provider, $written);
-            }
-
-            return new LightingGroupResult($applied, array_values(array_unique($failed)));
+            return new LightingGroupResult($applied, array_values(array_unique($failed)), array_values(array_unique($skipped)));
         });
     }
 
@@ -230,7 +231,8 @@ class LightingService
     {
         return $this->withControlLock(self::GROUP_LOCK, function () use ($states): LightingGroupResult {
             $failed = [];
-            $applied = 0;
+            $skipped = [];
+            $plan = [];
 
             $byProvider = [];
             foreach ($states as $state) {
@@ -245,7 +247,8 @@ class LightingService
 
                 try {
                     $lights = $this->cachedLights($provider);
-                } catch (Throwable) {
+                } catch (Throwable $e) {
+                    $this->logWriteFailure($provider, $e);
                     $failed[] = $provider->label();
 
                     continue;
@@ -256,7 +259,6 @@ class LightingService
                     $byId[$light->id] = $light;
                 }
 
-                /** @var array<string, array{changes: array{power: bool, brightness?: int, color?: string, color_temp?: int}, lights: list<Light>}> $batches */
                 $batches = [];
                 foreach ($providerStates as $state) {
                     $light = $byId[$state->id] ?? null;
@@ -269,34 +271,24 @@ class LightingService
                         continue;
                     }
 
-                    $changes = $state->changes();
+                    $changes = $this->supportedChanges($light, $state->changes());
+                    if ($changes === null) {
+                        $skipped[] = $light->name;
+
+                        continue;
+                    }
+
                     $batchKey = (string) json_encode($changes);
                     $batches[$batchKey]['changes'] = $changes;
                     $batches[$batchKey]['lights'][] = $light;
                 }
 
-                $written = [];
-                foreach ($batches as $batch) {
-                    try {
-                        $failedIds = $provider->applyToLights($batch['lights'], $batch['changes']);
-                    } catch (Throwable) {
-                        $failedIds = array_map(static fn (Light $light): string => $light->id, $batch['lights']);
-                    }
-
-                    foreach ($batch['lights'] as $light) {
-                        if (in_array($light->id, $failedIds, true)) {
-                            $failed[] = $light->name;
-                        } else {
-                            $written[] = $light->withChanges($batch['changes']);
-                            $applied++;
-                        }
-                    }
-                }
-
-                $this->rememberWrites($provider, $written);
+                $plan[] = [$provider, array_values($batches)];
             }
 
-            return new LightingGroupResult($applied, array_values(array_unique($failed)));
+            $applied = $this->writeBatches($plan, $failed);
+
+            return new LightingGroupResult($applied, array_values(array_unique($failed)), array_values(array_unique($skipped)));
         });
     }
 
@@ -443,7 +435,7 @@ class LightingService
         try {
             return Cache::lock(
                 $lock,
-                max(1, (int) config('lighting.control_lock_ttl', 20)),
+                max(1, (int) config('lighting.control_lock_ttl', 90)),
             )->block(
                 max(0, (int) config('lighting.control_lock_wait', 8)),
                 $callback,
@@ -451,6 +443,146 @@ class LightingService
         } catch (LockTimeoutException $exception) {
             throw LightingControlBusy::queueTimeout($exception);
         }
+    }
+
+    /**
+     * Write planned group batches while holding the per-light lock of every
+     * lamp in them, so a single-light write on one of those lamps cannot
+     * interleave. Failed lamps are added to `$failed`; returns the applied count.
+     *
+     * @param  list<array{0: LightProvider, 1: list<array{changes: array{power?: bool, brightness?: int, color?: string, color_temp?: int}, lights: list<Light>}>}>  $plan
+     * @param  list<string>  $failed
+     */
+    private function writeBatches(array $plan, array &$failed): int
+    {
+        $all = [];
+        foreach ($plan as [, $batches]) {
+            foreach ($batches as $batch) {
+                $all = array_merge($all, $batch['lights']);
+            }
+        }
+
+        return $this->withLightLocks($all, function () use ($plan, &$failed): int {
+            $applied = 0;
+            foreach ($plan as [$provider, $batches]) {
+                $written = [];
+                foreach ($batches as $batch) {
+                    try {
+                        $failedIds = $provider->applyToLights($batch['lights'], $batch['changes']);
+                    } catch (Throwable $e) {
+                        // Provider-wide failure (e.g. token refresh): every lamp of the batch failed.
+                        $this->logWriteFailure($provider, $e);
+                        $failedIds = array_map(static fn (Light $light): string => $light->id, $batch['lights']);
+                    }
+
+                    if ($failedIds !== []) {
+                        Log::warning('Lighting group write failed for some lamps', [
+                            'provider' => $provider->label(),
+                            'lamps' => count($failedIds),
+                        ]);
+                    }
+
+                    foreach ($batch['lights'] as $light) {
+                        if (in_array($light->id, $failedIds, true)) {
+                            $failed[] = $light->name;
+                        } else {
+                            $written[] = $light->withChanges(['power' => $batch['changes']['power'] ?? true] + $batch['changes']);
+                            $applied++;
+                        }
+                    }
+                }
+
+                $this->rememberWrites($provider, $written);
+            }
+
+            return $applied;
+        });
+    }
+
+    /**
+     * The part of a group change set this lamp can show, or null when the
+     * request was only about a colour / colour temperature it cannot do —
+     * then the lamp is skipped instead of silently being switched on.
+     *
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     * @return array{power?: bool, brightness?: int, color?: string, color_temp?: int}|null
+     */
+    private function supportedChanges(Light $light, array $changes): ?array
+    {
+        if (($changes['power'] ?? true) === false) {
+            return $changes;
+        }
+
+        $dropped = false;
+        if (isset($changes['color']) && ! $light->supportsColor) {
+            unset($changes['color']);
+            $dropped = true;
+        }
+        if (isset($changes['color_temp']) && ! $light->supportsColorTemp) {
+            unset($changes['color_temp']);
+            $dropped = true;
+        }
+
+        if ($dropped && array_diff(array_keys($changes), ['power']) === []) {
+            return null;
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Run `$callback` holding the per-light lock of every given lamp, taken in
+     * sorted order so two multi-lamp writers can never deadlock. Callers hold
+     * the shared lock already; single-light writes only ever take one lock.
+     *
+     * @template TReturn
+     *
+     * @param  list<Light>  $lights
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn
+     */
+    private function withLightLocks(array $lights, Closure $callback): mixed
+    {
+        $keys = array_values(array_unique(array_map(
+            fn (Light $light): string => $this->lightLockKey($light->provider, $light->id),
+            $lights,
+        )));
+        sort($keys);
+
+        $deadline = time() + max(0, (int) config('lighting.control_lock_wait', 8));
+        $held = [];
+
+        try {
+            foreach ($keys as $key) {
+                $lock = Cache::lock($key, max(1, (int) config('lighting.control_lock_ttl', 90)));
+                try {
+                    $lock->block(max(0, $deadline - time()));
+                } catch (LockTimeoutException $exception) {
+                    throw LightingControlBusy::queueTimeout($exception);
+                }
+                $held[] = $lock;
+            }
+
+            return $callback();
+        } finally {
+            foreach (array_reverse($held) as $lock) {
+                $lock->release();
+            }
+        }
+    }
+
+    private function lightLockKey(string $providerKey, string $id): string
+    {
+        return self::GROUP_LOCK.':'.$providerKey.':'.$id;
+    }
+
+    /** Provider label and exception class only — never messages, secrets or provider internals. */
+    private function logWriteFailure(LightProvider $provider, Throwable $e): void
+    {
+        Log::warning('Lighting write failed', [
+            'provider' => $provider->label(),
+            'exception' => $e::class,
+        ]);
     }
 
     private function presetByKey(string $key): LightPreset
@@ -515,12 +647,6 @@ class LightingService
             ),
             static fn (string $target): bool => $target !== '',
         ));
-    }
-
-    private function providerByKey(string $key): LightProvider
-    {
-        return $this->configuredProviderByKey($key)
-            ?? throw new RuntimeException('Unknown or unconfigured lighting provider.');
     }
 
     private function configuredProviderByKey(string $key): ?LightProvider
