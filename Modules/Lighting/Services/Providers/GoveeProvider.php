@@ -105,6 +105,29 @@ class GoveeProvider implements LightProvider
         }
     }
 
+    public function applyChanges(Light $light, array $changes): void
+    {
+        // Govee takes one command per call: power first, then colour or
+        // colour temperature, then brightness (same order as applyState()).
+        if (array_key_exists('power', $changes) && ! $changes['power']) {
+            $this->setPower($light->id, false);
+
+            return;
+        }
+
+        if (array_key_exists('power', $changes)) {
+            $this->setPower($light->id, true);
+        }
+        if (isset($changes['color_temp']) && $light->supportsColorTemp) {
+            $this->setColorTemp($light->id, $changes['color_temp']);
+        } elseif (isset($changes['color']) && $light->supportsColor) {
+            $this->setColor($light->id, $changes['color']);
+        }
+        if (isset($changes['brightness'])) {
+            $this->setBrightness($light->id, $changes['brightness']);
+        }
+    }
+
     public function applyToLights(array $lights, array $changes): array
     {
         // Govee control calls stay sequential: the client paces them to respect

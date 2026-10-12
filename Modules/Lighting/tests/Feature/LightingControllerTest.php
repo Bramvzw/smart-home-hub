@@ -205,7 +205,10 @@ class LightingControllerTest extends TestCase
         $response->assertJsonPath('data.mode', 'white');
         $response->assertJsonPath('data.color_temp', 50);
         $response->assertJsonPath('data.supports_color_temp', true);
-        $response->assertJsonPath('data.supports_color', false);
+        // The response is the cached lamp with the change applied, not a guess.
+        $response->assertJsonPath('data.supports_color', true);
+        $response->assertJsonPath('data.name', 'Strip');
+        $response->assertJsonPath('data.brightness', 60);
 
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['cmd']['name'] === 'colorTem'

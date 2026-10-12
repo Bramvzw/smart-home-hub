@@ -41,6 +41,8 @@ class LightingController
     {
         try {
             $light = $control($provider, $id, $request->changes());
+        } catch (UnknownLight) {
+            return response()->json(['message' => 'Unknown light.'], 422);
         } catch (LightingControlBusy $exception) {
             return response()->json(['message' => $exception->getMessage()], 409);
         } catch (RuntimeException) {

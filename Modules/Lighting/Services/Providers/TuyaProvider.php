@@ -81,11 +81,12 @@ class TuyaProvider implements LightProvider
         // Tuya expects colour_data_v2 as a JSON object {h,s,v}, not a stringified one.
         $hsv = Color::hexToTuyaHsv($hex);
 
-        // Preserve the lamp's current brightness (V) when only the colour changes,
-        // otherwise picking a colour would jump the lamp back to full brightness.
-        $current = $this->colourHsv($this->currentStatus($id));
-        if ($current !== null) {
-            $hsv['v'] = $current['v'];
+        // Preserve the lamp's current brightness when only the colour changes —
+        // V in colour mode, bright_value_v2 in white mode — otherwise picking a
+        // colour would jump the lamp to full brightness (hexToTuyaHsv gives v=1000).
+        $brightness = $this->currentBrightnessValue($this->currentStatus($id));
+        if ($brightness !== null) {
+            $hsv['v'] = $brightness;
         }
 
         $this->command($id, [
@@ -162,14 +163,26 @@ class TuyaProvider implements LightProvider
         }
     }
 
+    public function applyChanges(Light $light, array $changes): void
+    {
+        // One batch with switch_led folded in; the cached Light replaces the
+        // live status read, so a slider settle costs exactly one Tuya call.
+        $commands = $this->commandsFor($light, $changes);
+        if ($commands !== []) {
+            $this->command($light->id, $commands);
+        }
+    }
+
     public function applyToLights(array $lights, array $changes): array
     {
-        // One signed command per device, all sent concurrently.
+        // One signed command per device, all sent concurrently. A missing
+        // `power` means "on" for group writes.
+        $changes = ['power' => $changes['power'] ?? true] + $changes;
         $requests = [];
         foreach ($lights as $light) {
             $requests[$light->id] = [
                 'path' => "/v1.0/devices/{$light->id}/commands",
-                'body' => ['commands' => $this->groupCommands($light, $changes)],
+                'body' => ['commands' => $this->commandsFor($light, $changes)],
             ];
         }
 
@@ -177,28 +190,31 @@ class TuyaProvider implements LightProvider
     }
 
     /**
-     * Full command batch for a group change, using the cached snapshot for the
+     * Full command batch for a change set, using the cached snapshot for the
      * current mode/colour/brightness instead of a status read per device.
+     * A missing `power` sends no switch_led.
      *
      * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
      * @return list<array{code: string, value: mixed}>
      */
-    private function groupCommands(Light $light, array $changes): array
+    private function commandsFor(Light $light, array $changes): array
     {
-        if (! ($changes['power'] ?? true)) {
+        if (array_key_exists('power', $changes) && ! $changes['power']) {
             return [['code' => 'switch_led', 'value' => false]];
         }
 
-        $commands = [['code' => 'switch_led', 'value' => true]];
+        $commands = array_key_exists('power', $changes) ? [['code' => 'switch_led', 'value' => true]] : [];
         $brightness = $changes['brightness'] ?? null;
+        // A lamp that never reported a brightness keeps full brightness rather than 1 %.
+        $current = $light->brightness > 0 ? $light->brightness : 100;
 
         if (isset($changes['color_temp']) && $light->supportsColorTemp) {
             $commands[] = ['code' => 'work_mode', 'value' => 'white'];
             $commands[] = ['code' => 'temp_value_v2', 'value' => $this->tempValue($changes['color_temp'])];
-            $commands[] = ['code' => 'bright_value_v2', 'value' => $this->brightnessValue($brightness ?? $light->brightness)];
+            $commands[] = ['code' => 'bright_value_v2', 'value' => $this->brightnessValue($brightness ?? $current)];
         } elseif (isset($changes['color']) && $light->supportsColor) {
             $hsv = Color::hexToTuyaHsv($changes['color']);
-            $hsv['v'] = $this->brightnessValue($brightness ?? $light->brightness);
+            $hsv['v'] = $this->brightnessValue($brightness ?? $current);
             $commands[] = ['code' => 'work_mode', 'value' => 'colour'];
             $commands[] = ['code' => 'colour_data_v2', 'value' => $hsv];
         } elseif ($brightness !== null && $light->mode === LightMode::Colour && $light->color !== null) {

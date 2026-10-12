@@ -21,6 +21,42 @@ final readonly class Light
     ) {}
 
     /**
+     * This light after a successful write of `$changes`. Fields the lamp
+     * cannot show (colour / colour temperature) are ignored; a colour
+     * temperature wins over a colour, like the providers do.
+     *
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     */
+    public function withChanges(array $changes): self
+    {
+        $mode = $this->mode;
+        $color = $this->color;
+        $colorTemp = $this->colorTemp;
+
+        if (isset($changes['color_temp']) && $this->supportsColorTemp) {
+            $mode = LightMode::White;
+            $colorTemp = max(0, min(100, $changes['color_temp']));
+        } elseif (isset($changes['color']) && $this->supportsColor) {
+            $mode = LightMode::Colour;
+            $color = strtolower($changes['color']);
+        }
+
+        return new self(
+            provider: $this->provider,
+            id: $this->id,
+            name: $this->name,
+            on: $changes['power'] ?? $this->on,
+            brightness: isset($changes['brightness']) ? max(0, min(100, $changes['brightness'])) : $this->brightness,
+            color: $color,
+            reachable: $this->reachable,
+            supportsColor: $this->supportsColor,
+            mode: $mode,
+            colorTemp: $colorTemp,
+            supportsColorTemp: $this->supportsColorTemp,
+        );
+    }
+
+    /**
      * @return array{provider: string, id: string, name: string, on: bool, brightness: int, color: string|null, reachable: bool, supports_color: bool, mode: string, color_temp: int|null, supports_color_temp: bool}
      */
     public function toArray(): array

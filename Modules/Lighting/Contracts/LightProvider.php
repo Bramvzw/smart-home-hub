@@ -51,6 +51,16 @@ interface LightProvider
     public function applyState(string $id, bool $power, ?int $brightness, ?string $color, ?int $colorTemp = null): void;
 
     /**
+     * Apply a partial change set to one light (single-light writes). The
+     * cached Light snapshot carries the current mode, colour and brightness,
+     * so no status read is needed; providers that accept batches send one
+     * call. A missing `power` leaves the switch as it is.
+     *
+     * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     */
+    public function applyChanges(Light $light, array $changes): void;
+
+    /**
      * Apply one change set to several of this provider's lights (group
      * writes). The cached Light snapshots carry the current mode, colour and
      * brightness, so providers can build full commands without status reads.

@@ -14,7 +14,6 @@ use Modules\Lighting\Data\LightingSnapshot;
 use Modules\Lighting\Data\LightPreset;
 use Modules\Lighting\Data\SceneLightState;
 use Modules\Lighting\Data\WeatherPresetTrigger;
-use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Exceptions\LightingControlBusy;
 use Modules\Lighting\Exceptions\UnknownLight;
 use Modules\Lighting\Exceptions\UnknownLightingPreset;
@@ -64,46 +63,31 @@ class LightingService
     }
 
     /**
-     * Apply changes to one light and return its refreshed state.
+     * Apply changes to one light and return its state after the write.
+     *
+     * The current mode, colour and brightness come from the snapshot cache
+     * (one device-list read on a miss) instead of a live status read, and
+     * the provider sends the whole change set in as few calls as it can.
+     * The cached snapshot is then updated with the written state, so
+     * consecutive slider moves stay one provider call each.
      *
      * @param  array{power?: bool, brightness?: int, color?: string, color_temp?: int}  $changes
+     *
+     * @throws UnknownLight
      */
     public function control(string $providerKey, string $id, array $changes): Light
     {
         // Per-light lock: a command for one lamp never queues behind another lamp.
         return $this->withControlLock(self::GROUP_LOCK.':'.$providerKey.':'.$id, function () use ($providerKey, $id, $changes): Light {
             $provider = $this->providerByKey($providerKey);
+            $light = $this->findLight($provider, $id) ?? throw UnknownLight::forTarget($providerKey, $id);
 
-            if (array_key_exists('power', $changes)) {
-                $provider->setPower($id, $changes['power']);
-            }
-            // Before brightness, so the brightness lands on the white LEDs.
-            if (array_key_exists('color_temp', $changes)) {
-                $provider->setColorTemp($id, $changes['color_temp']);
-            }
-            if (array_key_exists('brightness', $changes)) {
-                $provider->setBrightness($id, $changes['brightness']);
-            }
-            if (array_key_exists('color', $changes)) {
-                $provider->setColor($id, $changes['color']);
-            }
+            $provider->applyChanges($light, $changes);
 
-            Cache::forget($this->cacheKey($provider));
+            $updated = $light->withChanges($changes);
+            $this->rememberWrites($provider, [$updated]);
 
-            // Optimistic return — re-fetching per action caused visible lag; the page reloads fresh state.
-            return new Light(
-                provider: $providerKey,
-                id: $id,
-                name: '',
-                on: (bool) ($changes['power'] ?? true),
-                brightness: (int) ($changes['brightness'] ?? 0),
-                color: $changes['color'] ?? null,
-                reachable: true,
-                supportsColor: array_key_exists('color', $changes),
-                mode: array_key_exists('color', $changes) ? LightMode::Colour : LightMode::White,
-                colorTemp: $changes['color_temp'] ?? null,
-                supportsColorTemp: array_key_exists('color_temp', $changes),
-            );
+            return $updated;
         });
     }
 
@@ -124,6 +108,7 @@ class LightingService
                     continue;
                 }
 
+                $written = [];
                 foreach ($lights as $light) {
                     if (! $preset->targetsLight($light)) {
                         $skipped++;
@@ -139,13 +124,14 @@ class LightingService
 
                     try {
                         $this->applyPresetToLight($provider, $light, $preset);
+                        $written[] = $light->withChanges($this->presetChanges($preset, $light));
                         $applied++;
                     } catch (Throwable) {
                         $failed[] = $light->name;
                     }
                 }
 
-                Cache::forget($this->cacheKey($provider));
+                $this->rememberWrites($provider, $written);
             }
 
             return new LightingPresetResult($preset, $applied, $skipped, array_values(array_unique($failed)));
@@ -214,15 +200,17 @@ class LightingService
                     $failedIds = array_map(static fn (Light $light): string => $light->id, $lights);
                 }
 
+                $written = [];
                 foreach ($lights as $light) {
                     if (in_array($light->id, $failedIds, true)) {
                         $failed[] = $light->name;
                     } else {
+                        $written[] = $light->withChanges(['power' => $changes['power'] ?? true] + $changes);
                         $applied++;
                     }
                 }
 
-                Cache::forget($this->cacheKey($provider));
+                $this->rememberWrites($provider, $written);
             }
 
             return new LightingGroupResult($applied, array_values(array_unique($failed)));
@@ -287,6 +275,7 @@ class LightingService
                     $batches[$batchKey]['lights'][] = $light;
                 }
 
+                $written = [];
                 foreach ($batches as $batch) {
                     try {
                         $failedIds = $provider->applyToLights($batch['lights'], $batch['changes']);
@@ -298,12 +287,13 @@ class LightingService
                         if (in_array($light->id, $failedIds, true)) {
                             $failed[] = $light->name;
                         } else {
+                            $written[] = $light->withChanges($batch['changes']);
                             $applied++;
                         }
                     }
                 }
 
-                Cache::forget($this->cacheKey($provider));
+                $this->rememberWrites($provider, $written);
             }
 
             return new LightingGroupResult($applied, array_values(array_unique($failed)));
@@ -331,15 +321,100 @@ class LightingService
     }
 
     /**
+     * The provider's lights from the snapshot cache, read from the provider
+     * on a miss. The entry carries its own expiry so writes can update it
+     * without extending its lifetime.
+     *
      * @return list<Light>
      */
     private function cachedLights(LightProvider $provider): array
     {
-        return Cache::remember(
-            $this->cacheKey($provider),
-            (int) config('lighting.cache_ttl', 30),
-            static fn (): array => $provider->lights(),
-        );
+        $cached = Cache::get($this->cacheKey($provider));
+        if (is_array($cached) && isset($cached['lights'], $cached['expires_at'])) {
+            return $cached['lights'];
+        }
+
+        $ttl = max(1, (int) config('lighting.cache_ttl', 30));
+        $lights = $provider->lights();
+        Cache::put($this->cacheKey($provider), ['lights' => $lights, 'expires_at' => time() + $ttl], $ttl);
+
+        return $lights;
+    }
+
+    private function findLight(LightProvider $provider, string $id): ?Light
+    {
+        foreach ($this->cachedLights($provider) as $light) {
+            if ($light->id === $id) {
+                return $light;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Put the written state of these lights into the cached snapshot instead
+     * of forgetting it: the next write needs no provider read and the poll
+     * shows the new state. The original expiry stays, so the snapshot is
+     * still re-read from the provider on schedule.
+     *
+     * @param  list<Light>  $written
+     */
+    private function rememberWrites(LightProvider $provider, array $written): void
+    {
+        if ($written === []) {
+            return;
+        }
+
+        $key = $this->cacheKey($provider);
+
+        try {
+            // Single-light writes to different lamps run in parallel; serialise the read-modify-write.
+            Cache::lock($key.':write', 5)->block(2, static function () use ($key, $written): void {
+                $cached = Cache::get($key);
+                $remaining = is_array($cached) && isset($cached['lights'], $cached['expires_at'])
+                    ? (int) $cached['expires_at'] - time()
+                    : 0;
+                if ($remaining <= 0) {
+                    return;
+                }
+
+                $byId = [];
+                foreach ($written as $light) {
+                    $byId[$light->id] = $light;
+                }
+
+                $lights = array_map(static fn (Light $light): Light => $byId[$light->id] ?? $light, $cached['lights']);
+                Cache::put($key, ['lights' => $lights, 'expires_at' => $cached['expires_at']], $remaining);
+            });
+        } catch (LockTimeoutException) {
+            // Could not update safely: drop the snapshot so the next read is fresh.
+            Cache::forget($key);
+        }
+    }
+
+    /**
+     * The change set a preset writes to one lamp (mirrors applyPresetToLight()).
+     *
+     * @return array{power: bool, brightness?: int, color?: string, color_temp?: int}
+     */
+    private function presetChanges(LightPreset $preset, Light $light): array
+    {
+        $changes = ['power' => $preset->power];
+        if (! $preset->power) {
+            return $changes;
+        }
+        if ($preset->brightness !== null) {
+            $changes['brightness'] = $preset->brightness;
+        }
+        if ($light->supportsColor && $preset->color !== null) {
+            $changes['color'] = $preset->color;
+        }
+        if ($light->supportsColorTemp && $preset->colorTemp !== null) {
+            $changes['color_temp'] = $preset->colorTemp;
+        }
+
+        return $changes;
     }
 
     private function applyPresetToLight(LightProvider $provider, Light $light, LightPreset $preset): void

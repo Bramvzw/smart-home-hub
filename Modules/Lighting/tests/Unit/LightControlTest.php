@@ -103,6 +103,31 @@ class LightControlTest extends TestCase
         });
     }
 
+    public function test_tuya_colour_on_a_white_lamp_keeps_its_white_brightness(): void
+    {
+        Http::fake([
+            '*/v1.0/token*' => Http::response(['success' => true, 'result' => ['access_token' => 'tok', 'expire_time' => 7200]]),
+            '*/v1.0/devices/*/status' => Http::response(['success' => true, 'result' => [
+                ['code' => 'work_mode', 'value' => 'white'],
+                ['code' => 'bright_value_v2', 'value' => 10],
+                ['code' => 'colour_data_v2', 'value' => json_encode(['h' => 0, 's' => 0, 'v' => 1000])],
+            ]]),
+            '*/v1.0/devices/*/commands' => Http::response(['success' => true, 'result' => true]),
+        ]);
+
+        app(TuyaProvider::class)->setColor('d1', '#ff0000');
+
+        // After Night (1 %), picking a colour must not jump to 100 %.
+        Http::assertSent(function (\Illuminate\Http\Client\Request $request): bool {
+            if (! str_contains($request->url(), '/v1.0/devices/d1/commands')) {
+                return false;
+            }
+            $codes = collect((array) $request['commands'])->keyBy('code');
+
+            return $codes['colour_data_v2']['value'] === ['h' => 0, 's' => 1000, 'v' => 10];
+        });
+    }
+
     public function test_govee_power_sends_turn_command_with_resolved_model(): void
     {
         Http::fake([

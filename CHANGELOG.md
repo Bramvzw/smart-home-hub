@@ -29,6 +29,12 @@ All notable changes to this project are documented here. The format follows
   page picks up changes made in the Smart Life or Govee apps every two minutes
   without a reload.
 
+### Fixed
+
+- Lighting: picking a colour or moving a slider on a dimmed Calex lamp keeps
+  its brightness instead of jumping to 100 %, and each change is sent as one
+  command (fewer Tuya cloud calls).
+
 ## [0.3.0] - 2026-10-11
 
 ### Changed
