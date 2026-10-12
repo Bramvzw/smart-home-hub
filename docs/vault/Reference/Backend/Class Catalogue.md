@@ -53,6 +53,19 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Actions\ControlLights` | Write action for applying one change set to several lights (group writes). |
 | `Modules\Lighting\Http\Requests\ControlLightsRequest` | Validation and colour normalisation for group light writes. |
 | `Modules\Lighting\Actions\ApplyLightingPreset` | Write action for applying configured presets across reachable provider lights. |
+| `Modules\Lighting\Http\Controllers\LightingSceneController` | Thin HTTP boundary for listing, creating, updating, deleting and applying user lighting scenes. |
+| `Modules\Lighting\Http\Requests\StoreLightingSceneRequest` | Validation for saving a scene (name, accent, lamps to capture). |
+| `Modules\Lighting\Http\Requests\UpdateLightingSceneRequest` | Validation for renaming/recolouring a scene and re-capturing its lamps. |
+| `Modules\Lighting\Http\Resources\LightingSceneResource` | Stable JSON transformer for a user scene and its stored lamp states. |
+| `Modules\Lighting\Actions\Scenes\CreateLightingScene` | Write action that saves a scene from the current state of the given lamps. |
+| `Modules\Lighting\Actions\Scenes\UpdateLightingScene` | Write action that renames/recolours a scene and optionally re-captures its lamps. |
+| `Modules\Lighting\Actions\Scenes\DeleteLightingScene` | Write action that deletes a scene with its stored lamp states. |
+| `Modules\Lighting\Actions\Scenes\ApplyLightingScene` | Write action that applies a scene's per-lamp states through the group pipeline. |
+| `Modules\Lighting\Domain\SceneCapture` | Pure capture of lamp states from a light snapshot (skips unreachable, rejects unknown lamps). |
+| `Modules\Lighting\Data\SceneLightState` | One lamp's stored scene state: capture from a `Light`, change set for writes, match for active detection. |
+| `Modules\Lighting\Models\LightingScene` | Eloquent model for a user scene (`lighting_scenes`). |
+| `Modules\Lighting\Models\LightingSceneLight` | Eloquent model for one stored lamp state of a scene (`lighting_scene_lights`). |
+| `Modules\Lighting\Models\Builders\LightingSceneBuilder` | Query builder for scenes; `ordered()` gives the scene-strip order. |
 | `Modules\Lighting\Contracts\LightProvider` | Shared provider contract for listing and controlling lights. |
 | `Modules\Lighting\Data\Light` | Shared light DTO used by providers, views and JSON resources, including mode and colour temperature. |
 | `Modules\Lighting\Enums\LightMode` | Whether a lamp drives its white (tunable CCT) LEDs or its RGB LEDs. |
@@ -64,14 +77,14 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Exceptions\UnknownLightingPreset` | Exception for unknown configured preset keys. |
 | `Modules\Lighting\Exceptions\UnknownLight` | Exception for group-write targets that are not in the current light snapshot. |
 | `Modules\Lighting\Http\Resources\LightResource` | Stable JSON transformer for light update and state responses. |
-| `Modules\Lighting\Services\LightingService` | Aggregates configured providers, caches snapshots and isolates failures. |
+| `Modules\Lighting\Services\LightingService` | Aggregates configured providers, caches snapshots, isolates failures and applies presets, group writes and per-lamp scene states. |
 | `Modules\Lighting\Services\Providers\TuyaApiClient` | Signed Tuya Cloud OpenAPI transport, including concurrent (pooled) command posts. |
 | `Modules\Lighting\Services\Providers\TuyaTokenService` | Tuya access token caching and refresh. |
 | `Modules\Lighting\Services\Providers\TuyaProvider` | Calex/Tuya provider mapping for power, brightness, colour and white mode/colour temperature. |
 | `Modules\Lighting\Services\Providers\GoveeApiClient` | Govee Developer API transport with API-key headers. |
 | `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness, RGB colour and Kelvin colour temperature. |
 | `Modules\Lighting\Support\Color` | Colour conversion helpers for shared hex, Govee RGB and Tuya HSV. |
-| `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data for the Lighting kiosk: lamp tiles with state lines, the scene strip (built-in presets minus All off) and the active scene. |
+| `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data for the Lighting kiosk: lamp tiles with state lines, the scene strip (built-in presets minus All off, then user scenes) and the active preset or scene. |
 
 ## Calendar Module
 

@@ -4,7 +4,9 @@ namespace Modules\Lighting\View\ViewModels;
 
 use Modules\Lighting\Data\Light;
 use Modules\Lighting\Data\LightPreset;
+use Modules\Lighting\Data\SceneLightState;
 use Modules\Lighting\Enums\LightMode;
+use Modules\Lighting\Models\LightingScene;
 use Modules\Lighting\Services\LightingService;
 
 class LightingViewModel
@@ -49,6 +51,10 @@ class LightingViewModel
             $scenePresets[] = ['preset' => $preset, 'subtitle' => $this->presetSubtitle($preset)];
         }
 
+        $activePreset = $this->activePreset($presets, $snapshot->lights);
+        $scenes = LightingScene::query()->ordered()->with('lights')->get();
+        $activeSceneId = $activePreset === null ? $this->activeSceneId($scenes->all(), $snapshot->lights) : null;
+
         return [
             'tiles' => $tiles,
             'totalLights' => count($snapshot->lights),
@@ -61,7 +67,29 @@ class LightingViewModel
             'pollSeconds' => max(0, (int) config('lighting.poll_seconds', 120)),
             'offPreset' => $offPreset,
             'scenePresets' => $scenePresets,
-            'activePresetKey' => $this->activePreset($presets, $snapshot->lights)?->key,
+            'activePresetKey' => $activePreset?->key,
+            'userScenes' => array_values($scenes->map(fn (LightingScene $scene): array => self::sceneView($scene, $scene->id === $activeSceneId))->all()),
+            'scenesUrl' => route('lighting.scenes.store'),
+            'sceneUrlTemplate' => url('/lighting/scenes/__SCENE__'),
+        ];
+    }
+
+    /**
+     * View data for one user-scene button (also used, blank, as the JS template).
+     *
+     * @return array{id: string, name: string, accent: string, subtitle: string, lights: list<array<string, mixed>>, active: bool}
+     */
+    public static function sceneView(?LightingScene $scene, bool $active = false): array
+    {
+        $lights = $scene === null ? [] : array_map(static fn (SceneLightState $state): array => $state->toArray(), $scene->states());
+
+        return [
+            'id' => $scene === null ? '' : (string) $scene->id,
+            'name' => $scene->name ?? '',
+            'accent' => $scene->accent ?? '#e0a44e',
+            'subtitle' => count($lights).' '.(count($lights) === 1 ? 'lamp' : 'lamps').' · your scene',
+            'lights' => $lights,
+            'active' => $active,
         ];
     }
 
@@ -132,6 +160,43 @@ class LightingViewModel
             }
 
             return $preset;
+        }
+
+        return null;
+    }
+
+    /**
+     * The first user scene whose stored lamps (those still present and
+     * reachable) all show their stored state.
+     *
+     * @param  array<int, LightingScene>  $scenes
+     * @param  list<Light>  $lights
+     */
+    private function activeSceneId(array $scenes, array $lights): ?int
+    {
+        $byKey = [];
+        foreach ($lights as $light) {
+            if ($light->reachable) {
+                $byKey[$light->provider.'::'.$light->id] = $light;
+            }
+        }
+
+        foreach ($scenes as $scene) {
+            $checked = 0;
+            foreach ($scene->states() as $state) {
+                $light = $byKey[$state->provider.'::'.$state->id] ?? null;
+                if ($light === null) {
+                    continue;
+                }
+                if (! $state->matches($light)) {
+                    continue 2;
+                }
+                $checked++;
+            }
+
+            if ($checked > 0) {
+                return $scene->id;
+            }
         }
 
         return null;

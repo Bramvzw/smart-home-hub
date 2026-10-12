@@ -107,6 +107,14 @@ Control sheet (bottom sheet, 548 px high on the kiosk, nearly full height on a p
 - For a selection, brightness and colour temperature start at the average of the lamps (off lamps count as 0 % brightness), the mode starts at the majority (ties go to white), and the power switch is on when any lamp is on.
 - `Done` closes the sheet. The scrim behind it closes it too.
 
+Scenes:
+- The scene strip lists the built-in presets (from config, read-only) first, then the user's own scenes in their saved order, then a dashed `+ Save scene` button. A user scene shows its accent dot, its name and `N lamps · your scene`, plus a 48 px `⋯` button.
+- `+ Save scene` (strip) and `Save as scene…` (sheet) open the save dialog: a name field (max 60 characters), eight accent swatches (Amber, Coral, Red, Pink, Purple, Blue, Green, Ice) and a `Lamps in this scene` checklist of the reachable lamps. Lamps that are on, selected, or open in the sheet are ticked by default. `Save` stays disabled until a name is typed.
+- Saving stores the **current state of each ticked lamp** (on/off, brightness, and either the colour or the white temperature). Offline lamps are skipped because their state is unknown. The new scene appears in the strip as the active scene and select mode ends.
+- A user scene's `⋯` opens a menu: `Rename` (name and accent only; the stored lamp states stay), `Update to current` (re-captures the scene's own lamps from their current state), `Delete`, `Cancel`.
+- Tapping a user scene changes only the lamps stored in it; other lamps are left alone. Offline lamps are skipped and named in the toast. A scene is shown as active when every stored lamp that is present and reachable is in its stored state; built-in presets are checked first.
+- Endpoints: `GET /lighting/scenes` (`{data: {presets, scenes}}`), `POST /lighting/scenes` (`201`, captures `{name, accent, lights: [{provider, id}]}`), `PUT /lighting/scenes/{scene}` (`name`, `accent` and/or `lights` to re-capture), `DELETE /lighting/scenes/{scene}` (`204`), `POST /lighting/scenes/{scene}/apply` (`{data: {applied, failed}}`, `502` when nothing applied, `409` when busy). An unknown lamp, or only offline lamps, is a `422` on the `lights` field.
+
 Behavior:
 - No configured credentials shows the empty state `No lights connected` with the `TUYA_*` / `GOVEE_API_KEY` hint; configured providers without lamps show `No lights found`.
 - Built-in presets come from config. Bright, Cozy and Night use the lamps' real white LEDs: Bright is cool white at 100 %, Cozy warm white at 70 %, Night warm white at 1 %. Lamps without tunable white only get the power and brightness. Movie and Night light keep their colours; Night light only targets lamps whose name contains `strip`.

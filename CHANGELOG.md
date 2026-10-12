@@ -12,6 +12,9 @@ All notable changes to this project are documented here. The format follows
 - Lighting: real white light with adjustable colour temperature for Calex and
   Govee lamps; the Bright, Cozy and Night presets now use warm or cool white
   instead of a bluish RGB imitation.
+- Lighting: save your own scenes from the current state of your lamps, then
+  rename, update or delete them from the scene strip. A scene changes only the
+  lamps stored in it and skips lamps that are offline.
 - Lighting: group endpoint `PUT /lighting/lights` to change several lamps at
   once, and `GET /lighting/state` for the live light state.
 

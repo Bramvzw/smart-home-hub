@@ -590,22 +590,105 @@ const presetMatchesCard = (card, preset) => {
 
 const presetButtons = (root) => [...root.querySelectorAll('[data-preset]')];
 
-// Every activatable scene button with a matcher: built-in presets first.
-const sceneEntries = (root) => presetButtons(root).map((button) => {
-    const preset = presetFromButton(button);
+// --- User scenes (stored per-lamp states) ----------------------------------
+
+const sceneButtons = (root) => [...root.querySelectorAll('[data-scene]')];
+
+const sceneLights = (button) => {
+    try {
+        const lights = JSON.parse(button.dataset.sceneLights || '[]');
+        return Array.isArray(lights) ? lights : [];
+    } catch {
+        return [];
+    }
+};
+
+const sceneKey = (id) => `scene:${id}`;
+
+// Does a lamp show the stored scene state? Mirrors SceneLightState::matches().
+const sceneStateMatchesCard = (card, stored) => {
+    const state = lightStateFromCard(card);
+
+    if (! stored.power) {
+        return ! state.power;
+    }
+
+    if (! state.power) {
+        return false;
+    }
+
+    if (stored.brightness !== null && stored.brightness !== undefined && state.brightness !== Number(stored.brightness)) {
+        return false;
+    }
+
+    if (stored.mode === 'colour' && stored.color) {
+        return state.mode === 'colour' && normaliseColor(state.color) === normaliseColor(stored.color);
+    }
+
+    if (stored.color_temp !== null && stored.color_temp !== undefined) {
+        return state.mode === 'white' && state.colorTemp === Number(stored.color_temp);
+    }
+
+    return true;
+};
+
+const applySceneStateToCard = (card, stored) => {
+    card.dataset.on = String(Boolean(stored.power));
+
+    if (stored.power) {
+        if (stored.brightness !== null && stored.brightness !== undefined) {
+            card.dataset.brightness = String(stored.brightness);
+        }
+        if (stored.mode === 'colour' && stored.color && card.dataset.supportsColor === 'true') {
+            card.dataset.mode = 'colour';
+            card.dataset.color = stored.color;
+        } else if (stored.mode === 'white' && stored.color_temp !== null && stored.color_temp !== undefined && card.dataset.supportsColorTemp === 'true') {
+            card.dataset.mode = 'white';
+            card.dataset.colorTemp = String(stored.color_temp);
+        }
+    }
+
+    updateCardVisual(card);
+};
+
+const reachableCardFor = (root, stored) => cardsForKey(root, `${stored.provider}::${stored.id}`)
+    .find((card) => card.dataset.reachable === 'true') ?? null;
+
+// Every activatable scene button with a matcher: built-in presets first,
+// then user scenes (a stored lamp that is gone or offline is ignored).
+const sceneEntries = (root) => {
     const reachable = allCards(root).filter((card) => card.dataset.reachable === 'true');
 
-    return {
-        key: preset.key,
-        label: preset.label,
+    const presets = presetButtons(root).map((button) => {
+        const preset = presetFromButton(button);
+
+        return {
+            key: preset.key,
+            label: preset.label,
+            button,
+            matches: () => {
+                const targeted = reachable.filter((card) => presetTargetsCard(card, preset));
+
+                return targeted.length > 0 && targeted.every((card) => presetMatchesCard(card, preset));
+            },
+        };
+    });
+
+    const scenes = sceneButtons(root).filter((button) => button.dataset.scene).map((button) => ({
+        key: sceneKey(button.dataset.scene),
+        label: button.dataset.sceneLabel ?? '',
         button,
         matches: () => {
-            const targeted = reachable.filter((card) => presetTargetsCard(card, preset));
+            const pairs = sceneLights(button)
+                .map((stored) => [reachableCardFor(root, stored), stored])
+                .filter(([card]) => card !== null);
 
-            return targeted.length > 0 && targeted.every((card) => presetMatchesCard(card, preset));
+            return pairs.length > 0 && pairs.every(([card, stored]) => sceneStateMatchesCard(card, stored));
         },
-    };
-});
+    }));
+
+    return [...presets, ...scenes];
+};
 
 const updateActivePreset = (root, activeKey = null) => {
     const entries = sceneEntries(root);
@@ -649,6 +732,30 @@ const applyPresetToCard = (card, preset) => {
 
 // How a scene-strip button is applied: its endpoint and the optimistic update.
 const bulkActionFor = (root, button) => {
+    if (button.dataset.scene) {
+        const template = root.dataset.sceneUrlTemplate;
+        if (! template) {
+            return null;
+        }
+
+        return {
+            key: sceneKey(button.dataset.scene),
+            label: button.dataset.sceneLabel,
+            url: `${template.replace('__SCENE__', encodeURIComponent(button.dataset.scene))}/apply`,
+            apply: (body) => {
+                const failed = Array.isArray(body.data?.failed) ? body.data.failed : [];
+                sceneLights(button).forEach((stored) => {
+                    const card = reachableCardFor(root, stored);
+                    if (card && ! failed.includes(card.dataset.lightName)) {
+                        applySceneStateToCard(card, stored);
+                    }
+                });
+
+                return { activeKey: sceneKey(button.dataset.scene), failed };
+            },
+        };
+    }
+
     const template = root.dataset.presetUrlTemplate;
     const preset = presetFromButton(button);
     if (! template || ! preset.key) {
@@ -873,7 +980,7 @@ const toggleSelected = (root, card) => {
 
 const sheet = { open: false, keys: [], tab: 'white' };
 
-// Placeholder until scenes register their dialogs.
+// Replaced by setupScenes() with a check of the scene dialogs.
 let isDialogOpen = () => false;
 
 const sheetCards = (root) => sheet.keys
@@ -1104,6 +1211,276 @@ const setupSheet = (root) => {
     ring?.addEventListener('pointercancel', stop);
 };
 
+// --- Scene dialogs: save / rename and the ⋯ menu ----------------------------
+
+const DEFAULT_ACCENT = '#e0a44e';
+
+const saveDialog = { mode: 'create', sceneId: null, accent: DEFAULT_ACCENT };
+let menuSceneId = null;
+
+const overlays = (root) => ['[data-save-overlay]', '[data-scene-menu-overlay]']
+    .map((selector) => root.querySelector(selector))
+    .filter(Boolean);
+
+const sceneWrapper = (root, id) => [...root.querySelectorAll('[data-user-scene]')].find((element) => element.dataset.sceneId === String(id)) ?? null;
+
+const sceneUrl = (root, id) => (root.dataset.sceneUrlTemplate ?? '').replace('__SCENE__', encodeURIComponent(String(id)));
+
+// Fill a user-scene wrapper (server-rendered or cloned from the template).
+const fillScene = (wrapper, scene) => {
+    const button = wrapper.querySelector('[data-scene]');
+    const count = Array.isArray(scene.lights) ? scene.lights.length : 0;
+
+    wrapper.dataset.sceneId = String(scene.id);
+    wrapper.style.setProperty('--scene-dot', scene.accent);
+    button.dataset.scene = String(scene.id);
+    button.dataset.sceneLabel = scene.name;
+    button.dataset.sceneAccent = scene.accent;
+    button.dataset.sceneLights = JSON.stringify(scene.lights ?? []);
+    wrapper.querySelector('[data-scene-name]').textContent = scene.name;
+    wrapper.querySelector('[data-scene-sub]').textContent = `${count} ${count === 1 ? 'lamp' : 'lamps'} · your scene`;
+    wrapper.querySelector('[data-scene-menu]').setAttribute('aria-label', `Options for ${scene.name}`);
+};
+
+const addScene = (root, scene) => {
+    const template = root.querySelector('[data-user-scene-template]');
+    const strip = root.querySelector('[data-scene-strip]');
+    const wrapper = template?.content?.firstElementChild?.cloneNode(true);
+    if (! wrapper || ! strip) {
+        return;
+    }
+
+    fillScene(wrapper, scene);
+    strip.insertBefore(wrapper, strip.querySelector('[data-save-scene-open]'));
+};
+
+const paintSaveDialog = (root) => {
+    const overlay = root.querySelector('[data-save-overlay]');
+    const name = overlay.querySelector('[data-save-name]');
+    overlay.querySelector('[data-save-submit]').disabled = name.value.trim() === '';
+    overlay.querySelectorAll('[data-save-accent]').forEach((swatch) => {
+        swatch.setAttribute('aria-pressed', String(swatch.dataset.saveAccent === saveDialog.accent));
+    });
+};
+
+// Lamp checklist: reachable lamps, ticked when on, selected or in the open sheet.
+const buildLampChecklist = (root) => {
+    const list = root.querySelector('[data-save-lamps]');
+    list.replaceChildren();
+
+    allCards(root).filter((card) => card.dataset.reachable === 'true').forEach((card) => {
+        const state = lightStateFromCard(card);
+        const row = document.createElement('label');
+        row.className = 'lighting-checklist__row';
+
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.dataset.saveLamp = lightKey(card);
+        box.checked = state.power || selection.has(lightKey(card)) || sheet.keys.includes(lightKey(card));
+
+        const dot = document.createElement('span');
+        dot.className = 'lighting-checklist__dot';
+        dot.setAttribute('aria-hidden', 'true');
+        if (state.power) {
+            dot.style.setProperty('--row-dot', rgbCss(displayRgb(state)));
+        }
+
+        const name = document.createElement('span');
+        name.className = 'lighting-checklist__name';
+        name.textContent = card.dataset.lightName ?? '';
+
+        const status = document.createElement('span');
+        status.className = 'lighting-checklist__state';
+        status.textContent = stateLabel(state);
+
+        row.append(box, dot, name, status);
+        list.append(row);
+    });
+};
+
+const openSaveDialog = (root, mode = 'create', sceneId = null) => {
+    const overlay = root.querySelector('[data-save-overlay]');
+    if (! overlay) {
+        return;
+    }
+
+    const button = sceneId === null ? null : sceneWrapper(root, sceneId)?.querySelector('[data-scene]');
+    saveDialog.mode = mode;
+    saveDialog.sceneId = sceneId;
+    saveDialog.accent = button?.dataset.sceneAccent ?? DEFAULT_ACCENT;
+
+    overlay.querySelector('[data-save-title]').textContent = mode === 'rename' ? 'Rename scene' : 'Save scene';
+    overlay.querySelector('[data-save-name]').value = button?.dataset.sceneLabel ?? '';
+    // Renaming keeps the stored lamp states; "Update to current" re-captures.
+    overlay.querySelector('[data-save-lamps-field]').hidden = mode === 'rename';
+    if (mode === 'create') {
+        buildLampChecklist(root);
+    }
+
+    closeMenu(root);
+    if (sheet.open) {
+        closeSheet(root);
+    }
+    overlay.hidden = false;
+    paintSaveDialog(root);
+    renderSelection(root);
+    overlay.querySelector('[data-save-name]').focus();
+};
+
+const closeSaveDialog = (root) => {
+    const overlay = root.querySelector('[data-save-overlay]');
+    if (overlay) {
+        overlay.hidden = true;
+    }
+    renderSelection(root);
+};
+
+const submitSaveDialog = async (root) => {
+    const overlay = root.querySelector('[data-save-overlay]');
+    const name = overlay.querySelector('[data-save-name]').value.trim();
+    if (name === '') {
+        return;
+    }
+
+    const payload = { name, accent: saveDialog.accent };
+    let url = root.dataset.scenesUrl;
+    let method = 'POST';
+
+    if (saveDialog.mode === 'rename') {
+        url = sceneUrl(root, saveDialog.sceneId);
+        method = 'PUT';
+    } else {
+        const keys = [...overlay.querySelectorAll('[data-save-lamp]')].filter((box) => box.checked).map((box) => box.dataset.saveLamp);
+        payload.lights = keys
+            .map((key) => cardsForKey(root, key)[0])
+            .filter(Boolean)
+            .map((card) => ({ provider: card.dataset.provider, id: card.dataset.lightId }));
+
+        if (payload.lights.length === 0) {
+            showToast(root, 'Pick at least one lamp for the scene.');
+            return;
+        }
+    }
+
+    overlay.querySelector('[data-save-submit]').disabled = true;
+    const response = await requestWithRetry(url, method, payload);
+    const body = response ? await readJson(response) : {};
+
+    if (! response?.ok || ! body.data) {
+        paintSaveDialog(root);
+        showToast(root, body.errors?.lights?.[0] ?? "Couldn't save the scene.");
+        return;
+    }
+
+    if (saveDialog.mode === 'rename') {
+        const wrapper = sceneWrapper(root, body.data.id);
+        if (wrapper) {
+            fillScene(wrapper, body.data);
+        }
+        closeSaveDialog(root);
+        updateActivePreset(root);
+        return;
+    }
+
+    addScene(root, body.data);
+    closeSaveDialog(root);
+    if (isSelecting(root)) {
+        setMode(root, 'normal');
+    }
+    updateActivePreset(root, sceneKey(body.data.id));
+};
+
+const openMenu = (root, sceneId) => {
+    const overlay = root.querySelector('[data-scene-menu-overlay]');
+    const button = sceneWrapper(root, sceneId)?.querySelector('[data-scene]');
+    if (! overlay || ! button) {
+        return;
+    }
+
+    menuSceneId = sceneId;
+    overlay.querySelector('[data-scene-menu-title]').textContent = button.dataset.sceneLabel ?? '';
+    overlay.hidden = false;
+    renderSelection(root);
+    overlay.querySelector('[data-scene-rename]')?.focus();
+};
+
+const closeMenu = (root) => {
+    const overlay = root.querySelector('[data-scene-menu-overlay]');
+    if (overlay && ! overlay.hidden) {
+        overlay.hidden = true;
+        renderSelection(root);
+    }
+};
+
+// "Update to current": re-capture the scene's own lamps from their current state.
+const recaptureScene = async (root, sceneId) => {
+    const button = sceneWrapper(root, sceneId)?.querySelector('[data-scene]');
+    closeMenu(root);
+    if (! button) {
+        return;
+    }
+
+    const lights = sceneLights(button).map((stored) => ({ provider: stored.provider, id: stored.id }));
+    const response = await requestWithRetry(sceneUrl(root, sceneId), 'PUT', { lights });
+    const body = response ? await readJson(response) : {};
+    if (! response?.ok || ! body.data) {
+        showToast(root, body.errors?.lights?.[0] ?? "Couldn't update the scene.");
+        return;
+    }
+
+    fillScene(sceneWrapper(root, sceneId), body.data);
+    updateActivePreset(root, sceneKey(sceneId));
+};
+
+const deleteScene = async (root, sceneId) => {
+    closeMenu(root);
+    const response = await requestWithRetry(sceneUrl(root, sceneId), 'DELETE');
+    if (! response?.ok) {
+        showToast(root, "Couldn't delete the scene.");
+        return;
+    }
+
+    sceneWrapper(root, sceneId)?.remove();
+    updateActivePreset(root);
+};
+
+const setupScenes = (root) => {
+    isDialogOpen = (target) => overlays(target).some((overlay) => ! overlay.hidden);
+
+    // Delegated: scene buttons added after load work too.
+    root.querySelector('[data-scene-strip]')?.addEventListener('click', (event) => {
+        const apply = event.target.closest('[data-scene]');
+        if (apply) {
+            applyPreset(root, apply);
+            return;
+        }
+        const menu = event.target.closest('[data-scene-menu]');
+        if (menu) {
+            openMenu(root, menu.closest('[data-user-scene]').dataset.sceneId);
+        }
+    });
+
+    root.querySelectorAll('[data-save-scene-open]').forEach((button) => button.addEventListener('click', () => openSaveDialog(root)));
+
+    const save = root.querySelector('[data-save-overlay]');
+    save?.querySelectorAll('[data-save-cancel]').forEach((button) => button.addEventListener('click', () => closeSaveDialog(root)));
+    save?.querySelector('[data-save-name]')?.addEventListener('input', () => paintSaveDialog(root));
+    save?.querySelectorAll('[data-save-accent]').forEach((swatch) => swatch.addEventListener('click', () => {
+        saveDialog.accent = swatch.dataset.saveAccent;
+        paintSaveDialog(root);
+    }));
+    save?.querySelector('[data-save-form]')?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitSaveDialog(root);
+    });
+
+    const menu = root.querySelector('[data-scene-menu-overlay]');
+    menu?.querySelectorAll('[data-scene-menu-close]').forEach((button) => button.addEventListener('click', () => closeMenu(root)));
+    menu?.querySelector('[data-scene-rename]')?.addEventListener('click', () => openSaveDialog(root, 'rename', menuSceneId));
+    menu?.querySelector('[data-scene-recapture]')?.addEventListener('click', () => recaptureScene(root, menuSceneId));
+    menu?.querySelector('[data-scene-delete]')?.addEventListener('click', () => deleteScene(root, menuSceneId));
+};
+
 // --- Tiles -------------------------------------------------------------------
 
 const LONG_PRESS_MS = 550;
@@ -1202,7 +1579,14 @@ const setupChrome = (root) => {
     });
 
     root.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && sheet.open) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+        if (root.querySelector('[data-save-overlay]')?.hidden === false) {
+            closeSaveDialog(root);
+        } else if (root.querySelector('[data-scene-menu-overlay]')?.hidden === false) {
+            closeMenu(root);
+        } else if (sheet.open) {
             closeSheet(root);
         }
     });
@@ -1225,9 +1609,11 @@ export const initLighting = () => {
     sheet.keys = [];
     sheetPayload = null;
     sheetTargets = [];
+    menuSceneId = null;
 
     setupChrome(root);
     setupSheet(root);
+    setupScenes(root);
     allCards(root).forEach((card) => setupTile(root, card));
     paintPresetDots(root);
 

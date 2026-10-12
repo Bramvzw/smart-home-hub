@@ -12,6 +12,7 @@ use Modules\Lighting\Data\LightingGroupResult;
 use Modules\Lighting\Data\LightingPresetResult;
 use Modules\Lighting\Data\LightingSnapshot;
 use Modules\Lighting\Data\LightPreset;
+use Modules\Lighting\Data\SceneLightState;
 use Modules\Lighting\Data\WeatherPresetTrigger;
 use Modules\Lighting\Enums\LightMode;
 use Modules\Lighting\Exceptions\LightingControlBusy;
@@ -218,6 +219,87 @@ class LightingService
                         $failed[] = $light->name;
                     } else {
                         $applied++;
+                    }
+                }
+
+                Cache::forget($this->cacheKey($provider));
+            }
+
+            return new LightingGroupResult($applied, array_values(array_unique($failed)));
+        });
+    }
+
+    /**
+     * Bring several lamps into their own target states (user scenes). Lamps
+     * that share a provider and an identical change set go out as one group
+     * write, so Calex lamps are still written concurrently. Unreachable lamps
+     * are skipped and reported in `failed`; lamps that no longer exist are
+     * ignored.
+     *
+     * @param  list<SceneLightState>  $states
+     */
+    public function applyLightStates(array $states): LightingGroupResult
+    {
+        return $this->withControlLock(self::GROUP_LOCK, function () use ($states): LightingGroupResult {
+            $failed = [];
+            $applied = 0;
+
+            $byProvider = [];
+            foreach ($states as $state) {
+                $byProvider[$state->provider][] = $state;
+            }
+
+            foreach ($byProvider as $providerKey => $providerStates) {
+                $provider = $this->configuredProviderByKey($providerKey);
+                if ($provider === null) {
+                    continue;
+                }
+
+                try {
+                    $lights = $this->cachedLights($provider);
+                } catch (Throwable) {
+                    $failed[] = $provider->label();
+
+                    continue;
+                }
+
+                $byId = [];
+                foreach ($lights as $light) {
+                    $byId[$light->id] = $light;
+                }
+
+                /** @var array<string, array{changes: array{power: bool, brightness?: int, color?: string, color_temp?: int}, lights: list<Light>}> $batches */
+                $batches = [];
+                foreach ($providerStates as $state) {
+                    $light = $byId[$state->id] ?? null;
+                    if ($light === null) {
+                        continue;
+                    }
+                    if (! $light->reachable) {
+                        $failed[] = $light->name;
+
+                        continue;
+                    }
+
+                    $changes = $state->changes();
+                    $batchKey = (string) json_encode($changes);
+                    $batches[$batchKey]['changes'] = $changes;
+                    $batches[$batchKey]['lights'][] = $light;
+                }
+
+                foreach ($batches as $batch) {
+                    try {
+                        $failedIds = $provider->applyToLights($batch['lights'], $batch['changes']);
+                    } catch (Throwable) {
+                        $failedIds = array_map(static fn (Light $light): string => $light->id, $batch['lights']);
+                    }
+
+                    foreach ($batch['lights'] as $light) {
+                        if (in_array($light->id, $failedIds, true)) {
+                            $failed[] = $light->name;
+                        } else {
+                            $applied++;
+                        }
                     }
                 }
 

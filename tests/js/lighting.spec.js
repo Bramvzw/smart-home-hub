@@ -75,10 +75,43 @@ const sheetMarkup = `
     </div>
 `;
 
-const page = (tiles, { presets = '', attrs = '' } = {}) => `
+const userScene = ({ id = '', name = '', accent = '#e0a44e', lights = [] } = {}) => `
+    <div data-user-scene data-scene-id="${id}">
+        <button type="button" data-scene="${id}" data-scene-label="${name}" data-scene-accent="${accent}"
+            data-scene-lights='${JSON.stringify(lights)}' aria-pressed="false">
+            <span data-scene-name>${name}</span><span data-scene-sub></span>
+        </button>
+        <button type="button" data-scene-menu aria-label="Options for ${name}"></button>
+    </div>
+`;
+
+const sceneDialogs = `
+    <div data-scene-menu-overlay hidden>
+        <h2 data-scene-menu-title></h2>
+        <button type="button" data-scene-rename>Rename</button>
+        <button type="button" data-scene-recapture>Update to current</button>
+        <button type="button" data-scene-delete>Delete</button>
+        <button type="button" data-scene-menu-close>Cancel</button>
+    </div>
+    <div data-save-overlay hidden>
+        <form data-save-form>
+            <h2 data-save-title></h2>
+            <input type="text" data-save-name>
+            <button type="button" data-save-accent="#e0a44e" aria-pressed="false"></button>
+            <button type="button" data-save-accent="#b06bff" aria-pressed="false"></button>
+            <div data-save-lamps-field><div data-save-lamps></div></div>
+            <button type="button" data-save-cancel>Cancel</button>
+            <button type="submit" data-save-submit disabled>Save</button>
+        </form>
+    </div>
+`;
+
+const page = (tiles, { presets = '', attrs = '', scenes = '' } = {}) => `
     <div data-lighting data-mode="normal"
         data-preset-url-template="/lighting/presets/__PRESET__"
-        data-group-url="/lighting/lights" ${attrs}>
+        data-group-url="/lighting/lights"
+        data-scenes-url="/lighting/scenes"
+        data-scene-url-template="/lighting/scenes/__SCENE__" ${attrs}>
         <h1 data-lighting-title>Lighting</h1>
         <p data-lighting-summary></p>
         <div data-normal-only><button type="button" data-select-start>Select</button></div>
@@ -86,7 +119,12 @@ const page = (tiles, { presets = '', attrs = '' } = {}) => `
             <button type="button" data-select-all>Select all</button>
             <button type="button" data-select-cancel>Cancel</button>
         </div>
-        ${presets}
+        <nav data-scene-strip>
+            ${presets}
+            ${scenes}
+            <button type="button" data-save-scene-open>Save scene</button>
+        </nav>
+        <template data-user-scene-template>${userScene()}</template>
         ${tiles}
         <div data-selbar hidden>
             <span data-selbar-label></span>
@@ -94,6 +132,7 @@ const page = (tiles, { presets = '', attrs = '' } = {}) => `
         </div>
         <div data-lighting-toast hidden><span data-lighting-toast-text></span></div>
         ${sheetMarkup}
+        ${sceneDialogs}
     </div>
 `;
 
@@ -419,6 +458,152 @@ describe('lighting kiosk', () => {
 
             document.querySelector('[data-tile-toggle]').click();
             expect(document.querySelector('[data-preset="cozy"]').dataset.active).toBe('false');
+        });
+    });
+
+    describe('user scenes', () => {
+        const typeName = (value) => {
+            const input = document.querySelector('[data-save-name]');
+            input.value = value;
+            input.dispatchEvent(new Event('input'));
+        };
+
+        const submit = () => document.querySelector('[data-save-form]').dispatchEvent(new Event('submit', { cancelable: true }));
+
+        it('saves a scene from the lamps that are on or selected', async () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', name: 'Spot 1', on: true })
+                + tile({ id: '2', name: 'Spot 2', on: false })
+                + tile({ provider: 'govee', id: 'DEV1', name: 'Strip', on: false })
+                + tile({ id: '4', name: 'Hallway', reachable: false }),
+            );
+            const created = { id: 7, name: 'Reading', accent: '#b06bff', sort_order: 1, lights: [
+                { provider: 'tuya', id: '1', power: true, brightness: 10, mode: 'white', color: null, color_temp: 50 },
+                { provider: 'govee', id: 'DEV1', power: false, brightness: null, mode: 'white', color: null, color_temp: null },
+            ] };
+            fetch.mockResolvedValueOnce({ ok: true, status: 201, json: async () => ({ data: created }) });
+
+            initLighting();
+            // Select the (off) strip, then save from the strip's "Save scene".
+            document.querySelector('[data-select-start]').click();
+            document.querySelectorAll('[data-tile-toggle]')[2].click();
+            document.querySelector('[data-save-scene-open]').click();
+
+            const overlay = document.querySelector('[data-save-overlay]');
+            expect(overlay.hidden).toBe(false);
+            expect(document.querySelector('[data-save-title]').textContent).toBe('Save scene');
+            // Offline lamps are not offered; on + selected lamps are ticked.
+            const boxes = [...document.querySelectorAll('[data-save-lamp]')];
+            expect(boxes.map((box) => [box.dataset.saveLamp, box.checked])).toEqual([
+                ['tuya::1', true],
+                ['tuya::2', false],
+                ['govee::DEV1', true],
+            ]);
+            expect(document.querySelector('[data-save-submit]').disabled).toBe(true);
+
+            typeName('  Reading ');
+            document.querySelector('[data-save-accent="#b06bff"]').click();
+            expect(document.querySelector('[data-save-submit]').disabled).toBe(false);
+            submit();
+            await flushPromises();
+            await flushPromises();
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/scenes');
+            expect(fetch.mock.calls[0][1].method).toBe('POST');
+            expect(bodyOf(fetch.mock.calls[0])).toEqual({
+                name: 'Reading',
+                accent: '#b06bff',
+                lights: [{ provider: 'tuya', id: '1' }, { provider: 'govee', id: 'DEV1' }],
+            });
+
+            const added = document.querySelector('[data-user-scene][data-scene-id="7"]');
+            expect(added).not.toBeNull();
+            expect(added.querySelector('[data-scene-name]').textContent).toBe('Reading');
+            expect(added.querySelector('[data-scene-sub]').textContent).toBe('2 lamps · your scene');
+            expect(added.querySelector('[data-scene]').getAttribute('aria-pressed')).toBe('true');
+            expect(overlay.hidden).toBe(true);
+            expect(document.querySelector('[data-lighting]').dataset.mode).toBe('normal');
+        });
+
+        it('applies a user scene to its stored lamps only', async () => {
+            const lights = [
+                { provider: 'tuya', id: '1', power: true, brightness: 30, mode: 'colour', color: '#9900ff', color_temp: null },
+                { provider: 'tuya', id: '2', power: false, brightness: null, mode: 'white', color: null, color_temp: null },
+            ];
+            document.body.innerHTML = page(
+                tile({ id: '1', on: false }) + tile({ id: '2', on: true }) + tile({ id: '3', on: true, brightness: 80 }),
+                { scenes: userScene({ id: '5', name: 'Gaming', lights }) },
+            );
+            fetch.mockResolvedValueOnce(okResponse({ data: { applied: 2, failed: [] } }));
+
+            initLighting();
+            const button = document.querySelector('[data-scene="5"]');
+            expect(button.getAttribute('aria-pressed')).toBe('false');
+            button.click();
+            await flushPromises();
+
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/scenes/5/apply');
+            expect(fetch.mock.calls[0][1].method).toBe('POST');
+            const [one, two, three] = document.querySelectorAll('[data-light]');
+            expect(one.dataset.on).toBe('true');
+            expect(one.dataset.mode).toBe('colour');
+            expect(one.dataset.color).toBe('#9900ff');
+            expect(one.dataset.brightness).toBe('30');
+            expect(two.dataset.on).toBe('false');
+            expect(three.dataset.brightness).toBe('80');
+            expect(button.getAttribute('aria-pressed')).toBe('true');
+
+            // A manual change clears it; matching per-lamp states detect it again.
+            one.querySelector('[data-tile-toggle]').click();
+            expect(button.getAttribute('aria-pressed')).toBe('false');
+            one.querySelector('[data-tile-toggle]').click();
+            expect(button.getAttribute('aria-pressed')).toBe('true');
+        });
+
+        it('renames, re-captures and deletes a scene from its menu', async () => {
+            const lights = [{ provider: 'tuya', id: '1', power: false, brightness: null, mode: 'white', color: null, color_temp: null }];
+            document.body.innerHTML = page(tile({ id: '1', on: true }), { scenes: userScene({ id: '5', name: 'Dinner', accent: '#b06bff', lights }) });
+            initLighting();
+
+            document.querySelector('[data-scene-menu]').click();
+            expect(document.querySelector('[data-scene-menu-overlay]').hidden).toBe(false);
+            expect(document.querySelector('[data-scene-menu-title]').textContent).toBe('Dinner');
+
+            // Rename: name + accent only, no lamp list.
+            document.querySelector('[data-scene-rename]').click();
+            expect(document.querySelector('[data-save-title]').textContent).toBe('Rename scene');
+            expect(document.querySelector('[data-save-name]').value).toBe('Dinner');
+            expect(document.querySelector('[data-save-lamps-field]').hidden).toBe(true);
+            expect(document.querySelector('[data-save-accent="#b06bff"]').getAttribute('aria-pressed')).toBe('true');
+            fetch.mockResolvedValueOnce(okResponse({ data: { id: 5, name: 'Supper', accent: '#b06bff', lights } }));
+            typeName('Supper');
+            submit();
+            await flushPromises();
+            await flushPromises();
+            expect(fetch.mock.calls[0][0]).toBe('/lighting/scenes/5');
+            expect(fetch.mock.calls[0][1].method).toBe('PUT');
+            expect(bodyOf(fetch.mock.calls[0])).toEqual({ name: 'Supper', accent: '#b06bff' });
+            expect(document.querySelector('[data-scene-name]').textContent).toBe('Supper');
+
+            // Update to current: re-capture the stored lamps.
+            const recaptured = [{ ...lights[0], power: true, brightness: 10, color_temp: 50 }];
+            fetch.mockResolvedValueOnce(okResponse({ data: { id: 5, name: 'Supper', accent: '#b06bff', lights: recaptured } }));
+            document.querySelector('[data-scene-menu]').click();
+            document.querySelector('[data-scene-recapture]').click();
+            await flushPromises();
+            await flushPromises();
+            expect(bodyOf(fetch.mock.calls[1])).toEqual({ lights: [{ provider: 'tuya', id: '1' }] });
+            expect(JSON.parse(document.querySelector('[data-scene]').dataset.sceneLights)).toEqual(recaptured);
+            expect(document.querySelector('[data-scene]').getAttribute('aria-pressed')).toBe('true');
+
+            // Delete.
+            fetch.mockResolvedValueOnce({ ok: true, status: 204, json: async () => ({}) });
+            document.querySelector('[data-scene-menu]').click();
+            document.querySelector('[data-scene-delete]').click();
+            await flushPromises();
+            expect(fetch.mock.calls[2][1].method).toBe('DELETE');
+            expect(document.querySelector('[data-user-scene]')).toBeNull();
         });
     });
 

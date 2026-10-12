@@ -35,6 +35,8 @@
             data-mode="normal"
             data-preset-url-template="{{ $presetUrlTemplate }}"
             data-group-url="{{ $groupUrl }}"
+            data-scenes-url="{{ $scenesUrl }}"
+            data-scene-url-template="{{ $sceneUrlTemplate }}"
             data-state-url="{{ $stateUrl }}"
             data-poll-seconds="{{ $pollSeconds }}"
         >
@@ -102,7 +104,17 @@
                             <span class="lighting-scene__active">Active</span>
                         </button>
                     @endforeach
+                    @foreach($userScenes as $scene)
+                        @include('lighting::partials.user-scene', ['scene' => $scene])
+                    @endforeach
+                    <button type="button" class="lighting-scene lighting-scene--add" data-save-scene-open>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                        Save scene
+                    </button>
                 </nav>
+                <template data-user-scene-template>
+                    @include('lighting::partials.user-scene', ['scene' => \Modules\Lighting\View\ViewModels\LightingViewModel::sceneView(null)])
+                </template>
             </div>
 
             <section class="lighting-grid" aria-label="Lamps">
@@ -269,9 +281,48 @@
                     </div>
 
                     <div class="lighting-sheet__footer">
+                        <button type="button" class="lighting-button lighting-button--ghost" data-save-scene-open>Save as scene…</button>
                         <button type="button" class="lighting-button lighting-button--primary lighting-button--wide" data-sheet-close>Done</button>
                     </div>
                 </section>
+            </div>
+
+            <div class="lighting-overlay" data-scene-menu-overlay hidden>
+                <button type="button" class="lighting-overlay__backdrop" data-scene-menu-close aria-label="Close menu"></button>
+                <div class="lighting-dialog lighting-dialog--menu" role="dialog" aria-labelledby="lighting-scene-menu-title">
+                    <h2 class="lighting-dialog__title lighting-dialog__title--small" id="lighting-scene-menu-title" data-scene-menu-title></h2>
+                    <button type="button" class="lighting-menu-item" data-scene-rename>Rename</button>
+                    <button type="button" class="lighting-menu-item" data-scene-recapture>Update to current</button>
+                    <button type="button" class="lighting-menu-item lighting-menu-item--danger" data-scene-delete>Delete</button>
+                    <button type="button" class="lighting-button lighting-button--ghost" data-scene-menu-close>Cancel</button>
+                </div>
+            </div>
+
+            <div class="lighting-overlay" data-save-overlay hidden>
+                <button type="button" class="lighting-overlay__backdrop" data-save-cancel aria-label="Close dialog"></button>
+                <form class="lighting-dialog" role="dialog" aria-labelledby="lighting-save-title" data-save-form novalidate>
+                    <h2 class="lighting-dialog__title" id="lighting-save-title" data-save-title>Save scene</h2>
+                    <div class="lighting-field">
+                        <label class="lighting-field__label" for="lighting-scene-name">Name</label>
+                        <input id="lighting-scene-name" class="lighting-field__input" type="text" maxlength="60" autocomplete="off" placeholder="e.g. Reading" data-save-name>
+                    </div>
+                    <div class="lighting-field">
+                        <span class="lighting-field__label" id="lighting-accent-label">Accent</span>
+                        <div class="lighting-swatches" role="group" aria-labelledby="lighting-accent-label">
+                            @foreach(['#e0a44e' => 'Amber', '#ff8559' => 'Coral', '#e0575c' => 'Red', '#d26bd6' => 'Pink', '#b06bff' => 'Purple', '#4eb0e6' => 'Blue', '#54b896' => 'Green', '#d6e4ff' => 'Ice'] as $swatch => $swatchName)
+                                <button type="button" class="lighting-swatch" data-save-accent="{{ $swatch }}" aria-pressed="false" aria-label="{{ $swatchName }}" style="--swatch: {{ $swatch }}"></button>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="lighting-field" data-save-lamps-field>
+                        <span class="lighting-field__label">Lamps in this scene</span>
+                        <div class="lighting-checklist" data-save-lamps></div>
+                    </div>
+                    <div class="lighting-dialog__actions">
+                        <button type="button" class="lighting-button lighting-button--ghost" data-save-cancel>Cancel</button>
+                        <button type="submit" class="lighting-button lighting-button--primary lighting-button--wide" data-save-submit disabled>Save</button>
+                    </div>
+                </form>
             </div>
         </div>
     @endif
