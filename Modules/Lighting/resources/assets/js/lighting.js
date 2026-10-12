@@ -1460,6 +1460,15 @@ const submitSaveDialog = async (root) => {
     updateActivePreset(root, sceneKey(body.data.id));
 };
 
+// Delete needs a second tap: a kiosk tap is too easy to land by accident.
+const resetDeleteConfirm = (root) => {
+    const button = root.querySelector('[data-scene-delete]');
+    if (button && button.dataset.confirm === 'true') {
+        delete button.dataset.confirm;
+        button.textContent = 'Delete';
+    }
+};
+
 const openMenu = (root, sceneId) => {
     const overlay = root.querySelector('[data-scene-menu-overlay]');
     const button = sceneWrapper(root, sceneId)?.querySelector('[data-scene]');
@@ -1468,6 +1477,7 @@ const openMenu = (root, sceneId) => {
     }
 
     menuSceneId = sceneId;
+    resetDeleteConfirm(root);
     overlay.querySelector('[data-scene-menu-title]').textContent = button.dataset.sceneLabel ?? '';
     overlay.hidden = false;
     renderSelection(root);
@@ -1476,6 +1486,7 @@ const openMenu = (root, sceneId) => {
 
 const closeMenu = (root) => {
     const overlay = root.querySelector('[data-scene-menu-overlay]');
+    resetDeleteConfirm(root);
     if (overlay && ! overlay.hidden) {
         overlay.hidden = true;
         renderSelection(root);
@@ -1548,7 +1559,15 @@ const setupScenes = (root) => {
     menu?.querySelectorAll('[data-scene-menu-close]').forEach((button) => button.addEventListener('click', () => closeMenu(root)));
     menu?.querySelector('[data-scene-rename]')?.addEventListener('click', () => openSaveDialog(root, 'rename', menuSceneId));
     menu?.querySelector('[data-scene-recapture]')?.addEventListener('click', () => recaptureScene(root, menuSceneId));
-    menu?.querySelector('[data-scene-delete]')?.addEventListener('click', () => deleteScene(root, menuSceneId));
+    menu?.querySelector('[data-scene-delete]')?.addEventListener('click', (event) => {
+        const button = event.currentTarget;
+        if (button.dataset.confirm !== 'true') {
+            button.dataset.confirm = 'true';
+            button.textContent = 'Tap again to delete';
+            return;
+        }
+        deleteScene(root, menuSceneId);
+    });
 };
 
 // --- Tiles -------------------------------------------------------------------
@@ -1631,6 +1650,41 @@ const paintPresetDots = (root) => {
     });
 };
 
+const FOCUSABLE = 'button, input, select, textarea, [href], [tabindex]:not([tabindex="-1"])';
+
+// The open dialog (save, scene menu or control sheet), if any.
+const openDialog = (root) => {
+    const overlay = ['[data-save-overlay]', '[data-scene-menu-overlay]', '[data-sheet-overlay]']
+        .map((selector) => root.querySelector(selector))
+        .find((element) => element && ! element.hidden);
+
+    return overlay ? (overlay.querySelector('[role="dialog"]') ?? overlay) : null;
+};
+
+// Keep Tab / Shift+Tab inside an open dialog (they are modal).
+const trapFocus = (root, event) => {
+    const dialog = openDialog(root);
+    if (! dialog) {
+        return;
+    }
+
+    const items = [...dialog.querySelectorAll(FOCUSABLE)].filter((element) => ! element.disabled && ! element.closest('[hidden]'));
+    if (items.length === 0) {
+        return;
+    }
+
+    const first = items[0];
+    const last = items[items.length - 1];
+    const inside = dialog.contains(document.activeElement);
+    if (event.shiftKey && (! inside || document.activeElement === first)) {
+        event.preventDefault();
+        last.focus();
+    } else if (! event.shiftKey && (! inside || document.activeElement === last)) {
+        event.preventDefault();
+        first.focus();
+    }
+};
+
 const setupChrome = (root) => {
     root.querySelectorAll('[data-preset]').forEach((button) => {
         button.addEventListener('click', () => applyPreset(root, button));
@@ -1650,6 +1704,10 @@ const setupChrome = (root) => {
     });
 
     root.addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') {
+            trapFocus(root, event);
+            return;
+        }
         if (event.key !== 'Escape') {
             return;
         }

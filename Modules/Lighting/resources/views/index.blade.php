@@ -206,7 +206,7 @@
 
             <div class="lighting-overlay" data-sheet-overlay hidden>
                 <button type="button" class="lighting-overlay__backdrop" data-sheet-close aria-label="Close controls"></button>
-                <section class="lighting-sheet" aria-label="Lamp controls" data-sheet>
+                <section class="lighting-sheet" role="dialog" aria-modal="true" aria-label="Lamp controls" data-sheet>
                     <div class="lighting-sheet__grabber" aria-hidden="true"></div>
                     <div class="lighting-sheet__head">
                         <div class="lighting-sheet__heading">
@@ -289,7 +289,7 @@
 
             <div class="lighting-overlay" data-scene-menu-overlay hidden>
                 <button type="button" class="lighting-overlay__backdrop" data-scene-menu-close aria-label="Close menu"></button>
-                <div class="lighting-dialog lighting-dialog--menu" role="dialog" aria-labelledby="lighting-scene-menu-title">
+                <div class="lighting-dialog lighting-dialog--menu" role="dialog" aria-modal="true" aria-labelledby="lighting-scene-menu-title">
                     <h2 class="lighting-dialog__title lighting-dialog__title--small" id="lighting-scene-menu-title" data-scene-menu-title></h2>
                     <button type="button" class="lighting-menu-item" data-scene-rename>Rename</button>
                     <button type="button" class="lighting-menu-item" data-scene-recapture>Update to current</button>
@@ -300,7 +300,7 @@
 
             <div class="lighting-overlay" data-save-overlay hidden>
                 <button type="button" class="lighting-overlay__backdrop" data-save-cancel aria-label="Close dialog"></button>
-                <form class="lighting-dialog" role="dialog" aria-labelledby="lighting-save-title" data-save-form novalidate>
+                <form class="lighting-dialog" role="dialog" aria-modal="true" aria-labelledby="lighting-save-title" data-save-form novalidate>
                     <h2 class="lighting-dialog__title" id="lighting-save-title" data-save-title>Save scene</h2>
                     <div class="lighting-field">
                         <label class="lighting-field__label" for="lighting-scene-name">Name</label>

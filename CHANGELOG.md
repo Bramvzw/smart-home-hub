@@ -40,6 +40,8 @@ All notable changes to this project are documented here. The format follows
   on.
 - Lighting: the two-minute state refresh no longer snaps a slider or colour
   back while you are still dragging it.
+- Lighting: deleting a scene needs a second tap (`Tap again to delete`), and
+  the control sheet and scene dialogs keep keyboard focus inside while open.
 - Lighting: a failed group or scene change rolls back exactly the lamps that
   failed, also when several lamps share a name or a whole provider is
   unreachable; quick changes for two different selections are both sent;

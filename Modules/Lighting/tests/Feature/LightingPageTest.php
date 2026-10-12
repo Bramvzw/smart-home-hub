@@ -94,6 +94,9 @@ class LightingPageTest extends TestCase
         $response->assertSeeHtml('aria-label="Controls for Living spot"');
         $response->assertSeeHtml('aria-label="Brightness of LED strip"');
         $response->assertSeeHtml('Lamp controls');
+
+        // The control sheet, the scene menu and the save dialog are modal.
+        $this->assertSame(3, substr_count((string) $response->getContent(), 'aria-modal="true"'));
     }
 
     public function test_unreachable_light_is_shown_offline_without_actions(): void

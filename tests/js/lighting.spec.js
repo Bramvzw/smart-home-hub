@@ -708,6 +708,26 @@ describe('lighting kiosk', () => {
             expect(document.querySelector('[data-lighting-toast-text]').textContent).toBe("Old changed nothing — its lamps are gone or can't be reached.");
         });
 
+        it('keeps keyboard focus inside an open dialog and closes it with Escape', () => {
+            document.body.innerHTML = page(tile({ id: '1' }), { scenes: userScene({ id: '5', name: 'Dinner' }) });
+            initLighting();
+
+            document.querySelector('[data-scene-menu]').click();
+            const rename = document.querySelector('[data-scene-rename]');
+            const cancel = document.querySelector('[data-scene-menu-overlay] [data-scene-menu-close]');
+            expect(document.activeElement).toBe(rename);
+
+            const tab = (shiftKey = false) => document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true }));
+            cancel.focus();
+            tab();
+            expect(document.activeElement).toBe(rename);
+            tab(true);
+            expect(document.activeElement).toBe(cancel);
+
+            document.activeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+            expect(document.querySelector('[data-scene-menu-overlay]').hidden).toBe(true);
+        });
+
         it('renames, re-captures and deletes a scene from its menu', async () => {
             const lights = [{ provider: 'tuya', id: '1', power: false, brightness: null, mode: 'white', color: null, color_temp: null }];
             document.body.innerHTML = page(tile({ id: '1', on: true }), { scenes: userScene({ id: '5', name: 'Dinner', accent: '#b06bff', lights }) });
@@ -744,10 +764,19 @@ describe('lighting kiosk', () => {
             expect(JSON.parse(document.querySelector('[data-scene]').dataset.sceneLights)).toEqual(recaptured);
             expect(document.querySelector('[data-scene]').getAttribute('aria-pressed')).toBe('true');
 
-            // Delete.
+            // Delete needs a second tap; closing the menu resets it.
             fetch.mockResolvedValueOnce({ ok: true, status: 204, json: async () => ({}) });
+            const deleteButton = document.querySelector('[data-scene-delete]');
             document.querySelector('[data-scene-menu]').click();
-            document.querySelector('[data-scene-delete]').click();
+            deleteButton.click();
+            expect(fetch).toHaveBeenCalledTimes(2);
+            expect(deleteButton.textContent).toBe('Tap again to delete');
+            document.querySelector('[data-scene-menu-close]').click();
+            document.querySelector('[data-scene-menu]').click();
+            expect(deleteButton.textContent).toBe('Delete');
+            deleteButton.click();
+            expect(fetch).toHaveBeenCalledTimes(2);
+            deleteButton.click();
             await flushPromises();
             expect(fetch.mock.calls[2][1].method).toBe('DELETE');
             expect(document.querySelector('[data-user-scene]')).toBeNull();
