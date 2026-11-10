@@ -1,4 +1,12 @@
-@import url("https://fonts.bunny.net/css?family=hanken-grotesk:400,500,600,700");
+/* Self-hosted fonts (latin subset): the kiosk renders without an internet
+   round trip and keeps working offline. Shared by every module stylesheet. */
+@import '@fontsource/hanken-grotesk/latin-400.css';
+@import '@fontsource/hanken-grotesk/latin-500.css';
+@import '@fontsource/hanken-grotesk/latin-600.css';
+@import '@fontsource/hanken-grotesk/latin-700.css';
+@import '@fontsource/space-grotesk/latin-500.css';
+@import '@fontsource/space-grotesk/latin-600.css';
+@import '@fontsource/space-grotesk/latin-700.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

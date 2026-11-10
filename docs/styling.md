@@ -90,3 +90,7 @@ The Spotify afspeelpaneel uses a module-local stylesheet at `Modules/Spotify/res
 
 - New work should reduce one-off styling and raw colors over time.
 - Repeated visual primitives should have one obvious source of truth.
+
+## Fonts and low-power mode
+
+- Fonts are self-hosted through `@fontsource/hanken-grotesk` and `@fontsource/space-grotesk` (latin subset), imported once at the top of `resources/css/app.css`. Module stylesheets must not `@import` remote font URLs; the families are available on every page.

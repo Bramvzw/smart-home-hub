@@ -4,7 +4,6 @@
    warm-orange precip emphasis. Scoped under .weather-page so it never leaks
    into the hub chrome or other modules. */
 
-@import url("https://fonts.bunny.net/css?family=hanken-grotesk:400,500,600,700&family=space-grotesk:500,600,700");
 
 .weather-page {
     --bg:        #0a0c10;

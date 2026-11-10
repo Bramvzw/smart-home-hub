@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Fonts are served by the hub itself instead of from the internet, so pages
+  render faster on the kiosk and keep their typeface offline.
+
 ## [0.5.0] - 2026-11-10
 
 ### Changed
