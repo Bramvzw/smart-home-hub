@@ -24,6 +24,14 @@
     {{ $head ?? '' }}
 </head>
 <body class="hub-shell" data-sidebar="{{ $sidebarState }}">
+    <script>
+        // Small kiosk screens (e.g. a 1024×600 Pi display) start with the icon
+        // rail until the user picks a sidebar state themselves (cookie). Runs
+        // before the sidebar is parsed, so there is no expanded-then-rail flash.
+        if (!/(?:^|; )sidebar_state=/.test(document.cookie) && window.innerWidth <= 1100) {
+            document.body.dataset.sidebar = 'rail';
+        }
+    </script>
     <button type="button" id="sidebar-fab" class="hub-fab-menu" title="Show menu" aria-label="Show menu">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>

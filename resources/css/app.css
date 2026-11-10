@@ -357,6 +357,27 @@ body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-sidebar-footer {
     padding-right: 8px;
 }
 
+/* Short screens (1024×600 kiosk): tighten the menu so all items fit without
+   scrolling the sidebar. */
+@media (max-height: 700px) {
+    .hub-nav {
+        gap: 1px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    .hub-nav-link {
+        min-height: 29px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+
+    .hub-sidebar-footer {
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+}
+
 .hub-sidebar-hide {
     width: 100%;
     color: var(--hub-dim);

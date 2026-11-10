@@ -35,6 +35,8 @@ Sidebar collapse:
 - The sidebar has three states: `expanded` (full menu), `rail` (centered brand and module icons only, labels and chevron hidden) and `hidden` (sidebar gone, only a floating menu button remains).
 - The chevron toggle swaps between `expanded` and `rail`; the footer "Hide menu" button goes to `hidden`; the floating button restores `expanded`.
 - The chosen state is persisted in the unencrypted `sidebar_state` cookie and rendered server-side, so navigation never flashes the wrong state. Valid values are owned by `App\Dashboard\SidebarState`.
+- Without a cookie, viewports up to 1100px wide (e.g. a 1024×600 Pi kiosk) start in `rail`; an inline script in the layout sets this before the sidebar renders. Wider screens default to `expanded`.
+- On screens up to 700px high the menu links are compacted so every module fits without scrolling the sidebar.
 
 Shared input behavior:
 - A global touch keyboard opens when focus enters an editable text field, textarea or contenteditable surface.

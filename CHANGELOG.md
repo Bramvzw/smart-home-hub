@@ -9,6 +9,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- Small screens (such as a 1024×600 Raspberry Pi kiosk) open with the compact
+  icon sidebar, and the menu fits on short screens without scrolling.
 - The Spotify page opens faster: the next track now loads after the page is
   shown instead of before.
 
