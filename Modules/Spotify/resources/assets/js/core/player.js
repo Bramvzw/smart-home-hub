@@ -83,6 +83,12 @@ class SpotifyPlayer {
         setupRepeat(this.elements, () => refreshNextUp());
         setupSearch(this.elements, this.controller.startPlayback, this.controller.updatePlayerState);
 
+        // The server no longer renders "next up" (one Spotify call less before
+        // first paint), so load it right away when a track is already playing.
+        if (window.SPOTIFY_STATE?.item) {
+            refreshNextUp(0);
+        }
+
         // Initialize UI from initial state
         if (window.SPOTIFY_STATE?.shuffle_state !== undefined) {
             updateShuffleUI(this.elements, window.SPOTIFY_STATE.shuffle_state);

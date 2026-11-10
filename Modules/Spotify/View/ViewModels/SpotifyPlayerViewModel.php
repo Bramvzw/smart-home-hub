@@ -19,7 +19,6 @@ class SpotifyPlayerViewModel
     {
         $isConnected = $this->service->hasStoredAuthorization();
         $playbackState = null;
-        $upcomingTrack = null;
         $playlists = [];
 
         if ($isConnected) {
@@ -33,11 +32,6 @@ class SpotifyPlayerViewModel
             } else {
                 $playbackState = $this->service->getCurrentPlayback();
                 $playlists = $this->resolvePlaylists();
-
-                if ($this->hasCurrentTrack($playbackState)) {
-                    $nextTrack = $this->service->getNextTrack();
-                    $upcomingTrack = new UpcomingTrackViewModel($nextTrack['next_track'] ?? null);
-                }
             }
         }
 
@@ -45,14 +39,11 @@ class SpotifyPlayerViewModel
             'isConnected' => $isConnected,
             'playbackState' => $playbackState,
             'authUrl' => $isConnected ? '' : $this->service->getAuthorizationUrl(),
-            'upcomingTrack' => $upcomingTrack,
+            // The next track is fetched by the player JS after first paint: it is
+            // another Spotify round trip (~0.5 s) the kiosk shouldn't wait on.
+            'upcomingTrack' => null,
             'playlists' => $playlists,
         ];
-    }
-
-    private function hasCurrentTrack(?array $playbackState): bool
-    {
-        return isset($playbackState['item']) && is_array($playbackState['item']);
     }
 
     /**

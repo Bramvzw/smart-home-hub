@@ -60,7 +60,7 @@ class SpotifyControllerTest extends TestCase
             ],
             'device' => ['supports_volume' => false],
         ]);
-        $mock->shouldReceive('getNextTrack')->once()->andReturn(['next_track' => null]);
+        $mock->shouldNotReceive('getNextTrack');
         $mock->shouldReceive('getUserPlaylists')->once()->andReturn(['playlists' => []]);
         $mock->shouldNotReceive('getAuthorizationUrl');
 

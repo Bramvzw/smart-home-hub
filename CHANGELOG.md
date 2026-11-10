@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The Spotify page opens faster: the next track now loads after the page is
+  shown instead of before.
+
 ## [0.4.0] - 2026-11-10
 
 ### Added
