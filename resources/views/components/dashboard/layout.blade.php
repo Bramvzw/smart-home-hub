@@ -12,11 +12,15 @@
     <script>
         // Low-power mode for weak kiosk hardware (Raspberry Pi): visit once
         // with ?lowpower=1 to enable, ?lowpower=0 to disable. Persisted per
-        // device in localStorage; disables blur and ambient animations in CSS.
+        // device in localStorage; disables blur, shadows and animations in CSS.
+        // Without an explicit choice it turns on by itself on devices that
+        // report 2 GB RAM or less (a Pi 3 reports 1).
         (function () {
             var param = new URLSearchParams(window.location.search).get('lowpower');
             if (param !== null) localStorage.setItem('hub-low-power', param === '1' ? '1' : '0');
-            if (localStorage.getItem('hub-low-power') === '1') document.documentElement.classList.add('low-power');
+            var choice = localStorage.getItem('hub-low-power');
+            var weakDevice = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2;
+            if (choice === '1' || (choice === null && weakDevice)) document.documentElement.classList.add('low-power');
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

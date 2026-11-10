@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows
 
 - Fonts are served by the hub itself instead of from the internet, so pages
   render faster on the kiosk and keep their typeface offline.
+- Low-power mode (no blur, shadows or animations) now turns on automatically
+  on devices with 2 GB RAM or less, such as a Raspberry Pi 3.
 
 ## [0.5.0] - 2026-11-10
 
