@@ -1,3 +1,11 @@
+# Shared by the web container and the scheduler so both run the same code,
+# PHP tuning and image-level env.
+x-hub-volumes: &hub-volumes
+  - .:/app
+  # Production opcache/realpath tuning. Verify the conf.d path on the NAS with:
+  #   docker compose exec hub php -i | grep -E "validate_timestamps|Additional .ini"
+  - ./docker/php/zz-hub.ini:/usr/local/etc/php/conf.d/zz-hub.ini:ro
+
 services:
   hub:
     # PHP version must track composer.lock (symfony 8.1 needs >= 8.4) and CI.
@@ -11,11 +19,7 @@ services:
     # below. Injecting .env as container env as well would shadow the file
     # (Dotenv never overrides a real env var), forcing a container recreate for
     # every config change. Image-level vars live in the environment block below.
-    volumes:
-      - .:/app
-      # Production opcache/realpath tuning. Verify the conf.d path on the NAS with:
-      #   docker compose exec hub php -i | grep -E "validate_timestamps|Additional .ini"
-      - ./docker/php/zz-hub.ini:/usr/local/etc/php/conf.d/zz-hub.ini:ro
+    volumes: *hub-volumes
     environment:
       WEB_DOCUMENT_ROOT: /app/public
       APP_ENV: production
@@ -31,3 +35,20 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+
+  # Runs Laravel's scheduler (briefing, news, recipes, deals, weather alerts,
+  # maintenance tasks, ...). schedule:work starts a fresh `schedule:run` process
+  # every minute and CLI opcache is off, so new code is picked up after a pull
+  # without restarting this container.
+  scheduler:
+    image: webdevops/php-nginx:8.4-alpine
+    restart: unless-stopped
+    user: application
+    working_dir: /app
+    entrypoint: ["php", "/app/artisan", "schedule:work"]
+    volumes: *hub-volumes
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    depends_on:
+      - hub

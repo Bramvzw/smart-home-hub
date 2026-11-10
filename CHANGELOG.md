@@ -31,6 +31,9 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- Scheduled jobs (daily briefing, news refresh, weekly recipes, price checks,
+  weather alerts, maintenance tasks) now actually run in production: the
+  scheduler ships as its own Docker Compose service.
 - Lighting: picking a colour or moving a slider on a dimmed Calex lamp keeps
   its brightness instead of jumping to 100 %, and each change is sent as one
   command (fewer Tuya cloud calls).

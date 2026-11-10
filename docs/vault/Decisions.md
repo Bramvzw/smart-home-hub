@@ -17,6 +17,7 @@ Format: date · decision · rationale · revisit-when.
 | 2026-07-04 | **`APP_DEBUG` forced `"false"` at container level.** | A real env var beats `.env`, so a stray debug flag can never leak stack traces in production. | — |
 | 2026-07-04 | **Cached provider tokens are encrypted at rest** (Spotify, Google, Tuya). Legacy plaintext Tuya entries are discarded (not re-encrypted) — Tuya tokens are cheap to refetch. | Cache/DB files live on NAS storage (SMB shares); credentials must not be usable at rest. | — |
 | 2025 | **PII never in the tracked repo** (address, coordinates, NAS login, personal venue choices). Real values live only in untracked `.env`/`.release.env`; code/docs/tests use neutral placeholders (Amsterdam coords). | The repo is public. | — |
+| 2026-11-10 | **The Laravel scheduler runs as its own compose service (`scheduler`, `php artisan schedule:work`), not as a DSM task or host cron.** `make release` runs `up -d` before restarting `hub`, so compose changes apply on release. | The docs relied on a manually created DSM task that never existed: from deploy until 2026-11-10 no scheduled job ran on prod (no briefing, news, recipes, deals, weather alerts). Keeping it in the repo makes it reproducible and visible in `docker compose ps`. CLI opcache is off, so the scheduler needs no restart after a pull. | The NAS gets too little RAM for a second PHP container → fall back to a cron entry inside `hub`. |
 
 ## Language & localization
 

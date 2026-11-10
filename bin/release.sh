@@ -10,7 +10,8 @@
 #   2. commit + push to GitHub (history/backup)
 #   3. NAS pulls the new code INSIDE the container (public repo, no token)
 #   4. migrate --force + optimize (build caches with the new code)
-#   5. restart the container (resets the frozen opcache so new code goes live)
+#   5. apply compose changes (starts the scheduler) + restart the web container
+#      (resets the frozen opcache so new code goes live)
 #   6. health check
 #
 set -euo pipefail
@@ -74,8 +75,11 @@ step "5/7  NAS: pull + migrate + optimize (in container)"
 ssh -i "$NAS_KEY" "$NAS_SSH" \
   "sudo $DC exec -T hub sh -c 'cd /app && (git config --global --get-all safe.directory 2>/dev/null | grep -qx /app || git config --global --add safe.directory /app) && find .git -name @eaDir -prune -exec rm -rf {} + 2>/dev/null; git checkout -- docker-compose.yml 2>/dev/null; git pull --ff-only origin main && composer install --no-dev --optimize-autoloader --no-interaction && php artisan migrate --force && php artisan optimize'"
 
-step "6/7  NAS: restart container (reset opcache)"
-ssh -i "$NAS_KEY" "$NAS_SSH" "sudo $DC restart hub"
+step "6/7  NAS: apply compose changes + restart hub (reset opcache)"
+# `up -d` (re)creates only services whose definition changed and starts any
+# that are missing (e.g. the scheduler); the explicit restart then resets the
+# frozen opcache of the web container.
+ssh -i "$NAS_KEY" "$NAS_SSH" "sudo $DC up -d && sudo $DC restart hub"
 
 step "7/7  Health check"
 sleep 3

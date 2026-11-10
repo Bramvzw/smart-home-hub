@@ -135,14 +135,20 @@ make shell      # shell in de container openen
 
 ### Scheduler
 
-De Weather module registreert `weather:check-rain` en `weather:check-wind`
-elke 30 minuten tussen 07:00 en 23:00. `weather:daily-summary` draait eenmaal
-per dag op `WEATHER_DAILY_SUMMARY_TIME`, standaard 07:15. Zorg dat de NAS of
-container één keer per minuut de scheduler aanroept, bijvoorbeeld via DSM Task
-Scheduler of cron:
+De scheduler draait als eigen compose-service `scheduler` (zelfde image en
+bind-mount als `hub`) met `php artisan schedule:work`. Er is dus géén DSM-taak
+of cron op de NAS nodig. `schedule:work` start elke minuut een vers
+`schedule:run`-proces en CLI-opcache staat uit, dus nieuwe code is na een
+`git pull` direct actief zonder herstart. `make release` draait `up -d`, zodat
+een gewijzigde of ontbrekende scheduler-container automatisch (opnieuw) wordt
+gestart.
+
+Controleren:
 
 ```bash
-docker compose exec -T hub php artisan schedule:run
+docker compose ps scheduler            # moet "running" zijn
+docker compose logs --tail=50 scheduler
+docker compose exec hub php artisan schedule:list
 ```
 
 ## Pi: kiosk-browser instellen
