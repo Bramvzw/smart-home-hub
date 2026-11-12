@@ -39,7 +39,10 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
             'busy_timeout' => 5000,
             'journal_mode' => 'wal',
-            'synchronous' => null,
+            // NORMAL is safe in WAL mode (no corruption; at worst the last
+            // commits roll back on power loss) and skips the fsync per commit
+            // that made every cache/session/lock write slow on the NAS (btrfs).
+            'synchronous' => env('DB_SYNCHRONOUS', 'normal'),
         ],
 
         'mysql' => [

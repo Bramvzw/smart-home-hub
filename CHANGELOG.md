@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The hub responds faster on the NAS: SQLite no longer waits for the disk on
+  every write (`synchronous=NORMAL` in WAL mode).
+
 ## [0.7.0] - 2026-11-12
 
 ### Fixed
