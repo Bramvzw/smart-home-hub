@@ -82,7 +82,8 @@ Status: active. This module owns cloud-backed light controls at `/lighting`.
 | `Modules\Lighting\Services\Providers\TuyaTokenService` | Tuya access token caching and refresh. |
 | `Modules\Lighting\Services\Providers\TuyaProvider` | Calex/Tuya provider mapping for power, brightness, colour and white mode/colour temperature. |
 | `Modules\Lighting\Services\Providers\GoveeApiClient` | Govee Developer API transport with API-key headers. |
-| `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness, RGB colour and Kelvin colour temperature. |
+| `Modules\Lighting\Services\Providers\GoveeLanClient` | Govee LAN API transport: fire-and-forget JSON over UDP to devices listed in `GOVEE_LAN_DEVICES` (no cloud rate limit). |
+| `Modules\Lighting\Services\Providers\GoveeProvider` | Govee provider mapping for power, brightness, RGB colour and Kelvin colour temperature; writes go over the LAN when the device has a LAN address, reads via the cloud. |
 | `Modules\Lighting\Support\Color` | Colour conversion helpers for shared hex, Govee RGB and Tuya HSV. |
 | `Modules\Lighting\View\ViewModels\LightingViewModel` | Read-side page data for the Lighting kiosk: lamp tiles with state lines, the scene strip (built-in presets minus All off, then user scenes) and the active preset or scene. |
 

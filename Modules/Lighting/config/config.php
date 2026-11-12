@@ -19,6 +19,11 @@ return [
         'model_cache_ttl' => (int) env('GOVEE_MODEL_CACHE_TTL', 300),
         'control_retries' => (int) env('GOVEE_CONTROL_RETRIES', 2),
         'command_pause_ms' => (int) env('GOVEE_COMMAND_PAUSE_MS', 160),
+        // Govee LAN API for writes: "<device id>@<ip>" pairs, comma separated
+        // (LAN Control must be on in the Govee Home app; give the device a
+        // fixed IP in the router). Unlisted devices are controlled via the cloud.
+        'lan_devices' => (string) env('GOVEE_LAN_DEVICES', ''),
+        'lan_command_gap_ms' => (int) env('GOVEE_LAN_COMMAND_GAP_MS', 60),
     ],
 
     'presets' => [

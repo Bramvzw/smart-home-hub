@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Govee lamps stop failing with "Couldn't reach" after a few taps: when a
+  device is listed in `GOVEE_LAN_DEVICES` the hub controls it over the local
+  network, avoiding Govee's 10-commands-per-minute cloud limit (and ~20× faster).
+
 ### Changed
 
 - Lighting fits low screens: on the 1024×600 kiosk every lamp tile, including

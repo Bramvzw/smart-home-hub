@@ -21,6 +21,7 @@ class GoveeProvider implements LightProvider
 
     public function __construct(
         private readonly GoveeApiClient $client,
+        private readonly GoveeLanClient $lan,
     ) {}
 
     public function key(): string
@@ -63,25 +64,56 @@ class GoveeProvider implements LightProvider
         return $lights;
     }
 
+    // Writes go over the LAN when the device has a LAN address (no cloud
+    // rate limit, millisecond latency); otherwise through the cloud API.
+    // Reads always use the cloud.
+
     public function setPower(string $id, bool $on): void
     {
+        if ($this->lan->hasDevice($id)) {
+            $this->lan->turn($id, $on);
+
+            return;
+        }
+
         $this->client->control($id, $this->modelFor($id), 'turn', $on ? 'on' : 'off');
     }
 
     public function setBrightness(string $id, int $percent): void
     {
+        if ($this->lan->hasDevice($id)) {
+            $this->lan->brightness($id, $percent);
+
+            return;
+        }
+
         $this->client->control($id, $this->modelFor($id), 'brightness', max(0, min(100, $percent)));
     }
 
     public function setColor(string $id, string $hex): void
     {
         [$r, $g, $b] = Color::hexToRgb($hex);
+
+        if ($this->lan->hasDevice($id)) {
+            $this->lan->color($id, $r, $g, $b);
+
+            return;
+        }
+
         $this->client->control($id, $this->modelFor($id), 'color', ['r' => $r, 'g' => $g, 'b' => $b]);
     }
 
     public function setColorTemp(string $id, int $percent): void
     {
-        $this->client->control($id, $this->modelFor($id), 'colorTem', $this->percentToKelvin($percent, ...$this->kelvinRangeFor($id)));
+        $kelvin = $this->percentToKelvin($percent, ...$this->kelvinRangeFor($id));
+
+        if ($this->lan->hasDevice($id)) {
+            $this->lan->colorTemp($id, $kelvin);
+
+            return;
+        }
+
+        $this->client->control($id, $this->modelFor($id), 'colorTem', $kelvin);
     }
 
     public function applyState(string $id, bool $power, ?int $brightness, ?string $color, ?int $colorTemp = null): void
