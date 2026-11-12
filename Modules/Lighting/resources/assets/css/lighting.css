@@ -184,6 +184,13 @@
     mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 72px), transparent 100%);
 }
 
+/* The strip sits inside the lamp grid (see index.blade.php): as its full-width
+   first row here, and in the free cells after the last lamp on low screens. */
+.lighting-grid > .lighting-strip {
+    order: -1;
+    grid-column: 1 / -1;
+}
+
 .lighting-strip__scroller {
     display: flex;
     box-sizing: border-box;
@@ -1314,4 +1321,166 @@ html.low-power .lighting-disc {
 
 html.low-power .lighting-tile__pending-dot {
     animation: none;
+}
+
+/*
+ * Low screens (the 1024×600 kiosk, or a browser window under ~720px high):
+ * compact header, scenes and tiles so two rows of lamps — sliders included —
+ * fit without scrolling the grid.
+ */
+@media (max-height: 720px) {
+    .lighting {
+        gap: 12px;
+        padding: 14px 20px;
+    }
+
+    .lighting-button {
+        height: 44px;
+        padding: 0 16px;
+        font-size: 15px;
+    }
+
+    /* Scenes become a block of large buttons filling the cells after the
+       last lamp. `contain: size` keeps the block from growing the row: it
+       takes the tile height and scrolls when there are more scenes. */
+    .lighting-grid > .lighting-strip {
+        order: 0;
+        --strip-cols: 4;
+
+        grid-column: 1 / -1; /* row already full: scenes get their own row */
+        height: auto;
+        min-height: 0;
+        contain: size;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    /* Span exactly the free cells after the last lamp. The strip is the
+       grid's last child, so the last tile is :nth-last-child(2); its position
+       in the 4-column row decides the span. */
+    .lighting-grid:has(> [data-light]:nth-child(4n+1):nth-last-child(2)) > .lighting-strip {
+        --strip-cols: 3;
+
+        grid-column: span 3;
+    }
+
+    .lighting-grid:has(> [data-light]:nth-child(4n+2):nth-last-child(2)) > .lighting-strip {
+        --strip-cols: 2;
+
+        grid-column: span 2;
+    }
+
+    .lighting-grid:has(> [data-light]:nth-child(4n+3):nth-last-child(2)) > .lighting-strip {
+        --strip-cols: 1;
+
+        grid-column: span 1;
+    }
+
+    .lighting-strip__scroller {
+        display: grid;
+        height: 100%;
+        /* One button column per lamp column, same 12px gap, two rows that
+           together fill the tile height — so buttons line up with the tiles. */
+        grid-template-columns: repeat(var(--strip-cols), minmax(0, 1fr));
+        grid-auto-rows: calc((100% - 12px) / 2);
+        align-content: start;
+        gap: 12px;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .lighting-scene {
+        min-width: 0;
+        height: 100%;
+    }
+
+    .lighting-scene__dot {
+        width: 18px;
+        height: 18px;
+    }
+
+    .lighting-scene__name {
+        font-size: 15px;
+    }
+
+    .lighting-scene__sub {
+        font-size: 12px;
+    }
+
+    .lighting-grid {
+        gap: 12px;
+        /* The select bar floats over the second row; tiles are tap targets
+           there, so no extra scroll room is needed. */
+        padding-bottom: 0;
+    }
+
+    /* Two rows share the height left under the header (~144px of
+       chrome), between the compact minimum and the regular tile height. */
+    .lighting-tile {
+        height: clamp(138px, calc((100dvh - 144px) / 2), 260px);
+        border-radius: 16px;
+    }
+
+    .lighting-tile__toggle {
+        bottom: 42px;
+        gap: 6px;
+        padding: 12px 14px 2px;
+    }
+
+    .lighting-tile__icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+    .lighting-tile__provider {
+        display: none;
+    }
+
+    .lighting-tile__name {
+        font-size: 19px;
+    }
+
+    .lighting-tile__state {
+        font-size: 14px;
+    }
+
+    .lighting-tile__more {
+        top: 8px;
+        right: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+    }
+
+    .lighting-tile__bar {
+        right: 12px;
+        bottom: 6px;
+        left: 12px;
+    }
+}
+
+/* Same free-cell span for the 3-column grid (max-width: 1000px). */
+@media (max-height: 720px) and (max-width: 1000px) {
+    .lighting-grid > .lighting-strip,
+    .lighting-grid:has(> [data-light]:nth-child(4n+1):nth-last-child(2)) > .lighting-strip,
+    .lighting-grid:has(> [data-light]:nth-child(4n+2):nth-last-child(2)) > .lighting-strip,
+    .lighting-grid:has(> [data-light]:nth-child(4n+3):nth-last-child(2)) > .lighting-strip {
+        --strip-cols: 3;
+
+        grid-column: 1 / -1;
+    }
+
+    .lighting-grid:has(> [data-light]:nth-child(3n+1):nth-last-child(2)) > .lighting-strip {
+        --strip-cols: 2;
+
+        grid-column: span 2;
+    }
+
+    .lighting-grid:has(> [data-light]:nth-child(3n+2):nth-last-child(2)) > .lighting-strip {
+        --strip-cols: 1;
+
+        grid-column: span 1;
+    }
 }

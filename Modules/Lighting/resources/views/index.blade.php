@@ -79,44 +79,6 @@
                 <p class="lighting__notice" role="status">Unreachable: {{ implode(', ', $unreachableProviders) }}</p>
             @endif
 
-            <div class="lighting-strip">
-                <nav class="lighting-strip__scroller" aria-label="Scenes" data-scene-strip>
-                    @foreach($scenePresets as $entry)
-                        @php($preset = $entry['preset'])
-                        <button
-                            type="button"
-                            class="lighting-scene"
-                            data-preset="{{ $preset->key }}"
-                            data-preset-label="{{ $preset->label }}"
-                            data-preset-power="{{ $preset->power ? 'true' : 'false' }}"
-                            data-preset-brightness="{{ $preset->brightness }}"
-                            data-preset-color="{{ $preset->color }}"
-                            data-preset-color-temp="{{ $preset->colorTemp }}"
-                            data-preset-target-name-contains="{{ implode(',', $preset->targetNameContains) }}"
-                            data-active="{{ $activePresetKey === $preset->key ? 'true' : 'false' }}"
-                            aria-pressed="{{ $activePresetKey === $preset->key ? 'true' : 'false' }}"
-                        >
-                            <span class="lighting-scene__dot" data-scene-dot aria-hidden="true"></span>
-                            <span class="lighting-scene__copy">
-                                <span class="lighting-scene__name">{{ $preset->label }}</span>
-                                <span class="lighting-scene__sub">{{ $entry['subtitle'] }}</span>
-                            </span>
-                            <span class="lighting-scene__active">Active</span>
-                        </button>
-                    @endforeach
-                    @foreach($userScenes as $scene)
-                        @include('lighting::partials.user-scene', ['scene' => $scene])
-                    @endforeach
-                    <button type="button" class="lighting-scene lighting-scene--add" data-save-scene-open>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-                        Save scene
-                    </button>
-                </nav>
-                <template data-user-scene-template>
-                    @include('lighting::partials.user-scene', ['scene' => \Modules\Lighting\View\ViewModels\LightingViewModel::sceneView(null)])
-                </template>
-            </div>
-
             <section class="lighting-grid" aria-label="Lamps">
                 @foreach($tiles as $tile)
                     @php($light = $tile['light'])
@@ -186,6 +148,46 @@
                         <span class="lighting-tile__offline">Offline</span>
                     </article>
                 @endforeach
+
+                {{-- Scenes live in the grid: a full-width first row on regular screens,
+                     the empty cells after the last lamp on low kiosk screens (CSS). --}}
+                <div class="lighting-strip">
+                    <nav class="lighting-strip__scroller" aria-label="Scenes" data-scene-strip>
+                        @foreach($scenePresets as $entry)
+                            @php($preset = $entry['preset'])
+                            <button
+                                type="button"
+                                class="lighting-scene"
+                                data-preset="{{ $preset->key }}"
+                                data-preset-label="{{ $preset->label }}"
+                                data-preset-power="{{ $preset->power ? 'true' : 'false' }}"
+                                data-preset-brightness="{{ $preset->brightness }}"
+                                data-preset-color="{{ $preset->color }}"
+                                data-preset-color-temp="{{ $preset->colorTemp }}"
+                                data-preset-target-name-contains="{{ implode(',', $preset->targetNameContains) }}"
+                                data-active="{{ $activePresetKey === $preset->key ? 'true' : 'false' }}"
+                                aria-pressed="{{ $activePresetKey === $preset->key ? 'true' : 'false' }}"
+                            >
+                                <span class="lighting-scene__dot" data-scene-dot aria-hidden="true"></span>
+                                <span class="lighting-scene__copy">
+                                    <span class="lighting-scene__name">{{ $preset->label }}</span>
+                                    <span class="lighting-scene__sub">{{ $entry['subtitle'] }}</span>
+                                </span>
+                                <span class="lighting-scene__active">Active</span>
+                            </button>
+                        @endforeach
+                        @foreach($userScenes as $scene)
+                            @include('lighting::partials.user-scene', ['scene' => $scene])
+                        @endforeach
+                        <button type="button" class="lighting-scene lighting-scene--add" data-save-scene-open>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+                            Save scene
+                        </button>
+                    </nav>
+                    <template data-user-scene-template>
+                        @include('lighting::partials.user-scene', ['scene' => \Modules\Lighting\View\ViewModels\LightingViewModel::sceneView(null)])
+                    </template>
+                </div>
             </section>
 
             <div class="lighting-selbar" data-selbar hidden>

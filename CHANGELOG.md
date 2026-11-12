@@ -7,6 +7,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Lighting fits low screens: on the 1024×600 kiosk every lamp tile, including
+  its brightness slider, is visible without scrolling, and the scenes become
+  large buttons in the free space next to the last lamp.
+
 ## [0.6.0] - 2026-11-10
 
 ### Changed
