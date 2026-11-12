@@ -7,6 +7,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-12
+
 ### Fixed
 
 - Govee lamps stop failing with "Couldn't reach" after a few taps: when a
@@ -129,7 +131,8 @@ First tagged release — the hub as it runs on the NAS:
   baseline, PHPat architecture rules and the PHPUnit suite.
 - Kiosk-oriented dashboard with a low-power mode for wall displays.
 
-[Unreleased]: https://github.com/Bramvzw/smart-home-hub/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/Bramvzw/smart-home-hub/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/Bramvzw/smart-home-hub/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Bramvzw/smart-home-hub/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Bramvzw/smart-home-hub/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Bramvzw/smart-home-hub/compare/v0.3.0...v0.4.0
