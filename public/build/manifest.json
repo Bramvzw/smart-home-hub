@@ -49,12 +49,12 @@
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/css/lighting.css": {
-    "file": "assets/lighting-BoWN4C45.css",
+    "file": "assets/lighting-B2t0n13C.css",
     "src": "Modules/Lighting/resources/assets/css/lighting.css",
     "isEntry": true
   },
   "Modules/Lighting/resources/assets/js/lighting.js": {
-    "file": "assets/lighting-DLwH3caw.js",
+    "file": "assets/lighting-D1WbiV0w.js",
     "name": "lighting",
     "src": "Modules/Lighting/resources/assets/js/lighting.js",
     "isEntry": true
@@ -115,7 +115,7 @@
     "isEntry": true
   },
   "Modules/Tasks/resources/assets/css/tasks.css": {
-    "file": "assets/tasks-C-jZD9DR.css",
+    "file": "assets/tasks-3C5FCKuC.css",
     "src": "Modules/Tasks/resources/assets/css/tasks.css",
     "isEntry": true
   },
@@ -206,7 +206,7 @@
     "src": "node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-BdumtyPq.css",
+    "file": "assets/app-CLc-RK7b.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },

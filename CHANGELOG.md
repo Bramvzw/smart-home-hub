@@ -14,6 +14,11 @@ All notable changes to this project are documented here. The format follows
 - The "Save scene" dialog no longer collapses into overlapping fields on low
   screens; only the lamp list scrolls and Save/Cancel stay visible.
 
+### Changed
+
+- On the 1024×600 kiosk the dashboard shows every module on one screen, Tasks
+  fits Todo, Doing and Done side by side, and the page header is slimmer.
+
 ## [0.8.0] - 2026-11-12
 
 ### Changed

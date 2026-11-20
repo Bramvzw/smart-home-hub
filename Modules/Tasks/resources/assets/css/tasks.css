@@ -835,6 +835,41 @@
     opacity: 0.45;
 }
 
+/* Small kiosk screens (1024×600 with the icon sidebar): a narrower board list
+   and columns that share the width, so Todo, Doing and Done all fit. */
+@media (max-width: 1100px) and (min-width: 981px) {
+    .tasks-shell {
+        grid-template-columns: 190px minmax(0, 1fr);
+    }
+
+    .tasks-shell.detail-open {
+        grid-template-columns: 190px minmax(0, 1fr) 340px;
+    }
+
+    .tasks-sidebar {
+        min-width: 0;
+        padding: 14px 14px 18px;
+    }
+
+    /* Fill the visible width instead of max-content; "Add column" stays
+       reachable by scrolling past Done. */
+    .tasks-board {
+        min-width: 0;
+        gap: 12px;
+        padding: 14px 16px 16px;
+    }
+
+    .task-column {
+        width: auto;
+        flex: 1 1 220px;
+        min-width: 220px;
+    }
+
+    .add-column {
+        width: 150px;
+    }
+}
+
 @media (max-width: 980px) {
     .tasks-shell,
     .tasks-shell.detail-open {

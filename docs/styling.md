@@ -96,3 +96,9 @@ The Spotify afspeelpaneel uses a module-local stylesheet at `Modules/Spotify/res
 
 - Fonts are self-hosted through `@fontsource/hanken-grotesk` and `@fontsource/space-grotesk` (latin subset), imported once at the top of `resources/css/app.css`. Module stylesheets must not `@import` remote font URLs; the families are available on every page.
 - `html.low-power` (see the inline script in `resources/views/components/dashboard/layout.blade.php`) disables backdrop blur, box/text shadows, animations and transitions. It is on when the device chose `?lowpower=1`, or — without a stored choice — when `navigator.deviceMemory` reports 2 GB or less (Raspberry Pi kiosks). Never rely on a shadow or animation to convey state.
+
+## Low screens (≤ 720px high, the 1024×600 kiosk)
+
+- `--hub-topbar-height` drops to 50px and the header subtitle hides (`resources/css/app.css`).
+- Dashboard: the `dash-*` hook classes in `resources/views/dashboard.blade.php` let the intro hide, the briefing snippet clamp to one line and module cards (`dash-card`) shrink into a `minmax(200px, 1fr)` grid so all cards fit on one screen.
+- Tasks (981–1100px wide): the board list narrows to 190px and columns flex from a 220px minimum (`.tasks-board` drops `min-width: max-content`), so Todo, Doing and Done fit; `Add column` is reached by scrolling.

@@ -1,7 +1,7 @@
 <x-dashboard.layout title="Dashboard">
     <div class="h-full p-4 md:p-5">
         <section class="mx-auto w-full max-w-[2000px]">
-            <div class="mb-5">
+            <div class="dash-intro mb-5">
                 <h2 class="text-[22px] font-bold text-[var(--hub-text)] leading-tight">Modules</h2>
                 <p class="mt-1 text-sm text-[var(--hub-dim)]">All modules at a glance.</p>
             </div>
@@ -16,7 +16,7 @@
                         : null;
                 @endphp
                 <a href="{{ route('briefing.index') }}" wire:navigate
-                   class="hub-card group mb-5 flex items-start gap-4 p-5">
+                   class="dash-briefing hub-card group mb-5 flex items-start gap-4 p-5">
                     <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] bg-[var(--hub-accent-soft)] text-[var(--hub-accent)]">
                         <x-dashboard.icons.briefing class="h-5 w-5 transition-colors group-hover:text-[var(--hub-accent-hover)]" />
                     </div>
@@ -33,7 +33,7 @@
                             @endif
                         </div>
                         @if($hasBriefing)
-                            <p class="mt-2 line-clamp-2 text-sm leading-6 text-[var(--hub-muted)]">{{ $brSnippet }}</p>
+                            <p class="dash-briefing__snippet mt-2 line-clamp-2 text-sm leading-6 text-[var(--hub-muted)]">{{ $brSnippet }}</p>
                         @else
                             <p class="mt-2 text-sm text-[var(--hub-dim)]">No briefing generated yet today — open to create one.</p>
                         @endif
@@ -43,7 +43,7 @@
             @endif
 
             @if($modules->isNotEmpty())
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3">
+                <div class="dash-grid grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3">
                     @foreach($modules as $module)
                         @php
                             $nav = $module->getNavigation()[0] ?? null;
@@ -51,7 +51,7 @@
                         @endphp
                         @continue($module->getModuleSlug() === 'briefing' && ! empty($briefing))
                         @if($nav)
-                            <a href="{{ route($nav['route']) }}" class="hub-card group flex min-h-[118px] items-center gap-4 p-4">
+                            <a href="{{ route($nav['route']) }}" class="dash-card hub-card group flex min-h-[118px] items-center gap-4 p-4">
                                 <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[8px] bg-[var(--hub-accent-soft)] text-[var(--hub-accent)]">
                                     @if(isset($nav['icon']))
                                         <x-dynamic-component :component="'dashboard.icons.' . $nav['icon']" class="h-5 w-5 transition-colors group-hover:text-[var(--hub-accent-hover)]" />
@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <h3 class="truncate text-[15px] font-bold text-[var(--hub-text)]">{{ $module->getModuleName() }}</h3>
-                                    <p class="mt-1 text-sm text-[var(--hub-dim)]">
+                                    <p class="dash-card__meta mt-1 text-sm text-[var(--hub-dim)]">
                                         {{ $widget ?? 'Open module.' }}
                                     </p>
                                 </div>

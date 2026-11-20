@@ -365,6 +365,49 @@ body:is([data-sidebar="rail"], [data-sidebar="hidden"]) .hub-sidebar-footer {
     padding-right: 8px;
 }
 
+/* Low screens (1024×600 kiosk): a shorter shared header and a compact
+   dashboard so every module card fits on one screen. */
+@media (max-height: 720px) {
+    :root {
+        --hub-topbar-height: 50px;
+    }
+
+    .hub-header .hub-subtle {
+        display: none;
+    }
+
+    .dash-intro {
+        display: none;
+    }
+
+    .dash-briefing {
+        margin-bottom: 12px;
+        padding: 12px 16px;
+    }
+
+    .dash-briefing__snippet {
+        -webkit-line-clamp: 1;
+    }
+
+    .dash-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .dash-card {
+        min-height: 92px;
+        gap: 12px;
+        padding: 12px 14px;
+    }
+
+    .dash-card__meta {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+}
+
 /* Short screens (1024×600 kiosk): tighten the menu so all items fit without
    scrolling the sidebar. */
 @media (max-height: 700px) {

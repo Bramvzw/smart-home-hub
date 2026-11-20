@@ -37,6 +37,7 @@ Sidebar collapse:
 - The chosen state is persisted in the unencrypted `sidebar_state` cookie and rendered server-side, so navigation never flashes the wrong state. Valid values are owned by `App\Dashboard\SidebarState`.
 - Without a cookie, viewports up to 1100px wide (e.g. a 1024×600 Pi kiosk) start in `rail`; an inline script in the layout sets this before the sidebar renders. Wider screens default to `expanded`.
 - On screens up to 700px high the menu links are compacted so every module fits without scrolling the sidebar.
+- On screens up to 720px high the shared header is 50px without the `Smart Home Hub` subtitle; the dashboard hides its `Modules` intro and shows compact module cards so all of them fit on one screen; Tasks (981–1100px wide) narrows the board list and lets the columns share the width.
 
 Shared input behavior:
 - A global touch keyboard opens when focus enters an editable text field, textarea or contenteditable surface.
