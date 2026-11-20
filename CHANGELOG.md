@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows
 
 - Night light now switches the other lamps off instead of only dimming the
   strip.
+- The "Save scene" dialog no longer collapses into overlapping fields on low
+  screens; only the lamp list scrolls and Save/Cancel stay visible.
 
 ## [0.8.0] - 2026-11-12
 

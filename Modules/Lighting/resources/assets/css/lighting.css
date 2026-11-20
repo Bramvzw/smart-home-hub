@@ -1080,6 +1080,18 @@
     font-size: 22px;
 }
 
+/* Dialog parts keep their height; only a lamp checklist scrolls inside the
+   dialog, so Save/Cancel stay visible on low screens. */
+.lighting-dialog > * {
+    flex-shrink: 0;
+}
+
+.lighting-dialog > .lighting-field:has(.lighting-checklist) {
+    flex: 1 1 auto;
+    min-height: 112px;
+    overflow-y: auto;
+}
+
 .lighting-dialog__actions {
     display: flex;
     justify-content: flex-end;
@@ -1332,6 +1344,12 @@ html.low-power .lighting-tile__pending-dot {
     .lighting {
         gap: 12px;
         padding: 14px 20px;
+    }
+
+    .lighting-dialog {
+        max-height: calc(100% - 24px);
+        gap: 14px;
+        padding: 20px 22px;
     }
 
     .lighting-button {
