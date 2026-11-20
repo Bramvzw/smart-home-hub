@@ -584,6 +584,7 @@ const normalisePreset = (preset) => ({
     color: preset.color || null,
     colorTemp: nullableNumber(preset.colorTemp ?? preset.color_temp),
     targetNameContains: listFromValue(preset.targetNameContains ?? preset.target_name_contains),
+    othersOff: [true, 'true'].includes(preset.othersOff ?? preset.others_off),
 });
 
 const presetFromButton = (button) => normalisePreset({
@@ -594,6 +595,7 @@ const presetFromButton = (button) => normalisePreset({
     color: button.dataset.presetColor || null,
     colorTemp: button.dataset.presetColorTemp,
     targetNameContains: button.dataset.presetTargetNameContains,
+    othersOff: button.dataset.presetOthersOff,
 });
 
 const presetTargetsCard = (card, preset) => {
@@ -712,8 +714,11 @@ const sceneEntries = (root) => {
             button,
             matches: () => {
                 const targeted = reachable.filter((card) => presetTargetsCard(card, preset));
+                const othersOk = ! preset.othersOff || reachable
+                    .filter((card) => ! presetTargetsCard(card, preset))
+                    .every((card) => card.dataset.on !== 'true');
 
-                return targeted.length > 0 && targeted.every((card) => presetMatchesCard(card, preset));
+                return targeted.length > 0 && othersOk && targeted.every((card) => presetMatchesCard(card, preset));
             },
         };
     });
@@ -750,7 +755,15 @@ const updateActivePreset = (root, activeKey = null) => {
 };
 
 const applyPresetToCard = (card, preset) => {
-    if (card.dataset.reachable !== 'true' || ! presetTargetsCard(card, preset)) {
+    if (card.dataset.reachable !== 'true') {
+        return;
+    }
+
+    if (! presetTargetsCard(card, preset)) {
+        if (preset.othersOff) {
+            card.dataset.on = 'false';
+        }
+
         return;
     }
 

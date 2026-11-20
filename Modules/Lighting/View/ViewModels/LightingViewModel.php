@@ -159,6 +159,15 @@ class LightingViewModel
                 }
             }
 
+            // "Others off" presets are only active while the other lamps are off.
+            if ($preset->othersOff) {
+                foreach ($reachable as $light) {
+                    if (! $preset->targetsLight($light) && $light->on) {
+                        continue 2;
+                    }
+                }
+            }
+
             return $preset;
         }
 

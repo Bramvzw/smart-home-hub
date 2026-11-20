@@ -135,15 +135,21 @@ class LightingService
 
                     $written = [];
                     foreach ($lights as $light) {
-                        if (! $preset->targetsLight($light) || ! $light->reachable || ! isset($locked[$this->lightLockKey($light->provider, $light->id)])) {
+                        // Non-targeted lamps are skipped, or switched off when the
+                        // preset asks for it (only reachable, locked lamps either way).
+                        $effective = $preset->targetsLight($light)
+                            ? $preset
+                            : ($preset->othersOff ? $this->offPresetFor($preset) : null);
+
+                        if ($effective === null || ! $light->reachable || ! isset($locked[$this->lightLockKey($light->provider, $light->id)])) {
                             $skipped++;
 
                             continue;
                         }
 
                         try {
-                            $this->applyPresetToLight($provider, $light, $preset);
-                            $written[] = $light->withChanges($this->presetChanges($preset, $light));
+                            $this->applyPresetToLight($provider, $light, $effective);
+                            $written[] = $light->withChanges($this->presetChanges($effective, $light));
                             $applied++;
                         } catch (Throwable $e) {
                             $this->logWriteFailure($provider, $e);
@@ -502,6 +508,11 @@ class LightingService
         return $changes;
     }
 
+    private function offPresetFor(LightPreset $preset): LightPreset
+    {
+        return new LightPreset(key: $preset->key, label: $preset->label, power: false);
+    }
+
     private function applyPresetToLight(LightProvider $provider, Light $light, LightPreset $preset): void
     {
         // Always apply the preset's values rather than skipping when the (possibly
@@ -720,6 +731,7 @@ class LightingService
             targetNameContains: $this->targetNameContains($preset),
             weatherTrigger: $this->weatherTrigger($preset),
             colorTemp: isset($preset['color_temp']) ? max(0, min(100, (int) $preset['color_temp'])) : null,
+            othersOff: (bool) ($preset['others_off'] ?? false),
         );
     }
 

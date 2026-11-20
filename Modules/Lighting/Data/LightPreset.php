@@ -16,6 +16,9 @@ final readonly class LightPreset
         public array $targetNameContains = [],
         public ?WeatherPresetTrigger $weatherTrigger = null,
         public ?int $colorTemp = null,
+        // Lamps outside the target list are switched off (e.g. "Night light":
+        // only the strip glows, the ceiling lamps go out).
+        public bool $othersOff = false,
     ) {}
 
     public function targetsLight(Light $light): bool
@@ -38,7 +41,7 @@ final readonly class LightPreset
     }
 
     /**
-     * @return array{key: string, label: string, power: bool, brightness: int|null, color: string|null, color_temp: int|null, target_name_contains: list<string>, weather_trigger: array<string, mixed>|null}
+     * @return array{key: string, label: string, power: bool, brightness: int|null, color: string|null, color_temp: int|null, target_name_contains: list<string>, others_off: bool, weather_trigger: array<string, mixed>|null}
      */
     public function toArray(): array
     {
@@ -50,6 +53,7 @@ final readonly class LightPreset
             'color' => $this->color,
             'color_temp' => $this->colorTemp,
             'target_name_contains' => $this->targetNameContains,
+            'others_off' => $this->othersOff,
             'weather_trigger' => $this->weatherTrigger?->toArray(),
         ];
     }

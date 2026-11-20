@@ -236,7 +236,7 @@ class LightingControllerTest extends TestCase
         ])->assertStatus(422)->assertJsonValidationErrors('color_temp');
     }
 
-    public function test_night_light_preset_only_targets_the_led_strip(): void
+    public function test_night_light_preset_dims_the_strip_and_switches_other_lamps_off(): void
     {
         config(['lighting.govee' => [
             'api_key' => 'gkey',
@@ -261,8 +261,9 @@ class LightingControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonPath('data.preset.key', 'night_light');
         $response->assertJsonPath('data.preset.target_name_contains.0', 'strip');
-        $response->assertJsonPath('data.applied', 1);
-        $response->assertJsonPath('data.skipped', 1);
+        $response->assertJsonPath('data.preset.others_off', true);
+        $response->assertJsonPath('data.applied', 2);
+        $response->assertJsonPath('data.skipped', 0);
 
         Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
             && $request['device'] === 'STRIP1'
@@ -279,8 +280,13 @@ class LightingControllerTest extends TestCase
             && $request['cmd']['name'] === 'color'
             && $request['cmd']['value'] === ['r' => 255, 'g' => 133, 'b' => 89]);
 
+        // The non-strip lamp only gets a single "off" — no colour or brightness.
+        Http::assertSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
+            && $request['device'] === 'LAMP1'
+            && $request['cmd'] === ['name' => 'turn', 'value' => 'off']);
         Http::assertNotSent(fn ($request): bool => str_contains((string) $request->url(), '/v1/devices/control')
-            && $request['device'] === 'LAMP1');
+            && $request['device'] === 'LAMP1'
+            && $request['cmd']['name'] !== 'turn');
     }
 
     public function test_unknown_preset_returns_not_found(): void

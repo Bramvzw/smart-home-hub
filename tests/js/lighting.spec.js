@@ -490,6 +490,23 @@ describe('lighting kiosk', () => {
             expect(document.querySelector('[data-preset="night_light"]').dataset.active).toBe('true');
         });
 
+        it('switches the other lamps off for an others-off preset', async () => {
+            document.body.innerHTML = page(
+                tile({ id: '1', name: 'LED Strip', on: false }) + tile({ id: '2', name: 'Ceiling lamp', on: true }),
+                { presets: preset('night_light', 'data-preset-power="true" data-preset-brightness="1" data-preset-color="#ff8559" data-preset-target-name-contains="strip" data-preset-others-off="true"') },
+            );
+            fetch.mockResolvedValueOnce(okResponse({ data: { preset: { key: 'night_light', power: true, brightness: 1, color: '#ff8559', target_name_contains: ['strip'], others_off: true }, failed_lights: [] } }));
+
+            initLighting();
+            document.querySelector('[data-preset="night_light"]').click();
+            await flushPromises();
+
+            const [strip, lamp] = document.querySelectorAll('[data-light]');
+            expect(strip.dataset.on).toBe('true');
+            expect(lamp.dataset.on).toBe('false');
+            expect(document.querySelector('[data-preset="night_light"]').dataset.active).toBe('true');
+        });
+
         it('applies colour-temperature presets as white mode', async () => {
             document.body.innerHTML = page(
                 tile({ id: '1', on: false, mode: 'colour', color: '#ff0000' }),

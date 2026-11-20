@@ -7,6 +7,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Night light now switches the other lamps off instead of only dimming the
+  strip.
+
 ## [0.8.0] - 2026-11-12
 
 ### Changed

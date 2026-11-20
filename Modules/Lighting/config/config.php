@@ -73,6 +73,7 @@ return [
             'brightness' => 1,
             'color' => '#ff8559',
             'target_name_contains' => ['strip'],
+            'others_off' => true,
         ],
     ],
 

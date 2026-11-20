@@ -165,6 +165,7 @@
                                 data-preset-color="{{ $preset->color }}"
                                 data-preset-color-temp="{{ $preset->colorTemp }}"
                                 data-preset-target-name-contains="{{ implode(',', $preset->targetNameContains) }}"
+                                data-preset-others-off="{{ $preset->othersOff ? 'true' : 'false' }}"
                                 data-active="{{ $activePresetKey === $preset->key ? 'true' : 'false' }}"
                                 aria-pressed="{{ $activePresetKey === $preset->key ? 'true' : 'false' }}"
                             >
