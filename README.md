@@ -103,6 +103,10 @@ npm test        # Jest — module frontend specs
 
 Deploys to a Synology NAS via a single command (`make release`): builds assets, syncs the release over SSH and restarts the Docker stack. See [docs/vault/Setup](docs/vault/Setup) for NAS and Raspberry Pi kiosk setup.
 
+## Author
+
+Built by [Bram van Zwolle](https://bramvzw.nl).
+
 ## License
 
 [MIT](LICENSE)
